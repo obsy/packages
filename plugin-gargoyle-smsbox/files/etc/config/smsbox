@@ -1,0 +1,5 @@
+
+config 'smsbox'
+	option 'device' '/dev/ttyUSB2'
+	option 'memory' 'SM'
+
