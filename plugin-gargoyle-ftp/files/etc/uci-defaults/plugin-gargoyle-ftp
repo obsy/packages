@@ -1,0 +1,6 @@
+#!/bin/sh
+
+uci set gargoyle.display.system_ftp='Serwer FTP'
+uci set gargoyle.scripts.system_ftp='ftp.sh'
+uci set gargoyle.system.ftp='351'
+uci commit
