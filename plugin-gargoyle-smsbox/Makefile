@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_smsbox
 PKG_VERSION:=20120730
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -14,7 +14,7 @@ define Package/plugin-gargoyle-smsbox
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=SMS Support for Gargoyle (PL)
-	DEPENDS:=+gargoyle +gnokii-mini
+	DEPENDS:=+gargoyle +gnokii +bluez-libs +libpcsclite
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
