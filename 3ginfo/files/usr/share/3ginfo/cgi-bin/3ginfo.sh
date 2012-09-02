@@ -99,13 +99,13 @@ else
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:2}
 	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/3ginfo/mccmnc.txt)
-	[ "x$COPS" = "x" ] && COPS="?"
+	[ "x$COPS" = "x" ] && COPS="-"
 fi
 
 # dla modemów Option i ZTE
 if [ "$COPS_NUM" = "-" ]; then
 	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,0/ {print $2}')
-	[ "x$COPS" = "x" ] && COPS="-"
+	[ "x$COPS" = "x" ] && COPS="---"
 
 	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' /usr/share/3ginfo/mccmnc.txt)
 	if [ "x$COPS" != "x" ]; then

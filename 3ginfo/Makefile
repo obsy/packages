@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
 PKG_VERSION:=1
-PKG_RELEASE:=47
+PKG_RELEASE:=48
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
