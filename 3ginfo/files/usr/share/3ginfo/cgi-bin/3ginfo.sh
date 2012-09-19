@@ -26,6 +26,7 @@ if [ "x$DEVICE" = "x" ]; then
 	for d in /dev/ttyUSB[0-9]*; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
+			DEVICE=$d
 			uci set 3ginfo.@3ginfo[0].device="$DEVICE"
 			uci commit 3ginfo
 			break
