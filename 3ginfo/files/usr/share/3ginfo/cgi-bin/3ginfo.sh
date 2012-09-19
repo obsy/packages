@@ -4,6 +4,8 @@
 # (c) 2010-2012 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
+RES="/usr/share/3ginfo"
+
 getpath() {
 	DEV=$1
 	O=$(ls -al /sys/class/tty/$DEV 2>/dev/null)
@@ -19,6 +21,18 @@ fi
 
 # odpytanie urzadzenia
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
+
+if [ "x$DEVICE" = "x" ]; then
+	for d in /dev/ttyUSB[0-9]*; do
+		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+		if [ $? = 0 ]; then
+			uci set 3ginfo.@3ginfo[0].device="$DEVICE"
+			uci commit 3ginfo
+			break
+		fi
+	done
+fi
+
 if [ ! -e $DEVICE ]; then
 	if [ $TOTXT -eq 0 ]; then
 		echo -e "Content-type: text/html\n\n"
@@ -67,7 +81,7 @@ if [ ! -f /tmp/pincode_was_given ]; then
 	touch /tmp/pincode_was_given
 fi
 
-O=$(gcom -d $DEVICE -s /usr/share/3ginfo/scripts/3ginfo.gcom 2>/dev/null)
+O=$(gcom -d $DEVICE -s $RES/scripts/3ginfo.gcom 2>/dev/null)
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
@@ -98,7 +112,7 @@ if [ "x$COPS_NUM" = "x" ]; then
 else
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:2}
-	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/3ginfo/mccmnc.txt)
+	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.txt)
 	[ "x$COPS" = "x" ] && COPS="-"
 fi
 
@@ -107,13 +121,13 @@ if [ "$COPS_NUM" = "-" ]; then
 	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,0/ {print $2}')
 	[ "x$COPS" = "x" ] && COPS="---"
 
-	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' /usr/share/3ginfo/mccmnc.txt)
-	if [ "x$COPS" != "x" ]; then
-		COPS_NUM=$(awk -F[\;] '/'"$COPS"'/ {print $1}' /usr/share/3ginfo/mccmnc.txt)
+	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' $RES/mccmnc.txt)
+	if [ "x$COPS" = "x" ]; then
+		COPS="-"
+	else
+		COPS_NUM=$(awk -F[\;] '/'"$COPS"'/ {print $1}' $RES/mccmnc.txt)
 		COPS_MCC=${COPS_NUM:0:3}
 		COPS_MNC=${COPS_NUM:3:2}
-	else
-		COPS="-"
 	fi
 fi
 
@@ -321,10 +335,10 @@ else
 		fi
 		STATUS_TRE="Rozłącz"
 
-		UP=$(cut -d. -f1 /proc/uptime)
+		UPTIME=$(cut -d. -f1 /proc/uptime)
 		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
 		if [ ! -z $CT ]; then
-			CT=$((UP-CT))
+			CT=$((UPTIME-CT))
 			D=$(expr $CT / 60 / 60 / 24)
 			H=$(expr $CT / 60 / 60 % 24)
 			M=$(expr $CT / 60 % 60)
@@ -359,42 +373,42 @@ fi
 
 LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
 [ "x$LANG" = "x" ] && LANG="pl"
-TEMPLATE="/usr/share/3ginfo/status."$EXT"."$LANG
-[ ! -e $TEMPLATE ] && TEMPLATE="/usr/share/3ginfo/status."$EXT".en"
+TEMPLATE="$RES/status."$EXT"."$LANG
+[ ! -e $TEMPLATE ] && TEMPLATE="$RES/status."$EXT".en"
 
 [ $TOTXT -eq 0 ] && echo -e "Content-type: text/html\n\n"
 
-sed -e "s/{CSQ}/$CSQ/; \
-	s/{CSQ_PER}/$CSQ_PER/; \
-	s/{CSQ_RSSI}/$CSQ_RSSI/; \
-	s/{CSQ_COL}/$CSQ_COL/; \
-	s!{COPS}!$COPS!; \
-	s/{COPS_NUM}/$COPS_NUM/; \
-	s!{COPS_MCC}!$COPS_MCC!; \
-	s!{COPS_MNC}!$COPS_MNC!; \
-	s!{LAC}!$LAC!; \
-	s!{LAC_NUM}!$LAC_NUM!; \
-	s!{LCID}!$LCID!; \
-	s!{LCID_NUM}!$LCID_NUM!; \
-	s!{RNC}!$RNC!; \
-	s!{RNC_NUM}!$RNC_NUM!; \
+sed -e "s!{CSQ}!$CSQ!g; \
+	s!{CSQ_PER}!$CSQ_PER!g; \
+	s!{CSQ_RSSI}!$CSQ_RSSI!g; \
+	s!{CSQ_COL}!$CSQ_COL!g; \
+	s!{COPS}!$COPS!g; \
+	s!{COPS_NUM}!$COPS_NUM!g; \
+	s!{COPS_MCC}!$COPS_MCC!g; \
+	s!{COPS_MNC}!$COPS_MNC!g; \
+	s!{LAC}!$LAC!g; \
+	s!{LAC_NUM}!$LAC_NUM!g; \
+	s!{LCID}!$LCID!g; \
+	s!{LCID_NUM}!$LCID_NUM!g; \
+	s!{RNC}!$RNC!g; \
+	s!{RNC_NUM}!$RNC_NUM!g; \
 	s!{LCID_SHOW}!$LCID_SHOW!g; \
-	s!{CID}!$CID!; \
-	s!{CID_NUM}!$CID_NUM!; \
-	s!{GDZIE}!$GDZIE!; \
-	s/{DOWN}/$DOWN/; \
-	s/{UP}/$UP/; \
-	s/{QOS_SHOW}/$QOS_SHOW/g; \
-	s/{SMS_SHOW}/$SMS_SHOW/; \
-	s/{USSD_SHOW}/$USSD_SHOW/; \
-	s/{LIMIT_SHOW}/$LIMIT_SHOW/; \
+	s!{CID}!$CID!g; \
+	s!{CID_NUM}!$CID_NUM!g; \
+	s!{GDZIE}!$GDZIE!g; \
+	s!{DOWN}!$DOWN!g; \
+	s!{UP}!$UP!g; \
+	s!{QOS_SHOW}!$QOS_SHOW!g; \
+	s!{SMS_SHOW}!$SMS_SHOW!g; \
+	s!{USSD_SHOW}!$USSD_SHOW!g; \
+	s!{LIMIT_SHOW}!$LIMIT_SHOW!g; \
 	s!{STATUS}!$STATUS!g; \
 	s!{CONN_TIME}!$CONN_TIME!g; \
 	s!{RX}!$RX!g; \
 	s!{TX}!$TX!g; \
-	s!{STATUS_TRE}!$STATUS_TRE!; \
+	s!{STATUS_TRE}!$STATUS_TRE!g; \
 	s!{STATUS_SHOW}!$STATUS_SHOW!g; \
-	s!{DEVICE}!$DEVICE!; \
-	s/{MODE}/$MODE/" $TEMPLATE
+	s!{DEVICE}!$DEVICE!g; \
+	s!{MODE}!$MODE!g" $TEMPLATE
 
 exit 0

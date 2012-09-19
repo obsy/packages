@@ -1,4 +1,5 @@
 config '3ginfo'
-	option 'device' '/dev/ttyUSB2'
+	option 'device' ''
 	option 'pincode' ''
 	option 'http_port' '81'
+	option 'qos' '1'
