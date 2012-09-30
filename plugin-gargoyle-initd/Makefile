@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_initd
-PKG_VERSION:=20120711
+PKG_VERSION:=20120930
 PKG_RELEASE:=1
 
 
