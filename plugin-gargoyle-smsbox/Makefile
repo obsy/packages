@@ -14,7 +14,7 @@ define Package/plugin-gargoyle-smsbox
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=SMS Support for Gargoyle (PL)
-	DEPENDS:=+gargoyle +gnokii +bluez-libs +libpcsclite
+	DEPENDS:=+gargoyle +gnokii
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
