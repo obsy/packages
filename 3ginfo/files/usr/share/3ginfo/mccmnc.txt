@@ -1,6 +1,0 @@
-26001;Plus
-26002;T-Mobile
-26003;Orange;PTK Centertel;Orange PL
-26006;Play
-26016;Mobyland LTE
-26017;Aero2

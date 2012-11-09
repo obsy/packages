@@ -6,6 +6,9 @@
 
 RES="/usr/share/3ginfo"
 
+LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
+[ "x$LANG" = "x" ] && LANG="en"
+
 getpath() {
 	DEV=$1
 	O=$(ls -al /sys/class/tty/$DEV 2>/dev/null)
@@ -17,7 +20,14 @@ if [ "`basename $0`" = "3ginfo" ]; then
 	TOTXT=1
 else
 	TOTXT=0
+	echo -e "Content-type: text/html\n\n"
 fi
+
+if [ ! -e $RES/msg.dat.$LANG ]; then
+    echo "File missing: $RES/msg.dat.$LANG"
+    exit 0
+fi
+. $RES/msg.dat.$LANG
 
 # odpytanie urzadzenia
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
@@ -26,20 +36,31 @@ if [ "x$DEVICE" = "x" ]; then
 	for d in /dev/ttyUSB[0-9]*; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
-			DEVICE=$d
-			uci set 3ginfo.@3ginfo[0].device="$DEVICE"
+			uci set 3ginfo.@3ginfo[0].device="$d"
 			uci commit 3ginfo
 			break
 		fi
 	done
 fi
 
+DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
+
+if [ "x$DEVICE" = "x" ]; then
+	if [ $TOTXT -eq 0 ]; then
+		echo -e "Content-type: text/html\n\n"
+		echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
+	else
+		echo $NOTDETECTED
+	fi
+	exit 0
+fi
+
 if [ ! -e $DEVICE ]; then
 	if [ $TOTXT -eq 0 ]; then
 		echo -e "Content-type: text/html\n\n"
-		echo "<h3 style='color:red;' class=\"c\">Brak urządzenia $DEVICE!</h3>"
+		echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
 	else
-		echo "Brak urzadzenia $DEVICE!"
+		echo "$NODEVICE $DEVICE."
 	fi
 	exit 0
 fi
@@ -72,9 +93,9 @@ if [ ! -f /tmp/pincode_was_given ]; then
 	if [ ! -z $PINCODE ]; then
 		PINCODE="$PINCODE" gcom -d "$DEVICE" -s /etc/gcom/setpin.gcom > /dev/null || {
 			if [ $TOTXT -eq 0 ]; then
-				echo "<h3 style='color:red;' class=\"c\">Błąd kodu PIN!</h3>"
+				echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
 			else
-				echo "Blad kodu PIN!"
+				echo $PINERROR
 				exit 0
 			fi
 		}
@@ -113,7 +134,7 @@ if [ "x$COPS_NUM" = "x" ]; then
 else
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:2}
-	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.txt)
+	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 	[ "x$COPS" = "x" ] && COPS="-"
 fi
 
@@ -122,11 +143,11 @@ if [ "$COPS_NUM" = "-" ]; then
 	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,0/ {print $2}')
 	[ "x$COPS" = "x" ] && COPS="---"
 
-	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' $RES/mccmnc.txt)
+	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' $RES/mccmnc.dat)
 	if [ "x$COPS" = "x" ]; then
 		COPS="-"
 	else
-		COPS_NUM=$(awk -F[\;] '/'"$COPS"'/ {print $1}' $RES/mccmnc.txt)
+		COPS_NUM=$(awk -F[\;] '/'"$COPS"'/ {print $1}' $RES/mccmnc.dat)
 		COPS_MCC=${COPS_NUM:0:3}
 		COPS_MNC=${COPS_NUM:3:2}
 	fi
@@ -324,17 +345,17 @@ RX="-"
 TX="-"
 
 if [ "$IFACE" = "3g-" ]; then
-	STATUS="(brak informacji)"
+	STATUS=$NOINFO
 	STATUS_TRE="-"
 	STATUS_SHOW="none"
 else
 	if ifconfig $IFACE 2>/dev/null | grep -q inet; then
 		if [ $TOTXT -eq 0 ]; then
-			STATUS="<font color=green>Połączony</font>"
+			STATUS="<font color=green>$CONNECTED</font>"
 		else
-			STATUS="Polaczony"
+			STATUS=$CONNECTED
 		fi
-		STATUS_TRE="Rozłącz"
+		STATUS_TRE=$DISCONNECT
 
 		UPTIME=$(cut -d. -f1 /proc/uptime)
 		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
@@ -344,17 +365,17 @@ else
 			H=$(expr $CT / 60 / 60 % 24)
 			M=$(expr $CT / 60 % 60)
 			S=$(expr $CT % 60)
-			CONN_TIME=$(printf "%d dni, %02d:%02d:%02d" $D $H $M $S)
+			CONN_TIME=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 		fi
 		RX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$2}')
 		TX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$4}')
 	else
 		if [ $TOTXT -eq 0 ]; then
-			STATUS="<font color=red>Rozłączony</font>"
+			STATUS="<font color=red>$DISCONNECTED</font>"
 		else
-			STATUS="Rozlaczony"
+			STATUS=$DISCONNECTED
 		fi
-		STATUS_TRE="Połącz"
+		STATUS_TRE=$CONNECT
 	fi
 	STATUS_SHOW="block"
 fi
@@ -372,14 +393,10 @@ else
 	EXT="txt"
 fi
 
-LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
-[ "x$LANG" = "x" ] && LANG="pl"
 TEMPLATE="$RES/status."$EXT"."$LANG
-[ ! -e $TEMPLATE ] && TEMPLATE="$RES/status."$EXT".en"
 
-[ $TOTXT -eq 0 ] && echo -e "Content-type: text/html\n\n"
-
-sed -e "s!{CSQ}!$CSQ!g; \
+if [ -e $TEMPLATE ]; then
+	sed -e "s!{CSQ}!$CSQ!g; \
 	s!{CSQ_PER}!$CSQ_PER!g; \
 	s!{CSQ_RSSI}!$CSQ_RSSI!g; \
 	s!{CSQ_COL}!$CSQ_COL!g; \
@@ -411,5 +428,8 @@ sed -e "s!{CSQ}!$CSQ!g; \
 	s!{STATUS_SHOW}!$STATUS_SHOW!g; \
 	s!{DEVICE}!$DEVICE!g; \
 	s!{MODE}!$MODE!g" $TEMPLATE
+else
+	echo "Template $TEMPLATE missing!"
+fi
 
 exit 0
