@@ -7,7 +7,7 @@
 RES="/usr/share/3ginfo"
 
 LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
-[ "x$LANG" = "x" ] && LANG="en"
+[ "x$LANG" = "x" ] && LANG="pl"
 
 getpath() {
 	DEV=$1
@@ -47,7 +47,6 @@ DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
 	if [ $TOTXT -eq 0 ]; then
-		echo -e "Content-type: text/html\n\n"
 		echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
 	else
 		echo $NOTDETECTED
@@ -57,7 +56,6 @@ fi
 
 if [ ! -e $DEVICE ]; then
 	if [ $TOTXT -eq 0 ]; then
-		echo -e "Content-type: text/html\n\n"
 		echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
 	else
 		echo "$NODEVICE $DEVICE."
