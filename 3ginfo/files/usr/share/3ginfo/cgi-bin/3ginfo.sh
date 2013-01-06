@@ -7,7 +7,7 @@
 RES="/usr/share/3ginfo"
 
 LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
-[ "x$LANG" = "x" ] && LANG="pl"
+[ "x$LANG" = "x" ] && LANG="en"
 
 getpath() {
 	DEV=$1
@@ -136,15 +136,18 @@ else
 	[ "x$COPS" = "x" ] && COPS="-"
 fi
 
-# dla modemów Option i ZTE
+# dla modemow Option i ZTE
 if [ "$COPS_NUM" = "-" ]; then
 	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,0/ {print $2}')
 	[ "x$COPS" = "x" ] && COPS="---"
 
-	COPS=$(awk -F[\;] '/'"$COPS"'/ {print $2}' $RES/mccmnc.dat)
-	if [ "x$COPS" = "x" ]; then
-		COPS="-"
+	COPS_TMP=$(awk -F[\;] '/'"$COPS"'/ {print $2}' $RES/mccmnc.dat)
+	if [ "x$COPS_TMP" = "x" ]; then
+		COPS_NUM="-"
+		COPS_MCC="-"
+		COPS_MNC="-"
 	else
+		COPS="$COPS_TMP"
 		COPS_NUM=$(awk -F[\;] '/'"$COPS"'/ {print $1}' $RES/mccmnc.dat)
 		COPS_MCC=${COPS_NUM:0:3}
 		COPS_MNC=${COPS_NUM:3:2}
