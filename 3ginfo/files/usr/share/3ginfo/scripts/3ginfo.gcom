@@ -97,10 +97,10 @@ opengt
  exit 0
 
 :readatcmd
- let i=5
+ let i=15
  send $c
 :loop
- get 1 "^m" $s
+ get 0.1 "^m" $s
  let l=len($r)
  if len($s) < l goto loop1
  if $mid($s,1,l) <> $r goto loop1
@@ -114,14 +114,13 @@ opengt
 :loop2
  if i = 0 return
  let i=i-1
- sleep 0.25
  goto loop
 
 :readatcmdnr
- let i=10
+ let i=15
  send $c
 :loop3
- get 1 "^m" $s
+ get 0.1 "^m" $s
  if len($s) < 2 goto loop5
  if $mid($s,1,2) = "ER" goto loop4
  if $mid($s,1,2) = "OK" goto loop5
@@ -140,5 +139,4 @@ opengt
 :loop5
  if i = 0 return
  let i=i-1
- sleep 0.25
  goto loop3

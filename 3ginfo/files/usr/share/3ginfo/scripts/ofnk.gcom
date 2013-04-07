@@ -22,5 +22,6 @@ opengt
  exit 0
 
 :error
- print "Problem operatora - brak możliwości sprawdzenia..."
+ print ""
+
  exit 0

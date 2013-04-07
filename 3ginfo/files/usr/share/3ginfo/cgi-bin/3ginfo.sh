@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2012 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2013 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 RES="/usr/share/3ginfo"
@@ -41,9 +41,8 @@ if [ "x$DEVICE" = "x" ]; then
 			break
 		fi
 	done
+	DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 fi
-
-DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
 	if [ $TOTXT -eq 0 ]; then
@@ -94,8 +93,8 @@ if [ ! -f /tmp/pincode_was_given ]; then
 				echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
 			else
 				echo $PINERROR
-				exit 0
 			fi
+			exit 0
 		}
 	fi
 	touch /tmp/pincode_was_given
@@ -165,7 +164,7 @@ fi
 
 # Starsze modele Huawei i inne pozostale
 if [ "x$MODE" = "x-" ]; then
-	TECH=$(echo "$O" | awk -F[,\ ] '/^\^SYSINFO/ {print $7}')
+	TECH=$(echo "$O" | awk -F[,] '/^\^SYSINFO/ {print $7}')
 	case $TECH in
 		17*) MODE="HSPA+ (64QAM)";;
 		18*) MODE="HSPA+ (MIMO)";;
@@ -252,7 +251,7 @@ else
 	LAC_NUM="-"
 fi
 
-GDZIE=""
+BTSINFO=""
 CID=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($4)}' | sed 's/[^A-F0-9]//g')
 if [ "x$CID" != "x" ]; then
 	if [ ${#CID} -le 4 ]; then
@@ -285,7 +284,7 @@ if [ "x$CID" != "x" ]; then
 	CLF=$(uci -q get 3ginfo.@3ginfo[0].clf)
 	if [ -e "$CLF" ]; then
 		PAT="^$COPS_NUM;0X"$(printf %04X $CID_NUM)";0X"$(printf %04X $LAC_NUM)";"
-		GDZIE="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(awk -F";" '/'$PAT'/ {printf $5","$6}' "$CLF")"\">"$(awk -F";" '/'$PAT'/ {print $8}' "$CLF")"</a>"
+		BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(awk -F";" '/'$PAT'/ {printf $5","$6}' "$CLF")"\">"$(awk -F";" '/'$PAT'/ {print $8}' "$CLF")"</a>"
 	fi
 else
 	LCID="-"
@@ -414,7 +413,7 @@ if [ -e $TEMPLATE ]; then
 	s!{LCID_SHOW}!$LCID_SHOW!g; \
 	s!{CID}!$CID!g; \
 	s!{CID_NUM}!$CID_NUM!g; \
-	s!{GDZIE}!$GDZIE!g; \
+	s!{BTSINFO}!$BTSINFO!g; \
 	s!{DOWN}!$DOWN!g; \
 	s!{UP}!$UP!g; \
 	s!{QOS_SHOW}!$QOS_SHOW!g; \
