@@ -33,7 +33,7 @@ fi
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
-	for d in /dev/ttyUSB[0-9]*; do
+	for d in /dev/tty[AU][CS][MB][0-9]*; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
 			uci set 3ginfo.@3ginfo[0].device="$d"
@@ -359,6 +359,9 @@ else
 
 		UPTIME=$(cut -d. -f1 /proc/uptime)
 		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
+		if [ -z $CT ]; then
+			CT=$(ifstatus wan | awk -F[:,] '/uptime/ {print $2}')
+		fi
 		if [ ! -z $CT ]; then
 			CT=$((UPTIME-CT))
 			D=$(expr $CT / 60 / 60 / 24)
