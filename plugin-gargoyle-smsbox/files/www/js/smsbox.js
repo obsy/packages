@@ -62,7 +62,7 @@ function resetData()
 				}
 			}
 
-			setChildText("sms_cnt", smsTableData.length.toString());
+			setSMSCnt(smsTableData.length);
 
 			var columnNames = ['Data', 'Od', 'Treść'];
 			var smsTable = createTable(columnNames, smsTableData, "inbox_table", false, false);
@@ -80,12 +80,20 @@ function resetData()
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
+function setSMSCnt(count)
+{
+	smscnt = count;
+	setChildText("sms_cnt", count.toString());
+}
+
 function findAndDeleteSMS()
 {
 	row = this.parentNode.parentNode;
 	index = row.childNodes[3].firstChild.id;
 	removeThisCellsRow(this);
 	deleteSMS(index);
+	smscnt--;
+	setSMSCnt(smscnt);
 }
 
 function parseDate(date)

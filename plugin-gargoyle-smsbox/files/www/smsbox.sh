@@ -10,6 +10,7 @@
 ?>
 <script>
 var uci = uciOriginal.clone();
+var smscnt=0;
 </script>
 <fieldset>
 	<legend class="sectionheader">Konfiguracja</legend>
