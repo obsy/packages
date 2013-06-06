@@ -240,8 +240,8 @@ fi
 CREG="+CREG"
 LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
 if [ "x$LAC" = "x" ]; then
-    CREG="+CGREG"
-    LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
+	CREG="+CGREG"
+	LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
 fi
 
 if [ "x$LAC" != "x" ]; then
@@ -284,7 +284,7 @@ if [ "x$CID" != "x" ]; then
 	CLF=$(uci -q get 3ginfo.@3ginfo[0].clf)
 	if [ -e "$CLF" ]; then
 		PAT="^$COPS_NUM;0X"$(printf %04X $CID_NUM)";0X"$(printf %04X $LAC_NUM)";"
-		BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(awk -F";" '/'$PAT'/ {printf $5","$6}' "$CLF")"\">"$(awk -F";" '/'$PAT'/ {print $8}' "$CLF")"</a>"
+		BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(awk -F";" '/'$PAT'/ {printf $5","$6}' "$CLF")"\">"$(awk -F";" '/'$PAT'/ {gsub(/\!/,"\\!");print $8}' "$CLF")"</a>"
 	fi
 else
 	LCID="-"
@@ -323,7 +323,6 @@ if [ -e /usr/bin/ussd159 ]; then
 else
 	USSD_SHOW="none"
 fi
-
 
 # Stan limitu
 LIMIT_SHOW="none"
@@ -396,7 +395,7 @@ else
 	EXT="txt"
 fi
 
-TEMPLATE="$RES/status."$EXT"."$LANG
+TEMPLATE="$RES/status.$EXT.$LANG"
 
 if [ -e $TEMPLATE ]; then
 	sed -e "s!{CSQ}!$CSQ!g; \
