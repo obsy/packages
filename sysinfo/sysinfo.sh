@@ -1,6 +1,8 @@
 #!/bin/sh
 MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
+[ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
+[ -z "$MACH" ] && MACH=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
 
 U=$(cut -d. -f1 /proc/uptime)
 D=$(expr $U / 60 / 60 / 24)
@@ -11,14 +13,14 @@ U=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 
 L=$(awk '{ print $1" "$2" "$3}' /proc/loadavg)
 
-RFS=$(df -h /overlay | awk '/overlay/ {printf "free: %s, total: %s, used: %s", $4, $2, $5}')
+RFS=$(df -h /overlay | awk '/overlay/ {printf "total: %s, free: %s, used: %s", $2, $4, $5}')
 
 total_mem="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)"
 buffers_mem="$(awk '/^Buffers:/ {print $2}' /proc/meminfo)"
 cached_mem="$(awk '/^Cached:/ {print $2}' /proc/meminfo)"
 free_mem="$(awk '/^MemFree:/ {print $2}' /proc/meminfo)"
 free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
-MEM=$(echo "free: ""$free_mem""K, total: ""$total_mem""K, used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
+MEM=$(echo "total: ""$total_mem""K, free: ""$free_mem""K, used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
 WAN=$(uci -q -P /var/state get network.wan.ipaddr)
