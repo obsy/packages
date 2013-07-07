@@ -14,14 +14,15 @@
 	lan_ip=$(uci -p /tmp/state get network.lan.ipaddr 2>/dev/null)
 	echo "currentLanIp=\"$lan_ip\";"
 	echo "var storageDrives = [];"
+	df /overlay | head -n2 | awk '/overlay/ {printf "storageDrives.push([\"Pamięć wewnętrzna\",\"/\",\"/\",\"jffs2\", \"%.0f\", \"%.0f\"]);" , $2 * 1024, $4 * 1024}'
 	awk '{ print "storageDrives.push([\""$1"\",\""$2"\",\""$3"\",\""$4"\", \""$5"\", \""$6"\"]);" }' /tmp/mounted_usb_storage.tab 2>/dev/null
 ?>
 //-->
 </script>
-<fieldset id="no_disks" style="display:none;">
+<!-- fieldset id="no_disks" style="display:none;">
 	<legend class="sectionheader">DLNA</legend>
 	<em><span class="nocolumn">Nie wykryto żadnego zamontowanego nośnika USB.</span></em>
-</fieldset>
+</fieldset -->
 
 <fieldset id="dlna">
 	<legend class="sectionheader">DLNA</legend>
@@ -51,7 +52,17 @@
 	<div class="internal_divider"></div>
 
 	<div>
-		<label class="leftcolumn" id="drive_select_label" for="drive_select">Nośnik USB:</label>
+		<label class="leftcolumn" id="media_type_label" for="media_type">Typ danych:</label>
+		<select id="media_type" class="rightcolumn">
+		<option value="">Bez określenia</a>
+		<option value="A">Muzyka</a>
+		<option value="V">Filmy</a>
+		<option value="P">Zdjęcia</a>
+		</select>
+	</div>
+
+	<div>
+		<label class="leftcolumn" id="drive_select_label" for="drive_select">Nośnik:</label>
 		<select id="drive_select" class="rightcolumn"></select>
 	</div>
 

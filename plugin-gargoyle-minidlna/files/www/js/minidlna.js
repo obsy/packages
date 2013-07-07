@@ -7,10 +7,11 @@
  */
 
 var pkg = "minidlna";
+var sec = "config";
 
 function resetData()
 {
-
+/*
 	if(storageDrives.length == 0)
 	{
 		document.getElementById("no_disks").style.display = "block";
@@ -19,15 +20,15 @@ function resetData()
 		document.getElementById("reset_button").style.display = "none";
 		return;
 	}
-
-	var enabled = uciOriginal.get(pkg, "config", "enabled");
+*/
+	var enabled = uciOriginal.get(pkg, sec, "enabled");
 	document.getElementById("dlna_enable").checked = enabled == 1;
 	updateStatus(enabled);
 
-	var name = uciOriginal.get(pkg, "config", "friendly_name");
+	var name = uciOriginal.get(pkg, sec, "friendly_name");
 	document.getElementById('dlna_name').value = name;
 
-	var strict = uciOriginal.get(pkg, "config", "strict_dlna");
+	var strict = uciOriginal.get(pkg, sec, "strict_dlna");
 	document.getElementById("dlna_strict").checked = strict == 1;
 
 	var rootDriveDisplay = [];
@@ -44,7 +45,7 @@ function resetData()
 	var columnNames = ['Folder'];
 	var mediaTableData = [];
 	var mediaDir = [];
-	mediaDir = uciOriginal.get(pkg, "config", "media_dir");
+	mediaDir = uciOriginal.get(pkg, sec, "media_dir");
 	for (idx=0; idx < mediaDir.length; idx++)
 	{
 		mediaTableData.push([mediaDir[idx]]);
@@ -77,6 +78,12 @@ function addNewMediaDir()
 	var folder = drive + dir;
 	folder = folder.replace("//", "/");
 
+	var media_type = getSelectedValue("media_type");
+	if (media_type != "")
+	{
+		folder = media_type + "," + folder;
+	}
+
 	var errors = [];
 	var mediaTable = document.getElementById("media_table");
 	if(mediaTable != null)
@@ -107,6 +114,7 @@ function addNewMediaDir()
 		}
 		addTableRow(mediaTable, [ folder ], true, false, removeCallback)
 		document.getElementById("media_dir").value = "/"
+		setSelectedValue("media_type", "");
 	}
 }
 
@@ -126,11 +134,11 @@ function saveChanges()
 
 	var uci = uciOriginal.clone()
 
-	uci.set(pkg, "config", "enabled", enabled);
-	uci.set(pkg, "config", "friendly_name", name);
-	uci.set(pkg, "config", "strict_dlna", strict);
+	uci.set(pkg, sec, "enabled", enabled);
+	uci.set(pkg, sec, "friendly_name", name);
+	uci.set(pkg, sec, "strict_dlna", strict);
 
-	uci.remove(pkg, "config", "media_dir");
+	uci.remove(pkg, sec, "media_dir");
 	var mediaTable = document.getElementById("media_table");
 	if(mediaTable != null)
 	{
@@ -144,10 +152,10 @@ function saveChanges()
 		}
 		if(media.length > 0)
 		{
-			uci.set(pkg, "config", "db_dir", media[0] + "/_minidlna");
-			uci.set(pkg, "config", "log_dir", media[0] + "/_minidlna");
-			uci.createListOption(pkg, "config", "media_dir", true);
-			uci.set(pkg, "config", "media_dir", media, false)
+			uci.set(pkg, sec, "db_dir", media[0] + "/_minidlna");
+			uci.set(pkg, sec, "log_dir", media[0] + "/_minidlna");
+			uci.createListOption(pkg, sec, "media_dir", true);
+			uci.set(pkg, sec, "media_dir", media, false)
 		}
 	}
 
@@ -187,7 +195,7 @@ function updateStatus(enabled)
 
 function statusDlna()
 {
-	window.location.href="http://" + currentLanIp + ":" + uciOriginal.get(pkg, "config", "port");
+	window.location.href="http://" + currentLanIp + ":" + uciOriginal.get(pkg, sec, "port");
 }
 
 function rescanMedia()
@@ -195,7 +203,7 @@ function rescanMedia()
 	var Commands = [];
 	Commands.push("/etc/init.d/minidlna stop");
 	Commands.push("kill -9 $(pidof minidlnad)");
-	Commands.push("rm -f $(uci show minidlna.config.db_dir)/files.db");
+	Commands.push("rm -f $(uci get minidlna.config.db_dir)/files.db");
 	Commands.push("/etc/init.d/minidlna start");
 
 	setControlsEnabled(false, true, 'Proszę czekać na wprowadzenie zmian');
