@@ -1,0 +1,18 @@
+status:{STATUS}
+conn_time:{CONN_TIME}
+rx:{RX}
+tx:{TX}
+cops:{COPS}
+mode:{MODE}
+csq_per:{CSQ_PER}
+csq:{CSQ}
+csq_rssi:{CSQ_RSSI}
+qos:{DOWN} kbps DOWN | {UP} kbps UP
+cops_mcc:{COPS_MCC}
+cops_mnc:{COPS_MNC}
+lac:{LAC} ({LAC_NUM})
+lcid:{LCID} ({LCID_NUM})
+rnc:{RNC} ({RNC_NUM})
+cid:{CID} ({CID_NUM})
+btsinfo:{BTSINFO}
+device:{DEVICE}
