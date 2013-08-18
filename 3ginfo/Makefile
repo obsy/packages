@@ -1,26 +1,34 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20130606
+PKG_VERSION:=20130814
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/3ginfo
+
+define Package/3ginfo/Default
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Informacje o statusie polaczenia 3G
-	DEPENDS:=+comgt +uhttpd
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
 
-define Package/3ginfo/description
-  Informacje o statusie polaczenia 3G
+
+define Package/3ginfo-text
+$(call Package/3ginfo/Default)
+	TITLE+= (core)
+	DEPENDS:=+comgt
 endef
 
-define Package/3ginfo/conffiles
+define Package/3ginfo
+$(call Package/3ginfo/Default)
+	DEPENDS:=+3ginfo-text +uhttpd
+endef
+
+define Package/3ginfo-text/conffiles
 /etc/config/3ginfo
 endef
 
@@ -31,6 +39,10 @@ define Build/Configure
 endef
 
 define Build/Compile
+endef
+
+define Package/3ginfo-text/install
+	$(CP) ./files-text/* $(1)
 endef
 
 define Package/3ginfo/install
@@ -45,4 +57,5 @@ define Package/3ginfo/postinst
 exit 0
 endef
 
+$(eval $(call BuildPackage,3ginfo-text))
 $(eval $(call BuildPackage,3ginfo))
