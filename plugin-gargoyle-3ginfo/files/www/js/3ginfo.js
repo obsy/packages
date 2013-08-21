@@ -60,7 +60,16 @@ function resetData()
 				if (arr[0].match(/^cops$/))	{ setChildText("cops", arr[1]); }
 				if (arr[0].match(/^cops_mcc/))	{ setChildText("cops_mcc", arr[1]); }
 				if (arr[0].match(/^cops_mnc/))	{ setChildText("cops_mnc", arr[1]); }
-				if (arr[0].match(/^csq_per/))	{ setChildText("csq_per", arr[1]+"%"); }
+				if (arr[0].match(/^csq_per/))
+				{
+					setChildText("csq_per", arr[1]+"%");
+					document.getElementById("signalbar").style.width = arr[1] + "%";
+					var col = "red";
+					if (arr[1] >= 30) { col = "orange"; }
+					if (arr[1] >= 46) { col = "yellow"; }
+					if (arr[1] >= 62) { col = "green"; }
+					document.getElementById("signalbar").style.backgroundColor = col;
+				}
 				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
 				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1]+"dBm"); }
 				if (arr[0].match(/^qos/))	{ setChildText("qos", arr[1]); }

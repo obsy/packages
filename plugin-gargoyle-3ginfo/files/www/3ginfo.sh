@@ -36,6 +36,13 @@
 	<div>
 		<span class='leftcolumn'>Siła sygnału:</span><span id="csq_per" class='rightcolumn'>-</span>
 	</div>
+
+	<span class='rightcolumnonly'>
+		<div style="margin:1%; width:98%; height:20px; border:1px solid #000000; background-color:transparent;">
+			<div id='signalbar' style="background-color:black; border-right:1px solid #000000; margin-top:0px; height:100%; width:0%">&nbsp;</div>
+		</div>
+	</span>
+
 	<div>
 		<span class='leftcolumn'>Tryb pracy:</span><span id="mode" class='rightcolumn'>-</span>
 	</div>
@@ -43,10 +50,7 @@
 	<div class="internal_divider"></div>
 
 	<div>
-		<span class='leftcolumn'>MCC:</span><span id="cops_mcc" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'>MNC:</span><span id="cops_mnc" class='rightcolumn'>-</span>
+		<span class='leftcolumn'>MCC MNC:</span><span class='rightcolumn'><span id="cops_mcc" >-</span>&nbsp<span id="cops_mnc" >-</span></span>
 	</div>
 	<div>
 		<span class='leftcolumn'>CSQ:</span><span id="csq" class='rightcolumn'>-</span>
