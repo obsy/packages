@@ -11,15 +11,13 @@ var pkg = "3ginfo";
 function resetData()
 {
 	var sec = uciOriginal.getAllSectionsOfType(pkg, "3ginfo");
+
+	setSelectedValue('list_device', uciOriginal.get(pkg, sec[0], 'device'));
+
 	if (uciOriginal.get(pkg, sec[0], 'device') == "")
 	{
-		document.getElementById("nodevice").style.display = "block";
-		document.getElementById("3ginfo").style.display = "none";
 		return;
 	}
-
-	document.getElementById("nodevice").style.display = "none";
-	document.getElementById("3ginfo").style.display = "block";
 
 	setControlsEnabled(false, true, "Pobieranie danych");
 	var param = getParameterDefinition("commands", 'uci set 3ginfo.@3ginfo[0].language=automat; /usr/share/3ginfo/cgi-bin/3ginfo.sh; uci revert 3ginfo\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
@@ -89,6 +87,23 @@ function resetData()
 			}
 
 			setControlsEnabled(true);
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function setDevice(device)
+{
+	setControlsEnabled(false, true, "Proszę czekać");
+	var param = getParameterDefinition("commands", 'uci set 3ginfo.@3ginfo[0].device='+device+'\nuci commit 3ginfo\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if(req.readyState == 4)
+		{
+			var sec = uciOriginal.getAllSectionsOfType(pkg, "3ginfo");
+			uciOriginal.set(pkg, sec[0], "device", device);
+			setControlsEnabled(true);
+			resetData();
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);

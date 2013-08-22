@@ -10,13 +10,23 @@
 	gargoyle_header_footer -h -s "status" -p "3ginfo" -c "internal.css" -j "3ginfo.js" -i 3ginfo
 ?>
 
-<fieldset id="nodevice">
+<fieldset>
 	<legend class="sectionheader">Modem 3G/LTE</legend>
-	<em><span class='nocolumn'>Brak wybranego urządzenia dla 3ginfo!</span></em>
-</fieldset>
 
-<fieldset id="3ginfo" style="display:none;">
-	<legend class="sectionheader">Modem 3G/LTE</legend>
+	<div>
+		<label id="list_device_label" class="leftcolumn" for="list_device">Urządzenie:</label>
+		<span class='rightcolumn'>
+			<select id="list_device" onchange='setDevice(this.value)' >
+			<option value=''>brak</option>
+			<?
+				devices=$(ls -1 /dev/tty[A\|U][C\|S]* 2>/dev/null)
+				for d in $devices; do
+					echo "<option value='$d'>$d</option>"
+				done
+			?>
+			</select>
+		</span>
+	</div>
 
 	<div>
 		<span class='leftcolumn'>Status połączenia:</span><span id="status" class='rightcolumn'>-</span>
