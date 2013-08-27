@@ -47,15 +47,44 @@
 		<span class='leftcolumn'>Siła sygnału:</span><span id="csq_per" class='rightcolumn'>-</span>
 	</div>
 
-	<span class='rightcolumnonly'>
-		<div style="margin:1%; width:98%; height:20px; border:1px solid #000000; background-color:transparent;">
-			<div id='signalbar' style="background-color:black; border-right:1px solid #000000; margin-top:0px; height:100%; width:0%">&nbsp;</div>
-		</div>
-	</span>
-
 	<div>
 		<span class='leftcolumn'>Tryb pracy:</span><span id="mode" class='rightcolumn'>-</span>
 	</div>
+
+	<div class="internal_divider"></div>
+
+	<center>
+		<table border=0>
+		<tr>
+			<td height="50">
+				<span id="gcops" style="font-size:2em;">-</span>
+			</td>
+			<td rowspan="3">
+				<img id="s0p" src="img/signal0.png" style="display: block;">
+				<img id="s10p" src="img/signal10.png" style="display: none;">
+				<img id="s20p" src="img/signal20.png" style="display: none;">
+				<img id="s30p" src="img/signal30.png" style="display: none;">
+				<img id="s40p" src="img/signal40.png" style="display: none;">
+				<img id="s50p" src="img/signal50.png" style="display: none;">
+				<img id="s60p" src="img/signal60.png" style="display: none;">
+				<img id="s70p" src="img/signal70.png" style="display: none;">
+				<img id="s80p" src="img/signal80.png" style="display: none;">
+				<img id="s90p" src="img/signal90.png" style="display: none;">
+				<img id="s100p" src="img/signal100.png" style="display: none;">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<span id="gmode" style="font-size:1.5em;">-</span>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<span id="gcsq_per" style="font-size:1.5em;">-</span>
+			</td>
+		</tr>
+		</table>
+	</center>
 
 	<div class="internal_divider"></div>
 

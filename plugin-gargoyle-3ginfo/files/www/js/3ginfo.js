@@ -32,10 +32,13 @@ function resetData()
 			setChildText("rx", "-");
 			setChildText("tx", "-");
 			setChildText("mode", "-");
+			setChildText("gmode", "-");
 			setChildText("cops", "-");
+			setChildText("gcops", "-");
 			setChildText("cops_mcc", "-");
 			setChildText("cops_mnc", "-");
 			setChildText("csq_per", "-");
+			setChildText("gcsq_per", "-");
 			setChildText("csq", "-");
 			setChildText("csq_rssi", "-");
 			setChildText("qos", "-");
@@ -51,22 +54,38 @@ function resetData()
 			{
 				var arr = lines[idx].replace(/<.*?>/g, "").split(":");
 				if (arr[0].match(/^status/))	{ setChildText("status", arr[1]); }
-				if (arr[0].match(/^conn_time/))	{ setChildText("conn_time", arr[1]+":"+arr[2]+":"+arr[3]); }
+				if (arr[0].match(/^conn_time/)) { setChildText("conn_time", arr[1] == "-"?arr[1]:arr[1]+":"+arr[2]+":"+arr[3]); }
 				if (arr[0].match(/^rx/))	{ setChildText("rx", arr[1]); }
 				if (arr[0].match(/^tx/))	{ setChildText("tx", arr[1]); }
-				if (arr[0].match(/^mode/))	{ setChildText("mode", arr[1]); }
-				if (arr[0].match(/^cops$/))	{ setChildText("cops", arr[1]); }
+				if (arr[0].match(/^mode/))
+				{
+					setChildText("mode", arr[1]);
+					setChildText("gmode", arr[1]);
+				}
+				if (arr[0].match(/^cops$/))
+				{
+					setChildText("cops", arr[1]);
+					setChildText("gcops", arr[1]);
+				}
 				if (arr[0].match(/^cops_mcc/))	{ setChildText("cops_mcc", arr[1]); }
 				if (arr[0].match(/^cops_mnc/))	{ setChildText("cops_mnc", arr[1]); }
 				if (arr[0].match(/^csq_per/))
 				{
 					setChildText("csq_per", arr[1]+"%");
-					document.getElementById("signalbar").style.width = arr[1] + "%";
-					var col = "red";
-					if (arr[1] >= 30) { col = "orange"; }
-					if (arr[1] >= 46) { col = "yellow"; }
-					if (arr[1] >= 62) { col = "green"; }
-					document.getElementById("signalbar").style.backgroundColor = col;
+					setChildText("gcsq_per", arr[1]+"%");
+
+					document.getElementById("s100p").style.display = arr[1] > 90?"block":"none";
+					document.getElementById("s90p").style.display = arr[1] > 80 && arr[1] <= 90?"block":"none";
+					document.getElementById("s80p").style.display = arr[1] > 70 && arr[1] <= 80?"block":"none";
+					document.getElementById("s70p").style.display = arr[1] > 60 && arr[1] <= 70?"block":"none";
+					document.getElementById("s60p").style.display = arr[1] > 50 && arr[1] <= 60?"block":"none";
+					document.getElementById("s50p").style.display = arr[1] > 40 && arr[1] <= 50?"block":"none";
+					document.getElementById("s40p").style.display = arr[1] > 30 && arr[1] <= 40?"block":"none";
+					document.getElementById("s30p").style.display = arr[1] > 20 && arr[1] <= 30?"block":"none";
+					document.getElementById("s20p").style.display = arr[1] > 10 && arr[1] <= 20?"block":"none";
+					document.getElementById("s10p").style.display = arr[1] >  0 && arr[1] <= 10?"block":"none";
+					document.getElementById("s0p").style.display = arr[1] == 0?"block":"none";
+
 				}
 				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
 				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1]+"dBm"); }
