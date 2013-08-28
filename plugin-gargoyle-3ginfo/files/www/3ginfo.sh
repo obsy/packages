@@ -40,16 +40,6 @@
 	<div>
 		<span class='leftcolumn'>Wysłano danych:</span><span id="tx" class='rightcolumn'>-</span>
 	</div>
-	<div>
-		<span class='leftcolumn'>Operator:</span><span id="cops" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'>Siła sygnału:</span><span id="csq_per" class='rightcolumn'>-</span>
-	</div>
-
-	<div>
-		<span class='leftcolumn'>Tryb pracy:</span><span id="mode" class='rightcolumn'>-</span>
-	</div>
 
 	<div class="internal_divider"></div>
 
@@ -57,7 +47,7 @@
 		<table border=0>
 		<tr>
 			<td height="50">
-				<span id="gcops" style="font-size:2em;">-</span>
+				<span id="cops" style="font-size:2em;">-</span>
 			</td>
 			<td rowspan="3">
 				<img id="s0p" src="img/signal0.png" style="display: block;">
@@ -75,12 +65,12 @@
 		</tr>
 		<tr>
 			<td>
-				<span id="gmode" style="font-size:1.5em;">-</span>
+				<span id="mode" style="font-size:1.5em;">-</span>
 			</td>
 		</tr>
 		<tr>
 			<td>
-				<span id="gcsq_per" style="font-size:1.5em;">-</span>
+				<span id="csq_per" style="font-size:1.5em;">-</span>
 			</td>
 		</tr>
 		</table>

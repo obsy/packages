@@ -50,6 +50,7 @@ function resetData()
 
 			document.getElementById("qos_container").style.display = uciOriginal.get(pkg, sec[0], 'qos') == 1?"block":"none";
 
+			var csq = 0;
 			for (var idx=0; idx<lines.length; idx++)
 			{
 				var arr = lines[idx].replace(/<.*?>/g, "").split(":");
@@ -57,38 +58,13 @@ function resetData()
 				if (arr[0].match(/^conn_time/)) { setChildText("conn_time", arr[1] == "-"?arr[1]:arr[1]+":"+arr[2]+":"+arr[3]); }
 				if (arr[0].match(/^rx/))	{ setChildText("rx", arr[1]); }
 				if (arr[0].match(/^tx/))	{ setChildText("tx", arr[1]); }
-				if (arr[0].match(/^mode/))
-				{
-					setChildText("mode", arr[1]);
-					setChildText("gmode", arr[1]);
-				}
-				if (arr[0].match(/^cops$/))
-				{
-					setChildText("cops", arr[1]);
-					setChildText("gcops", arr[1]);
-				}
+				if (arr[0].match(/^mode/))	{ setChildText("mode", arr[1]); }
+				if (arr[0].match(/^cops$/))	{ setChildText("cops", arr[1]); }
 				if (arr[0].match(/^cops_mcc/))	{ setChildText("cops_mcc", arr[1]); }
 				if (arr[0].match(/^cops_mnc/))	{ setChildText("cops_mnc", arr[1]); }
-				if (arr[0].match(/^csq_per/))
-				{
-					setChildText("csq_per", arr[1]+"%");
-					setChildText("gcsq_per", arr[1]+"%");
-
-					document.getElementById("s100p").style.display = arr[1] > 90?"block":"none";
-					document.getElementById("s90p").style.display = arr[1] > 80 && arr[1] <= 90?"block":"none";
-					document.getElementById("s80p").style.display = arr[1] > 70 && arr[1] <= 80?"block":"none";
-					document.getElementById("s70p").style.display = arr[1] > 60 && arr[1] <= 70?"block":"none";
-					document.getElementById("s60p").style.display = arr[1] > 50 && arr[1] <= 60?"block":"none";
-					document.getElementById("s50p").style.display = arr[1] > 40 && arr[1] <= 50?"block":"none";
-					document.getElementById("s40p").style.display = arr[1] > 30 && arr[1] <= 40?"block":"none";
-					document.getElementById("s30p").style.display = arr[1] > 20 && arr[1] <= 30?"block":"none";
-					document.getElementById("s20p").style.display = arr[1] > 10 && arr[1] <= 20?"block":"none";
-					document.getElementById("s10p").style.display = arr[1] >  0 && arr[1] <= 10?"block":"none";
-					document.getElementById("s0p").style.display = arr[1] == 0?"block":"none";
-
-				}
+				if (arr[0].match(/^csq_per/))	{ csq = arr[1]; }
 				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
-				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1]+"dBm"); }
+				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1] + "dBm"); }
 				if (arr[0].match(/^qos/))	{ setChildText("qos", arr[1]); }
 				if (arr[0].match(/^lac/))	{ setChildText("lac", arr[1]); }
 				if (arr[0].match(/^lcid/))
@@ -105,10 +81,27 @@ function resetData()
 				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 			}
 
+			setGraph(csq);
 			setControlsEnabled(true);
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function setGraph(csq)
+{
+	if (csq > 0) { setChildText("csq_per", csq + "%"); }
+	document.getElementById("s100p").style.display = csq > 90?"block":"none";
+	document.getElementById("s90p").style.display = csq > 80 && csq <= 90?"block":"none";
+	document.getElementById("s80p").style.display = csq > 70 && csq <= 80?"block":"none";
+	document.getElementById("s70p").style.display = csq > 60 && csq <= 70?"block":"none";
+	document.getElementById("s60p").style.display = csq > 50 && csq <= 60?"block":"none";
+	document.getElementById("s50p").style.display = csq > 40 && csq <= 50?"block":"none";
+	document.getElementById("s40p").style.display = csq > 30 && csq <= 40?"block":"none";
+	document.getElementById("s30p").style.display = csq > 20 && csq <= 30?"block":"none";
+	document.getElementById("s20p").style.display = csq > 10 && csq <= 20?"block":"none";
+	document.getElementById("s10p").style.display = csq >  0 && csq <= 10?"block":"none";
+	document.getElementById("s0p").style.display = csq == 0?"block":"none";
 }
 
 function setDevice(device)
