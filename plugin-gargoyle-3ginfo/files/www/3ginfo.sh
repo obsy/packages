@@ -1,6 +1,6 @@
 #!/usr/bin/haserl
 <?
-	# This program is copyright © 2008-2013 Eric Bishop and is distributed under the terms of the GNU GPL
+	# This program is copyright © 2013 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
 	# itself remain covered by the GPL.
@@ -46,7 +46,7 @@
 	<center>
 		<table border=0>
 		<tr>
-			<td height="50">
+			<td height="50" style="text-align:left;">
 				<span id="cops" style="font-size:2em;">-</span>
 			</td>
 			<td rowspan="3">
@@ -64,12 +64,12 @@
 			</td>
 		</tr>
 		<tr>
-			<td>
+			<td style="text-align:left;">
 				<span id="mode" style="font-size:1.5em;">-</span>
 			</td>
 		</tr>
 		<tr>
-			<td>
+			<td style="text-align:left;">
 				<span id="csq_per" style="font-size:1.5em;">-</span>
 			</td>
 		</tr>

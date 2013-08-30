@@ -14,5 +14,4 @@ lac:{LAC} ({LAC_NUM})
 lcid:{LCID} ({LCID_NUM})
 rnc:{RNC} ({RNC_NUM})
 cid:{CID} ({CID_NUM})
-btsinfo:{BTSINFO}
 device:{DEVICE}
