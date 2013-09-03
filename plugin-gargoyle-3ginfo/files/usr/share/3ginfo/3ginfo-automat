@@ -1,0 +1,16 @@
+#!/bin/sh
+LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
+[ -z "$LANG" ] && LANG="en"
+
+uci set 3ginfo.@3ginfo[0].language=automat
+/usr/share/3ginfo/cgi-bin/3ginfo.sh
+uci revert 3ginfo
+
+LANG1=$(uci -q get 3ginfo.@3ginfo[0].language)
+[ -z "$LANG1" ] && LANG1="en"
+if [ "$LANG" != "$LANG1" ]; then
+	uci set 3ginfo.@3ginfo[0].language=$LANG
+	uci commit 3ginfo
+fi
+
+exit 0
