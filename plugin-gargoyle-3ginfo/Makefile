@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo
-PKG_VERSION:=20130828.1
+PKG_VERSION:=20130903
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -11,14 +11,14 @@ define Package/plugin-gargoyle-3ginfo
 	SECTION:=admin
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
-	TITLE:=3ginfo for Gargoyle (PL)
+	TITLE:=3ginfo for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	DEPENDS:=+gargoyle +3ginfo-text
 	PKGARCH:=all
 endef
 
 define Package/plugin-gargoyle-3ginfo/description
-	3ginfo for Gargoyle (PL)
+	3ginfo for Gargoyle
 endef
 
 define Build/Prepare
@@ -34,7 +34,7 @@ define Package/plugin-gargoyle-3ginfo/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	uci set gargoyle.display.status_3ginfo='Modem 3G/LTE'
+	uci set gargoyle.display.status_3ginfo='3G/LTE Modem'
 	uci set gargoyle.scripts.status_3ginfo='3ginfo.sh'
 	uci set gargoyle.status.3ginfo='900'
 	uci commit

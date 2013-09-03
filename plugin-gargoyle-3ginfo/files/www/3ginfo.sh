@@ -1,5 +1,5 @@
 #!/usr/bin/haserl
-<?
+<%
 	# This program is copyright © 2013 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
@@ -7,38 +7,38 @@
 	# See http://gargoyle-router.com/faq.html#qfoss for more information
 
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "status" -p "3ginfo" -c "internal.css" -j "3ginfo.js" -i 3ginfo
-?>
+	gargoyle_header_footer -h -s "status" -p "3ginfo" -c "internal.css" -j "3ginfo.js" -z "3ginfo.js" -i 3ginfo
+%>
 
 <fieldset>
-	<legend class="sectionheader">Modem 3G/LTE</legend>
+	<legend class="sectionheader"><%~ 3ginfo.Modem3g %></legend>
 
 	<div>
-		<label id="list_device_label" class="leftcolumn" for="list_device">Urządzenie:</label>
+		<label id="list_device_label" class="leftcolumn" for="list_device"><%~ Device %>:</label>
 		<span class='rightcolumn'>
 			<select id="list_device" onchange='setDevice(this.value)' >
-			<option value=''>brak</option>
-			<?
+			<option value=''><%~ None %></option>
+			<%
 				devices=$(ls -1 /dev/tty[A\|U][C\|S]* 2>/dev/null)
 				for d in $devices; do
 					echo "<option value='$d'>$d</option>"
 				done
-			?>
+			%>
 			</select>
 		</span>
 	</div>
 
 	<div>
-		<span class='leftcolumn'>Status połączenia:</span><span id="status" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ CntsStatus %>:</span><span id="status" class='rightcolumn'>-</span>
 	</div>
 	<div>
-		<span class='leftcolumn'>Czas połączenia:</span><span id="conn_time" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ CntsTime %>:</span><span id="conn_time" class='rightcolumn'>-</span>
 	</div>
 	<div>
-		<span class='leftcolumn'>Pobrano danych:</span><span id="rx" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ DlnData %>:</span><span id="rx" class='rightcolumn'>-</span>
 	</div>
 	<div>
-		<span class='leftcolumn'>Wysłano danych:</span><span id="tx" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ UplData %>:</span><span id="tx" class='rightcolumn'>-</span>
 	</div>
 
 	<div class="internal_divider"></div>
@@ -88,7 +88,7 @@
 		<span class='leftcolumn'>RSSI:</span><span id="csq_rssi" class='rightcolumn'>-</span>
 	</div>
 	<div id="qos_container">
-		<span class='leftcolumn'>Profil UMTS QoS:</span><span id="qos" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ QoSProf %>:</span><span id="qos" class='rightcolumn'>-</span>
 	</div>
 	<div>
 		<span class='leftcolumn'>LAC:</span><span id="lac" class='rightcolumn'>-</span>
@@ -103,7 +103,7 @@
 		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
 	</div>
 	<div>
-		<span class='leftcolumn'>Typ modemu:</span><span id="device" class='rightcolumn'>-</span>
+		<span class='leftcolumn'><%~ MdmType %>:</span><span id="device" class='rightcolumn'>-</span>
 	</div>
 
 </fieldset>
@@ -115,6 +115,6 @@
 //-->
 </script>
 
-<?
+<%
 	gargoyle_header_footer -f -s "status" -p "3ginfo"
-?>
+%>

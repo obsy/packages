@@ -33,7 +33,8 @@ fi
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
-	for d in /dev/tty[AU][CS][MB][0-9]*; do
+	devices=$(ls /dev/tty[AU][CS][MB][0-9]* 2>/dev/null | sort -r);
+	for d in $devices; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
 			uci set 3ginfo.@3ginfo[0].device="$d"
@@ -107,6 +108,10 @@ CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
 
 [ "x$CSQ" = "x" ] && CSQ=-1
 if [ $CSQ -ge 0 -a $CSQ -le 31 ]; then
+
+	# for Gargoyle
+	[ -e /tmp/strength.txt ] && echo "+CSQ: $CSQ,99" > /tmp/strength.txt
+
 	CSQ_PER=$(($CSQ * 100/31))
 	CSQ_COL="red"
 	[ $CSQ -ge 10 ] && CSQ_COL="orange"

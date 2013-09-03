@@ -1,9 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_initd
-PKG_VERSION:=20121020
-PKG_RELEASE:=1
-
+PKG_VERSION:=20130903
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -13,14 +11,14 @@ define Package/plugin-gargoyle-initd
 	SECTION:=admin
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
-	TITLE:=init.d Manager for Gargoyle (PL)
+	TITLE:=Services Manager for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	DEPENDS:=+gargoyle
 	PKGARCH:=all
 endef
 
 define Package/plugin-gargoyle-initd/description
-	init.d Manager for Gargoyle
+	Services Manager for Gargoyle
 endef
 
 define Build/Prepare
@@ -36,7 +34,7 @@ define Package/plugin-gargoyle-initd/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	uci set gargoyle.display.system_initd='Usługi'
+	uci set gargoyle.display.system_initd='Services'
 	uci set gargoyle.scripts.system_initd='initd.sh'
 	uci set gargoyle.system.initd='310'
 	uci commit

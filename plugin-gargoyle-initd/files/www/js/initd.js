@@ -1,6 +1,6 @@
 /*
  *     Copyright (c) 2010 Artur Wronowski <arteqw@gmail.com>
- *     Copyright (c) 2011-2012 Cezary Jackiewicz <cezary@eko.one.pl>
+ *     Copyright (c) 2011-2013 Cezary Jackiewicz <cezary@eko.one.pl>
  *
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
  *     MA 02110-1301, USA.
  */
 
+initdS = new Object();
+
 // Global
 var updatedScripts;
 var updatedState;
@@ -27,7 +29,7 @@ function saveChanges()
 {
 	if (updatedScripts.length == 0)
 	{
-		alert("Nie ma co aktualizować!");
+		alert(initdS.NoServ);
 	}
 	else
 	{
@@ -40,12 +42,12 @@ function saveChanges()
 
 		commands = updateCommand.join("\n");
 		var param = getParameterDefinition("commands", commands) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
-		setControlsEnabled(false, true, "Aktualizacja usług");
+		setControlsEnabled(false, true, initdS.ActServ);
 		var stateChangeFunction = function(req)
 		{
 			if(req.readyState == 4)
 			{
-			setControlsEnabled(true);
+				setControlsEnabled(true);
 				window.location.reload(true);
 			}
 		}
@@ -102,11 +104,11 @@ function resetData()
 	updatedState = [];
 	updateCommand = [];
 
-	var columnNames = ['Usługa', 'Autostart', '', '', ''];
+	var columnNames = initdS.ServColumn;
 	var initdTableData = new Array();
 	var initdEnabledData = new Array();
 	var serviceIds = new Array();
-	var blockedServices = ['plugins','gargoyle_themes','boot','create_original_backup','cron','ddns_gargoyle','defconfig','dnsmasq','done','dropbear','firewall','httpd_gargoyle','led','miniupnpd','network','nfsd','portmap','qos_gargoyle','rcS','set_kernel_timezone','share_users','sysctl','sysntpd','telnet','time_backup','ubus','umount','usb','usb_storage','watchdog','webmon_gargoyle','wol'];
+	var blockedServices = ['boot','bwmon_gargoyle','create_original_backup','cron','ddns_gargoyle','defconfig','dnsmasq','done','dropbear','firewall','gargoyle_themes','httpd_gargoyle','led','miniupnpd','network','plugins','portmap','qos_gargoyle','rcS','set_kernel_timezone','share_users','sysctl','sysntpd','telnet','time_backup','ubus','umount','usb','usb_storage','watchdog','webmon_gargoyle','wol'];
 
 	for (servicesIndex=0; servicesIndex < allInitScripts.length; servicesIndex++)
 	{
@@ -135,7 +137,6 @@ function resetData()
 	{
 		initdTableData[index][1].checked = initdEnabledData[index];
 	}
-
 }
 
 function startService()
@@ -164,15 +165,15 @@ function ssrService(row, action)
 	switch(action)
 	{
 		case "start":
-			setControlsEnabled(false, true, "Próba uruchomienia usługi '" + service + "'");
+			setControlsEnabled(false, true, initdS.ServStart + " '" + service + "'");
 			break;
 		case "stop":
-			setControlsEnabled(false, true, "Próba zatrzymania usługi '" + service + "'");
+			setControlsEnabled(false, true, initdS.ServStop + " '" + service + "'");
 			break;
 		default:
-			setControlsEnabled(false, true, "Próba zrestartowania usługi '" + service + "'");
+			setControlsEnabled(false, true, initdS.ServRestart + " '" + service + "'");
 	}
-	
+
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)

@@ -1,1 +1,8 @@
-/usr/share/3ginfo/msg.dat.pl
+NOTDETECTED="Not detected any device"
+NODEVICE="No device"
+PINERROR="PIN code error"
+CONNECTED="Connected"
+CONNECT="Connect"
+DISCONNECTED="Disconnected"
+DISCONNECT="Disconnect"
+NOINFO="No information"

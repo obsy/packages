@@ -6,6 +6,8 @@
  * See http://gargoyle-router.com/faq.html#qfoss for more information
  */
 
+tginfoS = new Object();
+
 var pkg = "3ginfo";
 
 function resetData()
@@ -19,8 +21,8 @@ function resetData()
 		return;
 	}
 
-	setControlsEnabled(false, true, "Pobieranie danych");
-	var param = getParameterDefinition("commands", 'uci set 3ginfo.@3ginfo[0].language=automat; /usr/share/3ginfo/cgi-bin/3ginfo.sh; uci revert 3ginfo\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	setControlsEnabled(false, true, tginfoS.DldingData);
+	var param = getParameterDefinition("commands", '/usr/share/3ginfo/3ginfo-automat\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -54,7 +56,12 @@ function resetData()
 			for (var idx=0; idx<lines.length; idx++)
 			{
 				var arr = lines[idx].replace(/<.*?>/g, "").split(":");
-				if (arr[0].match(/^status/))	{ setChildText("status", arr[1]); }
+				if (arr[0].match(/^status/))
+				{
+					if (arr[1].match(/Connected/)) { setChildText("status", tginfoS.Conn); }
+					if (arr[1].match(/Disconnected/)) { setChildText("status", tginfoS.DisConn); }
+					if (arr[1].match(/No information/)) { setChildText("status", tginfoS.NoInfo); }
+				}
 				if (arr[0].match(/^conn_time/)) { setChildText("conn_time", arr[1] == "-"?arr[1]:arr[1]+":"+arr[2]+":"+arr[3]); }
 				if (arr[0].match(/^rx/))	{ setChildText("rx", arr[1]); }
 				if (arr[0].match(/^tx/))	{ setChildText("tx", arr[1]); }
@@ -106,7 +113,7 @@ function setGraph(csq)
 
 function setDevice(device)
 {
-	setControlsEnabled(false, true, "Proszę czekać");
+	setControlsEnabled(false, true, UI.Wait);
 	var param = getParameterDefinition("commands", 'uci set 3ginfo.@3ginfo[0].device='+device+'\nuci commit 3ginfo\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
