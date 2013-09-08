@@ -1,12 +1,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20130821
+PKG_VERSION:=20130908
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
-
 
 define Package/3ginfo/Default
 	SECTION:=net
@@ -16,10 +15,9 @@ define Package/3ginfo/Default
 	PKGARCH:=all
 endef
 
-
 define Package/3ginfo-text
 $(call Package/3ginfo/Default)
-	TITLE+= (core)
+	TITLE+= (wersja txt)
 	DEPENDS:=+comgt
 endef
 
@@ -43,6 +41,14 @@ endef
 
 define Package/3ginfo-text/install
 	$(CP) ./files-text/* $(1)
+endef
+
+define Package/3ginfo-text/postinst
+#!/bin/sh
+[ -n "$${IPKG_INSTROOT}" ] || {
+	ln -s /usr/share/3ginfo/cgi-bin/3ginfo.sh /usr/bin/3ginfo
+}
+exit 0
 endef
 
 define Package/3ginfo/install

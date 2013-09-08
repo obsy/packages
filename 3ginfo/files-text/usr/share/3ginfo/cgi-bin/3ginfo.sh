@@ -33,7 +33,7 @@ fi
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
-	devices=$(ls /dev/tty[AU][CS][MB][0-9]* 2>/dev/null | sort -r);
+	devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* 2>/dev/null | sort -r);
 	for d in $devices; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
