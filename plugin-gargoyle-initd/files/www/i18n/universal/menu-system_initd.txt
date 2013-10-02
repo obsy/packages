@@ -1,3 +1,0 @@
-fallback=Services
-EN=Services
-PL=Usługi
