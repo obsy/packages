@@ -87,16 +87,16 @@
 	<div>
 		<span class='leftcolumn'>RSSI:</span><span id="csq_rssi" class='rightcolumn'>-</span>
 	</div>
-	<div id="qos_container">
+	<div id="qos_container" style="display:none;">
 		<span class='leftcolumn'><%~ QoSProf %>:</span><span id="qos" class='rightcolumn'>-</span>
 	</div>
 	<div>
 		<span class='leftcolumn'>LAC:</span><span id="lac" class='rightcolumn'>-</span>
 	</div>
-	<div id="lcid_container">
+	<div id="lcid_container" style="display:none;">
 		<span class='leftcolumn'>LCID:</span><span id="lcid" class='rightcolumn'>-</span>
 	</div>
-	<div id="rnc_container">
+	<div id="rnc_container" style="display:none;">
 		<span class='leftcolumn'>RNC:</span><span id="rnc" class='rightcolumn'>-</span>
 	</div>
 	<div>

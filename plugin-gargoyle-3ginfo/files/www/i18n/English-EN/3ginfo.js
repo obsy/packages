@@ -1,5 +1,5 @@
 ﻿/*
- * UTF-8 (with BOM) English-EN text strings for about.sh html elements
+ * UTF-8 (with BOM) English-EN text strings for 3ginfo.sh html elements
  */
 
 tginfoS.Modem3g="3G/LTE Modem";
