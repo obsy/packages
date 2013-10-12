@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo
-PKG_VERSION:=20131010
+PKG_VERSION:=20131012
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -36,7 +36,7 @@ define Package/plugin-gargoyle-3ginfo/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	menu_name="3G/LTE Modem"
 	[ -n `which i18n` ] && {
-		menu_name=$$(i18n-menu uci set gargoyle.display.status_3ginfo)
+		menu_name=$$(i18n-menu gargoyle.display.status_3ginfo)
 	}
 	uci set gargoyle.display.status_3ginfo="$$menu_name"
 	uci set gargoyle.scripts.status_3ginfo='3ginfo.sh'
