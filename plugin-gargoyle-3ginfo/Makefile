@@ -36,7 +36,10 @@ define Package/plugin-gargoyle-3ginfo/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	menu_name="3G/LTE Modem"
 	[ -n `which i18n` ] && {
-		menu_name=$$(i18n-menu gargoyle.display.status_3ginfo)
+		mn=$$(i18n-menu gargoyle.display.status_3ginfo)
+		if [ -n "$$mn" ] ; then
+			menu_name="$$mn"
+		fi
 	}
 	uci set gargoyle.display.status_3ginfo="$$menu_name"
 	uci set gargoyle.scripts.status_3ginfo='3ginfo.sh'
