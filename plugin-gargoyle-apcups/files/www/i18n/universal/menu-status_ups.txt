@@ -1,0 +1,3 @@
+fallback=UPS
+EN=UPS
+PL=UPS
