@@ -73,16 +73,16 @@ opengt
  gosub readatcmd
 
 :next
- let $c="AT+COPS=3,2; +COPS?^m"
+ let $c="AT+COPS=3,2;+COPS?^m"
  let $r="+COPS"
  gosub readatcmd
 
 :next1
- let $c="AT+CREG=2; +CREG?^m"
+ let $c="AT+CREG=2;+CREG?^m"
  let $r="+CREG"
  gosub readatcmd
 
- let $c="AT+CGREG=2; +CGREG?^m"
+ let $c="AT+CGREG=2;+CGREG?^m"
  let $r="+CGREG"
  gosub readatcmd
 
