@@ -1,0 +1,5 @@
+config simplefailover
+	option wan_main wan
+	option wan_backup wan2
+	option host 8.8.4.4
+	option interval 5

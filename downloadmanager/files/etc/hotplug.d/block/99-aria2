@@ -1,0 +1,13 @@
+#!/bin/sh
+
+case $ACTION in
+    add)
+        grep -q /dev/$DEVICENAME /proc/mounts || exit 0
+        DIR=$(awk '/^\/dev\/'$DEVICENAME'/ {print $2}' /proc/mounts)
+        killall aria2c > /dev/null 2>&1
+        aria2.sh "$DIR"
+        ;;
+    remove)
+        killall aria2c > /dev/null 2>&1
+        ;;
+esac
