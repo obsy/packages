@@ -344,6 +344,20 @@ else
 	IFACE="3g-"$SEC
 fi
 
+if ! ifconfig -a | grep -q "$IFACE"; then
+	DEV1=${DEVICE##/*/}
+	DEV1=$(echo /sys/devices/platform/*/*/subsystem/*/*/$DEV1)
+	if [ -n "$DEV1" ]; then
+		DEV1=${DEV1%%/[0-9]*/ttyUSB0}
+		DEV1=$(ls "$DEV1"/*/net 2>/dev/null)
+		if [ -n "$DEV1" ]; then
+			if ifconfig -a | grep -q $DEV1; then
+				IFACE=$DEV1
+			fi
+		fi
+	fi
+fi
+
 CONN_TIME="-"
 RX="-"
 TX="-"
@@ -361,13 +375,14 @@ else
 		fi
 		STATUS_TRE=$DISCONNECT
 
-		UPTIME=$(cut -d. -f1 /proc/uptime)
 		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
 		if [ -z $CT ]; then
 			CT=$(ifstatus wan | awk -F[:,] '/uptime/ {print $2}')
+		else
+			UPTIME=$(cut -d. -f1 /proc/uptime)
+			CT=$((UPTIME-CT))
 		fi
 		if [ ! -z $CT ]; then
-			CT=$((UPTIME-CT))
 			D=$(expr $CT / 60 / 60 / 24)
 			H=$(expr $CT / 60 / 60 % 24)
 			M=$(expr $CT / 60 % 60)
