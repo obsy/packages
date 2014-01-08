@@ -3,6 +3,7 @@ MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
 [ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
 [ -z "$MACH" ] && MACH=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
+[ -z "$MACH" ] && MACH=$(awk -F: '/system type/ {print $2}' /proc/cpuinfo)
 
 U=$(cut -d. -f1 /proc/uptime)
 D=$(expr $U / 60 / 60 / 24)

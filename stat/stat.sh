@@ -15,6 +15,7 @@ M=""
 [ -e /tmp/sysinfo/model ] && M=$(cat /tmp/sysinfo/model)
 [ -z "$M" ] && M=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
 [ -z "$M" ] && M=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
+[ -z "$M" ] && M=$(awk -F: '/system type/ {print $2}' /proc/cpuinfo)
 W=$(uci -q get network.wan.proto)
 if [ -e /rom/etc/openwrt_release ]; then
 	. /rom/etc/openwrt_release
