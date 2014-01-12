@@ -1,4 +1,13 @@
 #!/bin/sh
+
+hr() {
+	if [ $1 -gt 0 ]; then
+		printf "$(awk -v n=$1 'BEGIN{for(i=split("B KB MB GB TB PB",suffix);s<1;i--)s=n/(2**(10*i));printf (int(s)==s)?"%.0f%s":"%.1f%s",s,suffix[i+2]}' 2>/dev/null)"
+	else
+		printf "0B"
+	fi
+}
+
 MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
 [ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
@@ -14,14 +23,18 @@ U=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 
 L=$(awk '{ print $1" "$2" "$3}' /proc/loadavg)
 
-RFS=$(df -h /overlay | awk '/overlay/ {printf "total: %s, free: %s, used: %s", $2, $4, $5}')
+RFS=$(df /overlay | awk '/overlay/ {printf "%s:%s:%s", $4*1024, $2*1024, $5}')
+a1=$(echo $RFS | cut -f1 -d:)
+a2=$(echo $RFS | cut -f2 -d:)
+a3=$(echo $RFS | cut -f3 -d:)
+RFS="total: "$(hr $a2)", free: "$(hr $a1)", used: "$a3
 
-total_mem="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)"
-buffers_mem="$(awk '/^Buffers:/ {print $2}' /proc/meminfo)"
-cached_mem="$(awk '/^Cached:/ {print $2}' /proc/meminfo)"
-free_mem="$(awk '/^MemFree:/ {print $2}' /proc/meminfo)"
+total_mem="$(awk '/^MemTotal:/ {print $2*1024}' /proc/meminfo)"
+buffers_mem="$(awk '/^Buffers:/ {print $2*1024}' /proc/meminfo)"
+cached_mem="$(awk '/^Cached:/ {print $2*1024}' /proc/meminfo)"
+free_mem="$(awk '/^MemFree:/ {print $2*1024}' /proc/meminfo)"
 free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
-MEM=$(echo "total: ""$total_mem""K, free: ""$free_mem""K, used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
+MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
 WAN=$(uci -q -P /var/state get network.wan.ipaddr)
