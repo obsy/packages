@@ -11,11 +11,12 @@
 grep -q br-lan /proc/net/dev && IF=br-lan || IF=eth0
 T=$(md5sum /sys/class/net/$IF/address | cut -f1 -d" ")
 U=$(awk '{printf "%d", $1}' /proc/uptime)
-M="Unknown"
+M=""
 [ -e /tmp/sysinfo/model ] && M=$(cat /tmp/sysinfo/model)
 [ -z "$M" ] && M=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
 [ -z "$M" ] && M=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
 [ -z "$M" ] && M=$(awk -F: '/system type/ {print $2}' /proc/cpuinfo)
+[ -z "$M" ] && M="Unknown"
 W=$(uci -q get network.wan.proto)
 if [ -e /rom/etc/openwrt_release ]; then
 	. /rom/etc/openwrt_release
