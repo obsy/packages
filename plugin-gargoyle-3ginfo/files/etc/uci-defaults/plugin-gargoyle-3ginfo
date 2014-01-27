@@ -1,0 +1,6 @@
+#!/bin/sh
+
+uci set gargoyle.display.status_3ginfo="3G/LTE Modem"
+uci set gargoyle.scripts.status_3ginfo='3ginfo.sh'
+uci set gargoyle.status.3ginfo='900'
+uci commit
