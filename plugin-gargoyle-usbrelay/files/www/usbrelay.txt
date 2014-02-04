@@ -1,4 +1,0 @@
-0:Modem ADSL
-1:Oświetlenie domu
-4:Ekspres do kawy
-7:Przekaźnik nr 42 - klatka lwa

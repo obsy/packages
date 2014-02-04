@@ -6,7 +6,7 @@
 	# itself remain covered by the GPL.
 	# See http://gargoyle-router.com/faq.html#qfoss for more information
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "status" -p "usbrelay" -c "internal.css" -j "table.js usbrelay.js" -z "usbrelay.js"
+	gargoyle_header_footer -h -s "status" -p "usbrelay" -c "internal.css" -j "table.js usbrelay.js" -z "usbrelay.js" -i usbrelay
 %>
 
 <script>
@@ -14,8 +14,6 @@
 <%
 	echo "ports = new Array();"
 	/usr/lib/gargoyle/usbrelay.sh status | awk -F: '/:o/ {print "ports.push([\""$1"\",\""$2"\"]);" ;}'
-	echo "desc = new Array();"
-	[ -e /www/usbrelay.txt ] && awk -F: '/:/ {print "desc.push([\""$1"\",\""$2"\"]);" ;}' /www/usbrelay.txt
 %>
 //-->
 </script>

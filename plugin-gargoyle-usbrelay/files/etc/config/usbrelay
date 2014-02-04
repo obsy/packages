@@ -1,0 +1,12 @@
+
+config 'usbrelay' 'desc'
+	option '0' 'Przekaźnik 0'
+	option '1' 'Przekaźnik 1'
+	option '2' 'Przekaźnik 2'
+	option '3' 'Przekaźnik 3'
+	option '4' 'Przekaźnik 4'
+	option '5' 'Przekaźnik 5'
+	option '6' 'Przekaźnik 6'
+	option '7' 'Przekaźnik 7'
+	option '8' 'Przekaźnik 8'
+

@@ -21,7 +21,6 @@ function resetData()
 
 	for (idx=0; idx<ports.length; idx++)
 	{
-		var tmp = "";
 		var img = document.createElement("img");
 		img.style.cssText= "margin-top:5px;";
 		if (ports[idx][1] == "on")
@@ -33,16 +32,14 @@ function resetData()
 			img.onclick = function(){onRelay(this);}
 		}
 
-		for (j=0; j<desc.length; j++)
-		{
-			if (desc[j][0] == ports[idx][0]) 
-			{
-				tmp = desc[j][1];
-				break;
-			}
-		}
+		var tmp = uciOriginal.get("usbrelay", "desc", ''+ports[idx][0])
+		if (tmp == "") { tmp = "..."; }
+		var anchor = document.createElement("a");
+		anchor.href="usbrelay_schedule.sh?port=" + ports[idx][0];
+		anchor.innerHTML = tmp;
+		anchor.style.css = "a{text-decoration:none}";
 
-		usbrelayTableData.push([ports[idx][0], tmp, img]);
+		usbrelayTableData.push([ports[idx][0], anchor, img]);
 	}
 
 	var usbrelayTable = createTable(columnNames, usbrelayTableData, "usbrelay_table", false, false);
