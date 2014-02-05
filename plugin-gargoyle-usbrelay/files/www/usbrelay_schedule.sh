@@ -134,7 +134,6 @@ for (tab_idx in cron_data) {
 <div id="bottom_button_container">
 	<input type='button' value='<%~ SaveChanges %>' id="save_button" class="bottom_button" onclick='saveChanges()' />
 	<input type='button' value='<%~ Reset %>' id="reset_button" class="bottom_button" onclick='SetTimerMode(0)'/>
-	<input type='button' value='<%~ Back %>' id="back_button" class="bottom_button" onclick='/usbrelay.sh'/>
 </div>
 
 <script>
