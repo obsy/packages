@@ -8,17 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=minidlna
-PKG_VERSION:=1.1.0
-PKG_RELEASE:=3
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/minidlna
-#PKG_MD5SUM:=be9b4c91e3fcde592dc3f9828098ca0f
+PKG_VERSION:=2014-02-08
+PKG_RELEASE=$(PKG_SOURCE_VERSION)
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_URL:=git://git.code.sf.net/p/minidlna/git
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=65fb7404142a7496a0558de2c60aad50dd4207e6
+PKG_FIXUP:=autoreconf
 
 PKG_BUILD_PARALLEL:=0
 PKG_BUILD_DEPENDS:=util-linux
 
-#include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
@@ -52,17 +55,17 @@ TARGET_CPPFLAGS += \
 	-I$(STAGING_DIR)/usr/include/vorbis \
 	-I$(ICONV_PREFIX)/include \
 	-I$(INTL_PREFIX)/include \
-	-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \
+	-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
 
 TARGET_LDFLAGS += \
 	-L$(ICONV_PREFIX)/lib \
 	-L$(INTL_PREFIX)/lib \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
+	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
 MAKE_FLAGS +=\
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
-	ICONV_LIBS="-liconv $(if $(INTL_FULL),-lintl)" \
+	ICONV_LIBS="-liconv $(if $(INTL_FULL),-lintl)"
 
 CONFIGURE_ARGS += \
 	--program-prefix="$(STAGING_DIR)/usr" \
@@ -81,10 +84,6 @@ define Package/minidlna/install
 	$(INSTALL_BIN) ./files/minidlna.init $(1)/etc/init.d/minidlna
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/minidlna.config $(1)/etc/config/minidlna
-endef
-
-define Package/minidlna/conffiles
-/etc/config/minidlna
 endef
 
 $(eval $(call BuildPackage,minidlna))
