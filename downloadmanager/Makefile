@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=downloadmanager
-PKG_VERSION:=20131025
-PKG_RELEASE:=2
+PKG_VERSION:=20140129
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -11,7 +11,6 @@ define Package/downloadmanager
 	CATEGORY:=Network
 	TITLE:=Download manager for OpenWrt
 	DEPENDS:=+aria2
-	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
 
