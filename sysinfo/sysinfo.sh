@@ -23,7 +23,7 @@ U=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 
 L=$(awk '{ print $1" "$2" "$3}' /proc/loadavg)
 
-RFS=$(df /overlay | awk '/overlay/ {printf "%s:%s:%s", $4*1024, $2*1024, $5}')
+RFS=$(df /overlay | awk '/overlay/ {printf "%.0f:%.0f:%s", $4*1024, $2*1024, $5}')
 a1=$(echo $RFS | cut -f1 -d:)
 a2=$(echo $RFS | cut -f2 -d:)
 a3=$(echo $RFS | cut -f3 -d:)
