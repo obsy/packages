@@ -1,0 +1,22 @@
+--- a/Makefile.am	2014-02-10 07:15:16.000000000 +0100
++++ b/Makefile.am	2014-02-10 09:13:30.497051213 +0100
+@@ -17,7 +17,7 @@
+ 
+ AM_CFLAGS = -Wall -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 @STATIC_CFLAGS@
+ 
+-SUBDIRS=po
++SUBDIRS=
+ 
+ sbin_PROGRAMS = minidlnad
+ check_PROGRAMS = testupnpdescgen
+@@ -66,8 +66,8 @@
+ .tmpl:
+ 	sed -e s@:SBINDIR:@${sbindir}@ <$< >$@
+ 
+-GENERATED_FILES = \
+-	linux/minidlna.init.d.script
++GENERATED_FILES = 
++	
+ 
+ TEMPLATES = \
+ 	linux/minidlna.init.d.script.tmpl
