@@ -116,7 +116,6 @@ function resetData()
 function stopMusic()
 {
 	var commands = [];
-	var commands = [];
 	commands.push("kill -9 $(pidof madplay) > /dev/null 2>&1");
 	execute(commands)
 }
