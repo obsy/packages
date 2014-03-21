@@ -28,6 +28,8 @@
 		</span>
 	</div>
 
+	<div id="tgdata" style="display:none;">
+
 	<div>
 		<span class='leftcolumn'><%~ CntsStatus %>:</span><span id="status" class='rightcolumn'>-</span>
 	</div>
@@ -104,6 +106,8 @@
 	</div>
 	<div>
 		<span class='leftcolumn'><%~ MdmType %>:</span><span id="device" class='rightcolumn'>-</span>
+	</div>
+
 	</div>
 
 </fieldset>

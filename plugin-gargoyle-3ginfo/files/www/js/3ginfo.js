@@ -18,9 +18,11 @@ function resetData()
 
 	if (uciOriginal.get(pkg, sec[0], 'device') == "")
 	{
+		document.getElementById("tgdata").style.display="none";
 		return;
 	}
 
+	document.getElementById("tgdata").style.display="block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
 	var param = getParameterDefinition("commands", '/usr/share/3ginfo/3ginfo-automat\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
