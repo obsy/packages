@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# v 20140105
+# v 20140409
 #
 # T, token = unikalny identyfikator systemu na podstawie mac adresu
 # U, uptime = uptime systemu
@@ -26,6 +26,28 @@ if [ -e /etc/config/gargoyle ]; then
 	V="Gargoyle "$(uci -q get gargoyle.global.version)
 fi
 URL=$(echo "t=$T&u=$U&m=$M&w=$W&v=$V" | sed 's/ /%20/g')
-wget -q -O /dev/null "http://ecco.selfip.net/cgi-bin/s.cgi?$URL"
+wget -q -O /dev/null "http://dl.eko.one.pl/cgi-bin/s.cgi?$URL"
+RET=$?
+if [ $RET -eq 0 ]; then
+	dateformat=$(uci get gargoyle.global.dateformat 2>/dev/null)
+	if [ "$dateformat" == "iso" ]; then
+		current_time=$(date "+%Y/%m/%d %H:%M %Z")
+	elif [ "$dateformat" == "iso8601" ]; then
+		current_time=$(date "+%Y-%m-%d %H:%M %Z")
+	elif [ "$dateformat" == "australia" ]; then
+		current_time=$(date "+%d/%m/%y %H:%M %Z")
+	elif [ "$dateformat" == "russia" ]; then
+		current_time=$(date "+%d.%m.%Y %H:%M %Z")
+	elif [ "$dateformat" == "argentina" ]; then
+		current_time=$(date "+%d/%m/%Y %H:%M %Z")
+	else
+		current_time=$(date "+%D %H:%M %Z")
+	fi
+	timezone_is_utc=$(uci get system.@system[0].timezone | grep "^UTC" | sed 's/UTC//g')
+	if [ -n "$timezone_is_utc" ] ; then
+		current_time=$(echo $current_time | sed "s/UTC/UTC-$timezone_is_utc/g" | sed 's/\-\-/+/g')
+	fi
+	echo "$current_time" > /tmp/stat_time.txt
+fi
 
 exit 0
