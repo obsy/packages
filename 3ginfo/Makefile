@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20131219-1
+PKG_VERSION:=20140608
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -46,7 +46,7 @@ endef
 define Package/3ginfo-text/postinst
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || {
-	ln -s /usr/share/3ginfo/cgi-bin/3ginfo.sh /usr/bin/3ginfo
+	ln -sf /usr/share/3ginfo/cgi-bin/3ginfo.sh /usr/bin/3ginfo
 }
 exit 0
 endef

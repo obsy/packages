@@ -20,7 +20,11 @@ echo "$O"
 echo "---------------------------------------------------------------"
 ls /dev/tty*
 echo "---------------------------------------------------------------"
-cat /proc/bus/usb/devices
+if [ -e /proc/bus/usb/devices ]; then
+	cat /proc/bus/usb/devices
+else
+	[ -e /sys/kernel/debug/usb/devices ] && cat /sys/kernel/debug/usb/devices
+fi
 echo "---------------------------------------------------------------"
 uci show 3ginfo
 

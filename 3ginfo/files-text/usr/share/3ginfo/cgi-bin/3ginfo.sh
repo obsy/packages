@@ -257,21 +257,40 @@ else
 fi
 
 BTSINFO=""
+ENB="-"
+ENB_NUM="-"
+ENB_SHOW="none"
 CID=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($4)}' | sed 's/[^A-F0-9]//g')
 if [ "x$CID" != "x" ]; then
 	if [ ${#CID} -le 4 ]; then
 		LCID="-"
 		LCID_NUM="-"
+		LCID_SHOW="none"
 		RNC="-"
 		RNC_NUM="-"
-		LCID_SHOW="none"
+		RNC_SHOW="none"
 	else
 		LCID=$CID
 		LCID_NUM=$(printf %d 0x$LCID)
+		LCID_SHOW="block"
 		RNC=$(echo "$LCID" | awk '{print substr($1,1,length($1)-4)}')
 		RNC_NUM=$(printf %d 0x$RNC)
+		RNC_SHOW="block"
 		CID=$(echo "$LCID" | awk '{print substr($1,length(substr($1,1,length($1)-4))+1)}')
-		LCID_SHOW="block"
+
+		if [ "x$MODE" = "xLTE" ]; then
+			LCIDLEN=${#LCID}
+			CIDSTART=$((LCIDLEN - 2))
+			ENB=$(echo $LCID | cut -c 1-$CIDSTART)
+			ENB_NUM=$(printf %d 0x$ENB)
+			ENB_SHOW="block"
+			CIDSTART=$((LCIDLEN - 1))
+			CID=$(echo $LCID | cut -c $CIDSTART-255)
+			CID=$(printf %04X 0x$CID)
+			RNC="-"
+			RNC_NUM="-"
+			RNC_SHOW="none"
+		fi
 	fi
 
 	CID_NUM=$(printf %d 0x$CID)
@@ -294,9 +313,10 @@ if [ "x$CID" != "x" ]; then
 else
 	LCID="-"
 	LCID_NUM="-"
+	LCID_SHOW="none"
 	RNC="-"
 	RNC_NUM="-"
-	LCID_SHOW="none"
+	RNC_SHOW="none"
 	CID="-"
 	CID_NUM="-"
 fi
@@ -345,10 +365,10 @@ else
 fi
 
 if ! ifconfig -a | grep -q "$IFACE"; then
-	DEV1=${DEVICE##/*/}
-	DEV1=$(echo /sys/devices/platform/*/*/subsystem/*/*/$DEV1)
+	DEV=${DEVICE##/*/}
+	DEV1=$(echo /sys/devices/platform/*/*/subsystem/*/*/$DEV)
 	if [ -n "$DEV1" ]; then
-		DEV1=${DEV1%%/[0-9]*/ttyUSB0}
+		DEV1=${DEV1%%/[0-9]*/$DEV}
 		DEV1=$(ls "$DEV1"/*/net 2>/dev/null)
 		if [ -n "$DEV1" ]; then
 			if ifconfig -a | grep -q $DEV1; then
@@ -430,9 +450,13 @@ if [ -e $TEMPLATE ]; then
 	s!{LAC_NUM}!$LAC_NUM!g; \
 	s!{LCID}!$LCID!g; \
 	s!{LCID_NUM}!$LCID_NUM!g; \
+	s!{LCID_SHOW}!$LCID_SHOW!g; \
 	s!{RNC}!$RNC!g; \
 	s!{RNC_NUM}!$RNC_NUM!g; \
-	s!{LCID_SHOW}!$LCID_SHOW!g; \
+	s!{RNC_SHOW}!$RNC_SHOW!g; \
+	s!{ENB}!$ENB!g; \
+	s!{ENB_NUM}!$ENB_NUM!g; \
+	s!{ENB_SHOW}!$ENB_SHOW!g; \
 	s!{CID}!$CID!g; \
 	s!{CID_NUM}!$CID_NUM!g; \
 	s!{BTSINFO}!$BTSINFO!g; \
