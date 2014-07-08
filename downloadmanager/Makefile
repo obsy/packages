@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=downloadmanager
-PKG_VERSION:=20140129
-PKG_RELEASE:=1
+PKG_VERSION:=20140218
+PKG_RELEASE:=2
 
 include $(INCLUDE_DIR)/package.mk
 

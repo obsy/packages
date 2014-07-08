@@ -1,9 +1,9 @@
 #!/bin/sh
 
 DIR=$1
-[ "x$1" = "x" ] && exit 0
+[ "x$DIR" = "x" ] && exit 0
 
-CONF=$1/.aria2
+CONF="$DIR"/.aria2
 
 mkdir -p "$CONF"
 touch "$CONF"/session
