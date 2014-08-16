@@ -51,23 +51,18 @@ printf " | %-60s |\n" "Memory: $MEM"
 printf " | %-60s |\n" "WAN: $WAN"
 printf " | %-60s |\n" "LAN: $LAN"
 
-OFF=$(uci -q get wireless.radio0.disabled)
-if [ "x$OFF" != "x1" ]; then
-	IFACES=$(uci -q show wireless | grep device=radio | cut -f2 -d.)
-	for i in $IFACES; do
-		SSID=$(uci -q get wireless.$i.ssid)
-		DEV=$(uci -q get wireless.$i.device)
-		OFF=$(uci -q get wireless.$DEV.disabled)
-		OFF2=$(uci -q get wireless.$i.disabled)
-		if [ -n "$SSID" ] && [ "x$OFF" != "x1" ] && [ "x$OFF2" != "x1" ]; then
-			MODE=$(uci -q -P /var/state get wireless.$i.mode)
-			RIFACE=$(uci -q -P /var/state get wireless.$i.ifname)
-			[ -n "$RIFACE" ] && CNT=$(iw dev $RIFACE station dump | grep Station | wc -l)
-			CHANNEL=$(uci -q get wireless.$DEV.channel)
-			printf " | %-60s |\n" "WLAN: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: $CNT"
-		fi
-	done
-fi
+IFACES=$(uci -q show wireless | grep device=radio | cut -f2 -d.)
+for i in $IFACES; do
+	SSID=$(uci -q get wireless.$i.ssid)
+	DEV=$(uci -q get wireless.$i.device)
+	OFF=$(uci -q get wireless.$DEV.disabled)
+	OFF2=$(uci -q get wireless.$i.disabled)
+	if [ -n "$SSID" ] && [ "x$OFF" != "x1" ] && [ "x$OFF2" != "x1" ]; then
+		MODE=$(uci -q -P /var/state get wireless.$i.mode)
+		CHANNEL=$(uci -q get wireless.$DEV.channel)
+		printf " | %-60s |\n" "WLAN: mode: $MODE, ssid: $SSID, channel: $CHANNEL"
+	fi
+done
 
 echo " ----------------------------------------------------------------"
 
