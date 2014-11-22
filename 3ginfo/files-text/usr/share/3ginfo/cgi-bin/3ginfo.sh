@@ -307,8 +307,8 @@ if [ "x$CID" != "x" ]; then
 
 	CLF=$(uci -q get 3ginfo.@3ginfo[0].clf)
 	if [ -e "$CLF" ]; then
-		PAT="^$COPS_NUM;0X"$(printf %04X $CID_NUM)";0X"$(printf %04X $LAC_NUM)";"
-		BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(awk -F";" '/'$PAT'/ {printf $5","$6}' "$CLF")"\">"$(awk -F";" '/'$PAT'/ {gsub(/\!/,"\\!");print $8}' "$CLF")"</a>"
+		PAT="^$COPS_NUM;0x"$(printf %04X $CID_NUM)";0x"$(printf %04X $LAC_NUM)";"
+		BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(zcat "$CLF" | awk -F";" '/'$PAT'/ {printf $5","$6}')"\">"$(zcat "$CLF" | awk -F";" '/'$PAT'/ {gsub(/\!/,"\\!");print $8}')"</a>"
 	fi
 else
 	LCID="-"
