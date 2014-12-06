@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# v 20140415
+# v 20141206
 #
 # T, token = unikalny identyfikator systemu na podstawie mac adresu
 # U, uptime = uptime systemu
@@ -21,6 +21,11 @@ W=$(uci -q get network.wan.proto)
 if [ -e /rom/etc/openwrt_release ]; then
 	. /rom/etc/openwrt_release
 	V="$DISTRIB_DESCRIPTION $DISTRIB_REVISION"
+else
+	if [ -e /etc/openwrt_release ]; then
+		. /etc/openwrt_release
+		V="$DISTRIB_DESCRIPTION $DISTRIB_REVISION"
+	fi
 fi
 if [ -e /etc/config/gargoyle ]; then
 	V="Gargoyle "$(uci -q get gargoyle.global.version)
