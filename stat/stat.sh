@@ -8,6 +8,8 @@
 # W, wan proto = typ polaczenia na wan
 # V, version = numer wersji oprogramowania
 
+[ "x$1" = "debug" ] && DEBUG=echo || DEBUG=""
+
 grep -q br-lan /proc/net/dev && IF=br-lan || IF=eth0
 T=$(md5sum /sys/class/net/$IF/address | cut -f1 -d" ")
 U=$(awk '{printf "%d", $1}' /proc/uptime)
@@ -31,7 +33,7 @@ if [ -e /etc/config/gargoyle ]; then
 	V="Gargoyle "$(uci -q get gargoyle.global.version)
 fi
 URL=$(echo "http://dl.eko.one.pl/cgi-bin/s.cgi?t=$T&u=$U&m=$M&w=$W&v=$V" | sed 's/ /%20/g')
-wget -q -O /dev/null "$URL"
+$DEBUG wget -q -O /dev/null "$URL"
 RET=$?
 if [ $RET -eq 0 ]; then
 	if [ -e /usr/lib/gargoyle/current_time.sh ]; then
