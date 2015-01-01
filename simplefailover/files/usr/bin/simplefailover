@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# (c) 2010-2013 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2014 Cezary Jackiewicz <cezary@eko.one.pl>
 
 WAN1=$(uci -q get simplefailover.@simplefailover[0].wan_main)
 WAN2=$(uci -q get simplefailover.@simplefailover[0].wan_backup)
@@ -10,7 +10,7 @@ INTERVAL=$(uci -q get simplefailover.@simplefailover[0].interval)
 IFNAME=$(uci -q get -P /var/state network.$WAN1.ifname)
 if [ "x$IFNAME" = "x" ]; then
     MSG="Lack of physical interface ($WAN1)!"
-    logger -t simplefailover $MSG
+    logger -t $0 $MSG
     echo $MSG
     exit 0
 fi
@@ -23,7 +23,7 @@ fi
 
 if [ "x$GATEWAY" = "x" ]; then
     MSG="No gateway on $WAN1?"
-    logger -t simplefailover $MSG
+    logger -t $0 $MSG
     echo $MSG
     exit 0
 fi
@@ -37,7 +37,7 @@ while true; do
 			WAN=2
 			ifup $WAN2
 			route add -host $HOST gateway $GATEWAY $IFNAME
-			logger -t simplefailover "Changing connection to backup wan: $WAN2"
+			logger -t $0 "Changing connection to backup wan: $WAN2"
 		fi
 	else
 		if [ "$WAN" = "2" ]; then
@@ -45,7 +45,7 @@ while true; do
 			route del -host $HOST gateway $GATEWAY $IFNAME
 			ifdown $WAN2
 			route add default gw $GATEWAY $IFNAME
-			logger -t simplefailover "Changing connection to main wan: $WAN1"
+			logger -t $0 "Changing connection to main wan: $WAN1"
 		fi
 	fi
 done
