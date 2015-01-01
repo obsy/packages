@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=simplefailover
 # PKG_VERSION:=1
-PKG_RELEASE:=20131015
+PKG_RELEASE:=20141229
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 

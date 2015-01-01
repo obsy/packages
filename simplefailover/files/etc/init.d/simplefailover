@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-# (c) 2010-2012 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2014 Cezary Jackiewicz <cezary@eko.one.pl>
 
 START=99
 

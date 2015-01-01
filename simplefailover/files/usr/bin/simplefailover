@@ -7,25 +7,31 @@ WAN2=$(uci -q get simplefailover.@simplefailover[0].wan_backup)
 HOST=$(uci -q get simplefailover.@simplefailover[0].host)
 INTERVAL=$(uci -q get simplefailover.@simplefailover[0].interval)
 
-IFNAME=$(uci -q get -P /var/state network.$WAN1.ifname)
+. /lib/functions/network.sh
+network_get_physdev IFNAME wan
+network_get_gateway GATEWAY wan
+
 if [ "x$IFNAME" = "x" ]; then
-    MSG="Lack of physical interface ($WAN1)!"
-    logger -t $0 $MSG
-    echo $MSG
-    exit 0
+	IFNAME=$(uci -q get -P /var/state network.$WAN1.ifname)
 fi
-
-GATEWAY=$(uci -q get -P /var/state network.$WAN1.gateway)
-
-if [ "x$GATEWAY" = "x" ]; then
-    GATEWAY=$(ifstatus $WAN1 | grep -A 2 "\"target\": \"0.0.0.0\"," | awk '/nexthop/ {gsub(/"/, "");print $2}')
+if [ "x$IFNAME" = "x" ]; then
+	MSG="Lack of physical interface ($WAN1)!"
+	logger -t $0 $MSG
+	echo $MSG
+	exit 0
 fi
 
 if [ "x$GATEWAY" = "x" ]; then
-    MSG="No gateway on $WAN1?"
-    logger -t $0 $MSG
-    echo $MSG
-    exit 0
+    GATEWAY=$(ifstatus $WAN1 | grep -A 2 "\"target\": \"0.0.0.0\"," | awk '/nexthop/ {gsub(/[",]/, "");print $2}')
+fi
+if [ "x$GATEWAY" = "x" ]; then
+	GATEWAY=$(uci -q get -P /var/state network.$WAN1.gateway)
+fi
+if [ "x$GATEWAY" = "x" ]; then
+	MSG="No gateway on $WAN1?"
+	logger -t $0 $MSG
+	echo $MSG
+	exit 0
 fi
 
 WAN=1
