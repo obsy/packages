@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# obsy, http://eko.one.pl
+
 hr() {
 	if [ $1 -gt 0 ]; then
 		printf "$(awk -v n=$1 'BEGIN{for(i=split("B KB MB GB TB PB",suffix);s<1;i--)s=n/(2**(10*i));printf (int(s)==s)?"%.0f%s":"%.1f%s",s,suffix[i+2]}' 2>/dev/null)"
@@ -60,7 +62,10 @@ for i in $IFACES; do
 	if [ -n "$SSID" ] && [ "x$OFF" != "x1" ] && [ "x$OFF2" != "x1" ]; then
 		MODE=$(uci -q -P /var/state get wireless.$i.mode)
 		CHANNEL=$(uci -q get wireless.$DEV.channel)
-		printf " | %-60s |\n" "WLAN: mode: $MODE, ssid: $SSID, channel: $CHANNEL"
+		SEC=$(uci -q show wireless.$i.ssid | cut -f2 -d.)
+		IFNAME=$(wifi status $DEV | grep -A 1 $SEC | awk '/ifname/ {gsub(/"/,"");print $2}')
+		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump | grep Station | wc -l)
+		printf " | %-60s |\n" "WLAN: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
 	fi
 done
 
