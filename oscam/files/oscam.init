@@ -10,8 +10,3 @@ start() {
 stop() {
 	killall oscam
 }
-
-restart() {
-	stop
-	start
-}
