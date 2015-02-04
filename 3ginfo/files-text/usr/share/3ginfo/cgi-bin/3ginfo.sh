@@ -33,7 +33,7 @@ fi
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if [ "x$DEVICE" = "x" ]; then
-	devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* 2>/dev/null | sort -r);
+	devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* /dev/cdc-wdm* 2>/dev/null | sort -r);
 	for d in $devices; do
 		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 		if [ $? = 0 ]; then
@@ -360,6 +360,10 @@ fi
 PROTO=$(uci -q get network.$SEC.proto)
 if [ "${DEVICE%%[0-9]}" = "/dev/ttyHS" ] && [ "x$PROTO" = "xhso" ]; then
 	IFACE="hso0"
+elif [ "${DEVICE%%[0-9]}" = "/dev/cdc-wdm" ] && [ "x$PROTO" = "xncm" ]; then 
+	DEV1=$(uci -q get network.$SEC.device)
+	DEV1=${DEV1#/dev/}
+	IFACE=$(ls /sys/class/usbmisc/$DEV1/device/net/)
 else
 	IFACE="3g-"$SEC
 fi
