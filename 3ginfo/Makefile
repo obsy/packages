@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20150204
+PKG_VERSION:=20150207
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -10,15 +10,15 @@ include $(INCLUDE_DIR)/package.mk
 define Package/3ginfo/Default
 	SECTION:=net
 	CATEGORY:=Network
-	TITLE:=Informacje o statusie polaczenia 3G
+	TITLE:=Information about status of 3G connections
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
 
 define Package/3ginfo-text
 $(call Package/3ginfo/Default)
-	TITLE+= (wersja txt)
-	DEPENDS:=+comgt
+	TITLE+= (txt version)
+	DEPENDS:=+comgt +coreutils +coreutils-stty
 endef
 
 define Package/3ginfo

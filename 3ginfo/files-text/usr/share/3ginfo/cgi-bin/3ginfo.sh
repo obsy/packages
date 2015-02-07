@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2013 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2015 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 RES="/usr/share/3ginfo"
@@ -24,8 +24,8 @@ else
 fi
 
 if [ ! -e $RES/msg.dat.$LANG ]; then
-    echo "File missing: $RES/msg.dat.$LANG"
-    exit 0
+	echo "File missing: $RES/msg.dat.$LANG"
+	exit 0
 fi
 . $RES/msg.dat.$LANG
 
@@ -64,20 +64,25 @@ if [ ! -e $DEVICE ]; then
 fi
 
 # znajdz odpowiednia sekcje w konfiguracji
-getpath ${DEVICE##/*/}
-PORIG=$P
-for DEV in /sys/class/tty/${DEVICE##/*/}/device/driver/tty*; do
-	getpath ${DEV##/*/}
-	if [ "x$PORIG" = "x$P" ]; then
-		SEC=$(uci show network | grep "/dev/"${DEV##/*/} | cut -f2 -d.)
-		if [ ! -z $SEC ]; then
-			break
+SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
+if [ -z "$SEC" ]; then
+	getpath ${DEVICE##/*/}
+	PORIG=$P
+	for DEV in /sys/class/tty/${DEVICE##/*/}/device/driver/tty*; do
+		getpath ${DEV##/*/}
+		if [ "x$PORIG" = "x$P" ]; then
+			SEC=$(uci show network | grep "/dev/"${DEV##/*/} | cut -f2 -d.)
+			if [ ! -z $SEC ]; then
+				break
+			fi
 		fi
+	done
+	if [ -z "$SEC" ]; then
+		SEC=$(uci show network | grep ${DEVICE%%[0-9]} | cut -f2 -d.)
 	fi
-done
-if [ -z $SEC ]; then
-	SEC=$(uci show network | grep ${DEVICE%%[0-9]} | cut -f2 -d.)
 fi
+
+[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
 
 # daj pin jak jest taka potrzeba
 if [ ! -f /tmp/pincode_was_given ]; then
@@ -128,7 +133,7 @@ else
 fi
 
 # COPS
-COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,2/ {print $2}')
+COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
 if [ "x$COPS_NUM" = "x" ]; then
 	COPS_NUM="-"
 	COPS_MCC="-"
@@ -357,36 +362,21 @@ if [ "x$LIMIT" != "x" ]; then
 fi
 
 # Status polaczenia
-PROTO=$(uci -q get network.$SEC.proto)
-if [ "${DEVICE%%[0-9]}" = "/dev/ttyHS" ] && [ "x$PROTO" = "xhso" ]; then
-	IFACE="hso0"
-elif [ "${DEVICE%%[0-9]}" = "/dev/cdc-wdm" ] && [ "x$PROTO" = "xncm" ]; then 
-	DEV1=$(uci -q get network.$SEC.device)
-	DEV1=${DEV1#/dev/}
-	IFACE=$(ls /sys/class/usbmisc/$DEV1/device/net/)
-else
-	IFACE="3g-"$SEC
-fi
+IFACE=""
 
-if ! ifconfig -a | grep -q "$IFACE"; then
-	DEV=${DEVICE##/*/}
-	DEV1=$(echo /sys/devices/platform/*/*/subsystem/*/*/$DEV)
-	if [ -n "$DEV1" ]; then
-		DEV1=${DEV1%%/[0-9]*/$DEV}
-		DEV1=$(ls "$DEV1"/*/net 2>/dev/null)
-		if [ -n "$DEV1" ]; then
-			if ifconfig -a | grep -q $DEV1; then
-				IFACE=$DEV1
-			fi
-		fi
+if [ -n "$SEC" ]; then
+	PROTO=$(uci -q get network.$SEC.proto)
+	if [ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && [ "x$PROTO" = "x3g" ]; then
+		IFACE="3g-$SEC"
 	fi
+	[ -z "$IFACE" ] && IFACE=$(ifstatus $SEC | awk -F\" '/l3_device/ {print $4}')
 fi
 
 CONN_TIME="-"
 RX="-"
 TX="-"
 
-if [ "$IFACE" = "3g-" ]; then
+if [ "x$IFACE" = "x" ]; then
 	STATUS=$NOINFO
 	STATUS_TRE="-"
 	STATUS_SHOW="none"
@@ -401,7 +391,7 @@ else
 
 		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
 		if [ -z $CT ]; then
-			CT=$(ifstatus wan | awk -F[:,] '/uptime/ {print $2}')
+			CT=$(ifstatus $SEC | awk -F[:,] '/uptime/ {print $2}')
 		else
 			UPTIME=$(cut -d. -f1 /proc/uptime)
 			CT=$((UPTIME-CT))
