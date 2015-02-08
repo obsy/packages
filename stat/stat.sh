@@ -8,7 +8,7 @@
 # W, wan proto = typ polaczenia na wan
 # V, version = numer wersji oprogramowania
 
-[ "x$1" = "debug" ] && DEBUG=echo || DEBUG=""
+[ "x$1" = "xdebug" ] && DEBUG=echo || DEBUG=""
 
 grep -q br-lan /proc/net/dev && IF=br-lan || IF=eth0
 T=$(md5sum /sys/class/net/$IF/address | cut -f1 -d" ")
