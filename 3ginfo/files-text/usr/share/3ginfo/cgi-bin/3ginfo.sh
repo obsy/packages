@@ -32,81 +32,87 @@ fi
 # odpytanie urzadzenia
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
-if [ "x$DEVICE" = "x" ]; then
-	devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* /dev/cdc-wdm* 2>/dev/null | sort -r);
-	for d in $devices; do
-		DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
-		if [ $? = 0 ]; then
-			uci set 3ginfo.@3ginfo[0].device="$d"
-			uci commit 3ginfo
-			break
-		fi
-	done
-	DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
-fi
-
-if [ "x$DEVICE" = "x" ]; then
-	if [ $TOTXT -eq 0 ]; then
-		echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
-	else
-		echo $NOTDETECTED
-	fi
-	exit 0
-fi
-
-if [ ! -e $DEVICE ]; then
-	if [ $TOTXT -eq 0 ]; then
-		echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
-	else
-		echo "$NODEVICE $DEVICE."
-	fi
-	exit 0
-fi
-
-# znajdz odpowiednia sekcje w konfiguracji
-SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
-if [ -z "$SEC" ]; then
-	getpath ${DEVICE##/*/}
-	PORIG=$P
-	for DEV in /sys/class/tty/${DEVICE##/*/}/device/driver/tty*; do
-		getpath ${DEV##/*/}
-		if [ "x$PORIG" = "x$P" ]; then
-			SEC=$(uci show network | grep "/dev/"${DEV##/*/} | cut -f2 -d.)
-			if [ ! -z $SEC ]; then
+if echo "x$DEVICE" | grep -q "192.168."; then
+	O=$($RES/scripts/huawei_hilink.sh $DEVICE)
+	SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
+	SEC=${SEC:-wan}
+else
+	if [ "x$DEVICE" = "x" ]; then
+		devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* /dev/cdc-wdm* 2>/dev/null | sort -r);
+		for d in $devices; do
+			DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
+			if [ $? = 0 ]; then
+				uci set 3ginfo.@3ginfo[0].device="$d"
+				uci commit 3ginfo
 				break
 			fi
+		done
+		DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
+	fi
+
+	if [ "x$DEVICE" = "x" ]; then
+		if [ $TOTXT -eq 0 ]; then
+			echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
+		else
+			echo $NOTDETECTED
 		fi
-	done
+		exit 0
+	fi
+
+	if [ ! -e $DEVICE ]; then
+		if [ $TOTXT -eq 0 ]; then
+			echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
+		else
+			echo "$NODEVICE $DEVICE."
+		fi
+		exit 0
+	fi
+
+	# znajdz odpowiednia sekcje w konfiguracji
+	SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
 	if [ -z "$SEC" ]; then
-		SEC=$(uci show network | grep ${DEVICE%%[0-9]} | cut -f2 -d.)
-	fi
-fi
-
-[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
-
-# daj pin jak jest taka potrzeba
-if [ ! -f /tmp/pincode_was_given ]; then
-	# tylko za pierwszym razem
-	if [ ! -z $SEC ]; then
-		PINCODE=$(uci -q get network.$SEC.pincode)
-	fi
-	if [ -z "$PINCODE" ]; then
-		PINCODE=$(uci -q get 3ginfo.@3ginfo[0].pincode)
-	fi
-	if [ ! -z $PINCODE ]; then
-		PINCODE="$PINCODE" gcom -d "$DEVICE" -s /etc/gcom/setpin.gcom > /dev/null || {
-			if [ $TOTXT -eq 0 ]; then
-				echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
-			else
-				echo $PINERROR
+		getpath ${DEVICE##/*/}
+		PORIG=$P
+		for DEV in /sys/class/tty/${DEVICE##/*/}/device/driver/tty*; do
+			getpath ${DEV##/*/}
+			if [ "x$PORIG" = "x$P" ]; then
+				SEC=$(uci show network | grep "/dev/"${DEV##/*/} | cut -f2 -d.)
+				if [ ! -z $SEC ]; then
+					break
+				fi
 			fi
-			exit 0
-		}
+		done
+		if [ -z "$SEC" ]; then
+			SEC=$(uci show network | grep ${DEVICE%%[0-9]} | cut -f2 -d.)
+		fi
 	fi
-	touch /tmp/pincode_was_given
-fi
 
-O=$(gcom -d $DEVICE -s $RES/scripts/3ginfo.gcom 2>/dev/null)
+	[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
+
+	# daj pin jak jest taka potrzeba
+	if [ ! -f /tmp/pincode_was_given ]; then
+		# tylko za pierwszym razem
+		if [ ! -z $SEC ]; then
+			PINCODE=$(uci -q get network.$SEC.pincode)
+		fi
+		if [ -z "$PINCODE" ]; then
+			PINCODE=$(uci -q get 3ginfo.@3ginfo[0].pincode)
+		fi
+		if [ ! -z $PINCODE ]; then
+			PINCODE="$PINCODE" gcom -d "$DEVICE" -s /etc/gcom/setpin.gcom > /dev/null || {
+				if [ $TOTXT -eq 0 ]; then
+					echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
+				else
+					echo $PINERROR
+				fi
+				exit 0
+			}
+		fi
+		touch /tmp/pincode_was_given
+	fi
+
+	O=$(gcom -d $DEVICE -s $RES/scripts/3ginfo.gcom 2>/dev/null)
+fi
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
@@ -169,7 +175,7 @@ MODE="-"
 # Nowe Huawei
 TECH=$(echo "$O" | awk -F[,] '/^\^SYSINFOEX/ {print $9}' | sed 's/"//g')
 if [ "x$TECH" != "x" ]; then
-	MODE="$TECH"
+	MODE=$(echo "$TECH" | sed 's/-//g')
 fi
 
 # Starsze modele Huawei i inne pozostale

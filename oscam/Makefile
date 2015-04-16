@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oscam
-PKG_VERSION:=9986
+PKG_VERSION:=10646
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=svn
@@ -55,5 +55,3 @@ define Package/oscam/install
 endef
 
 $(eval $(call BuildPackage,oscam))
-
-
