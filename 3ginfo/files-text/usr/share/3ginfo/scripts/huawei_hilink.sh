@@ -90,10 +90,10 @@ echo "^SYSINFOEX:x,x,x,x,,x,\"$MODE\",$MODEN,\"$MODE\""
 numeric=$(getvaluen net-current-plmn Numeric)
 echo "+COPS: 0,2,\"$numeric\",x"
 
-lac=$(getvaluen net-signal-para Lac)
-cid=$(getvaluen net-signal-para CellID)
+lac=$(getvalue net-signal-para Lac)
+cid=$(getvalue net-signal-para CellID)
 if [ -z "$cid" ]; then
-	cell_id=$(getvaluen device-signal cell_id)
+	cell_id=$(getvalue device-signal cell_id)
 	cid=""
 	[ -n "$cell_id" ] && cid=$(printf %0X $cell_id)
 fi
