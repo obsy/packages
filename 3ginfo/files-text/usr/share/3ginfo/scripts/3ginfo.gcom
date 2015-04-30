@@ -22,7 +22,14 @@ opengt
  if $toupper($mid($v,0,3)) = "HUA" goto huawei
  if $toupper($mid($v,0,3)) = "VOD" goto vodafone
  if $toupper($mid($v,0,3)) = "NOK" goto vodafone
+ if $toupper($mid($v,0,3)) = "SIM" goto simcom
  goto generic
+
+:simcom
+ let $c="AT+CNSMOD?^m"
+ let $r="+CNSMOD"
+ gosub readatcmd
+ goto next
 
 :vodafone
  let $c="AT%NWSTATE=1^m"
@@ -57,6 +64,10 @@ opengt
  let $r="+COPS"
  gosub readatcmd
 
+ let $c="AT+ZRSSI^m"
+ let $r="+ZRSSI"
+ gosub readatcmd
+
  let $c="AT+ZPAS?^m"
  let $r="+ZPAS"
  gosub readatcmd
@@ -65,6 +76,14 @@ opengt
 :huawei
  let $c="AT\^SYSINFOEX^m"
  let $r="\^SYSINFOEX"
+ gosub readatcmd
+
+ let $c="AT\^CSNR?^m"
+ let $r="\^CSNR"
+ gosub readatcmd
+
+ let $c="AT\^LTERSRP?^m"
+ let $r="\^LTERSRP"
  gosub readatcmd
 
 :generic

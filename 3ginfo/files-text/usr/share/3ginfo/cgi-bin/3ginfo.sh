@@ -252,6 +252,21 @@ if [ "x$MODE" = "x-" ]; then
 	fi
 fi
 
+# SIMCOM
+if [ "x$MODE" = "x-" ]; then
+	TECH=$(echo "$O" | awk -F[,\ ] '/^\+CNSMOD/ {print $3}')
+	case "$TECH" in
+		1*) MODE="GSM";;
+		2*) MODE="GPRS";;
+		3*) MODE="EDGE";;
+		4*) MODE="UMTS";;
+		5*) MODE="HSDPA";;
+		6*) MODE="HSUPA";;
+		7*) MODE="HSPA";;
+		 *) MODE="-";;
+	esac
+fi
+
 # CREG
 CREG="+CREG"
 LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
@@ -265,6 +280,41 @@ if [ "x$LAC" != "x" ]; then
 else
 	LAC="-"
 	LAC_NUM="-"
+fi
+
+# ECIO / RSCP
+ECIO="-"
+RSCP="-"
+
+ECIx=$(echo "$O" | awk -F[,\ ] '/^\+ZRSSI:/ {print $3}')
+if [ "x$ECIx" != "x" ]; then
+	ECIO=`expr $ECIx / 2`
+	ECIO="-"$ECIO
+fi
+
+RSCx=$(echo "$O" | awk -F[,\ ] '/^\+ZRSSI:/ {print $4}')
+	if [ "x$RSCx" != "x" ]; then
+		RSCP=`expr $RSCx / 2`
+		RSCP="-"$RSCP
+fi
+
+RSCx=$(echo "$O" | awk -F[,\ ] '/^\^CSNR:/ {print $2}')
+if [ "x$RSCx" != "x" ]; then
+	RSCP=$RSCx
+fi
+
+ECIx=$(echo "$O" | awk -F[,\ ] '/^\^CSNR:/ {print $3}')
+if [ "x$ECIx" != "x" ]; then
+	ECIO=$ECIx
+fi
+
+# RSRP / RSRQ
+RSRP="-"
+RSRQ="-"
+RSRx=$(echo "$O" | awk -F[,:] '/^\^LTERSRP:/ {print $2}')
+if [ "x$RSRx" != "x" ]; then
+	RSRP=$RSRx
+	RSRQ=$(echo "$O" | awk -F[,:] '/^\^LTERSRP:/ {print $3}')
 fi
 
 BTSINFO=""
@@ -473,6 +523,10 @@ if [ -e $TEMPLATE ]; then
 	s!{STATUS_TRE}!$STATUS_TRE!g; \
 	s!{STATUS_SHOW}!$STATUS_SHOW!g; \
 	s!{DEVICE}!$DEVICE!g; \
+	s!{ECIO}!$ECIO!g; \
+	s!{RSCP}!$RSCP!g; \
+	s!{RSRP}!$RSRP!g; \
+	s!{RSRQ}!$RSRQ!g; \
 	s!{MODE}!$MODE!g" $TEMPLATE
 else
 	echo "Template $TEMPLATE missing!"
