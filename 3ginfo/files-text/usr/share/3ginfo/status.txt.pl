@@ -13,3 +13,7 @@ eNB: {ENB} ({ENB_NUM})
 CID: {CID} ({CID_NUM})
 CSQ: {CSQ}
 RSSI: {CSQ_RSSI} dBm
+RSCP: {RSCP} dBm
+Ec/IO: {ECIO} dB
+RSRP: {RSRP} dBm
+RSRQ: {RSRQ} dB

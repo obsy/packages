@@ -99,8 +99,16 @@ if [ -z "$cid" ]; then
 fi
 echo "+CREG: 2,1,\"$lac\",\"$cid\""
 
+rsrp=$(getvaluen device-signal rsrp)
+rsrq=$(getvaluen device-signal rsrq)
+echo "^LTERSRP:-$rsrp,-$rsrq"
+
+rscp=$(getvaluen net-signal-para Rscp)
+ecio=$(getvaluen net-signal-para Ecio)
+echo "^CSNR: -$rscp,-$ecio"
+
 device=$(getvalue device-information DeviceName)
-[ -n "$device" ] && echo "DEVICE:huawei $device"
+[ -n "$device" ] && echo "DEVICE:huawei $device HiLink"
 
 if [ "x$2" != "xdebug" ]; then
 	for f in $files webserver/token; do
