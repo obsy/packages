@@ -13,8 +13,8 @@ hr() {
 MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
 [ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
-[ -z "$MACH" ] && MACH=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
 [ -z "$MACH" ] && MACH=$(awk -F: '/system type/ {print $2}' /proc/cpuinfo)
+[ -z "$MACH" ] && MACH=$(awk -F: '/machine/ {print $2}' /proc/cpuinfo)
 [ -z "$MACH" ] && MACH=$(awk -F: '/model name/ {print $2}' /proc/cpuinfo)
 
 U=$(cut -d. -f1 /proc/uptime)
@@ -42,8 +42,8 @@ free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
 MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
-WAN=$(uci -q -P /var/state get network.wan.ipaddr)
-[ -z "$WAN" ] && WAN=$(ifstatus wan | awk -F\" '/"address"/ {print $4}')
+WAN=$(ifstatus wan | awk -F\" '/"address"/ {print $4}')
+[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.wan.ipaddr)
 [ -n "$WAN" ] && WAN="$WAN, proto: "$(uci -q get network.wan.proto)
 
 printf " | %-60s |\n" "Machine: $MACH"
@@ -54,7 +54,7 @@ printf " | %-60s |\n" "Memory: $MEM"
 printf " | %-60s |\n" "WAN: $WAN"
 printf " | %-60s |\n" "LAN: $LAN"
 
-IFACES=$(uci -q show wireless | grep device=radio | cut -f2 -d.)
+IFACES=$(uci -q show wireless | grep "device='radio" | cut -f2 -d.)
 for i in $IFACES; do
 	SSID=$(uci -q get wireless.$i.ssid)
 	DEV=$(uci -q get wireless.$i.device)
@@ -66,7 +66,7 @@ for i in $IFACES; do
 		SEC=$(uci -q show wireless.$i.ssid | cut -f2 -d.)
 		IFNAME=$(wifi status $DEV | grep -A 1 $SEC | awk '/ifname/ {gsub(/"/,"");print $2}')
 		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump | grep Station | wc -l)
-		printf " | %-60s |\n" "WLAN: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
+		printf " | %-60s |\n" "$DEV: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
 	fi
 done
 
