@@ -42,7 +42,7 @@ free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
 MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
-WAN=$(ifstatus wan | awk -F\" '/"address"/ {print $4}')
+WAN=$(ifstatus wan | grep -A 2 "ipv4-address" | awk -F\" '/"address"/ {print $4}')
 [ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.wan.ipaddr)
 [ -n "$WAN" ] && WAN="$WAN, proto: "$(uci -q get network.wan.proto)
 
@@ -63,8 +63,8 @@ for i in $IFACES; do
 	if [ -n "$SSID" ] && [ "x$OFF" != "x1" ] && [ "x$OFF2" != "x1" ]; then
 		MODE=$(uci -q -P /var/state get wireless.$i.mode)
 		CHANNEL=$(uci -q get wireless.$DEV.channel)
-		SEC=$(uci -q show wireless.$i.ssid | cut -f2 -d.)
-		IFNAME=$(wifi status $DEV | grep -A 1 $SEC | awk '/ifname/ {gsub(/"/,"");print $2}')
+		SEC1=$(echo $i | sed 's/\[/\\[/g;s/\]/\\]/g')
+		IFNAME=$(wifi status $DEV | grep -A 1 $SEC1 | awk '/ifname/ {gsub(/[",]/,"");print $2}')
 		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump | grep Station | wc -l)
 		printf " | %-60s |\n" "$DEV: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
 	fi
