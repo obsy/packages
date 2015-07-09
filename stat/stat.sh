@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# v 20141206
+# v 20150706
 #
 # T, token = unikalny identyfikator systemu na podstawie mac adresu
 # U, uptime = uptime systemu
@@ -12,6 +12,10 @@
 
 grep -q br-lan /proc/net/dev && IF=br-lan || IF=eth0
 T=$(md5sum /sys/class/net/$IF/address | cut -f1 -d" ")
+if [ "x$1" = "xtoken" ]; then
+	echo $T
+	exit 0
+fi
 U=$(awk '{printf "%d", $1}' /proc/uptime)
 M=""
 [ -e /tmp/sysinfo/model ] && M=$(cat /tmp/sysinfo/model)
