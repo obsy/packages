@@ -1,9 +1,9 @@
 #!/bin/sh
 
 [ -n "$INCLUDE_ONLY" ] || {
-    . /lib/functions.sh
-    . ../netifd-proto.sh
-    init_proto "$@"
+	. /lib/functions.sh
+	. ../netifd-proto.sh
+	init_proto "$@"
 }
 
 proto_hso_init_config() {
@@ -13,10 +13,8 @@ proto_hso_init_config() {
 	proto_config_add_string "maxwait"
 	proto_config_add_string "apn"
 	proto_config_add_string "pincode"
-	proto_config_add_int "mtu"
 	proto_config_add_string "username"
 	proto_config_add_string "password"
-	proto_config_add_string "ifname"
 }
 
 proto_hso_setup() {
@@ -31,23 +29,40 @@ proto_hso_setup() {
 		sleep 1
 	done
 
+	[ -n "$device" ] || {
+		echo "$interface (hso): No control device specified"
+		proto_notify_error "$interface" NO_DEVICE
+		proto_set_available "$interface" 0
+		return 1
+	}
+	[ -e "$device" ] || {
+		echo "$interface (hso): Control device not valid"
+		proto_set_available "$interface" 0
+		return 1
+	}
+
 	json_get_var apn apn
 	json_get_var pincode pincode
-	json_get_var mtu mtu
 	json_get_var service service
 	json_get_var username username
 	json_get_var password password
-	json_get_type ifnametype ifname
 
-	if [ "$ifnametype" = "array" ]; then
-		json_select ifname
-		json_get_var ifname 1
-		json_select ".."
-	fi
+	[ -n "$apn" ] || {
+		echo "$interface (hso): No APN specified"
+		proto_notify_error "$interface" NO_APN
+		return 1
+	}
 
-	if [ "$ifnametype" = "string" ]; then
-		json_get_var ifname ifname
-	fi
+
+	devname="$(basename "$device")"
+	devpath="$(readlink -f /sys/class/tty/$devname/device)"
+	ifname="$( ls "$devpath"/../*/net )"
+	[ -n "$ifname" ] || {
+		echo "$interface (hso): The interface could not be found."
+		proto_notify_error "$interface" NO_IFACE
+		proto_set_available "$interface" 0
+		return 1
+	}
 
 	# set pin if configured
 	if [ ! -z "$pincode" ]; then
