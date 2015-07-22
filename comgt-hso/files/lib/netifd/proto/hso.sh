@@ -22,12 +22,6 @@ proto_hso_setup() {
 	local chat="/etc/chatscripts/hso.chat"
 
 	json_get_var device device
-	json_get_var maxwait maxwait
-	maxwait=${maxwait:-20}
-	while [ ! -e "$device" -a $maxwait -gt 0 ]; do # wait for driver loading to catch up
-		maxwait=$(($maxwait - 1))
-		sleep 1
-	done
 
 	[ -n "$device" ] || {
 		echo "$interface (hso): No control device specified"
@@ -35,6 +29,13 @@ proto_hso_setup() {
 		proto_set_available "$interface" 0
 		return 1
 	}
+
+	json_get_var maxwait maxwait
+	maxwait=${maxwait:-20}
+	while [ ! -e "$device" -a $maxwait -gt 0 ]; do # wait for driver loading to catch up
+		maxwait=$(($maxwait - 1))
+		sleep 1
+	done
 	[ -e "$device" ] || {
 		echo "$interface (hso): Control device not valid"
 		proto_set_available "$interface" 0
@@ -52,7 +53,6 @@ proto_hso_setup() {
 		proto_notify_error "$interface" NO_APN
 		return 1
 	}
-
 
 	devname="$(basename "$device")"
 	devpath="$(readlink -f /sys/class/tty/$devname/device)"
