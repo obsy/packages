@@ -42,6 +42,8 @@ RET=$?
 if [ $RET -eq 0 ]; then
 	if [ -e /usr/lib/gargoyle/current_time.sh ]; then
 		/usr/lib/gargoyle/current_time.sh | awk -F\" '{print $2}' > /tmp/stat_time.txt
+	else
+		date > /tmp/stat_time.txt
 	fi
 fi
 
