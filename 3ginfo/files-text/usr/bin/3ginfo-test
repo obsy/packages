@@ -12,7 +12,7 @@ if [ ! -e $DEVICE ]; then
 	exit 0
 fi
 
-[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
+# [ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
 O=$(gcom -d $DEVICE -s /usr/share/3ginfo/scripts/3ginfo.gcom)
 
 echo "$O"

@@ -87,7 +87,7 @@ else
 		fi
 	fi
 
-	[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
+#	[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
 
 	# daj pin jak jest taka potrzeba
 	if [ ! -f /tmp/pincode_was_given ]; then
@@ -263,6 +263,20 @@ if [ "x$MODE" = "x-" ]; then
 		5*) MODE="HSDPA";;
 		6*) MODE="HSUPA";;
 		7*) MODE="HSPA";;
+		 *) MODE="-";;
+	esac
+fi
+
+# generic 3GPP TS 27.007 V10.4.0
+if [ "x$MODE" = "x-" ]; then
+	TECH=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}')
+	case "$TECH" in
+		2*) MODE="UMTS";;
+		3*) MODE="EDGE";;
+		4*) MODE="HSDPA";;
+		5*) MODE="HSUPA";;
+		6*) MODE="HSPA";;
+		7*) MODE="LTE";;
 		 *) MODE="-";;
 	esac
 fi
