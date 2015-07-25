@@ -27,6 +27,7 @@ U=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 L=$(awk '{ print $1" "$2" "$3}' /proc/loadavg)
 
 RFS=$(df /overlay 2>/dev/null | awk '/overlay/ {printf "%.0f:%.0f:%s", $4*1024, $2*1024, $5}')
+[ -z "$RFS" ] && RFS=$(df / 2>/dev/null | awk '/rootfs/ {printf "%.0f:%.0f:%s", $4*1024, $2*1024, $5}')
 if [ -n "$RFS" ]; then
 	a1=$(echo $RFS | cut -f1 -d:)
 	a2=$(echo $RFS | cut -f2 -d:)
