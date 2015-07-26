@@ -129,11 +129,14 @@ proto_hso_setup() {
 }
 
 proto_hso_teardown() {
-	local config="$1"
+	local interface="$1"
 	local chat="/etc/chatscripts/hsohup.chat"
 
 	json_get_var device device
 	/usr/sbin/chat -v -f $chat <$device > $device
+
+	proto_init_update "*" 0
+	proto_send_update "$interface"
 }
 
 [ -n "$INCLUDE_ONLY" ] || {
