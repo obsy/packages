@@ -10,6 +10,7 @@ define Package/comgt-hso
   CATEGORY:=Utilities
   TITLE:=comgt HSO Support
   DEPENDS:=+comgt +kmod-usb-net-hso
+  PKGARCH:=all
 endef
 
 define Build/Compile
