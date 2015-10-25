@@ -10,10 +10,17 @@ LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
 [ "x$LANG" = "x" ] && LANG="en"
 
 getpath() {
-	DEV=$1
-	O=$(ls -al /sys/class/tty/$DEV 2>/dev/null)
-	O1=$(echo "$O" | awk -F">" '/'$DEV'/ {print $2}' | sed -e 's/\/'$DEV'\/tty\/'$DEV'//g')
-	P=${O1%%[0-9]}
+	devname="$(basename "$1")"
+	case "$devname" in
+	'tty'*)
+		devpath="$(readlink -f /sys/class/tty/$devname/device)"
+		P=${devpath%/*/*}
+		;;
+	*)
+		devpath="$(readlink -f /sys/class/usbmisc/$devname/device/)"
+		P=${devpath%/*}
+		;;
+	esac
 }
 
 if [ "`basename $0`" = "3ginfo" ]; then
@@ -71,20 +78,15 @@ else
 	# znajdz odpowiednia sekcje w konfiguracji
 	SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
 	if [ -z "$SEC" ]; then
-		getpath ${DEVICE##/*/}
+		getpath $DEVICE
 		PORIG=$P
-		for DEV in /sys/class/tty/${DEVICE##/*/}/device/driver/tty*; do
-			getpath ${DEV##/*/}
+		for DEV in /sys/class/tty/* /sys/class/usbmisc/*; do
+			getpath "/dev/"${DEV##/*/}
 			if [ "x$PORIG" = "x$P" ]; then
 				SEC=$(uci show network | grep "/dev/"${DEV##/*/} | cut -f2 -d.)
-				if [ ! -z $SEC ]; then
-					break
-				fi
+				[ -n "$SEC" ] && break
 			fi
 		done
-		if [ -z "$SEC" ]; then
-			SEC=$(uci show network | grep ${DEVICE%%[0-9]} | cut -f2 -d.)
-		fi
 	fi
 
 #	[ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
@@ -401,13 +403,11 @@ QOS_SHOW="none"
 DOWN="-"
 UP="-"
 
-QOS=$(uci -q get 3ginfo.@3ginfo[0].qos)
-if [ "x$QOS" = "x1" ]; then
-	DOWN=$(echo "$O" | awk -F[,] '/\+CGEQNEG/ {printf "%s", $4}')
-	if [ "x$DOWN" != "x" ]; then
-		UP=$(echo "$O" | awk -F[,] '/\+CGEQNEG/ {printf "%s", $3}')
-		QOS_SHOW="block"
-	fi
+DOWx=$(echo "$O" | awk -F[,] '/\+CGEQNEG/ {printf "%s", $4}')
+if [ "x$DOWx" != "x" ]; then
+	DOWN=$DOWx
+	UP=$(echo "$O" | awk -F[,] '/\+CGEQNEG/ {printf "%s", $3}')
+	QOS_SHOW="block"
 fi
 
 # SMS
@@ -532,6 +532,7 @@ if [ -e $TEMPLATE ]; then
 	s!{LIMIT_SHOW}!$LIMIT_SHOW!g; \
 	s!{STATUS}!$STATUS!g; \
 	s!{CONN_TIME}!$CONN_TIME!g; \
+	s!{CONN_TIME_SEC}!$CT!g; \
 	s!{RX}!$RX!g; \
 	s!{TX}!$TX!g; \
 	s!{STATUS_TRE}!$STATUS_TRE!g; \
