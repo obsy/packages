@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bitmeteros
-PKG_VERSION:=$(shell date +%Y%m%d)
+PKG_VERSION:=5b649e6344316508b15d09c7ad66862dc76ca625
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://github.com/codebox/bitmeteros.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=HEAD
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 
