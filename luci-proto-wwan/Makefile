@@ -1,10 +1,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-proto-wwan
-PKG_VERSION:=20151127
+PKG_VERSION:=20151129
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
-PKG_BUILD_DEPENDS:=luci-core
+PKG_BUILD_DEPENDS:=luci-base
 
 include $(INCLUDE_DIR)/package.mk
 
