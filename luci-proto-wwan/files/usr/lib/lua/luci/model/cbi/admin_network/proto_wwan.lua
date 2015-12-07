@@ -35,6 +35,7 @@ if luci.model.network:has_ipv6() then
  translate("Enable IPv6 negotiation on the PPP link"))
 
  ipv6.default = ipv6.disabled
+ ipv6.rmempty = false
 
 end
 
