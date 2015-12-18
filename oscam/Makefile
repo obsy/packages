@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oscam
-PKG_VERSION:=11107
+PKG_VERSION:=11199
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=svn
@@ -37,7 +37,7 @@ define Package/oscam/conffiles
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); ./config.sh --enable all)
+	(cd $(PKG_BUILD_DIR); echo $(PKG_VERSION) > version.txt; ./config.sh --enable all)
 	$(call Build/Configure/Default)
 endef
 
