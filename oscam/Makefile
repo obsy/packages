@@ -1,14 +1,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oscam
-PKG_VERSION:=11199
+PKG_SOURCE_URL:=http://www.streamboard.tv/svn/oscam/trunk
+PKG_VERSION:=$(shell LC_ALL=C svn info ${PKG_SOURCE_URL} | awk '/Revision/ {print $$2}')
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.bz2
-PKG_SOURCE_URL:=http://www.streamboard.tv/svn/oscam/trunk
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
