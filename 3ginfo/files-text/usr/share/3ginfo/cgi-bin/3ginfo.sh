@@ -45,7 +45,7 @@ if echo "x$DEVICE" | grep -q "192.168."; then
 	SEC=${SEC:-wan}
 else
 	if [ "x$DEVICE" = "x" ]; then
-		devices=$(ls /dev/ttyACM* /dev/ttyUSB* /dev/ttyHS* /dev/cdc-wdm* 2>/dev/null | sort -r);
+		devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r);
 		for d in $devices; do
 			DEVICE=$d gcom -s $RES/scripts/probeport.gcom > /dev/null 2>&1
 			if [ $? = 0 ]; then
