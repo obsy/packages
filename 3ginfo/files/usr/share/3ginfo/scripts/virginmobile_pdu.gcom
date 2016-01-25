@@ -12,7 +12,7 @@ opengt
  waitfor 5 "OK"
  if % = -1 goto error
 
- send "AT+CUSD=1,\"AA582C3602\",15^m"
+ send "AT+CUSD=1,\"AA180C3702\",15^m"
  waitfor 5 "+CUSD:"
  if % = -1 goto error
 
