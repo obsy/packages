@@ -43,9 +43,18 @@ free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
 MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
-WAN=$(ifstatus wan | grep -A 2 "ipv4-address" | awk -F\" '/"address"/ {print $4}')
-[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.wan.ipaddr)
-[ -n "$WAN" ] && WAN="$WAN, proto: "$(uci -q get network.wan.proto)
+PROTO=$(uci -q get network.wan.proto)
+case $PROTO in
+qmi|ncm)
+	SEC=wan_4
+	;;
+*)
+	SEC=wan
+	;;
+esac
+WAN=$(ifstatus $SEC | grep -A 2 "ipv4-address" | awk -F\" '/"address"/ {print $4}')
+[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$SEC.ipaddr)
+[ -n "$WAN" ] && WAN="$WAN, proto: "$PROTO
 
 printf " | %-60s |\n" "Machine: $MACH"
 printf " | %-60s |\n" "Uptime: $U"
