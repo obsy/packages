@@ -29,8 +29,10 @@ for f in $files; do
 done
 
 rssi=$(getvaluen device-signal rssi)
-CSQ=$(((-1*rssi + 113)/2))
-echo "+CSQ: $CSQ,99"
+if [ -n "$rssi" ]; then
+	CSQ=$(((-1*rssi + 113)/2))
+	echo "+CSQ: $CSQ,99"
+fi
 
 MODEN=$(getvaluen monitoring-status CurrentNetworkType)
 case $MODEN in
