@@ -32,6 +32,12 @@ rssi=$(getvaluen device-signal rssi)
 if [ -n "$rssi" ]; then
 	CSQ=$(((-1*rssi + 113)/2))
 	echo "+CSQ: $CSQ,99"
+else
+	per=$(getvaluen monitoring-status SignalStrength)
+	if [ -n "$per" ]; then
+		CSQ=$((($per*31)/100))
+		echo "+CSQ: $CSQ,99"
+	fi
 fi
 
 MODEN=$(getvaluen monitoring-status CurrentNetworkType)
