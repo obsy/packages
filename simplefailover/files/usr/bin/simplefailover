@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# (c) 2010-2014 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2016 Cezary Jackiewicz <cezary@eko.one.pl>
 
 WAN1=$(uci -q get simplefailover.@simplefailover[0].wan_main)
 WAN2=$(uci -q get simplefailover.@simplefailover[0].wan_backup)
@@ -8,8 +8,8 @@ HOST=$(uci -q get simplefailover.@simplefailover[0].host)
 INTERVAL=$(uci -q get simplefailover.@simplefailover[0].interval)
 
 . /lib/functions/network.sh
-network_get_physdev IFNAME wan
-network_get_gateway GATEWAY wan
+network_get_physdev IFNAME $WAN1
+network_get_gateway GATEWAY $WAN1
 
 if [ "x$IFNAME" = "x" ]; then
 	IFNAME=$(uci -q get -P /var/state network.$WAN1.ifname)
@@ -22,7 +22,7 @@ if [ "x$IFNAME" = "x" ]; then
 fi
 
 if [ "x$GATEWAY" = "x" ]; then
-    GATEWAY=$(ifstatus $WAN1 | grep -A 2 "\"target\": \"0.0.0.0\"," | awk '/nexthop/ {gsub(/[",]/, "");print $2}')
+	GATEWAY=$(ifstatus $WAN1 | grep -A 2 "\"target\": \"0.0.0.0\"," | awk '/nexthop/ {gsub(/[",]/, "");print $2}')
 fi
 if [ "x$GATEWAY" = "x" ]; then
 	GATEWAY=$(uci -q get -P /var/state network.$WAN1.gateway)
