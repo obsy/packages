@@ -64,7 +64,7 @@ printf " | %-60s |\n" "Memory: $MEM"
 printf " | %-60s |\n" "WAN: $WAN"
 printf " | %-60s |\n" "LAN: $LAN"
 
-IFACES=$(uci -q show wireless | grep "device='radio" | cut -f2 -d.)
+IFACES=$(uci -q show wireless | grep "device='radio" | cut -f2 -d. | sort)
 for i in $IFACES; do
 	SSID=$(uci -q get wireless.$i.ssid)
 	DEV=$(uci -q get wireless.$i.device)
