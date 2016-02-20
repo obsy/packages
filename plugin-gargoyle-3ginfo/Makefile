@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo
-PKG_VERSION:=20140217
+PKG_VERSION:=20160220
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -19,12 +19,6 @@ endef
 
 define Package/plugin-gargoyle-3ginfo/description
 	3ginfo for Gargoyle
-endef
-
-define Build/Prepare
-endef
-
-define Build/Configure
 endef
 
 define Build/Compile
@@ -62,7 +56,7 @@ endef
 define Package/plugin-gargoyle-3ginfo/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	[ -n "$$$$(which uglifyjs)" ] && uglifyjs -nc ./files/www/js/3ginfo.js > $(1)/www/js/3ginfo.js || true
+	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/3ginfo.js > $(1)/www/js/3ginfo.js || true
 endef
 
 $(eval $(call BuildPackage,plugin-gargoyle-3ginfo))
