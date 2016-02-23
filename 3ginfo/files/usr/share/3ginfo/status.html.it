@@ -12,7 +12,7 @@
 <div class="c" style="display:{USSD_SHOW};"><input type="button" class="button" value="USSD" onClick="window.location.href='cgi-bin/ussd.sh'"></div>
 <div class="c" style="display:{LIMIT_SHOW};"><input type="button" class="button" value="Limite" onClick="return trzyginfo('cgi-bin/limit.sh',0);"></div>
 <div class="c"><input type="button" class="button" value="Aggiorna" onClick="return trzyginfo('cgi-bin/3ginfo.sh',0);"></div>
-<div class="c" style="display:{STATUS_SHOW}"><input type="button" class="button" value="{STATUS_TRE}" onClick="trzyginfo('cgi-bin/onoff.sh',1);"></div>
+<div class="c" style="display:{STATUS_SHOW_BUTTON}"><input type="button" class="button" value="{STATUS_TRE}" onClick="trzyginfo('cgi-bin/onoff.sh',1);"></div>
 <br />
 <a href="#" id='details_on' onclick="detailson();" style="float:left;display:inline;"><small>Mostra dettagli</small></a>
 <a href="#" id='details_off' onclick="detailsoff();" style="float:left;display:none;"><small>Nascondi dettagli</small></a>

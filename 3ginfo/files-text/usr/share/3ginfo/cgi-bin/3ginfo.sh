@@ -446,6 +446,7 @@ if [ -z "$SEC" ]; then
 	STATUS=$NOINFO
 	STATUS_TRE="-"
 	STATUS_SHOW="none"
+	STATUS_SHOW_BUTTON="none"
 else
 	NETUP=$(ifstatus $SEC | grep "\"up\": true")
 	if [ -n "$NETUP" ]; then
@@ -484,6 +485,11 @@ else
 		STATUS_TRE=$CONNECT
 	fi
 	STATUS_SHOW="block"
+	STATUS_SHOW_BUTTON="block"
+fi
+
+if [ "x"$(uci -q get 3ginfo.@3ginfo[0].connect_button) = "x0" ]; then
+	STATUS_SHOW_BUTTON="none"
 fi
 
 # Informacja o urzadzeniu
@@ -537,6 +543,7 @@ if [ -e $TEMPLATE ]; then
 	s!{TX}!$TX!g; \
 	s!{STATUS_TRE}!$STATUS_TRE!g; \
 	s!{STATUS_SHOW}!$STATUS_SHOW!g; \
+	s!{STATUS_SHOW_BUTTON}!$STATUS_SHOW_BUTTON!g; \
 	s!{DEVICE}!$DEVICE!g; \
 	s!{ECIO}!$ECIO!g; \
 	s!{RSCP}!$RSCP!g; \
