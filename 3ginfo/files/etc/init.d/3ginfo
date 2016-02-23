@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-# (c) 2010-2013 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2016 Cezary Jackiewicz <cezary@eko.one.pl>
 
 START=99
 
@@ -8,5 +8,4 @@ start () {
 	PORT=$(uci -q get 3ginfo.@3ginfo[0].http_port)
 	[ -z $PORT ] && { PORT=81; }
 	uhttpd -c /usr/share/3ginfo/uhttpd.conf -h /usr/share/3ginfo/ -p 0.0.0.0:$PORT > /dev/null 2>&1
-	# httpd_gargoyle -c "cgi-bin/*.sh" -u root -DPF "index.html" -PNF "index.html" -d /usr/share/3ginfo/ -p $PORT > /dev/null 2>&1
 }

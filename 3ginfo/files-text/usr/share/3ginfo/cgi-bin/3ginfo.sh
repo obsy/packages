@@ -437,26 +437,18 @@ if [ "x$LIMIT" != "x" ]; then
 fi
 
 # Status polaczenia
-IFACE=""
-
-if [ -n "$SEC" ]; then
-	PROTO=$(uci -q get network.$SEC.proto)
-	if [ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && [ "x$PROTO" = "x3g" ]; then
-		IFACE="3g-$SEC"
-	fi
-	[ -z "$IFACE" ] && IFACE=$(ifstatus $SEC | awk -F\" '/l3_device/ {print $4}')
-fi
 
 CONN_TIME="-"
 RX="-"
 TX="-"
 
-if [ "x$IFACE" = "x" ]; then
+if [ -z "$SEC" ]; then
 	STATUS=$NOINFO
 	STATUS_TRE="-"
 	STATUS_SHOW="none"
 else
-	if ifconfig $IFACE 2>/dev/null | grep -q inet; then
+	NETUP=$(ifstatus $SEC | grep "\"up\": true")
+	if [ -n "$NETUP" ]; then
 		if [ $TOTXT -eq 0 ]; then
 			STATUS="<font color=green>$CONNECTED</font>"
 		else
@@ -478,8 +470,11 @@ else
 			S=$(expr $CT % 60)
 			CONN_TIME=$(printf "%dd, %02d:%02d:%02d" $D $H $M $S)
 		fi
-		RX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$2}')
-		TX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$4}')
+		IFACE=$(ifstatus $SEC | awk -F\" '/l3_device/ {print $4}')
+		if [ -n "$IFACE" ]; then
+			RX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$2}')
+			TX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$4}')
+		fi
 	else
 		if [ $TOTXT -eq 0 ]; then
 			STATUS="<font color=red>$DISCONNECTED</font>"
