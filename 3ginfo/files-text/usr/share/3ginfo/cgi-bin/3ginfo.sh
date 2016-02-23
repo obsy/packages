@@ -284,10 +284,10 @@ if [ "x$MODE" = "x-" ]; then
 fi
 
 # CREG
-CREG="+CREG"
+CREG="+CGREG"
 LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
 if [ "x$LAC" = "x" ]; then
-	CREG="+CGREG"
+	CREG="+CREG"
 	LAC=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
 fi
 
@@ -382,9 +382,10 @@ if [ "x$CID" != "x" ]; then
 		esac
 	fi
 
-	PAT="^$COPS_NUM;0x"$(printf %04X $CID_NUM)";0x"$(printf %04X $LAC_NUM)";"
 	CLF=$(uci -q get 3ginfo.@3ginfo[0].clf)
 	if [ -e "$CLF" ]; then
+		PAT="xxx"
+		[ "x$CID_NUM" != "x-" -a "x$LAC_NUM" != "x-" ] && PAT="^$COPS_NUM;0x"$(printf %04X $CID_NUM)";0x"$(printf %04X $LAC_NUM)";"
 		is_gz=$(dd if="$CLF" bs=1 count=2 2>/dev/null | hexdump -v -e '1/1 "%02x"')
 		if [ "x$is_gz" = "x1f8b" ] ; then
 			BTSINFO="<a href=\"http://maps.google.pl/?t=k\&z=17\&q="$(zcat "$CLF" | awk -F";" '/'$PAT'/ {printf $5","$6}')"\">"$(zcat "$CLF" | awk -F";" '/'$PAT'/ {gsub(/\!/,"\\!");print $8}')"</a>"
