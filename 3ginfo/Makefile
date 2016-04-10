@@ -56,13 +56,5 @@ define Package/3ginfo/install
 	$(CP) ./files/* $(1)
 endef
 
-define Package/3ginfo/postinst
-#!/bin/sh
-[ -n "$${IPKG_INSTROOT}" ] || {
-	[ -n "$$(uci -q show uhttpd | grep -E "listen_http.*:80")" -a -e /usr/sbin/httpd_gargoyle ] && /etc/init.d/uhttpd disable
-}
-exit 0
-endef
-
 $(eval $(call BuildPackage,3ginfo-text))
 $(eval $(call BuildPackage,3ginfo))
