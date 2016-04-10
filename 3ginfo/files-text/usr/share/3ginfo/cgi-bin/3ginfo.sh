@@ -155,7 +155,7 @@ fi
 
 # dla modemow Option i ZTE
 if [ "$COPS_NUM" = "-" ]; then
-	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: 0,0/ {print $2}')
+	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
 	[ "x$COPS" = "x" ] && COPS="---"
 
 	COPS_TMP=$(awk -F[\;] 'BEGIN {IGNORECASE = 1} /'"$COPS"'/ {print $2}' $RES/mccmnc.dat)

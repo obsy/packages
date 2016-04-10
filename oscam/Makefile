@@ -37,7 +37,7 @@ define Package/oscam/conffiles
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); echo $(PKG_VERSION) > version.txt; ./config.sh --enable all)
+	(cd $(PKG_BUILD_DIR); echo $(PKG_VERSION) > version.txt; ./config.sh --enable all --disable IPV6SUPPORT)
 	$(call Build/Configure/Default)
 endef
 
