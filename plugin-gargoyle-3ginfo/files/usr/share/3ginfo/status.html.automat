@@ -15,3 +15,7 @@ lcid:{LCID} ({LCID_NUM})
 rnc:{RNC} ({RNC_NUM})
 cid:{CID} ({CID_NUM})
 device:{DEVICE}
+rscp:{RSCP}
+ecio:{ECIO}
+rsrp:{RSRP}
+rsrq:{RSRQ}

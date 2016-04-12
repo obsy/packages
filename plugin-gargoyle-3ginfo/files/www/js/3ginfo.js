@@ -51,6 +51,10 @@ function resetData()
 			setChildText("rnc", "-");
 			setChildText("cid", "-");
 			setChildText("device", "-");
+			setChildText("rscp", "-");
+			setChildText("ecio", "-");
+			setChildText("rsrp", "-");
+			setChildText("rsrq", "-");
 
 			document.getElementById("qos_container").style.display = uciOriginal.get(pkg, sec[0], 'qos') == 1?"block":"none";
 
@@ -88,6 +92,26 @@ function resetData()
 				}
 				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
 				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
+				if (arr[0].match(/^rscp/))
+				{
+					document.getElementById("rscp_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					setChildText("rscp", arr[1] + "dBm");
+				}
+				if (arr[0].match(/^ecio/))
+				{
+					document.getElementById("ecio_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					setChildText("ecio", arr[1] + "dB");
+				}
+				if (arr[0].match(/^rsrp/))
+				{
+					document.getElementById("rsrp_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					setChildText("rsrp", arr[1] + "dBm");
+				}
+				if (arr[0].match(/^rsrq/))
+				{
+					document.getElementById("rsrq_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					setChildText("rsrq", arr[1] + "dB");
+				}
 			}
 
 			setGraph(csq);

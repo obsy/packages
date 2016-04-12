@@ -114,6 +114,18 @@
 	<div>
 		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
 	</div>
+	<div id="rscp_container" style="display:none;">
+		<span class='leftcolumn'>RSCP:</span><span id="rscp" class='rightcolumn'>-</span>
+	</div>
+	<div id="ecio_container" style="display:none;">
+		<span class='leftcolumn'>Ec/IO:</span><span id="ecio" class='rightcolumn'>-</span>
+	</div>
+	<div id="rsrp_container" style="display:none;">
+		<span class='leftcolumn'>RSRP:</span><span id="rsrp" class='rightcolumn'>-</span>
+	</div>
+	<div id="rsrq_container" style="display:none;">
+		<span class='leftcolumn'>RSRQ:</span><span id="rsrq" class='rightcolumn'>-</span>
+	</div>
 	<div>
 		<span class='leftcolumn'><%~ MdmType %>:</span><span id="device" class='rightcolumn'>-</span>
 	</div>
