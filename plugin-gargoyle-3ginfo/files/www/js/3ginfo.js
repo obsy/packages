@@ -82,34 +82,34 @@ function resetData()
 				if (arr[0].match(/^lac/))	{ setChildText("lac", arr[1]); }
 				if (arr[0].match(/^lcid/))
 				{
-					document.getElementById("lcid_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("lcid_container").style.display = "block";
 					setChildText("lcid", arr[1]);
 				}
 				if (arr[0].match(/^rnc/))
 				{
-					document.getElementById("rnc_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("rnc_container").style.display = "block";
 					setChildText("rnc", arr[1]);
 				}
 				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
 				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 				if (arr[0].match(/^rscp/))
 				{
-					document.getElementById("rscp_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("rscp_container").style.display = "block";
 					setChildText("rscp", arr[1] + "dBm");
 				}
 				if (arr[0].match(/^ecio/))
 				{
-					document.getElementById("ecio_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("ecio_container").style.display = "block";
 					setChildText("ecio", arr[1] + "dB");
 				}
 				if (arr[0].match(/^rsrp/))
 				{
-					document.getElementById("rsrp_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("rsrp_container").style.display = "block";
 					setChildText("rsrp", arr[1] + "dBm");
 				}
 				if (arr[0].match(/^rsrq/))
 				{
-					document.getElementById("rsrq_container").style.display = arr[1].match(/- (-)/)?"block":"none";
+					document.getElementById("rsrq_container").style.display = "block";
 					setChildText("rsrq", arr[1] + "dB");
 				}
 			}

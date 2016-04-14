@@ -24,12 +24,15 @@
 					echo "<option value='$d'>$d</option>"
 				done
 
-				cdcif=$(grep -Hi "cdc ethernet control" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+				cdcif=$(egrep -Hi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+				[ -z "$cdcif" ] && cdcif=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
 				if [ -n "$cdcif" ]; then
 					if [ "x"$(uci -q get network.wan.proto) = "xdhcp" ]; then
 						. /lib/functions/network.sh
 						network_get_gateway GATEWAY wan
-						echo "<option value='$GATEWAY'>HiLink</option>"
+						if [ -n "$GATEWAY" ]; then
+							echo "<option value='$GATEWAY'>HiLink</option>"
+						fi
 					fi
 				fi
 
