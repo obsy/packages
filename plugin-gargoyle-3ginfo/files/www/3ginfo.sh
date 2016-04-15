@@ -1,6 +1,6 @@
 #!/usr/bin/haserl
 <%
-	# This program is copyright © 2013 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+	# This program is copyright © 2016 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
 	# itself remain covered by the GPL.
@@ -102,21 +102,6 @@
 	<div>
 		<span class='leftcolumn'>RSSI:</span><span id="csq_rssi" class='rightcolumn'>-</span>
 	</div>
-	<div id="qos_container" style="display:none;">
-		<span class='leftcolumn'><%~ QoSProf %>:</span><span id="qos" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'>LAC:</span><span id="lac" class='rightcolumn'>-</span>
-	</div>
-	<div id="lcid_container" style="display:none;">
-		<span class='leftcolumn'>LCID:</span><span id="lcid" class='rightcolumn'>-</span>
-	</div>
-	<div id="rnc_container" style="display:none;">
-		<span class='leftcolumn'>RNC:</span><span id="rnc" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
-	</div>
 	<div id="rscp_container" style="display:none;">
 		<span class='leftcolumn'>RSCP:</span><span id="rscp" class='rightcolumn'>-</span>
 	</div>
@@ -128,6 +113,15 @@
 	</div>
 	<div id="rsrq_container" style="display:none;">
 		<span class='leftcolumn'>RSRQ:</span><span id="rsrq" class='rightcolumn'>-</span>
+	</div>
+	<div>
+		<span class='leftcolumn'>LAC:</span><span id="lac" class='rightcolumn'>-</span>
+	</div>
+	<div id="cid_container" style="display:block;">
+		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
+	</div>
+	<div id="lcid_container" style="display:none;">
+		<span class='leftcolumn'>LCID:</span><span id="lcid" class='rightcolumn'>-</span>
 	</div>
 	<div>
 		<span class='leftcolumn'><%~ MdmType %>:</span><span id="device" class='rightcolumn'>-</span>

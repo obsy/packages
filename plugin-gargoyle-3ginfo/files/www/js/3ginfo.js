@@ -1,5 +1,5 @@
 /*
- * This program is copyright © 2013 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+ * This program is copyright © 2016 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
  * version 2.0 with a special clarification/exception that permits adapting the program to
  * configure proprietary "back end" software provided that all modifications to the web interface
  * itself remain covered by the GPL.
@@ -45,18 +45,14 @@ function resetData()
 			setChildText("gcsq_per", "-");
 			setChildText("csq", "-");
 			setChildText("csq_rssi", "-");
-			setChildText("qos", "-");
 			setChildText("lac", "-");
 			setChildText("lcid", "-");
-			setChildText("rnc", "-");
 			setChildText("cid", "-");
 			setChildText("device", "-");
 			setChildText("rscp", "-");
 			setChildText("ecio", "-");
 			setChildText("rsrp", "-");
 			setChildText("rsrq", "-");
-
-			document.getElementById("qos_container").style.display = uciOriginal.get(pkg, sec[0], 'qos') == 1?"block":"none";
 
 			var csq = 0;
 			for (var idx=0; idx<lines.length; idx++)
@@ -78,38 +74,33 @@ function resetData()
 				if (arr[0].match(/^csq_per/))	{ csq = arr[1]; }
 				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
 				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1] + "dBm"); }
-				if (arr[0].match(/^qos/))	{ setChildText("qos", arr[1]); }
 				if (arr[0].match(/^lac/))	{ setChildText("lac", arr[1]); }
+				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
 				if (arr[0].match(/^lcid/))
 				{
-					document.getElementById("lcid_container").style.display = "block";
+					document.getElementById("lcid_container").style.display = arr[1]=="- (-)"?"none":"block";
+					document.getElementById("cid_container").style.display = arr[1]=="- (-)"?"block":"none";
 					setChildText("lcid", arr[1]);
 				}
-				if (arr[0].match(/^rnc/))
-				{
-					document.getElementById("rnc_container").style.display = "block";
-					setChildText("rnc", arr[1]);
-				}
-				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
 				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 				if (arr[0].match(/^rscp/))
 				{
-					document.getElementById("rscp_container").style.display = "block";
+					document.getElementById("rscp_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("rscp", arr[1] + "dBm");
 				}
 				if (arr[0].match(/^ecio/))
 				{
-					document.getElementById("ecio_container").style.display = "block";
+					document.getElementById("ecio_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("ecio", arr[1] + "dB");
 				}
 				if (arr[0].match(/^rsrp/))
 				{
-					document.getElementById("rsrp_container").style.display = "block";
+					document.getElementById("rsrp_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("rsrp", arr[1] + "dBm");
 				}
 				if (arr[0].match(/^rsrq/))
 				{
-					document.getElementById("rsrq_container").style.display = "block";
+					document.getElementById("rsrq_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("rsrq", arr[1] + "dB");
 				}
 			}
