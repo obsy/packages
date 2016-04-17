@@ -1,0 +1,139 @@
+/dts-v1/;
+
+/include/ "rt5350.dtsi"
+
+/ {
+	compatible = "H820", "ralink,rt5350-soc";
+	model = "E-Lins H820";
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x4000000>;
+	};
+
+	palmbus@10000000 {
+		spi@b00 {
+			status = "okay";
+			m25p80@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "s25fl064k";
+				reg = <0 0>;
+				linux,modalias = "m25p80", "s25fl064k";
+				spi-max-frequency = <10000000>;
+
+				partition@0 {
+					label = "Bootloader";
+					reg = <0x0 0x30000>;
+					read-only;
+				};
+
+				partition@30000 {
+					label = "Config";
+					reg = <0x30000 0x20000>;
+					read-only;
+				};
+
+				factory: partition@50000 {
+					label = "Factory";
+					reg = <0x50000 0x10000>;
+					read-only;
+				};
+
+				partition@60000 {
+					label = "user_fs";
+					reg = <0x60000 0x1A0000>;
+				};
+
+				partition@200000 {
+					label = "firmware";
+					reg = <0x200000 0x600000>;
+				};
+			};
+		};
+	};
+
+	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
+	};
+
+	esw@10110000 {
+		ralink,portmap = <0x2f>;
+		ralink,led_polarity = <0x17>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
+		ralink,led-polarity = <1>;
+	};
+
+	pinctrl {
+		state_default: pinctrl0 {
+			gpio {
+				ralink,group = "i2c", "jtag", "rgmii", "mdio", "uartf";
+				ralink,function = "gpio";
+			};
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		cell {
+			label = "e-lins:yellow:cell";
+			gpios = <&gpio0 19 1>;
+		};
+		signal {
+			label = "e-lins:blue:signal";
+			gpios = <&gpio0 11 1>;
+		};
+		wps {
+			label = "e-lins:green:wps";
+			gpios = <&gpio0 12 1>;
+		};
+		vpn {
+			label = "e-lins:green:vpn";
+			gpios = <&gpio0 20 1>;
+		};
+		sys {
+			label = "e-lins:red:sys";
+			gpios = <&gpio0 21 1>;
+		};
+	};
+
+	ehci@101c0000 {
+		status = "okay";
+	};
+
+	ohci@101c0000 {
+		status = "okay";
+	};
+
+	gpio_export {
+		compatible = "gpio-export";
+		#size-cells = <0>;
+
+		usb {
+			gpio-export,name = "usb";
+			gpio-export,output = <1>;
+			gpios = <&gpio0 18 0>;
+		};
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		reset {
+			label = "reset";
+			gpios = <&gpio0 17 1>;
+			linux,code = <0x198>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio0 0 1>;
+			linux,code = <0x211>;
+		};
+	};
+
+};
