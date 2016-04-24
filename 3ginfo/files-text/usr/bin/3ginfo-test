@@ -3,17 +3,22 @@
 # (c) 2010-2015 Cezary Jackiewicz <cezary@eko.one.pl>
 
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
-if [ "x$DEVICE" = "x" ]; then
-	echo "Brak podanego urzadzenia w konfiguracji!"
-	exit 0
-fi
-if [ ! -e $DEVICE ]; then
-	echo "Brak urzadzenia $DEVICE!"
-	exit 0
-fi
 
-# [ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
-O=$(gcom -d $DEVICE -s /usr/share/3ginfo/scripts/3ginfo.gcom)
+if echo "x$DEVICE" | grep -q "192.168."; then
+	O=$(/usr/share/3ginfo/scripts/huawei_hilink.sh $DEVICE)
+else
+	if [ "x$DEVICE" = "x" ]; then
+		echo "Brak podanego urzadzenia w konfiguracji!"
+		exit 0
+	fi
+	if [ ! -e $DEVICE ]; then
+		echo "Brak urzadzenia $DEVICE!"
+		exit 0
+	fi
+
+	# [ "${DEVICE%%[0-9]}" = "/dev/ttyUSB" ] && stty -F $DEVICE -iexten -opost -icrnl
+	O=$(gcom -d $DEVICE -s /usr/share/3ginfo/scripts/3ginfo.gcom)
+fi
 
 echo "$O"
 
