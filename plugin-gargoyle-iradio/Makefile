@@ -62,7 +62,7 @@ endef
 define Package/plugin-gargoyle-iradio/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	[ -n "$$$$(which uglifyjs)" ] && uglifyjs -nc ./files/www/js/iradio.js > $(1)/www/js/iradio.js || true
+	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/iradio.js > $(1)/www/js/iradio.js || true
 endef
 
 $(eval $(call BuildPackage,plugin-gargoyle-iradio))
