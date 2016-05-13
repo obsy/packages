@@ -424,7 +424,8 @@ else
 fi
 
 # USSD
-if [ -e /usr/bin/ussd159 ]; then
+which ussd159 >/dev/null 2>&1
+if [ $? -eq 0 ]; then
 	USSD_SHOW="block"
 else
 	USSD_SHOW="none"
