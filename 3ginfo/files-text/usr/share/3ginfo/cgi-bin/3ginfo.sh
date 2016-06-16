@@ -459,7 +459,7 @@ else
 		fi
 		STATUS_TRE=$DISCONNECT
 
-		CT=$(uci -q get -P /var/state/ network.$SEC.connect_time)
+		CT=$(uci -q -P /var/state/ get network.$SEC.connect_time)
 		if [ -z $CT ]; then
 			CT=$(ifstatus $SEC | awk -F[:,] '/uptime/ {print $2}')
 		else
