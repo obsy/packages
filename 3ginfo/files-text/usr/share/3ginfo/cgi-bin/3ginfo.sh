@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2015 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2016 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 RES="/usr/share/3ginfo"
