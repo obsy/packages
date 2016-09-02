@@ -114,14 +114,17 @@
 	<div id="rsrq_container" style="display:none;">
 		<span class='leftcolumn'>RSRQ:</span><span id="rsrq" class='rightcolumn'>-</span>
 	</div>
-	<div>
+	<div id="lac_container" style="display:none;">
 		<span class='leftcolumn'>LAC:</span><span id="lac" class='rightcolumn'>-</span>
 	</div>
-	<div id="cid_container" style="display:block;">
+	<div id="cid_container" style="display:none;">
 		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
 	</div>
 	<div id="lcid_container" style="display:none;">
 		<span class='leftcolumn'>LCID:</span><span id="lcid" class='rightcolumn'>-</span>
+	</div>
+	<div id="tac_container" style="display:none;">
+		<span class='leftcolumn'>TAC:</span><span id="tac" class='rightcolumn'>-</span>
 	</div>
 	<div>
 		<span class='leftcolumn'><%~ MdmType %>:</span><span id="device" class='rightcolumn'>-</span>

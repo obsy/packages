@@ -48,6 +48,7 @@ function resetData()
 			setChildText("lac", "-");
 			setChildText("lcid", "-");
 			setChildText("cid", "-");
+			setChildText("tac", "-");
 			setChildText("device", "-");
 			setChildText("rscp", "-");
 			setChildText("ecio", "-");
@@ -74,13 +75,22 @@ function resetData()
 				if (arr[0].match(/^csq_per/))	{ csq = arr[1]; }
 				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
 				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1] + "dBm"); }
-				if (arr[0].match(/^lac/))	{ setChildText("lac", arr[1]); }
+				if (arr[0].match(/^lac/))
+				{
+					document.getElementById("lac_container").style.display = arr[1]=="-"?"none":"block";
+					setChildText("lac", arr[1]);
+				}
 				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
 				if (arr[0].match(/^lcid/))
 				{
 					document.getElementById("lcid_container").style.display = arr[1]=="- (-)"?"none":"block";
 					document.getElementById("cid_container").style.display = arr[1]=="- (-)"?"block":"none";
 					setChildText("lcid", arr[1]);
+				}
+				if (arr[0].match(/^tac/))
+				{
+					document.getElementById("tac_container").style.display = arr[1]=="-"?"none":"block";
+					setChildText("tac", arr[1]);
 				}
 				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 				if (arr[0].match(/^rscp/))
