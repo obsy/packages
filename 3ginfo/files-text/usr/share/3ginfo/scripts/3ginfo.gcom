@@ -105,6 +105,10 @@ opengt
  let $r="+CGREG"
  gosub readatcmd
 
+ let $c="AT+CEREG=2;+CEREG?^m"
+ let $r="+CEREG"
+ gosub readatcmd
+
  let $c="AT+CGEQNEG=1^m"
  let $r="+CGEQNEG"
  gosub readatcmd

@@ -27,6 +27,7 @@
  <span class="l" style="display:{RNC_SHOW}">RNC:</span><span class="r" style="display:{RNC_SHOW}">{RNC} ({RNC_NUM})</span>
  <span class="l" style="display:{ENB_SHOW}">eNB:</span><span class="r" style="display:{ENB_SHOW}">{ENB} ({ENB_NUM})</span>
  <span class="l">CID:</span><span class="r">{CID} ({CID_NUM})</span>
+ <span class="l">TAC:</span><span class="r">{TAC} ({TAC_NUM})</span>
  <span class="l">RSCP:</span><span class="r">{RSCP} dBm</span>
  <span class="l">Ec/IO:</span><span class="r">{ECIO} dB</span>
  <span class="l">RSRP:</span><span class="r">{RSRP} dBm</span>

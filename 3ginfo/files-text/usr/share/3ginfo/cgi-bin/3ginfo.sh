@@ -298,6 +298,16 @@ else
 	LAC_NUM="-"
 fi
 
+# TAC
+TAC=$(echo "$O" | awk -F[,] '/^\+CEREG/ {printf "%s", toupper($3)}' | sed 's/[^A-F0-9]//g')
+if [ "x$TAC" != "x" ]; then
+	TAC_NUM=$(printf %d 0x$TAC)
+else
+	TAC="-"
+	TAC_NUM="-"
+fi
+
+
 # ECIO / RSCP
 ECIO="-"
 RSCP="-"
@@ -531,6 +541,8 @@ if [ -e $TEMPLATE ]; then
 	s!{ENB_SHOW}!$ENB_SHOW!g; \
 	s!{CID}!$CID!g; \
 	s!{CID_NUM}!$CID_NUM!g; \
+	s!{TAC}!$TAC!g; \
+	s!{TAC_NUM}!$TAC_NUM!g; \
 	s!{BTSINFO}!$BTSINFO!g; \
 	s!{DOWN}!$DOWN!g; \
 	s!{UP}!$UP!g; \
