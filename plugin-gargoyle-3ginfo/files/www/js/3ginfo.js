@@ -80,19 +80,21 @@ function resetData()
 					document.getElementById("lac_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("lac", arr[1]);
 				}
-				if (arr[0].match(/^cid/))	{ setChildText("cid", arr[1]); }
+				if (arr[0].match(/^cid/))
+				{
+					document.getElementById("cid_container").style.display = arr[1]=="- (-)"?"none":"block";
+					setChildText("cid", arr[1]);
+				}
 				if (arr[0].match(/^lcid/))
 				{
 					document.getElementById("lcid_container").style.display = arr[1]=="- (-)"?"none":"block";
-					document.getElementById("cid_container").style.display = arr[1]=="- (-)"?"block":"none";
 					setChildText("lcid", arr[1]);
 				}
 				if (arr[0].match(/^tac/))
 				{
-					document.getElementById("tac_container").style.display = arr[1]=="-"?"none":"block";
+					document.getElementById("tac_container").style.display = arr[1]=="- (-)"?"none":"block";
 					setChildText("tac", arr[1]);
 				}
-				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 				if (arr[0].match(/^rscp/))
 				{
 					document.getElementById("rscp_container").style.display = arr[1]=="-"?"none":"block";
@@ -113,6 +115,7 @@ function resetData()
 					document.getElementById("rsrq_container").style.display = arr[1]=="-"?"none":"block";
 					setChildText("rsrq", arr[1] + "dB");
 				}
+				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
 			}
 
 			setGraph(csq);
