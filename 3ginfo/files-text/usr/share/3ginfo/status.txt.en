@@ -3,7 +3,7 @@ Connection time: {CONN_TIME}
 Received / Transmitted data: {RX} / {TX}
 Operator: {COPS}
 Operating mode: {MODE}
-Signal strenght: {CSQ_PER}%
+Signal strength: {CSQ_PER}%
 Device: {DEVICE}
 MCC MNC: {COPS_MCC} {COPS_MNC}
 LAC: {LAC} ({LAC_NUM})

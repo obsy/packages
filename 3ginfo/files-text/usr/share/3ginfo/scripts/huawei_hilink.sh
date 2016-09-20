@@ -2,6 +2,7 @@
 
 IP=$1
 [ -z "$IP" ] && exit 0
+[ -e /usr/bin/wget ] || exit 0
 
 getvaluen() {
 	echo $(awk -F[\<\>] '/<'$2'>/ {print $3}' /tmp/$1 | sed 's/[^0-9]//g')
@@ -127,5 +128,3 @@ fi
 rm $cookie
 
 exit 0
-
-#

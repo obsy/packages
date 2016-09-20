@@ -4,6 +4,12 @@
 # (c) 2010-2016 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
+# Output format
+# 0 - html
+# 1 - txt
+# 2 - json
+
+FORMAT=1
 RES="/usr/share/3ginfo"
 
 LANG=$(uci -q get 3ginfo.@3ginfo[0].language)
@@ -23,24 +29,37 @@ getpath() {
 	esac
 }
 
-if [ "`basename $0`" = "3ginfo" ]; then
-	TOTXT=1
-else
-	TOTXT=0
-	echo -e "Content-type: text/html\n\n"
-fi
+showjsonerror() {
+	echo "{\"error\": \"$1\"}"
+}
 
-if [ ! -e $RES/msg.dat.$LANG ]; then
-	echo "File missing: $RES/msg.dat.$LANG"
-	exit 0
+if [ "x$1" = "xjson" ]; then
+	FORMAT=2
+else
+	if [ "`basename $0`" = "3ginfo" ]; then
+		FORMAT=1
+	else
+		FORMAT=0
+		echo -e "Content-type: text/html\n\n"
+	fi
+
+	if [ ! -e $RES/msg.dat.$LANG ]; then
+		echo "File missing: $RES/msg.dat.$LANG"
+		exit 0
+	fi
+	. $RES/msg.dat.$LANG
 fi
-. $RES/msg.dat.$LANG
 
 # odpytanie urzadzenia
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 
 if echo "x$DEVICE" | grep -q "192.168."; then
-	O=$($RES/scripts/huawei_hilink.sh $DEVICE)
+	if grep -q "Vendor=1bbb" /sys/kernel/debug/usb/devices; then
+		O=$($RES/scripts/alcatel_hilink.sh $DEVICE)
+	fi
+	if grep -q "Vendor=12d1" /sys/kernel/debug/usb/devices; then
+		O=$($RES/scripts/huawei_hilink.sh $DEVICE)
+	fi
 	SEC=$(uci -q get 3ginfo.@3ginfo[0].network)
 	SEC=${SEC:-wan}
 else
@@ -58,20 +77,16 @@ else
 	fi
 
 	if [ "x$DEVICE" = "x" ]; then
-		if [ $TOTXT -eq 0 ]; then
-			echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
-		else
-			echo $NOTDETECTED
-		fi
+		[ $FORMAT -eq 0 ] && echo "<h3 style='color:red;' class=\"c\">$NOTDETECTED</h3>"
+		[ $FORMAT -eq 1 ] && echo $NOTDETECTED
+		[ $FORMAT -eq 2 ] && showjsonerror "NOTDETECTED"
 		exit 0
 	fi
 
 	if [ ! -e $DEVICE ]; then
-		if [ $TOTXT -eq 0 ]; then
-			echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
-		else
-			echo "$NODEVICE $DEVICE."
-		fi
+		[ $FORMAT -eq 0 ] && echo "<h3 style='color:red;' class=\"c\">$NODEVICE $DEVICE!</h3>"
+		[ $FORMAT -eq 1 ] && echo "$NODEVICE $DEVICE."
+		[ $FORMAT -eq 2 ] && showjsonerror "NODEVICE $DEVICE"
 		exit 0
 	fi
 
@@ -102,11 +117,9 @@ else
 		fi
 		if [ ! -z $PINCODE ]; then
 			PINCODE="$PINCODE" gcom -d "$DEVICE" -s /etc/gcom/setpin.gcom > /dev/null || {
-				if [ $TOTXT -eq 0 ]; then
-					echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
-				else
-					echo $PINERROR
-				fi
+				[ $FORMAT -eq 0 ] && echo "<h3 style='color:red;' class=\"c\">$PINERROR</h3>"
+				[ $FORMAT -eq 1 ] && echo "$PINERROR"
+				[ $FORMAT -eq 2 ] && showjsonerror "PINERROR"
 				exit 0
 			}
 		fi
@@ -114,6 +127,17 @@ else
 	fi
 
 	O=$(gcom -d $DEVICE -s $RES/scripts/3ginfo.gcom 2>/dev/null)
+fi
+
+if [ "x$1" = "xtest" ]; then
+	echo "$O"
+	echo "---------------------------------------------------------------"
+	ls /dev/tty*
+	echo "---------------------------------------------------------------"
+	cat /sys/kernel/debug/usb/devices
+	echo "---------------------------------------------------------------"
+	uci show 3ginfo
+	exit 0
 fi
 
 # CSQ
@@ -131,8 +155,6 @@ if [ $CSQ -ge 0 -a $CSQ -le 31 ]; then
 	[ $CSQ -ge 15 ] && CSQ_COL="yellow"
 	[ $CSQ -ge 20 ] && CSQ_COL="green"
 	CSQ_RSSI=$((2 * CSQ - 113))
-	[ $CSQ -eq 0 ] && CSQ_RSSI="<= "$CSQ_RSSI
-	[ $CSQ -eq 31 ] && CSQ_RSSI=">= "$CSQ_RSSI
 else
 	CSQ="-"
 	CSQ_PER="0"
@@ -381,7 +403,7 @@ if [ "x$CID" != "x" ]; then
 	fi
 
 	CID_NUM=$(printf %d 0x$CID)
-	if [ $TOTXT -eq 0 ]; then
+	if [ $FORMAT -eq 0 ]; then
 		case $COPS_NUM in
 			26001*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=3\&amp;mode=adv\">$CID</a>";;
 			26002*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=1\&amp;mode=adv\">$CID</a>";;
@@ -462,16 +484,14 @@ if [ -z "$SEC" ]; then
 else
 	NETUP=$(ifstatus $SEC | grep "\"up\": true")
 	if [ -n "$NETUP" ]; then
-		if [ $TOTXT -eq 0 ]; then
-			STATUS="<font color=green>$CONNECTED</font>"
-		else
-			STATUS=$CONNECTED
-		fi
+		[ $FORMAT -eq 0 ] && STATUS="<font color=green>$CONNECTED</font>"
+		[ $FORMAT -eq 1 ] && STATUS=$CONNECTED
+		[ $FORMAT -eq 2 ] && STATUS="CONNECTED"
 		STATUS_TRE=$DISCONNECT
 
 		CT=$(uci -q -P /var/state/ get network.$SEC.connect_time)
 		if [ -z $CT ]; then
-			CT=$(ifstatus $SEC | awk -F[:,] '/uptime/ {print $2}')
+			CT=$(ifstatus $SEC | awk -F[:,] '/uptime/ {print $2}' | xargs)
 		else
 			UPTIME=$(cut -d. -f1 /proc/uptime)
 			CT=$((UPTIME-CT))
@@ -489,11 +509,10 @@ else
 			TX=$(ifconfig $IFACE | awk -F[\(\)] '/bytes/ {printf "%s",$4}')
 		fi
 	else
-		if [ $TOTXT -eq 0 ]; then
-			STATUS="<font color=red>$DISCONNECTED</font>"
-		else
-			STATUS=$DISCONNECTED
-		fi
+
+		[ $FORMAT -eq 0 ] && STATUS="<font color=red>$DISCONNECTED</font>"
+		[ $FORMAT -eq 1 ] && STATUS=$DISCONNECTED
+		[ $FORMAT -eq 2 ] && STATUS="DISCONNECTED"
 		STATUS_TRE=$CONNECT
 	fi
 	STATUS_SHOW="block"
@@ -511,13 +530,13 @@ if [ "x$DEVICE" = "x" ]; then
 fi
 
 # podmiana w szablonie
-if [ $TOTXT -eq 0 ]; then
-	EXT="html"
+if [ $FORMAT -eq 2 ]; then
+	TEMPLATE="$RES/status.json"
 else
-	EXT="txt"
+	[ $FORMAT -eq 0 ] && EXT="html"
+	[ $FORMAT -eq 1 ] && EXT="txt"
+	TEMPLATE="$RES/status.$EXT.$LANG"
 fi
-
-TEMPLATE="$RES/status.$EXT.$LANG"
 
 if [ -e $TEMPLATE ]; then
 	sed -e "s!{CSQ}!$CSQ!g; \

@@ -15,14 +15,14 @@ opengt
  gosub readatcmdnr
  let $v=$s
 
- if $toupper($mid($v,0,3)) = "ZTE" goto zte
- if $toupper($mid($v,0,3)) = "OPT" goto option
- if $toupper($mid($v,0,3)) = "SIE" goto sierra
- if $toupper($mid($v,0,3)) = "NOV" goto novatel
  if $toupper($mid($v,0,3)) = "HUA" goto huawei
- if $toupper($mid($v,0,3)) = "VOD" goto vodafone
  if $toupper($mid($v,0,3)) = "NOK" goto vodafone
+ if $toupper($mid($v,0,3)) = "NOV" goto novatel
+ if $toupper($mid($v,0,3)) = "OPT" goto option
  if $toupper($mid($v,0,3)) = "SIM" goto simcom
+ if $toupper($mid($v,0,3)) = "SIE" goto sierra
+ if $toupper($mid($v,0,3)) = "VOD" goto vodafone
+ if $toupper($mid($v,0,3)) = "ZTE" goto zte
  goto generic
 
 :simcom

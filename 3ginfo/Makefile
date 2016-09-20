@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20160902
+PKG_VERSION:=20160916
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/3ginfo/Default
 	SECTION:=net
 	CATEGORY:=Network
-	TITLE:=Information about status of 3G/LTE connections
+	TITLE:=Information about status of 3G/4G connections
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
@@ -18,7 +18,6 @@ endef
 define Package/3ginfo-text
 $(call Package/3ginfo/Default)
 	TITLE+= (txt version)
-#	DEPENDS:=+comgt +coreutils +coreutils-stty
 	DEPENDS:=+comgt
 endef
 
@@ -29,12 +28,6 @@ endef
 
 define Package/3ginfo-text/conffiles
 /etc/config/3ginfo
-endef
-
-define Build/Prepare
-endef
-
-define Build/Configure
 endef
 
 define Build/Compile
