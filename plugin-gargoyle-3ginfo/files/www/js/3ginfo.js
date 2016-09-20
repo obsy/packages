@@ -24,121 +24,94 @@ function resetData()
 
 	document.getElementById("tgdata").style.display="block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
-	var param = getParameterDefinition("commands", '/usr/share/3ginfo/3ginfo-automat\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", '3ginfo json\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
 		{
-			var lines = req.responseText.split(/[\n\r]+/);
-
 			setChildText("status", "-");
 			setChildText("conn_time", "-");
 			setChildText("rx", "-");
 			setChildText("tx", "-");
 			setChildText("mode", "-");
-			setChildText("gmode", "-");
-			setChildText("cops", "-");
-			setChildText("gcops", "-");
-			setChildText("cops_mcc", "-");
-			setChildText("cops_mnc", "-");
-			setChildText("csq_per", "-");
-			setChildText("gcsq_per", "-");
+			setChildText("operator", "-");
+			setChildText("operator_mcc", "-");
+			setChildText("operator_mnc", "-");
+			setChildText("signal", "-");
 			setChildText("csq", "-");
-			setChildText("csq_rssi", "-");
+			setChildText("rssi", "-");
 			setChildText("lac", "-");
 			setChildText("lcid", "-");
 			setChildText("cid", "-");
 			setChildText("tac", "-");
-			setChildText("device", "-");
 			setChildText("rscp", "-");
 			setChildText("ecio", "-");
 			setChildText("rsrp", "-");
 			setChildText("rsrq", "-");
+			setChildText("device", "-");
 
-			var csq = 0;
-			for (var idx=0; idx<lines.length; idx++)
-			{
-				var arr = lines[idx].replace(/<.*?>/g, "").split(":");
-				if (arr[0].match(/^status/))
-				{
-					if (arr[1].match(/Connected/)) { setChildText("status", tginfoS.Conn); }
-					if (arr[1].match(/Disconnected/)) { setChildText("status", tginfoS.DisConn); }
-					if (arr[1].match(/No information/)) { setChildText("status", tginfoS.NoInfo); }
-				}
-				if (arr[0].match(/^conn_time/)) { setChildText("conn_time", arr[1] == "-"?arr[1]:arr[1]+":"+arr[2]+":"+arr[3]); }
-				if (arr[0].match(/^rx/))	{ setChildText("rx", arr[1]); }
-				if (arr[0].match(/^tx/))	{ setChildText("tx", arr[1]); }
-				if (arr[0].match(/^mode/))	{ setChildText("mode", arr[1]); }
-				if (arr[0].match(/^cops$/))	{ setChildText("cops", arr[1]); }
-				if (arr[0].match(/^cops_mcc/))	{ setChildText("cops_mcc", arr[1]); }
-				if (arr[0].match(/^cops_mnc/))	{ setChildText("cops_mnc", arr[1]); }
-				if (arr[0].match(/^csq_per/))	{ csq = arr[1]; }
-				if (arr[0].match(/^csq$/))	{ setChildText("csq", arr[1]); }
-				if (arr[0].match(/^csq_rssi/))	{ setChildText("csq_rssi", arr[1] + "dBm"); }
-				if (arr[0].match(/^lac/))
-				{
-					document.getElementById("lac_container").style.display = arr[1]=="-"?"none":"block";
-					setChildText("lac", arr[1]);
-				}
-				if (arr[0].match(/^cid/))
-				{
-					document.getElementById("cid_container").style.display = arr[1]=="- (-)"?"none":"block";
-					setChildText("cid", arr[1]);
-				}
-				if (arr[0].match(/^lcid/))
-				{
-					document.getElementById("lcid_container").style.display = arr[1]=="- (-)"?"none":"block";
-					setChildText("lcid", arr[1]);
-				}
-				if (arr[0].match(/^tac/))
-				{
-					document.getElementById("tac_container").style.display = arr[1]=="- (-)"?"none":"block";
-					setChildText("tac", arr[1]);
-				}
-				if (arr[0].match(/^rscp/))
-				{
-					document.getElementById("rscp_container").style.display = arr[1]=="-"?"none":"block";
-					setChildText("rscp", arr[1] + "dBm");
-				}
-				if (arr[0].match(/^ecio/))
-				{
-					document.getElementById("ecio_container").style.display = arr[1]=="-"?"none":"block";
-					setChildText("ecio", arr[1] + "dB");
-				}
-				if (arr[0].match(/^rsrp/))
-				{
-					document.getElementById("rsrp_container").style.display = arr[1]=="-"?"none":"block";
-					setChildText("rsrp", arr[1] + "dBm");
-				}
-				if (arr[0].match(/^rsrq/))
-				{
-					document.getElementById("rsrq_container").style.display = arr[1]=="-"?"none":"block";
-					setChildText("rsrq", arr[1] + "dB");
-				}
-				if (arr[0].match(/^device/))	{ setChildText("device", arr[1]); }
-			}
+			var tmp = eval ("(" + req.responseText.replace(/Success/,"") + ")");
 
-			setGraph(csq);
+			if (tmp["status"] == "CONNECTED" ) { setChildText("status", tginfoS.Conn); }
+			if (tmp["status"] == "DISCONNECTED" ) { setChildText("status", tginfoS.DisConn); }
+			if (tmp["status"] == "NOINFO" ) { setChildText("status", tginfoS.NoInfo); }
+			setChildText("conn_time", tmp["conn_time"]);
+			setChildText("rx", tmp["iface_rx"]);
+			setChildText("tx", tmp["iface_tx"]);
+			setChildText("mode", tmp["mode"]);
+			setChildText("operator", tmp["operator_name"]);
+			setChildText("operator_mcc", tmp["operator_mcc"]);
+			setChildText("operator_mnc", tmp["operator_mnc"]);
+			setChildText("csq", tmp["csq"]);
+			setChildText("rssi", tmp["rssi"] + "dBm");
+
+			document.getElementById("lac_container").style.display = tmp["lac_hex"]=="-"?"none":"block";
+			setChildText("lac", tmp["lac_hex"] + " (" + tmp["lac_dec"] + ")");
+
+			document.getElementById("cid_container").style.display = tmp["cid_hex"]=="-"?"none":"block";
+			setChildText("cid", tmp["cid_hex"] + " (" + tmp["cid_dec"] + ")");
+
+			document.getElementById("lcid_container").style.display = tmp["lcid_hex"]=="-"?"none":"block";
+			setChildText("lcid", tmp["lcid_hex"] + " (" + tmp["lcid_dec"] + ")");
+
+			document.getElementById("tac_container").style.display = tmp["tac_hex"]=="-"?"none":"block";
+			setChildText("tac", tmp["tac_hex"] + " (" + tmp["tac_dec"] + ")");
+
+			document.getElementById("rscp_container").style.display = tmp["rscp"]=="-"?"none":"block";
+			setChildText("rscp", tmp["rscp"] + "dBm");
+
+			document.getElementById("ecio_container").style.display = tmp["ecio"]=="-"?"none":"block";
+			setChildText("ecio", tmp["ecio"] + "dB");
+
+			document.getElementById("rsrp_container").style.display = tmp["rsrp"]=="-"?"none":"block";
+			setChildText("rsrp", tmp["rsrp"] + "dBm");
+
+			document.getElementById("rsrq_container").style.display = tmp["rsrq"]=="-"?"none":"block";
+			setChildText("rsrq", tmp["rsrq"] + "dB");
+
+			setChildText("device", tmp["device"]);
+
+			setGraph(tmp["signal"]);
 			setControlsEnabled(true);
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
-function setGraph(csq)
+function setGraph(signal)
 {
-	if (csq > 0) { setChildText("csq_per", csq + "%"); }
-	document.getElementById("s100p").style.display = csq > 90?"block":"none";
-	document.getElementById("s90p").style.display = csq > 80 && csq <= 90?"block":"none";
-	document.getElementById("s80p").style.display = csq > 70 && csq <= 80?"block":"none";
-	document.getElementById("s70p").style.display = csq > 60 && csq <= 70?"block":"none";
-	document.getElementById("s60p").style.display = csq > 50 && csq <= 60?"block":"none";
-	document.getElementById("s50p").style.display = csq > 40 && csq <= 50?"block":"none";
-	document.getElementById("s40p").style.display = csq > 30 && csq <= 40?"block":"none";
-	document.getElementById("s30p").style.display = csq > 20 && csq <= 30?"block":"none";
-	document.getElementById("s20p").style.display = csq > 10 && csq <= 20?"block":"none";
-	document.getElementById("s10p").style.display = csq >  0 && csq <= 10?"block":"none";
-	document.getElementById("s0p").style.display = csq == 0?"block":"none";
+	if (signal > 0) { setChildText("signal", signal + "%"); }
+	document.getElementById("s100p").style.display = signal > 90?"block":"none";
+	document.getElementById("s90p").style.display = signal > 80 && signal <= 90?"block":"none";
+	document.getElementById("s80p").style.display = signal > 70 && signal <= 80?"block":"none";
+	document.getElementById("s70p").style.display = signal > 60 && signal <= 70?"block":"none";
+	document.getElementById("s60p").style.display = signal > 50 && signal <= 60?"block":"none";
+	document.getElementById("s50p").style.display = signal > 40 && signal <= 50?"block":"none";
+	document.getElementById("s40p").style.display = signal > 30 && signal <= 40?"block":"none";
+	document.getElementById("s30p").style.display = signal > 20 && signal <= 30?"block":"none";
+	document.getElementById("s20p").style.display = signal > 10 && signal <= 20?"block":"none";
+	document.getElementById("s10p").style.display = signal >  0 && signal <= 10?"block":"none";
+	document.getElementById("s0p").style.display = signal == 0?"block":"none";
 }
 
 function setDevice(device)

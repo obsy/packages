@@ -62,7 +62,7 @@
 		<table border=0>
 		<tr>
 			<td height="50" style="text-align:left;">
-				<span id="cops" style="font-size:2em;">-</span>
+				<span id="operator" style="font-size:2em;">-</span>
 			</td>
 			<td rowspan="3">
 				<img id="s0p" src="img/signal0.png" style="display: block;">
@@ -85,7 +85,7 @@
 		</tr>
 		<tr>
 			<td style="text-align:left;">
-				<span id="csq_per" style="font-size:1.5em;">-</span>
+				<span id="signal" style="font-size:1.5em;">-</span>
 			</td>
 		</tr>
 		</table>
@@ -94,13 +94,13 @@
 	<div class="internal_divider"></div>
 
 	<div>
-		<span class='leftcolumn'>MCC MNC:</span><span class='rightcolumn'><span id="cops_mcc" >-</span>&nbsp<span id="cops_mnc" >-</span></span>
+		<span class='leftcolumn'>MCC MNC:</span><span class='rightcolumn'><span id="operator_mcc" >-</span>&nbsp<span id="operator_mnc" >-</span></span>
 	</div>
 	<div>
 		<span class='leftcolumn'>CSQ:</span><span id="csq" class='rightcolumn'>-</span>
 	</div>
 	<div>
-		<span class='leftcolumn'>RSSI:</span><span id="csq_rssi" class='rightcolumn'>-</span>
+		<span class='leftcolumn'>RSSI:</span><span id="rssi" class='rightcolumn'>-</span>
 	</div>
 	<div id="rscp_container" style="display:none;">
 		<span class='leftcolumn'>RSCP:</span><span id="rscp" class='rightcolumn'>-</span>

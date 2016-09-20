@@ -1,3 +1,3 @@
-fallback=3G/LTE Modem
-EN=3G/LTE Modem
-PL=Modem 3G/LTE
+fallback=USB Modem
+EN=USB Modem
+PL=Modem USB
