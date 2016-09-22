@@ -2,7 +2,7 @@
 
 # obsy, http://eko.one.pl
 
-LINE1=$(wc -L /tmp/banner | awk '{print $1}')
+LINE1=$(wc -L /etc/banner | awk '{print $1}')
 LINE=$((LINE1-5))
 
 hr() {
