@@ -2,6 +2,9 @@
 
 # obsy, http://eko.one.pl
 
+LINE1=$(wc -L /tmp/banner | awk '{print $1}')
+LINE=$((LINE1-5))
+
 hr() {
 	if [ $1 -gt 0 ]; then
 		printf "$(awk -v n=$1 'BEGIN{for(i=split("B KB MB GB TB PB",suffix);s<1;i--)s=n/(2**(10*i));printf (int(s)==s)?"%.0f%s":"%.1f%s",s,suffix[i+2]}' 2>/dev/null)"
@@ -56,13 +59,13 @@ WAN=$(ifstatus $SEC | grep -A 2 "ipv4-address" | awk -F\" '/"address"/ {print $4
 [ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$SEC.ipaddr)
 [ -n "$WAN" ] && WAN="$WAN, proto: "$PROTO
 
-printf " | %-60s |\n" "Machine: $MACH"
-printf " | %-60s |\n" "Uptime: $U"
-printf " | %-60s |\n" "Load: $L"
-printf " | %-60s |\n" "Flash: $RFS"
-printf " | %-60s |\n" "Memory: $MEM"
-printf " | %-60s |\n" "WAN: $WAN"
-printf " | %-60s |\n" "LAN: $LAN"
+printf " | %-"$LINE"s |\n" "Machine: $MACH"
+printf " | %-"$LINE"s |\n" "Uptime: $U"
+printf " | %-"$LINE"s |\n" "Load: $L"
+printf " | %-"$LINE"s |\n" "Flash: $RFS"
+printf " | %-"$LINE"s |\n" "Memory: $MEM"
+printf " | %-"$LINE"s |\n" "WAN: $WAN"
+printf " | %-"$LINE"s |\n" "LAN: $LAN"
 
 IFACES=$(uci -q show wireless | grep "device='radio" | cut -f2 -d. | sort)
 for i in $IFACES; do
@@ -76,10 +79,10 @@ for i in $IFACES; do
 		SEC1=$(echo $i | sed 's/\[/\\[/g;s/\]/\\]/g')
 		IFNAME=$(wifi status $DEV | grep -A 1 $SEC1 | awk '/ifname/ {gsub(/[",]/,"");print $2}')
 		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump | grep Station | wc -l)
-		printf " | %-60s |\n" "$DEV: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
+		printf " | %-"$LINE"s |\n" "$DEV: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
 	fi
 done
 
-echo " ----------------------------------------------------------------"
+echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
 
 exit 0
