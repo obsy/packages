@@ -7,9 +7,6 @@ Sila sygnalu: {CSQ_PER}%
 Urzadzenie: {DEVICE}
 MCC MNC: {COPS_MCC} {COPS_MNC}
 LAC: {LAC} ({LAC_NUM})
-LCID: {LCID} ({LCID_NUM})
-RNC: {RNC} ({RNC_NUM})
-eNB: {ENB} ({ENB_NUM})
 CID: {CID} ({CID_NUM})
 TAC: {TAC} ({TAC_NUM})
 CSQ: {CSQ}

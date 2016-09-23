@@ -120,9 +120,6 @@
 	<div id="cid_container" style="display:none;">
 		<span class='leftcolumn'>CID:</span><span id="cid" class='rightcolumn'>-</span>
 	</div>
-	<div id="lcid_container" style="display:none;">
-		<span class='leftcolumn'>LCID:</span><span id="lcid" class='rightcolumn'>-</span>
-	</div>
 	<div id="tac_container" style="display:none;">
 		<span class='leftcolumn'>TAC:</span><span id="tac" class='rightcolumn'>-</span>
 	</div>

@@ -41,7 +41,6 @@ function resetData()
 			setChildText("csq", "-");
 			setChildText("rssi", "-");
 			setChildText("lac", "-");
-			setChildText("lcid", "-");
 			setChildText("cid", "-");
 			setChildText("tac", "-");
 			setChildText("rscp", "-");
@@ -70,9 +69,6 @@ function resetData()
 
 			document.getElementById("cid_container").style.display = tmp["cid_hex"]=="-"?"none":"block";
 			setChildText("cid", tmp["cid_hex"] + " (" + tmp["cid_dec"] + ")");
-
-			document.getElementById("lcid_container").style.display = tmp["lcid_hex"]=="-"?"none":"block";
-			setChildText("lcid", tmp["lcid_hex"] + " (" + tmp["lcid_dec"] + ")");
 
 			document.getElementById("tac_container").style.display = tmp["tac_hex"]=="-"?"none":"block";
 			setChildText("tac", tmp["tac_hex"] + " (" + tmp["tac_dec"] + ")");
