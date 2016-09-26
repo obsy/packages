@@ -19,6 +19,7 @@ opengt
  if $toupper($mid($v,0,3)) = "NOK" goto vodafone
  if $toupper($mid($v,0,3)) = "NOV" goto novatel
  if $toupper($mid($v,0,3)) = "OPT" goto option
+ if $toupper($mid($v,0,3)) = "QUA" goto qualcomm
  if $toupper($mid($v,0,3)) = "SIM" goto simcom
  if $toupper($mid($v,0,3)) = "SIE" goto sierra
  if $toupper($mid($v,0,3)) = "VOD" goto vodafone
@@ -58,6 +59,12 @@ opengt
  let $r="_OWCTI"
  gosub readatcmd
  goto next
+
+:qualcomm
+ let $c="AT+COPS?^m"
+ let $r="+COPS"
+ gosub readatcmd
+ goto next1
 
 :zte
  let $c="AT+COPS?^m"
