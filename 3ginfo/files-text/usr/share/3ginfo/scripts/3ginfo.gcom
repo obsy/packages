@@ -93,6 +93,10 @@ opengt
  let $r="\^LTERSRP"
  gosub readatcmd
 
+ let $c="AT\^HCSQ?^m"
+ let $r="\^HCSQ"
+ gosub readatcmd
+
 :generic
  let $c="AT\^SYSINFO^m"
  let $r="\^SYSINFO"

@@ -359,10 +359,30 @@ fi
 # RSRP / RSRQ
 RSRP="-"
 RSRQ="-"
+SINR="-"
 RSRx=$(echo "$O" | awk -F[,:] '/^\^LTERSRP:/ {print $2}')
 if [ "x$RSRx" != "x" ]; then
 	RSRP=$RSRx
 	RSRQ=$(echo "$O" | awk -F[,:] '/^\^LTERSRP:/ {print $3}')
+fi
+
+TECH=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $2}' | sed 's/[" ]//g')
+if [ "x$TECH" != "x" ]; then
+	PARAM2=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $4}')
+	PARAM3=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $5}')
+	PARAM4=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $6}')
+
+	case "$TECH" in
+		WCDMA*)
+			RSCP=$(awk 'BEGIN {print -121 + '$PARAM2'}')
+			ECIO=$(awk 'BEGIN {print -32.5 + '$PARAM3'/2}')
+			;;
+		LTE*)
+			RSRP=$(awk 'BEGIN {print -141 + '$PARAM2'}')
+			SINR=$(awk 'BEGIN {print -20.2 + '$PARAM3'/5}')
+			RSRQ=$(awk 'BEGIN {print -20 + '$PARAM4'/2}')
+			;;
+	esac
 fi
 
 BTSINFO=""
@@ -540,6 +560,7 @@ if [ -e $TEMPLATE ]; then
 	s!{RSCP}!$RSCP!g; \
 	s!{RSRP}!$RSRP!g; \
 	s!{RSRQ}!$RSRQ!g; \
+	s!{SINR}!$SINR!g; \
 	s!{MODE}!$MODE!g" $TEMPLATE
 else
 	echo "Template $TEMPLATE missing!"

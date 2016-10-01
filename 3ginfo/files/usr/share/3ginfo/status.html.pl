@@ -28,6 +28,7 @@
  <span class="l">RSCP:</span><span class="r">{RSCP} dBm</span>
  <span class="l">Ec/IO:</span><span class="r">{ECIO} dB</span>
  <span class="l">RSRP:</span><span class="r">{RSRP} dBm</span>
+ <span class="l">SINR:</span><span class="r">{SINR} dB</span>
  <span class="l">RSRQ:</span><span class="r">{RSRQ} dB</span>
  <span class="l">&nbsp;</span><small><span class="r">{BTSINFO}</small>
  <span class="l">Urządzenie:</span><span class="r">{DEVICE}</span>
