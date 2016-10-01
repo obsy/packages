@@ -26,6 +26,6 @@
 "ecio": "{ECIO}",
 "rscp": "{RSCP}",
 "rsrp": "{RSRP}",
-"sinr": "{SINR}"
+"sinr": "{SINR}",
 "rsrq": "{RSRQ}"
 }
