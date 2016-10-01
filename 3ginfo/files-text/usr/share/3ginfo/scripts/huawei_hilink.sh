@@ -8,6 +8,10 @@ getvaluen() {
 	echo $(awk -F[\<\>] '/<'$2'>/ {print $3}' /tmp/$1 | sed 's/[^0-9]//g')
 }
 
+getvaluens() {
+	echo $(awk -F[\<\>] '/<'$2'>/ {print $3}' /tmp/$1 | sed 's/[^0-9-]//g')
+}
+
 getvalue() {
 	echo $(awk -F[\<\>] '/<'$2'>/ {print $3}' /tmp/$1)
 }
@@ -108,13 +112,20 @@ if [ -z "$cid" ]; then
 fi
 echo "+CREG: 2,1,\"$lac\",\"$cid\""
 
-rsrp=$(getvaluen device-signal rsrp)
-rsrq=$(getvaluen device-signal rsrq)
-echo "^LTERSRP:-$rsrp,-$rsrq"
+rsrp=$(getvaluens device-signal rsrp)
+sinr=$(getvaluens device-signal sinr)
+rsrq=$(getvaluens device-signal rsrq)
+#echo "^LTERSRP:-$rsrp,-$rsrq"
+rsrp=$(awk 'BEGIN {print '$rsrp' + 141}')
+sinr=$(awk 'BEGIN {print ('$sinr'+20.2)*5}')
+rsrq=$(awk 'BEGIN {print ('$rsrq'+20)*2}')
+echo "^HCSQ: \"$MODE\",$rssi,$rsrp,$sinr,$rsrq"
 
-rscp=$(getvaluen net-signal-para Rscp)
-ecio=$(getvaluen net-signal-para Ecio)
-echo "^CSNR: -$rscp,-$ecio"
+if [ "x$MODE" != "xLTE" ]; then
+	rscp=$(getvaluen net-signal-para Rscp)
+	ecio=$(getvaluen net-signal-para Ecio)
+	echo "^CSNR: -$rscp,-$ecio"
+fi
 
 device=$(getvalue device-information DeviceName)
 [ -n "$device" ] && echo "DEVICE:huawei $device HiLink"
