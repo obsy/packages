@@ -111,6 +111,9 @@
 	<div id="rsrp_container" style="display:none;">
 		<span class='leftcolumn'>RSRP:</span><span id="rsrp" class='rightcolumn'>-</span>
 	</div>
+	<div id="sinr_container" style="display:none;">
+		<span class='leftcolumn'>SINR:</span><span id="sinr" class='rightcolumn'>-</span>
+	</div>
 	<div id="rsrq_container" style="display:none;">
 		<span class='leftcolumn'>RSRQ:</span><span id="rsrq" class='rightcolumn'>-</span>
 	</div>

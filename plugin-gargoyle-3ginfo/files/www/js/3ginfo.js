@@ -46,6 +46,7 @@ function resetData()
 			setChildText("rscp", "-");
 			setChildText("ecio", "-");
 			setChildText("rsrp", "-");
+			setChildText("sinr", "-");
 			setChildText("rsrq", "-");
 			setChildText("device", "-");
 
@@ -81,6 +82,9 @@ function resetData()
 
 			document.getElementById("rsrp_container").style.display = tmp["rsrp"]=="-"?"none":"block";
 			setChildText("rsrp", tmp["rsrp"] + "dBm");
+
+			document.getElementById("sinr_container").style.display = tmp["sinr"]=="-"?"none":"block";
+			setChildText("sinr", tmp["sinr"] + "dB");
 
 			document.getElementById("rsrq_container").style.display = tmp["rsrq"]=="-"?"none":"block";
 			setChildText("rsrq", tmp["rsrq"] + "dB");

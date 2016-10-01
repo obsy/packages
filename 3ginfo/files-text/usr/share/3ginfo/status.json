@@ -23,8 +23,8 @@
 "conn_time_sec": "{CONN_TIME_SEC}",
 "iface_rx": "{RX}",
 "iface_tx": "{TX}",
-"ecio": "{ECIO}",
 "rscp": "{RSCP}",
+"ecio": "{ECIO}",
 "rsrp": "{RSRP}",
 "sinr": "{SINR}",
 "rsrq": "{RSRQ}"
