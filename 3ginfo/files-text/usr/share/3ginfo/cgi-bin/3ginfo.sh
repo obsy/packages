@@ -465,6 +465,8 @@ TX="-"
 
 if [ -z "$SEC" ]; then
 	STATUS=$NOINFO
+	[ $FORMAT -eq 2 ] && STATUS="NOINFO"
+
 	STATUS_TRE="-"
 	STATUS_SHOW="none"
 	STATUS_SHOW_BUTTON="none"
