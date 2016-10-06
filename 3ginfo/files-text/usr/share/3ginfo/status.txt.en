@@ -14,4 +14,5 @@ RSSI: {CSQ_RSSI} dBm
 RSCP: {RSCP} dBm
 Ec/IO: {ECIO} dB
 RSRP: {RSRP} dBm
+SINR: {SINR} dB
 RSRQ: {RSRQ} dB
