@@ -63,7 +63,7 @@ function resetData()
 			setChildText("operator_mcc", tmp["operator_mcc"]);
 			setChildText("operator_mnc", tmp["operator_mnc"]);
 			setChildText("csq", tmp["csq"]);
-			setChildText("rssi", tmp["rssi"] + "dBm");
+			setChildText("rssi", tmp["rssi"] + " dBm");
 
 			document.getElementById("lac_container").style.display = tmp["lac_hex"]=="-"?"none":"block";
 			setChildText("lac", tmp["lac_hex"] + " (" + tmp["lac_dec"] + ")");
@@ -75,19 +75,19 @@ function resetData()
 			setChildText("tac", tmp["tac_hex"] + " (" + tmp["tac_dec"] + ")");
 
 			document.getElementById("rscp_container").style.display = tmp["rscp"]=="-"?"none":"block";
-			setChildText("rscp", tmp["rscp"] + "dBm");
+			setChildText("rscp", tmp["rscp"] + " dBm");
 
 			document.getElementById("ecio_container").style.display = tmp["ecio"]=="-"?"none":"block";
-			setChildText("ecio", tmp["ecio"] + "dB");
+			setChildText("ecio", tmp["ecio"] + " dB");
 
 			document.getElementById("rsrp_container").style.display = tmp["rsrp"]=="-"?"none":"block";
-			setChildText("rsrp", tmp["rsrp"] + "dBm");
+			setChildText("rsrp", tmp["rsrp"] + " dBm");
 
 			document.getElementById("sinr_container").style.display = tmp["sinr"]=="-"?"none":"block";
-			setChildText("sinr", tmp["sinr"] + "dB");
+			setChildText("sinr", tmp["sinr"] + " dB");
 
 			document.getElementById("rsrq_container").style.display = tmp["rsrq"]=="-"?"none":"block";
-			setChildText("rsrq", tmp["rsrq"] + "dB");
+			setChildText("rsrq", tmp["rsrq"] + " dB");
 
 			setChildText("device", tmp["device"]);
 
