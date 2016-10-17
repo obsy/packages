@@ -21,7 +21,6 @@ done
 
 MODEN=$(getvaluen getWanInfo "network_type")
 case $MODEN in
-	0)  MODE="brak uslugi";;
 	1)  MODE="GPRS";;
 	2)  MODE="EDGE";;
 	3)  MODE="HSDPA";;

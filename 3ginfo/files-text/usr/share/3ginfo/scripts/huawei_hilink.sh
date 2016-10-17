@@ -47,7 +47,6 @@ fi
 
 MODEN=$(getvaluen monitoring-status CurrentNetworkType)
 case $MODEN in
-	0)  MODE="brak uslugi";;
 	1)  MODE="GSM";;
 	2)  MODE="GPRS";;
 	3)  MODE="EDGE";;
