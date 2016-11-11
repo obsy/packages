@@ -385,6 +385,23 @@ if [ "x$TECH" != "x" ]; then
 	esac
 fi
 
+if [ -n "$SEC" ]; then
+	if [ "x$(uci -q get network.$SEC.proto)" = "xqmi" ]; then
+		. /usr/share/libubox/jshn.sh
+		json_init
+		json_load "$(uqmi -d "$(uci -q get network.$SEC.device)" --get-signal-info)" >/dev/null 2>&1
+		json_get_var T type
+		if [ "x$T" = "xlte" ]; then
+			json_get_var RSRP rsrp
+			json_get_var RSRQ rsrq
+		fi
+		if [ "x$T" = "xwcdma" ]; then
+			json_get_var RSCP rscp
+			json_get_var ECIO ecio
+		fi
+	fi
+fi
+
 BTSINFO=""
 CID=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($4)}' | sed 's/[^A-F0-9]//g')
 if [ "x$CID" != "x" ]; then
