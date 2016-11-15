@@ -1,8 +1,9 @@
 #!/bin/sh
 
+[ -e /etc/crontabs/root ] || touch /etc/crontabs/root
+
 STAT=$(uci -q get system.@system[0].stat)
 if [ "x$STAT" != "x1" ]; then
-	[ -e /etc/crontabs/root ] || exit 0
 	if grep -q "stat.sh" /etc/crontabs/root; then
 		grep -v "/sbin/stat.sh" /etc/crontabs/root > /tmp/new_cron
 		mv /tmp/new_cron /etc/crontabs/root
