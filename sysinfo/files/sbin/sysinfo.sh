@@ -85,4 +85,17 @@ done
 
 echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
 
+ADDON=""
+for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
+	T=$($i)
+	if [ -n "$T" ]; then
+		printf " | %-"$LINE"s |\n" "$T"
+		ADDON="1"
+	fi
+done
+
+if [ -n "$ADDON" ]; then
+	echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+fi
+
 exit 0
