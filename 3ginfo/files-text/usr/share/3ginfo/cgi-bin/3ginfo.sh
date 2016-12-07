@@ -170,7 +170,7 @@ if [ "x$COPS_NUM" = "x" ]; then
 	COPS_MNC="-"
 else
 	COPS_MCC=${COPS_NUM:0:3}
-	COPS_MNC=${COPS_NUM:3:2}
+	COPS_MNC=${COPS_NUM:3:3}
 	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 	[ "x$COPS" = "x" ] && COPS="-"
 fi
@@ -189,7 +189,7 @@ if [ "$COPS_NUM" = "-" ]; then
 		COPS="$COPS_TMP"
 		COPS_NUM=$(awk -F[\;] 'BEGIN {IGNORECASE = 1} /'"$COPS"'/ {print $1}' $RES/mccmnc.dat)
 		COPS_MCC=${COPS_NUM:0:3}
-		COPS_MNC=${COPS_NUM:3:2}
+		COPS_MNC=${COPS_NUM:3:3}
 	fi
 fi
 
