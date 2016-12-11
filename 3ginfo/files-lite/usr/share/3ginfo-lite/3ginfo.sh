@@ -49,7 +49,6 @@ else
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:3}
 	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
-	[ "x$COPS" = "x" ] && COPS="-"
 fi
 [ "x$COPS" = "x" ] && COPS=$COPS_NUM
 
