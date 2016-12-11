@@ -3,8 +3,6 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=3ginfo
 PKG_VERSION:=20161210
 
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/3ginfo/Default

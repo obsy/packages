@@ -1,0 +1,35 @@
+opengt
+ set com 115200n81
+ set comecho off
+ set senddelay 0.02
+ waitquiet 0.2 0.2
+
+ let $c="AT+CSQ^m"
+ let $r="+CSQ"
+ gosub readatcmd
+
+ let $c="AT+COPS=3,2;+COPS?^m"
+ let $r="+COPS"
+ gosub readatcmd
+
+ exit 0
+
+:readatcmd
+ let i=15
+ send $c
+:loop
+ get 0.1 "^m" $s
+ let l=len($r)
+ if len($s) < l goto loop1
+ if $mid($s,1,l) <> $r goto loop1
+ print $s
+ return
+
+:loop1
+ if len($s) < 2 goto loop2
+ if $mid($s,1,2) = "ER" return
+ if $mid($s,1,2) = "CO" return
+:loop2
+ if i = 0 return
+ let i=i-1
+ goto loop
