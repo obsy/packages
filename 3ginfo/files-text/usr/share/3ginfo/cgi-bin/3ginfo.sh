@@ -396,8 +396,12 @@ if [ -n "$SEC" ]; then
 			json_get_var RSRQ rsrq
 		fi
 		if [ "x$T" = "xwcdma" ]; then
-			json_get_var RSCP rscp
 			json_get_var ECIO ecio
+			json_get_var RSSI rssi
+			json_get_var RSCP rscp
+			if [ -z "$RSCP" ]; then
+				RSCP=$((RSSI+ECIO))
+			fi
 		fi
 	fi
 fi
