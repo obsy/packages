@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20170104
+PKG_VERSION:=20170106
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -24,9 +24,15 @@ $(call Package/3ginfo/Default)
 	DEPENDS:=+comgt
 endef
 
+define Package/3ginfo-qmisignal
+$(call Package/3ginfo/Default)
+	TITLE+= (qmi signal)
+	DEPENDS:=+uqmi +uhttpd
+endef
+
 define Package/3ginfo-text
 $(call Package/3ginfo/Default)
-	TITLE+= (txt version)
+	TITLE+= (text version)
 	DEPENDS:=+comgt
 endef
 
@@ -35,10 +41,6 @@ define Package/3ginfo-text/conffiles
 endef
 
 define Build/Compile
-endef
-
-define Package/3ginfo-text/install
-	$(CP) ./files-text/* $(1)
 endef
 
 define Package/3ginfo/install
@@ -51,6 +53,19 @@ define Package/3ginfo-lite/install
 	$(CP) ./files-text/usr/share/3ginfo/scripts/probeport.gcom $(1)/usr/share/3ginfo-lite
 endef
 
+define Package/3ginfo-qmisignal/install
+	$(CP) ./files-qmisignal/* $(1)
+
+	$(FIND) $(1) -type f -name '*.js' | while read src; do \
+		uglifyjs "$$$$src" -o "$$$$src".1 && \
+		mv "$$$$src".1 "$$$$src" || true; \
+	done
+endef
+
+define Package/3ginfo-text/install
+	$(CP) ./files-text/* $(1)
+endef
+
 define Package/3ginfo-text/postinst
 #!/bin/sh
 [ -n "$${IPKG_INSTROOT}" ] || {
@@ -61,4 +76,5 @@ endef
 
 $(eval $(call BuildPackage,3ginfo))
 $(eval $(call BuildPackage,3ginfo-lite))
+$(eval $(call BuildPackage,3ginfo-qmisignal))
 $(eval $(call BuildPackage,3ginfo-text))
