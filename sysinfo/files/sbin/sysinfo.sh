@@ -46,6 +46,8 @@ free_mem="$(( ${free_mem} + ${buffers_mem} + ${cached_mem} ))"
 MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (total_mem - free_mem) * 100 / total_mem))"%")
 
 LAN=$(uci -q get network.lan.ipaddr)
+[ -e /tmp/dhcp.leases ] && LAN="$LAN, leases: "$(awk 'END {print NR}' /tmp/dhcp.leases)
+
 PROTO=$(uci -q get network.wan.proto)
 case $PROTO in
 qmi|ncm)
