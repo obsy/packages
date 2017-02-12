@@ -18,11 +18,15 @@ function resetData()
 
 	if (uciOriginal.get(pkg, sec[0], 'device') == "")
 	{
-		document.getElementById("tgdata").style.display="none";
+		document.getElementById("tgdata1").style.display="none";
+		document.getElementById("tgdata2").style.display="none";
+		document.getElementById("tgdata3").style.display="none";
 		return;
 	}
 
-	document.getElementById("tgdata").style.display="block";
+	document.getElementById("tgdata1").style.display="block";
+	document.getElementById("tgdata2").style.display="block";
+	document.getElementById("tgdata3").style.display="block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
 	var param = getParameterDefinition("commands", '3ginfo json\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
