@@ -1,0 +1,230 @@
+#!/bin/sh
+
+##############################################################################
+
+# (c) 2016-2017 Cezary Jackiewicz <cezary@eko.one.pl>
+
+##############################################################################
+
+show_status()
+{
+SYSTEM_UPTIME=$(awk '{printf " %dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}' /proc/uptime)
+
+SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
+
+. /usr/share/libubox/jshn.sh
+json_load "$(ubus call network.interface.wan status)"
+json_get_var WAN_UPTIME uptime
+json_get_var IFNAME l3_device
+
+if [ -n "$WAN_UPTIME" ]; then
+	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf " %dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}')
+else
+	WAN_UPTIME="-"
+fi
+
+if [ -n "$IFNAME" ]; then
+	WAN_RX=$(ifconfig $IFNAME | awk -F[\(\)] '/bytes/ {printf "%s",$2}')
+	WAN_TX=$(ifconfig $IFNAME | awk -F[\(\)] '/bytes/ {printf "%s",$4}')
+else
+	WAN_RX="-"
+	WAN_TX="-"
+fi
+
+WLAN_CLIENTS=0
+RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+for R in $RADIOS; do
+	IFNAME=$(wifi status $R |  awk -F\" '/ifname/ {print $4}')
+	if [ -n "$IFNAME" ]; then
+		for i in $IFNAME; do
+			CNT=$(iw dev $i station dump | grep Station | wc -l)
+			WLAN_CLIENTS=$((WLAN_CLIENTS + CNT))
+		done
+	fi
+done
+
+VERSION=$(cat /www/easyconfig/version.txt)
+MODEL=$(cat /tmp/sysinfo/model)
+
+echo '{'
+echo '"system_uptime":"'$SYSTEM_UPTIME'",'
+echo '"system_load":"'$SYSTEM_LOAD'",'
+echo '"wlan_clients":"'$WLAN_CLIENTS'",'
+echo '"wan_rx":"'$WAN_RX'",'
+echo '"wan_tx":"'$WAN_TX'",'
+echo '"wan_uptime":"'$WAN_UPTIME'",'
+echo '"version":"'$VERSION'",'
+echo '"model":"'$MODEL'"'
+echo '}'
+}
+
+##############################################################################
+
+show_config()
+{
+HOSTNAME=$(uci -q get system.@system[0].hostname)
+WAN_PROTO=$(uci -q get network.wan.proto)
+WAN_IPADDR=$(uci -q -P /var/state get network.wan.ipaddr)
+WAN_NETMASK=$(uci -q -P /var/state get network.wan.netmask)
+WAN_GATEWAY=$(uci -q -P /var/state get network.wan.gateway)
+WAN_DNS=$(uci -q -P /var/state get network.wan.dns)
+WAN_USE_DNS=$(uci -q get network.wan.dns)
+[ -n "$WAN_USE_DNS" ] && WAN_USE_DNS=1 || WAN_USE_DNS=0
+WAN_APN=$(uci -q get network.wan.apn)
+[ -z "$WAN_APN" ] && WAN_APN="internet"
+WAN_DEVICE=$(uci -q get network.wan.device)
+WAN_PINCODE=$(uci -q get network.wan.pincode)
+WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
+
+if [ -e /etc/board.json ]; then
+	. /usr/share/libubox/jshn.sh
+	json_load "$(cat /etc/board.json)"
+	json_select network
+	if json_select wan > /dev/null; then
+		json_get_var WAN_IFNAME_DEFAULT ifname
+	fi
+elif [ -e /etc/gargoyle_default_ifs ]; then
+	WAN_IFNAME_DEFAULT=$(awk '{print $2}' /etc/gargoyle_default_ifs)
+fi
+
+WAN_IFNAME_HILINK=$(egrep -Hi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+[ -z "$WAN_IFNAME_HILINK" ] && WAN_IFNAME_HILINK=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
+
+if [ "x$WAN_PROTO" = "xdhcp" ]; then
+	. /lib/functions/network.sh
+	network_get_physdev WAN_IFNAME wan
+	network_get_gateway WAN_GATEWAY wan
+	network_get_ipaddr WAN_IPADDR wan
+	[ $WAN_USE_DNS -eq 0 ] && network_get_dnsserver WAN_DNS wan
+	network_get_subnet WAN_NETMASK wan
+	WAN_NETMASK=${WAN_NETMASK##*/}
+	if [ -n "$WAN_NETMASK" ]; then
+		WAN_NETMASK=$(ipcalc.sh $WAN_IPADDR $WAN_NETMASK | awk -F= '/NETMASK/{print $2}')
+	fi
+fi
+
+if echo "$WAN_DNS" | grep -q " "; then
+	WAN_DNS1=$(echo $WAN_DNS | cut -f1 -d" ")
+	WAN_DNS2=$(echo $WAN_DNS | cut -f2 -d" ")
+else
+	WAN_DNS1=$WAN_DNS
+	WAN_DNS2=""
+fi
+
+LAN_IPADDR=$(uci -q get network.lan.ipaddr)
+LAN_DHCP=$(uci -q get dhcp.lan.ignore)
+if [ "x$LAN_DHCP" = "x1" ]; then
+	LAN_DHCP_ENABLED=0
+else
+	LAN_DHCP_ENABLED=1
+fi
+
+echo '{'
+echo '"system_hostname":"'$HOSTNAME'",'
+echo '"wan_proto":"'$WAN_PROTO'",'
+echo '"wan_ipaddr":"'$WAN_IPADDR'",'
+echo '"wan_netmask":"'$WAN_NETMASK'",'
+echo '"wan_gateway":"'$WAN_GATEWAY'",'
+echo '"wan_use_dns":"'$WAN_USE_DNS'",'
+echo '"wan_dns1":"'$WAN_DNS1'",'
+echo '"wan_dns2":"'$WAN_DNS2'",'
+echo '"wan_apn":"'$WAN_APN'",'
+echo '"wan_device":"'$WAN_DEVICE'",'
+echo '"wan_pincode":"'$WAN_PINCODE'",'
+echo '"wan_ifname":"'$WAN_IFNAME'",'
+echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
+echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
+
+echo '"wan_protos":{"none":"Brak"'
+if [ -n "$WAN_IFNAME_DEFAULT" ]; then
+	echo ',"dhcp":"DHCP"'
+	echo ',"static":"Statyczny IP"'
+fi
+
+tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
+if [ -n "$tty" ] ; then
+	echo ',"3g":"Modem USB (RAS)"'
+fi
+qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
+if [ -n "$qmi" ] ; then
+	echo ',"qmi":"Modem USB (QMI)"'
+fi
+ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
+if [ -n "$ncm" ] ; then
+	echo ',"ncm":"Modem USB (NCM)"'
+fi
+if [ -n "$WAN_IFNAME_HILINK" ]; then
+	echo ',"dhcp_hilink":"Modem USB (HiLink)"'
+fi
+echo '},'
+
+echo '"wan_devices":['
+ttys=$(ls -1 /dev/ttyUSB* /dev/ttyACM* /dev/cdc-wdm* 2>/dev/null)
+O=""
+for tty in $ttys; do
+	[ -n "$O" ] && O="$O,"
+	O="$O"'"'$tty'"'
+done
+echo "$O"'],'
+
+echo '"lan_ipaddr":"'$LAN_IPADDR'",'
+echo '"lan_dhcp_enabled":"'$LAN_DHCP_ENABLED'",'
+
+RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+for R in $RADIOS; do
+	echo '"'$R'":{'
+	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
+	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
+	WLAN_SEC=$(uci show wireless | grep "device='$R'" | cut -f2 -d.)
+	if [ -n "$WLAN_SEC" ]; then
+		WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
+		WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
+		WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
+		WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
+		[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
+	else
+		WLAN_DISABLED=1
+	fi
+	echo '"wlan_disabled":"'$WLAN_DISABLED'",'
+	echo '"wlan_ssid":"'$WLAN_SSID'",'
+	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
+	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
+	echo '"wlan_key":"'$WLAN_KEY'",'
+	echo '"wlan_section":"'$WLAN_SEC'",'
+	echo '"wlan_channels":{'
+	O=""
+	PHY=$(cat /sys/devices/$(uci -q get wireless.$R.path)/ieee80211/*/name 2>/dev/null)
+	[ -z "$PHY" ] && PHY=$(cat /sys/devices/platform/$(uci -q get wireless.$R.path)/ieee80211/*/name 2>/dev/null)
+	[ -n "$PHY" ] && O=$(iw phy $PHY info | grep -v "(disabled)" | grep -v "(no IR)" | awk '/\* [0-9]+ MHz/{dfs="";if(index($0, "radar detection") != 0){dfs=" DFS"};gsub(/(\[|\])/,""); printf ",\"%d\":\"%s %s dBm)%s\"", $4, $4, $5, dfs}')
+	if [ -z "$O" ]; then
+		echo '"'$WLAN_CHANNEL'":"'$WLAN_CHANNEL'"'
+	else
+		echo ${O:1}
+	fi
+	echo '},'
+	echo '},'
+done
+
+echo '}'
+
+}
+
+##############################################################################
+
+case "$1" in
+	list)
+		echo '{ "status": { }, "show_config": { } }'
+	;;
+	call)
+		case "$2" in
+			status)
+				show_status
+				;;
+			show_config)
+				show_config
+				;;
+		esac
+	;;
+esac
+
+exit 0

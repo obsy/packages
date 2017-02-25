@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="cezary@eko.one.pl">
+	<link rel="icon" href="/easyconfig/favicon.ico">
+	<title></title>
+	<link href="/easyconfig/bootstrap.min.css?v=1" rel="stylesheet">
+	<!--[if lt IE 9]>
+		<script src="/easyconfig/html5shiv.min.js?v=1"></script>
+		<script src="/easyconfig/respond.min.js?v=1"></script>
+	<![endif]-->
+	<link href="/easyconfig/easyconfig.css?v=1" rel="stylesheet">
+	<script src="/easyconfig/easyconfig.js?v=1"></script>
+</head>
+<body>
+<div class="container">
+
+<div id="div_login" style="display:block;">
+	<h3 class="section">Logowanie</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="system_login" class="col-xs-6 col-sm-3 control-label">Login</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="system_login" type="text" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('system_password').focus()" autofocus>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="system_password" class="col-xs-6 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="system_password" type="password" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('loginbtn').click()">
+			</div>
+		</div>
+	</form>
+
+	<div class="text-center">
+		<input type="button" class="btn btn-primary" id="loginbtn" onclick="login();" value="Logowanie" />
+	</div>
+</div>
+
+<div id="div_content" style="display:none;">
+
+	<div class="text-center">
+		<h3 id="system_hostname_label">&nbsp;</h3>
+	</div>
+
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="btn_pages(1);" value="Status" />
+		<input type="button" class="btn btn-default" onclick="btn_pages(2);" value="Ustawienia" />
+	</div>
+
+	<div id="div_status">
+
+	<div id="div_status_modem" style="display:none;">
+		<h3 class="section">Modem</h3>
+		<div class="row">
+			<label class="col-xs-6 text-right">Operator</label>
+			<div class="col-xs-6">
+			<p id="modem_operator">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Sygnał</label>
+			<div class="col-xs-6">
+			<p id="modem_signal">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Technologia</label>
+			<div class="col-xs-6">
+			<p id="modem_mode">-</p>
+			</div>
+		</div>
+	</div>
+
+	<div id="div_status_wan" style="display:none;">
+		<h3 class="section">Internet</h3>
+		<div class="row">
+			<label class="col-xs-6 text-right">Czas połączenia</label>
+			<div class="col-xs-6">
+			<p id="wan_uptime">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Wysłano</label>
+			<div class="col-xs-6">
+			<p id="wan_tx">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Pobrano</label>
+			<div class="col-xs-6">
+			<p id="wan_rx">-</p>
+			</div>
+		</div>
+	</div>
+
+	<h3 class="section">Wi-Fi</h3>
+	<div class="row">
+		<label class="col-xs-6 text-right">Połączonych klientów</label>
+		<div class="col-xs-6">
+		<p id="wlan_clients">0</p>
+		</div>
+	</div>
+
+	<h3 class="section">System</h3>
+	<div class="row">
+		<label class="col-xs-6 text-right">Model</label>
+		<div class="col-xs-6">
+		<p id="model">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Obciążenie</label>
+		<div class="col-xs-6">
+		<p id="system_load">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Czas pracy</label>
+		<div class="col-xs-6">
+		<p id="system_uptime">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Wersja oprogramowania</label>
+		<div class="col-xs-6">
+		<p id="firmware_version">&nbsp;</p>
+		</div>
+	</div>
+
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="showstatus();" value="Odśwież" />
+	</div>
+
+	</div>
+
+	<div id="div_settings" style="display:none;">
+
+	<h3 class="section">Internet</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="wan_proto" class="col-xs-6 col-sm-3 control-label">Typ połączenia</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wan_proto" class="form-control" onchange="enableWan(this.value)">
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_ipaddr">
+			<label for="wan_ipaddr" class="col-xs-6 col-sm-3 control-label">Adres IP</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_netmask">
+			<label for="wan_netmask" class="col-xs-6 col-sm-3 control-label">Maska</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_netmask" type="text" class="form-control" onkeyup='proofreadMask(this)'>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_gateway">
+			<label for="wan_gateway" class="col-xs-6 col-sm-3 control-label">Brama</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_gateway" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_device">
+			<label for="wan_device" class="col-xs-6 col-sm-3 control-label">Urządzenie</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wan_device" class="form-control">
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_apn">
+			<label for="wan_apn" class="col-xs-6 col-sm-3 control-label">APN</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_apn" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_pincode">
+			<label for="wan_pincode" class="col-xs-6 col-sm-3 control-label">PIN</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_pincode" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_dns">
+			<label for="wan_dns" class="col-xs-6 col-sm-3 control-label">Inne serwery DNS</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="wan_dns" type="checkbox" onchange="enableDns(this.checked)">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_dns1">
+			<label for="wan_dns1" class="col-xs-6 col-sm-3 control-label">DNS 1</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_dns1" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_dns2">
+			<label for="wan_dns2" class="col-xs-6 col-sm-3 control-label">DNS 2</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wan_dns2" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			</div>
+		</div>
+
+	</form>
+
+	<h3 class="section">Sieć lokalna</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="lan_ipaddr" class="col-xs-6 col-sm-3 control-label">Adres IP</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="lan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="lan_dhcp_enabled" class="col-xs-6 col-sm-3 control-label">Serwer DHCP włączony</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="lan_dhcp_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+	</form>
+
+	<div id="div_radio0" style="display:none;">
+	<h3 class="section" id="radio0">Wi-Fi</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="wlan_enabled0" class="col-xs-6 col-sm-3 control-label">Wi-Fi włączone</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="wlan_enabled0" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wlan_ssid0" class="col-xs-6 col-sm-3 control-label">Nazwa sieci (SSID)</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wlan_ssid0" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wlan_channel0" class="col-xs-6 col-sm-3 control-label">Kanał</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wlan_channel0" class="form-control">
+			</select>
+			</div>
+		</div>
+
+
+		<div class="form-group" id="div_wlan_encryption0">
+			<label for="wlan_encryption0" class="col-xs-6 col-sm-3 control-label">Szyfrowanie</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wlan_encryption0" class="form-control" onchange="enableWlanEncryption(this.value, 0)">
+			<option value='none'>Brak</option>
+			<option value='psk'>WPA</option>
+			<option value='psk2'>WPA2</option>
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wlan_key0">
+			<label for="wlan_key0" class="col-xs-6 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wlan_key0" type="text" class="form-control">
+			</div>
+		</div>
+	</form>
+	</div>
+
+	<div id="div_radio1" style="display:none;">
+	<h3 class="section" id="radio1">Wi-Fi</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="wlan_enabled1" class="col-xs-6 col-sm-3 control-label">Wi-Fi włączone</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="wlan_enabled1" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wlan_ssid1" class="col-xs-6 col-sm-3 control-label">Nazwa sieci (SSID)</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wlan_ssid1" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wlan_channel1" class="col-xs-6 col-sm-3 control-label">Kanał</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wlan_channel1" class="form-control">
+			</select>
+			</div>
+		</div>
+
+
+		<div class="form-group" id="div_wlan_encryption1">
+			<label for="wlan_encryption1" class="col-xs-6 col-sm-3 control-label">Szyfrowanie</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="wlan_encryption1" class="form-control" onchange="enableWlanEncryption(this.value, 1)">
+			<option value='none'>Brak</option>
+			<option value='psk'>WPA</option>
+			<option value='psk2'>WPA2</option>
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wlan_key1">
+			<label for="wlan_key1" class="col-xs-6 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="wlan_key1" type="text" class="form-control">
+			</div>
+		</div>
+	</form>
+	</div>
+
+	<h3 class="section">System</h3>
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="password1" class="col-xs-6 col-sm-3 control-label">Nowe hasło</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="password1" type="password" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="password2" class="col-xs-6 col-sm-3 control-label">Potwierdź hasło</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="password2" type="password" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="system_hostname" class="col-xs-6 col-sm-3 control-label">Nazwa systemu</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="system_hostname" type="text" class="form-control">
+			</div>
+		</div>
+	</form>
+
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="showconfig();" value="Odśwież" />
+		<input type="button" class="btn btn-primary" onclick="saveconfig();" value="Zapisz zmiany" />
+	</div>
+
+	</div>
+
+</div>
+
+</div>
+
+<div id="msg" class="modal">
+	<div id="msgtxt" class="modal-content text-center">
+		Proszę czekać...
+	</div>
+</div>
+
+<div class="text-center">&nbsp;</div>
+
+</body>
+</html>

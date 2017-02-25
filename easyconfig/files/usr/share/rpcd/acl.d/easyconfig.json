@@ -1,0 +1,15 @@
+{
+        "easyconfig": {
+                "description": "Easyconfig access role",
+                "read": {
+                        "ubus": {
+                                "*": [ "*" ]
+                        }
+                },
+                "write": {
+                        "ubus": {
+                                "*": [ "*" ]
+                        }
+                }
+        }
+}
