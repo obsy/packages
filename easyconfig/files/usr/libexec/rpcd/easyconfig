@@ -43,7 +43,8 @@ for R in $RADIOS; do
 	fi
 done
 
-VERSION=$(cat /www/easyconfig/version.txt)
+GUI_VERSION=$(cat /www/easyconfig/version.txt)
+VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
 MODEL=$(cat /tmp/sysinfo/model)
 
 echo '{'
@@ -54,6 +55,7 @@ echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"version":"'$VERSION'",'
+echo '"gui_version":"'$GUI_VERSION'",'
 echo '"model":"'$MODEL'"'
 echo '}'
 }
@@ -208,12 +210,36 @@ done
 echo '}'
 
 }
+##############################################################################
+
+show_watchdog()
+{
+echo '{'
+WAT=$(grep easyconfig_watchdog /etc/crontabs/root)
+
+if [ -z "$WAT" ]; then
+	echo '"watchdog_enabled": false'
+else
+	W_PERIOD=$(echo "$WAT" | cut -f1 -d" " | cut -f2 -d/)
+	W_DELAY=$(echo "$WAT" | cut -f7 -d" ")
+	W_DELAY=$((W_DELAY / 60))
+	W_DEST=$(echo "$WAT" | cut -f9 -d" ")
+	W_ACTION=$(echo "$WAT" | cut -f10 -d" ")
+
+	echo '"watchdog_enabled": true,'
+	echo '"watchdog_period": "'$W_PERIOD'",'
+	echo '"watchdog_delay": "'$W_DELAY'",'
+	echo '"watchdog_dest": "'$W_DEST'",'
+	echo '"watchdog_action": "'$W_ACTION'"'
+fi
+echo '}'
+}
 
 ##############################################################################
 
 case "$1" in
 	list)
-		echo '{ "status": { }, "show_config": { } }'
+		echo '{ "status": { }, "show_config": { }, "show_watchdog": { } }'
 	;;
 	call)
 		case "$2" in
@@ -222,6 +248,9 @@ case "$1" in
 				;;
 			show_config)
 				show_config
+				;;
+			show_watchdog)
+				show_watchdog
 				;;
 		esac
 	;;

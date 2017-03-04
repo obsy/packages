@@ -16,6 +16,18 @@
 	<script src="/easyconfig/easyconfig.js?v=1"></script>
 </head>
 <body>
+
+<div id="menu" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closenav()">&times;</a>
+  <hr>
+  <a href="#" onclick="btn_pages(1);" >Status</a>
+  <a href="#" onclick="btn_pages(2);" >Ustawienia</a>
+  <a href="#" onclick="btn_pages(3);" >System</a>
+  <hr>
+  <a href="#" onclick="btn_pages(4);" >Monitor połączenia</a>
+</div>
+
+
 <div class="container">
 
 <div id="div_login" style="display:block;">
@@ -43,13 +55,10 @@
 
 <div id="div_content" style="display:none;">
 
-	<div class="text-center">
-		<h3 id="system_hostname_label">&nbsp;</h3>
-	</div>
-
-	<div class="text-center">
-		<input type="button" class="btn btn-default" onclick="btn_pages(1);" value="Status" />
-		<input type="button" class="btn btn-default" onclick="btn_pages(2);" value="Ustawienia" />
+	<div class="row">
+		<div class="col-xs-4"><h3><span class="btn btn-default text-left" onclick="opennav()">&#9776;</span></h3></div>
+		<div class="col-xs-4"><h3 id="system_hostname_label" class="text-center">&nbsp;</h3></div>
+		<div class="col-xs-4"></div>
 	</div>
 
 	<div id="div_status">
@@ -108,13 +117,6 @@
 
 	<h3 class="section">System</h3>
 	<div class="row">
-		<label class="col-xs-6 text-right">Model</label>
-		<div class="col-xs-6">
-		<p id="model">&nbsp;</p>
-		</div>
-	</div>
-
-	<div class="row">
 		<label class="col-xs-6 text-right">Obciążenie</label>
 		<div class="col-xs-6">
 		<p id="system_load">&nbsp;</p>
@@ -125,13 +127,6 @@
 		<label class="col-xs-6 text-right">Czas pracy</label>
 		<div class="col-xs-6">
 		<p id="system_uptime">&nbsp;</p>
-		</div>
-	</div>
-
-	<div class="row">
-		<label class="col-xs-6 text-right">Wersja oprogramowania</label>
-		<div class="col-xs-6">
-		<p id="firmware_version">&nbsp;</p>
 		</div>
 	</div>
 
@@ -271,7 +266,6 @@
 			</div>
 		</div>
 
-
 		<div class="form-group" id="div_wlan_encryption0">
 			<label for="wlan_encryption0" class="col-xs-6 col-sm-3 control-label">Szyfrowanie</label>
 			<div class="col-xs-6 col-sm-9">
@@ -372,6 +366,100 @@
 	</div>
 
 	</div>
+
+	<div id="div_system" style="display:none;">
+
+	<h3 class="section">System</h3>
+	<div class="row">
+		<label class="col-xs-6 text-right">Model</label>
+		<div class="col-xs-6">
+		<p id="model">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Wersja GUI</label>
+		<div class="col-xs-6">
+		<p id="gui_version">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Wersja oprogramowania</label>
+		<div class="col-xs-6">
+		<p id="firmware_version">&nbsp;</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Restart urządzenia</label>
+		<div class="col-xs-6">
+		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" />
+		</div>
+	</div>
+
+	</div>
+
+	<div id="div_watchdog" style="display:none;">
+
+	<h3 class="section">Monitor połączenia</h3>
+	<div class="alert alert-warning" id="watchdog_enabled_info">
+		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" onclick="btn_pages(2);" >Kliknij tutaj aby ustawić połączenie.</a>
+	</div>
+
+	<form class="form-horizontal">
+		<div class="form-group" id="div_watchdog_enabled">
+			<label for="watchdog_enabled" class="col-xs-6 col-sm-3 control-label">Włączony</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="watchdog_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_watchdog_dest">
+			<label for="watchdog_dest" class="col-xs-6 col-sm-3 control-label">Adres do pingowania</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="watchdog_dest" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_watchdog_period">
+			<label for="watchdog_period" class="col-xs-6 col-sm-3 control-label">Okres sprawdzania</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="watchdog_period" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
+			<em><small class="form-text text-muted">[1 - 59] minut</small></em>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_watchdog_delay">
+			<label for="watchdog_delay" class="col-xs-6 col-sm-3 control-label">Opóźnienie na starcie</label>
+			<div class="col-xs-6 col-sm-9">
+			<input id="watchdog_delay" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
+			<em><small class="form-text text-muted">[1 - 59] minut</small></em>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_watchdog_action">
+			<label for="watchdog_action" class="col-xs-6 col-sm-3 control-label">Akcja</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="watchdog_action" class="form-control">
+			<option value='wan'>Restart połączenia z internetem</option>
+			<option value='reboot'>Ponowne uruchomienie urządzenia</option>
+			</select>
+			</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-primary" onclick="btn_watchdog_save();" value="Zapisz zmiany" />
+		</div>
+
+	</form>
+
+	</div>
+
 
 </div>
 

@@ -27,6 +27,11 @@ function proofreadText(input, proofFunction, validReturnCode)
 	}
 }
 
+function proofreadNumericRange(input, min, max)
+{
+	proofreadText(input, function(text){return validateNumericRange(text,min,max)}, 0);
+}
+
 function validateIP(address)
 {
 	var errorCode = 0;
@@ -93,6 +98,20 @@ function validateMask(mask)
 
 			previousField = ipFields[field];
 		}
+	}
+	return errorCode;
+}
+
+function validateNumericRange(num, min, max)
+{
+	var errorCode = num.match(/^[\d]+$/) == null ? 1 : 0;
+	if(errorCode == 0)
+	{
+		errorCode = num < min ? 2 : 0;
+	}
+	if(errorCode == 0)
+	{
+		errorCode = num > max ? 3 : 0;
 	}
 	return errorCode;
 }
@@ -239,7 +258,6 @@ function enableWlanEncryption(encryption, cnt)
 
 function setElementEnabled(element, show, disabled)
 {
-//console.log(element);
 	element1=document.getElementById(element);
 	if(show)
 	{
@@ -502,6 +520,7 @@ function status(data)
 	setValue('wan_uptime', data.wan_uptime);
 	firmware_version = data.version;
 	setValue('firmware_version', firmware_version);
+	setValue('gui_version', data.gui_version);
 	setValue('model', data.model);
 }
 
@@ -740,13 +759,33 @@ function modemCallback(data)
 
 function btn_pages(page)
 {
+	closenav();
 	setDisplay("div_status",   (page==1)?"block":"none");
 	setDisplay("div_settings", (page==2)?"block":"none");
+	setDisplay("div_system",   (page==3)?"block":"none");
+	setDisplay("div_watchdog", (page==4)?"block":"none");
 
 	if (page==1)
 	{
 		showstatus();
 		showmodemsection();
+	}
+
+	if (page==4)
+	{
+		showwatchdog();
+
+		if (config.wan_proto == "nonex")
+		{
+			setElementEnabled("watchdog_enabled", true, true);
+			setElementEnabled("watchdog_dest", true, true);
+			setElementEnabled("watchdog_period", true, true);
+			setElementEnabled("watchdog_delay", true, true);
+			setElementEnabled("watchdog_action", true, true);
+			setDisplay("watchdog_enabled_info", "block");
+			return;
+		}
+		setDisplay("watchdog_enabled_info", "none");
 	}
 }
 
@@ -762,4 +801,91 @@ function showmodemsection()
 	{
 		setDisplay("div_status_modem", "none");
 	}
+}
+/*****************************************************************************/
+
+function btn_system_reboot()
+{
+	ubus('"system", "reboot", {}', function(data) {
+		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+/*****************************************************************************/
+
+function showwatchdog()
+{
+
+	setValue("watchdog_dest", "google.com");
+	setValue("watchdog_period", 3);
+	setValue("watchdog_delay", 3);
+	setValue("watchdog_action", "wan");
+
+	ubus('"easyconfig", "show_watchdog", { }', function(data) {
+//console.log(JSON.stringify(data, null, 4));
+		if (data.error) {
+			ubus_error(data.error.code);
+		} else {
+			if (data.result[0] === 0) {
+				setValue("watchdog_enabled", data.result[1].watchdog_enabled);
+				if (data.result[1].watchdog_enabled) {
+					setValue("watchdog_dest", data.result[1].watchdog_dest);
+					setValue("watchdog_period", data.result[1].watchdog_period);
+					setValue("watchdog_delay", data.result[1].watchdog_delay);
+					setValue("watchdog_action", data.result[1].watchdog_action);
+				}
+			} else {
+				showMsg("Błąd pobierania danych!", true);
+			}
+		}
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+function btn_watchdog_save()
+{
+	var watchdog_enabled = getValue("watchdog_enabled");
+	var watchdog_dest = getValue("watchdog_dest");
+	watchdog_dest = watchdog_dest.replace(/(["\\ ])/g,'');
+	var watchdog_period = getValue("watchdog_period");
+	if (validateNumericRange(watchdog_period,1,59) != 0) {
+		showMsg("Błąd w polu " + getLabelText("watchdog_period"), true);
+		return;
+	}
+	var watchdog_delay = getValue("watchdog_delay");
+	if (validateNumericRange(watchdog_delay,1,59) != 0) {
+		showMsg("Błąd w polu " + getLabelText("watchdog_delay"), true);
+		return;
+	}
+	var watchdog_action = getValue("watchdog_action");
+
+	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_watchdog_helper.sh","'+watchdog_enabled+'","'+watchdog_dest+'","'+watchdog_period+'","'+watchdog_delay+'","'+watchdog_action+'"]}', function(data) {
+//console.log(JSON.stringify(data, null, 4));
+		if (data.error) {
+			ubus_error(data.error.code);
+		} else {
+			if (data.result[0] === 0) {
+				if (data.result[1].code === 0) {
+					showMsg("Zapisano zmiany");
+				}
+			} else {
+				showMsg("Błąd pobierania danych!", true);
+			}
+		}
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+/*****************************************************************************/
+
+function opennav() {
+	document.getElementById("menu").style.width = "250px";
+}
+
+function closenav() {
+	document.getElementById("menu").style.width = "0";
 }
