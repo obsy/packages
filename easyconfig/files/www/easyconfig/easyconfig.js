@@ -775,7 +775,7 @@ function btn_pages(page)
 	{
 		showwatchdog();
 
-		if (config.wan_proto == "nonex")
+		if (config.wan_proto == "none")
 		{
 			setElementEnabled("watchdog_enabled", true, true);
 			setElementEnabled("watchdog_dest", true, true);
