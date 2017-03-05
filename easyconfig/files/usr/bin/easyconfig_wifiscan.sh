@@ -1,6 +1,6 @@
 #!/bin/sh
 
-iw dev wlan0 scan | awk '{gsub("(on","");if($1 == "BSS") {MAC = $2; wifi_enc[MAC] = "brak"; wifi_chan[MAC] = "?"}
+iw dev wlan0 scan 2>/dev/null | awk '{gsub("(on","");if($1 == "BSS") {MAC = $2; wifi_enc[MAC] = "brak"; wifi_chan[MAC] = "?"}
 if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};t=t$NF; wifi_ssid[MAC]=t}
 if($1 == "freq:") {wifi_freq[MAC] = $2}
 if($1 == "signal:") {wifi_sig[MAC] = $2}
