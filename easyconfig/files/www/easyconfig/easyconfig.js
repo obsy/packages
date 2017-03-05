@@ -764,6 +764,7 @@ function btn_pages(page)
 	setDisplay("div_settings", (page==2)?"block":"none");
 	setDisplay("div_system",   (page==3)?"block":"none");
 	setDisplay("div_watchdog", (page==4)?"block":"none");
+	setDisplay("div_sitesurvey", (page==5)?"block":"none");
 
 	if (page==1)
 	{
@@ -786,6 +787,11 @@ function btn_pages(page)
 			return;
 		}
 		setDisplay("watchdog_enabled_info", "none");
+	}
+
+	if (page==5)
+	{
+		showsitesurvey();
 	}
 }
 
@@ -871,6 +877,33 @@ function btn_watchdog_save()
 				if (data.result[1].code === 0) {
 					showMsg("Zapisano zmiany");
 				}
+			} else {
+				showMsg("Błąd pobierania danych!", true);
+			}
+		}
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+/*****************************************************************************/
+
+function showsitesurvey() {
+	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_wifiscan.sh"]}', function(data) {
+//console.log(JSON.stringify(data, null, 4));
+		if (data.error) {
+			ubus_error(data.error.code);
+		} else {
+			if (data.result[0] === 0) {
+
+				var div = document.getElementById('div_sitesurvey_content');
+				div.innerHTML = "";
+				scan = JSON.parse(data.result[1].stdout);
+				for(var mac in scan){
+					if (mac == '00:00:00:00:00:00') {continue;}
+					div.innerHTML = div.innerHTML + '<strong>' + scan[mac].ssid + '</strong><br>' + mac + '<br>RSSI ' + scan[mac].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + scan[mac].channel + ' (' + scan[mac].freq + 'MHz)<br>Szyfrowanie ' + scan[mac].encryption + '<hr>';
+				}
+
 			} else {
 				showMsg("Błąd pobierania danych!", true);
 			}
