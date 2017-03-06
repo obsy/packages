@@ -920,10 +920,8 @@ function sitesurveycallback(sortby) {
 	all=["ssid","mac","signal","freq"];
 	for(var idx=0; idx<all.length; idx++){
 		var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
-		e.style.fontWeight = 400;
+		e.style.fontWeight = (sortby==all[idx])?700:400;
 	}
-	var e = document.getElementById('sitesurvey_sortby_'+sortby);
-	e.style.fontWeight = 700;
 
 	var div = document.getElementById('div_sitesurvey_content');
 	scan = sortJSON(wifiscanresults, sortby, '123');
@@ -931,7 +929,6 @@ function sitesurveycallback(sortby) {
 	for(var idx=0; idx<scan.length; idx++){
 		if (scan[idx].mac == '00:00:00:00:00:00') {continue;}
 		html = html + '<hr><div class="row"><div class="col-xs-6"><h4>' + scan[idx].ssid + '</h4>' + scan[idx].mac + '</div><div class="col-xs-6 text-right">RSSI ' + scan[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + scan[idx].channel + ' (' + scan[idx].freq + ' MHz)<br>' + (scan[idx].encryption?'Szyfrowanie ' + scan[idx].encryption:'') + '</div></div>';
-//		if (idx<scan.length-1){html=html+'<hr>';}
 	}
 	div.innerHTML = html;
 }
