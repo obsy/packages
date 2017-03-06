@@ -113,7 +113,8 @@ h3 {
   font-size: 18px;
   color: #818181;
   display: block;
-  transition: 0.3s
+  transition: 0.3s;
+  white-space:nowrap;
 }
 
 .sidenav a:hover, .offcanvas a:focus{
