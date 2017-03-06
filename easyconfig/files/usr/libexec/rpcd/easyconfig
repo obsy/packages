@@ -215,7 +215,7 @@ echo '}'
 show_watchdog()
 {
 echo '{'
-WAT=$(grep easyconfig_watchdog /etc/crontabs/root)
+[ -e /etc/crontabs/root ] && WAT=$(grep easyconfig_watchdog /etc/crontabs/root)
 
 if [ -z "$WAT" ]; then
 	echo '"watchdog_enabled": false'
