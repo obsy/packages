@@ -888,6 +888,16 @@ function btn_watchdog_save()
 
 /*****************************************************************************/
 
+function sortJSON(data, key, way) {
+	return data.sort(function(a, b) {
+		var x = a[key]; var y = b[key];
+		if (way === '123' ) { return ((x < y) ? -1 : ((x > y) ? 1 : 0)); }
+		if (way === '321') { return ((x > y) ? -1 : ((x < y) ? 1 : 0)); }
+	});
+}
+
+var wifiscanresults;
+
 function showsitesurvey() {
 	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_wifiscan.sh"]}', function(data) {
 //console.log(JSON.stringify(data, null, 4));
@@ -895,15 +905,8 @@ function showsitesurvey() {
 			ubus_error(data.error.code);
 		} else {
 			if (data.result[0] === 0) {
-
-				var div = document.getElementById('div_sitesurvey_content');
-				div.innerHTML = "";
-				scan = JSON.parse(data.result[1].stdout);
-				for(var mac in scan){
-					if (mac == '00:00:00:00:00:00') {continue;}
-					div.innerHTML = div.innerHTML + '<strong>' + scan[mac].ssid + '</strong><br>' + mac + '<br>RSSI ' + scan[mac].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + scan[mac].channel + ' (' + scan[mac].freq + 'MHz)<br>Szyfrowanie ' + scan[mac].encryption + '<hr>';
-				}
-
+				wifiscanresults = JSON.parse((data.result[1].stdout).replace(/\\/g,"\\\\"));
+				sitesurveycallback("ssid");
 			} else {
 				showMsg("Błąd pobierania danych!", true);
 			}
@@ -911,6 +914,26 @@ function showsitesurvey() {
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
 	});
+}
+
+function sitesurveycallback(sortby) {
+	all=["ssid","mac","signal","freq"];
+	for(var idx=0; idx<all.length; idx++){
+		var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
+		e.style.fontWeight = 400;
+	}
+	var e = document.getElementById('sitesurvey_sortby_'+sortby);
+	e.style.fontWeight = 700;
+
+	var div = document.getElementById('div_sitesurvey_content');
+	scan = sortJSON(wifiscanresults, sortby, '123');
+	var html="";
+	for(var idx=0; idx<scan.length; idx++){
+		if (scan[idx].mac == '00:00:00:00:00:00') {continue;}
+		html = html + '<hr><div class="row"><div class="col-xs-6"><h4>' + scan[idx].ssid + '</h4>' + scan[idx].mac + '</div><div class="col-xs-6 text-right">RSSI ' + scan[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + scan[idx].channel + ' (' + scan[idx].freq + ' MHz)<br>' + (scan[idx].encryption?'Szyfrowanie ' + scan[idx].encryption:'') + '</div></div>';
+//		if (idx<scan.length-1){html=html+'<hr>';}
+	}
+	div.innerHTML = html;
 }
 
 /*****************************************************************************/
