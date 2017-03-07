@@ -1,57 +1,40 @@
 /*****************************************************************************/
 
-function proofreadIp(input)
-{
+function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
 
-function proofreadMask(input)
-{
+function proofreadMask(input) {
 	proofreadText(input, validateMask, 0);
 }
 
-function proofreadText(input, proofFunction, validReturnCode)
-{
-	if(input.disabled != true)
-	{
-		if (proofFunction(input.value) == validReturnCode)
-		{
+function proofreadText(input, proofFunction, validReturnCode) {
+	if(input.disabled != true) {
+		if (proofFunction(input.value) == validReturnCode) {
 			input.style.color = "#555";
 			input.closest('div').className = input.closest('div').className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
-		}
-		else
-		{
+		} else {
 			input.style.color = "red";
 			input.closest('div').className += " has-error";
 		}
 	}
 }
 
-function proofreadNumericRange(input, min, max)
-{
+function proofreadNumericRange(input, min, max) {
 	proofreadText(input, function(text){return validateNumericRange(text,min,max)}, 0);
 }
 
-function validateIP(address)
-{
+function validateIP(address) {
 	var errorCode = 0;
-	if((address == "0.0.0.0") || (address == "255.255.255.255"))
-	{
+	if((address == "0.0.0.0") || (address == "255.255.255.255")) {
 		errorCode = 1;
-	}
-	else
-	{
+	} else {
 		var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-		if(ipFields == null)
-		{
+		if(ipFields == null) {
 			errorCode = 1;
-		}
-		else
-		{
-			for(field=1; field <= 4; field++)
-			{
-				if((ipFields[field] > 255) || (ipFields[field] == 255 && field==4))
-				{
+		} else {
+			for(field=1; field <= 4; field++) {
+				if((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
 					errorCode = 1;
 				}
 			}
@@ -60,25 +43,18 @@ function validateIP(address)
 	return errorCode;
 }
 
-function validateMask(mask)
-{
+function validateMask(mask) {
 	var errorCode = 0;
 	var ipFields = mask.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-	if(ipFields == null)
-	{
+	if(ipFields == null) {
 		errorCode = 1;
-	}
-	else
-	{
+	} else {
 		previousField = 255;
-		for(field=1; field <= 4; field++)
-		{
-			if(ipFields[field] > 255)
-			{
+		for(field=1; field <= 4; field++) {
+			if(ipFields[field] > 255) {
 				errorCode = 1;
 			}
-			if(previousField < 255 && ipFields[field] != 0 && errorCode < 2)
-			{
+			if(previousField < 255 && ipFields[field] != 0 && errorCode < 2) {
 				errorCode = 1;
 			}
 			if(ipFields[field] != 255 &&
@@ -90,9 +66,7 @@ function validateMask(mask)
 				ipFields[field] != 192 &&
 				ipFields[field] != 128 &&
 				ipFields[field] != 0 &&
-				errorCode < 1
-			)
-			{
+				errorCode < 1) {
 				errorCode = 1;
 			}
 
@@ -102,23 +76,18 @@ function validateMask(mask)
 	return errorCode;
 }
 
-function validateNumericRange(num, min, max)
-{
+function validateNumericRange(num, min, max) {
 	var errorCode = num.match(/^[\d]+$/) == null ? 1 : 0;
-	if(errorCode == 0)
-	{
+	if(errorCode == 0) {
 		errorCode = num < min ? 2 : 0;
 	}
-	if(errorCode == 0)
-	{
+	if(errorCode == 0) {
 		errorCode = num > max ? 3 : 0;
 	}
 	return errorCode;
 }
 
-function checkField(element, proofFunction)
-{
-
+function checkField(element, proofFunction) {
 	if (proofFunction(getValue(element)) != 0) {
 		showMsg("Błąd w polu " + getLabelText(element), true);
 		return true;
@@ -126,8 +95,7 @@ function checkField(element, proofFunction)
 	return false;
 }
 
-function getLabelText(element)
-{
+function getLabelText(element) {
 	labels = document.getElementsByTagName('LABEL');
 	for (var i = 0; i < labels.length; i++) {
 		if (labels[i].htmlFor != '') {
@@ -142,72 +110,50 @@ function getLabelText(element)
 
 var modal;
 
-function removeOptions(element)
-{
+function removeOptions(element) {
 	var select = document.getElementById(element);
-	for(var idx = select.options.length - 1 ; idx >= 0 ; idx--)
-	{
+	for(var idx = select.options.length - 1 ; idx >= 0 ; idx--) {
 		select.remove(idx);
 	}
 }
 
-function cleanField(element)
-{
+function cleanField(element) {
 	document.getElementById(element).value = "";
 }
 
-function setValue(element1, value)
-{
+function setValue(element1, value) {
 	element=document.getElementById(element1);
-	if (element.tagName == "SELECT")
-	{
-		for(var i = 0; i < element.options.length; i++)
-		{
-			if(element.options[i].value == value)
-			{
+	if (element.tagName == "SELECT") {
+		for(var i = 0; i < element.options.length; i++) {
+			if(element.options[i].value == value) {
 				element.selectedIndex = i;
 				break;
 			}
 		}
-	}
-	else if (element.tagName == "P")
-	{
+	} else if (element.tagName == "P") {
 		element.innerHTML = value;
-	}
-	else if (element.tagName == "H3")
-	{
+	} else if (element.tagName == "H3") {
 		element.innerHTML = value;
-	}
-	else if (element.type === 'checkbox')
-	{
+	} else if (element.type === 'checkbox') {
 		element.checked = value;
-	}
-	else
-	{
+	} else {
 		element.value = value;
 	}
 }
 
-function getValue(element1)
-{
+function getValue(element1) {
 	element=document.getElementById(element1);
-	if (element.tagName == "SELECT")
-	{
+	if (element.tagName == "SELECT") {
 		return element.options[element.selectedIndex].value;
-	}
-	else if (element.type === 'checkbox')
-	{
+	} else if (element.type === 'checkbox') {
 		return element.checked
-	}
-	else
-	{
+	} else {
 		var val=element.value;
 		return val.replace(/(["\\])/g,'');
 	}
 }
 
-function setDisplay(element, show)
-{
+function setDisplay(element, show) {
 	document.getElementById(element).style.display=show;
 }
 
@@ -218,29 +164,23 @@ function enableDns(enable)
 	setElementEnabled("wan_dns2", true, !enable);
 }
 
-function enableWan(proto)
-{
+function enableWan(proto) {
 	fields=[];
-	if ((proto == "static") || (proto == "dhcp") || (proto == "dhcp_hilink"))
-	{
+	if ((proto == "static") || (proto == "dhcp") || (proto == "dhcp_hilink")) {
 		fields=["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
 	}
-	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm"))
-	{
+	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
 
 	all=["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn"];
-	for(idx=0; idx < all.length; idx++)
-	{
+	for(idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
-	for(idx=0; idx < fields.length; idx++)
-	{
+	for(idx=0; idx < fields.length; idx++) {
 		setElementEnabled(fields[idx], true, (proto == "dhcp" || proto == "dhcp_hilink"));
 	}
-	if (proto != "static" && proto != "none")
-	{
+	if (proto != "static" && proto != "none") {
 		setElementEnabled("wan_dns", true, false);
 		t = (config.wan_use_dns == 1)
 		setValue("wan_dns", t);
@@ -251,42 +191,33 @@ function enableWan(proto)
 	setDisplay("div_status_wan", (proto == "none")?"none":"block");
 }
 
-function enableWlanEncryption(encryption, cnt)
-{
+function enableWlanEncryption(encryption, cnt) {
 	setElementEnabled("wlan_key"+cnt, (encryption!="none" && encryption!=""), false);
 }
 
-function setElementEnabled(element, show, disabled)
-{
+function setElementEnabled(element, show, disabled) {
 	element1=document.getElementById(element);
-	if(show)
-	{
+	if(show) {
 		element1.disabled=disabled;
 		element1.readonly=disabled;
 		setDisplay("div_" + element, "block");
-	}
-	else
-	{
+	} else {
 		element1.disabled=true;
 		setDisplay("div_" + element, "none");
 	}
 }
 
-function showMsg(msg, error)
-{
+function showMsg(msg, error) {
 	closeMsg();
 
 	if (!msg || 0 === msg.length) {msg = "Proszę czekać...";}
 	element = document.getElementById('msgtxt');
 	element.innerHTML = msg;
 
-	if (error)
-	{
+	if (error) {
 		element.style.color = "red";
 		element.className += " has-error";
-	}
-	else
-	{
+	} else {
 		element.style.color = "#555";
 		element.className = element.className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
 	}
@@ -301,8 +232,7 @@ function showMsg(msg, error)
 	}
 }
 
-function closeMsg()
-{
+function closeMsg() {
 	if (modal) {modal.style.display = "none";}
 }
 
@@ -345,17 +275,34 @@ var ubus = function(param, successHandler, errorHandler) {
 	xhr.send(param);
 };
 
-function ubus_error(error)
-{
+function ubus_error(error) {
 	closeMsg();
 	if (error == -32002) {
 		location.reload();
-	}
-	else
-	{
+	} else {
 		showMsg("Błąd pobierania danych!", true);
 	}
 }
+
+function ubus_call(param, callback)
+{
+	ubus(param, function(data) {
+//console.log(JSON.stringify(data, null, 4));
+		if (data.error) {
+			ubus_error(data.error.code);
+		} else {
+			if (data.result[0] === 0) {
+				callback(data.result[1]);
+			} else {
+				showMsg("Błąd pobierania danych!", true);
+			}
+		}
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+/*****************************************************************************/
 
 function login()
 {
@@ -363,7 +310,6 @@ function login()
 	system_pass=getValue("system_password");
 
 	ubus('"session", "login", { "username": "'+system_user+'", "password": "'+system_pass+'" }', function(data) {
-//console.log(JSON.stringify(data, null, 4));
 		if (data.error) {
 			ubus_error(data.error.code);
 		} else {
@@ -382,26 +328,13 @@ function login()
 	});
 }
 
-function showconfig()
-{
-	ubus('"easyconfig", "show_config", { }', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				show(data.result[1])
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
-		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
-	});
+/*****************************************************************************/
+
+function showconfig() {
+	ubus_call('"easyconfig", "show_config", { }', showcallback);
 }
 
-function show(data)
-{
+function showcallback(data) {
 	config=data;
 
 //console.log(config);
@@ -455,8 +388,7 @@ function show(data)
 	if (config.radio0) {radios.push("0");}
 	if (config.radio1) {radios.push("1");}
 
-	for (var i = 0; i < radios.length; i++)
-	{
+	for (var i = 0; i < radios.length; i++) {
 		var is_radio2=false;
 		var is_radio5=false;
 		removeOptions('wlan_channel' + radios[i]);
@@ -492,40 +424,7 @@ function show(data)
 	showmodemsection();
 }
 
-function showstatus()
-{
-	ubus('"easyconfig", "status", { }', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				status(data.result[1])
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
-		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
-	});
-}
-
-function status(data)
-{
-	setValue('system_uptime', data.system_uptime);
-	setValue('system_load', data.system_load);
-	setValue('wlan_clients', data.wlan_clients);
-	setValue('wan_rx', data.wan_rx);
-	setValue('wan_tx', data.wan_tx);
-	setValue('wan_uptime', data.wan_uptime);
-	firmware_version = data.version;
-	setValue('firmware_version', firmware_version);
-	setValue('gui_version', data.gui_version);
-	setValue('model', data.model);
-}
-
-function saveconfig()
-{
+function saveconfig() {
 	var cmd = [];
 
 	cmd.push('#!/bin/sh');
@@ -537,12 +436,10 @@ function saveconfig()
 	use_dns = getValue("wan_dns");
 
 	wan_type=getValue('wan_proto');
-	if(wan_type=='none')
-	{
+	if(wan_type=='none') {
 		use_dns = false;
 	}
-	if(wan_type=='static')
-	{
+	if(wan_type=='static') {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
 		if (checkField('wan_netmask', validateMask)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
@@ -552,33 +449,28 @@ function saveconfig()
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
 		use_dns = true;
 	}
-	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm')
-	{
+	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
 		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
 		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
 	}
-	if(wan_type=='dhcp')
-	{
+	if(wan_type=='dhcp') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
 	}
-	if(wan_type=='dhcp_hilink')
-	{
+	if(wan_type=='dhcp_hilink') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_hilink);
 		wan_type='dhcp';
 	}
 	cmd.push('uci set network.wan.proto='+wan_type);
+	config.wan_proto=wan_type;
 
-	if (use_dns)
-	{
+	if (use_dns) {
 		if (checkField('wan_dns1', validateIP)) {return;}
 		if (checkField('wan_dns2', validateIP)) {return;}
 
 		cmd.push('uci set network.wan.dns=\\\"'+getValue('wan_dns1')+' '+getValue('wan_dns2')+'\\\"');
 		cmd.push('uci set network.wan.peerdns=0');
-	}
-	else
-	{
+	} else {
 		cmd.push('uci -q del network.wan.dns');
 		cmd.push('uci -q del network.wan.peerdns');
 	}
@@ -587,12 +479,9 @@ function saveconfig()
 	if (checkField('lan_ipaddr', validateIP)) {return;}
 	cmd.push('uci set network.lan.ipaddr='+getValue('lan_ipaddr'));
 
-	if (getValue("lan_dhcp_enabled"))
-	{
+	if (getValue("lan_dhcp_enabled")) {
 		cmd.push('uci -q del dhcp.lan.ignore');
-	}
-	else
-	{
+	} else {
 		cmd.push('uci set dhcp.lan.ignore=1');
 	}
 
@@ -600,36 +489,29 @@ function saveconfig()
 	var wlan_restart_required=false;
 
 	var radios=[];
-	if (config.radio0 != null) { radios.push("0");}
-	if (config.radio1 != null) { radios.push("1");}
+	if (config.radio0 != null) {radios.push("0");}
+	if (config.radio1 != null) {radios.push("1");}
 
 	for (var i = 0; i < radios.length; i++) {
 
-		if (config["radio"+radios[i]].wlan_section == "")
-		{
+		if (config["radio"+radios[i]].wlan_section == "") {
 			wlan_restart_required=true;
 			cmd.push('uci add wireless wifi-iface');
 			config["radio"+radios[i]].wlan_section="@wifi-iface[-1]"
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.device=radio'+radios[i]);
-			if (!getValue("wlan_enabled"+radios[i]))
-			{
+			if (!getValue("wlan_enabled"+radios[i])) {
 				cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.disabled=1');
 			}
 		}
 
-		if (getValue("wlan_enabled"+radios[i]))
-		{
-			if (config["radio"+radios[i]].wlan_disabled === "1")
-			{
+		if (getValue("wlan_enabled"+radios[i])) {
+			if (config["radio"+radios[i]].wlan_disabled === "1") {
 				wlan_restart_required=true;
 				cmd.push('uci -q del wireless.radio'+radios[i]+'.disabled');
 				cmd.push('uci -q del wireless.'+config["radio"+radios[i]].wlan_section+'.disabled');
 			}
-		}
-		else
-		{
-			if (config["radio"+radios[i]].wlan_disabled !== "1")
-			{
+		} else {
+			if (config["radio"+radios[i]].wlan_disabled !== "1") {
 				wlan_restart_required=true;
 				cmd.push('uci set wireless.radio'+radios[i]+'.disabled=1');
 				cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.disabled=1');
@@ -637,30 +519,24 @@ function saveconfig()
 		}
 
 		wlan_channel=getValue('wlan_channel'+radios[i]);
-		if (config["radio"+radios[i]].wlan_channel != wlan_channel)
-		{
+		if (config["radio"+radios[i]].wlan_channel != wlan_channel) {
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.radio'+radios[i]+'.channel='+wlan_channel);
 			cmd.push('uci set wireless.radio'+radios[i]+'.hwmode=11'+((wlan_channel < 36)?'g':'a'));
 		}
-		if (config["radio"+radios[i]].wlan_ssid != getValue('wlan_ssid'+radios[i]))
-		{
+		if (config["radio"+radios[i]].wlan_ssid != getValue('wlan_ssid'+radios[i])) {
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.ssid=\\\"'+getValue('wlan_ssid'+radios[i])+'\\\"');
 		}
 		wlan_encryption=getValue('wlan_encryption'+radios[i]);
-		if (config["radio"+radios[i]].wlan_encryption != wlan_encryption)
-		{
+		if (config["radio"+radios[i]].wlan_encryption != wlan_encryption) {
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.encryption=\\\"'+wlan_encryption+'\\\"');
 		}
 		wlan_key=getValue('wlan_key'+radios[i]);
-		if (config["radio"+radios[i]].wlan_key != wlan_key)
-		{
-			if (wlan_encryption != "none")
-			{
-				if (wlan_key.length < 8)
-				{
+		if (config["radio"+radios[i]].wlan_key != wlan_key) {
+			if (wlan_encryption != "none") {
+				if (wlan_key.length < 8) {
 					showMsg("Hasło do Wi-Fi musi mieć co najmniej 8 znaków!", true);
 					return;
 				}
@@ -668,8 +544,7 @@ function saveconfig()
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.key=\\\"'+wlan_key+'\\\"');
 		}
-		if (wlan_restart_required)
-		{
+		if (wlan_restart_required) {
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.mode=ap');
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.network=lan');
 		}
@@ -684,18 +559,15 @@ function saveconfig()
 	// commit & restart services
 	cmd.push('uci commit');
 	cmd.push('ifup wan');
-	if (wlan_restart_required)
-	{
+	if (wlan_restart_required) {
 		cmd.push('wifi');
 	}
 
 	//password
 	var pass1=getValue('password1');
 	var pass2=getValue('password2');
-	if(pass1 != '')
-	{
-		if (pass1!=pass2)
-		{
+	if(pass1 != '') {
+		if (pass1!=pass2) 	{
 			showMsg("Hasła nie są takie same!", true);
 			return;
 		}
@@ -708,110 +580,52 @@ function saveconfig()
 
 //console.log(cmd);
 
-	ubus('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-
-				ubus('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-					cleanField('password1');
-					cleanField('password2');
-				});
-
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
-		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			cleanField('password1');
+			cleanField('password2');
+		});
 	});
 }
 
-function showmodem()
-{
-	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/share/3ginfo-lite/3ginfo.sh"]}', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				if (data.result[1].code === 0) {
-					modemCallback(JSON.parse(data.result[1].stdout));
-				}
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
-		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
+/*****************************************************************************/
+
+function showstatus() {
+	ubus_call('"easyconfig", "status", { }', function(data) {
+		setValue('system_uptime', data.system_uptime);
+		setValue('system_load', data.system_load);
+		setValue('wlan_clients', data.wlan_clients);
+		setValue('wan_rx', data.wan_rx);
+		setValue('wan_tx', data.wan_tx);
+		setValue('wan_uptime', data.wan_uptime);
+		firmware_version = data.version;
+		setValue('firmware_version', firmware_version);
+		setValue('gui_version', data.gui_version);
+		setValue('model', data.model);
 	});
 }
 
-function modemCallback(data)
-{
-	setValue('modem_signal', data.signal?data.signal + "%":"?");
-	setValue('modem_operator', data.operator_name);
-	setValue('modem_mode', data.mode);
+function showmodem() {
+	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/share/3ginfo-lite/3ginfo.sh"]}', function(data) {
+		data=JSON.parse(data.stdout);
+		setValue('modem_signal', data.signal?data.signal + "%":"?");
+		setValue('modem_operator', data.operator_name);
+		setValue('modem_mode', data.mode);
+	});
 }
 
-function btn_pages(page)
-{
-	closenav();
-	setDisplay("div_status",   (page==1)?"block":"none");
-	setDisplay("div_settings", (page==2)?"block":"none");
-	setDisplay("div_system",   (page==3)?"block":"none");
-	setDisplay("div_watchdog", (page==4)?"block":"none");
-	setDisplay("div_sitesurvey", (page==5)?"block":"none");
-
-	if (page==1)
-	{
-		showstatus();
-		showmodemsection();
-	}
-
-	if (page==4)
-	{
-		showwatchdog();
-
-		if (config.wan_proto == "none")
-		{
-			setElementEnabled("watchdog_enabled", true, true);
-			setElementEnabled("watchdog_dest", true, true);
-			setElementEnabled("watchdog_period", true, true);
-			setElementEnabled("watchdog_delay", true, true);
-			setElementEnabled("watchdog_action", true, true);
-			setDisplay("watchdog_enabled_info", "block");
-			return;
-		}
-		setDisplay("watchdog_enabled_info", "none");
-	}
-
-	if (page==5)
-	{
-		showsitesurvey();
-	}
-}
-
-function showmodemsection()
-{
+function showmodemsection() {
 	var wan_type=getValue("wan_proto");
-	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm')
-	{
+	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
 		setDisplay("div_status_modem", "block");
 		showmodem();
-	}
-	else
-	{
+	} else {
 		setDisplay("div_status_modem", "none");
 	}
 }
 /*****************************************************************************/
 
-function btn_system_reboot()
-{
+function btn_system_reboot() {
 	ubus('"system", "reboot", {}', function(data) {
 		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
 	}, function(status) {
@@ -821,38 +635,24 @@ function btn_system_reboot()
 
 /*****************************************************************************/
 
-function showwatchdog()
-{
-
+function showwatchdog() {
 	setValue("watchdog_dest", "google.com");
 	setValue("watchdog_period", 3);
 	setValue("watchdog_delay", 3);
 	setValue("watchdog_action", "wan");
 
-	ubus('"easyconfig", "show_watchdog", { }', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				setValue("watchdog_enabled", data.result[1].watchdog_enabled);
-				if (data.result[1].watchdog_enabled) {
-					setValue("watchdog_dest", data.result[1].watchdog_dest);
-					setValue("watchdog_period", data.result[1].watchdog_period);
-					setValue("watchdog_delay", data.result[1].watchdog_delay);
-					setValue("watchdog_action", data.result[1].watchdog_action);
-				}
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
+	ubus_call('"easyconfig", "show_watchdog", { }', function(data) {
+		setValue("watchdog_enabled", data.watchdog_enabled);
+		if (data.watchdog_enabled) {
+			setValue("watchdog_dest", data.watchdog_dest);
+			setValue("watchdog_period", data.watchdog_period);
+			setValue("watchdog_delay", data.watchdog_delay);
+			setValue("watchdog_action", data.watchdog_action);
 		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
 	});
 }
 
-function btn_watchdog_save()
-{
+function savewatchdog() {
 	var watchdog_enabled = getValue("watchdog_enabled");
 	var watchdog_dest = getValue("watchdog_dest");
 	watchdog_dest = watchdog_dest.replace(/(["\\ ])/g,'');
@@ -868,21 +668,10 @@ function btn_watchdog_save()
 	}
 	var watchdog_action = getValue("watchdog_action");
 
-	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_watchdog_helper.sh","'+watchdog_enabled+'","'+watchdog_dest+'","'+watchdog_period+'","'+watchdog_delay+'","'+watchdog_action+'"]}', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				if (data.result[1].code === 0) {
-					showMsg("Zapisano zmiany");
-				}
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
+	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_watchdog_helper.sh","'+watchdog_enabled+'","'+watchdog_dest+'","'+watchdog_period+'","'+watchdog_delay+'","'+watchdog_action+'"]}', function(data) {
+		if (data.code === 0) {
+			showMsg("Zapisano zmiany");
 		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
 	});
 }
 
@@ -899,20 +688,9 @@ function sortJSON(data, key, way) {
 var wifiscanresults;
 
 function showsitesurvey() {
-	ubus('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_wifiscan.sh"]}', function(data) {
-//console.log(JSON.stringify(data, null, 4));
-		if (data.error) {
-			ubus_error(data.error.code);
-		} else {
-			if (data.result[0] === 0) {
-				wifiscanresults = JSON.parse((data.result[1].stdout).replace(/\\/g,"\\\\"));
-				sitesurveycallback("ssid");
-			} else {
-				showMsg("Błąd pobierania danych!", true);
-			}
-		}
-	}, function(status) {
-		showMsg("Błąd pobierania danych!", true);
+	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_wifiscan.sh"]}', function(data) {
+		wifiscanresults = JSON.parse((data.stdout).replace(/\\/g,"\\\\"));
+		sitesurveycallback("ssid");
 	});
 }
 
@@ -941,4 +719,33 @@ function opennav() {
 
 function closenav() {
 	document.getElementById("menu").style.width = "0";
+}
+
+function btn_pages(page) {
+	closenav();
+	setDisplay("div_status",   (page==1)?"block":"none");
+	setDisplay("div_settings", (page==2)?"block":"none");
+	setDisplay("div_system",   (page==3)?"block":"none");
+	setDisplay("div_watchdog", (page==4)?"block":"none");
+	setDisplay("div_sitesurvey", (page==5)?"block":"none");
+
+	if (page==1) {
+		showstatus();
+		showmodemsection();
+	}
+
+	if (page==4) {
+		showwatchdog();
+		var block=(config.wan_proto == "none");
+		setElementEnabled("watchdog_enabled", true, block);
+		setElementEnabled("watchdog_dest", true, block);
+		setElementEnabled("watchdog_period", true, block);
+		setElementEnabled("watchdog_delay", true, block);
+		setElementEnabled("watchdog_action", true, block);
+		setDisplay("watchdog_enabled_info", block?"block":"none");
+	}
+
+	if (page==5) {
+		showsitesurvey();
+	}
 }
