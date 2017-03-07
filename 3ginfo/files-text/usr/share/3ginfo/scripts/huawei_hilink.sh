@@ -17,19 +17,19 @@ getvalue() {
 }
 
 cookie=$(mktemp)
-wget -t 25 -O /tmp/webserver-token "http://$IP/api/webserver/token" >/dev/null 2>&1
+/usr/bin/wget -t 25 -O /tmp/webserver-token "http://$IP/api/webserver/token" >/dev/null 2>&1
 token=$(getvaluen webserver-token token)
 if [ -z "$token" ]; then
-	wget -q -O /dev/null --keep-session-cookies --save-cookies $cookie "http://$IP/html/home.html"
+	/usr/bin/wget -q -O /dev/null --keep-session-cookies --save-cookies $cookie "http://$IP/html/home.html"
 fi
 
 files="device/signal monitoring/status net/current-plmn net/signal-para device/information"
 for f in $files; do
 	nf=$(echo $f | sed 's!/!-!g')
 	if [ -n "$token" ]; then
-		wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --header "__RequestVerificationToken: $token" >/dev/null 2>&1
+		/usr/bin/wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --header "__RequestVerificationToken: $token" >/dev/null 2>&1
 	else
-		wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --load-cookies=$cookie >/dev/null 2>&1
+		/usr/bin/wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --load-cookies=$cookie >/dev/null 2>&1
 	fi
 done
 

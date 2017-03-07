@@ -5,11 +5,11 @@ IP=$1
 [ -e /usr/bin/wget ] || exit 0
 
 getvaluen() {
-    echo $(sed 's!.*"'$2'":\([^,]*\).*!\1!g' /tmp/$1)
+	echo $(sed 's!.*"'$2'":\([^,]*\).*!\1!g' /tmp/$1)
 }
 
 getvalue() {
-    echo $(sed 's!.*"'$2'":"\([^"]*\).*!\1!g' /tmp/$1)
+	echo $(sed 's!.*"'$2'":"\([^"]*\).*!\1!g' /tmp/$1)
 }
 
 rand=`awk 'BEGIN{srand();print int(rand()*(99000-1000))+1000 }'`
