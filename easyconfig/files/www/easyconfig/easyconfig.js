@@ -188,6 +188,8 @@ function enableWan(proto) {
 		setElementEnabled("wan_dns2", true, !t);
 	}
 
+	setElementEnabled("firewall_dmz", (proto != "none"), false);
+
 	setDisplay("div_status_wan", (proto == "none")?"none":"block");
 }
 
@@ -421,6 +423,9 @@ function showcallback(data) {
 	setValue('system_hostname', config.system_hostname);
 	document.title = config.system_hostname;
 
+	//firewall
+	setValue('firewall_dmz', config.firewall_dmz);
+
 	showmodemsection();
 }
 
@@ -464,6 +469,11 @@ function saveconfig() {
 	cmd.push('uci set network.wan.proto='+wan_type);
 	config.wan_proto=wan_type;
 
+	if (wan_type == "none") {
+		cmd.push('uci del firewall.dmz');
+	}
+
+	// dns
 	if (use_dns) {
 		if (checkField('wan_dns1', validateIP)) {return;}
 		if (checkField('wan_dns2', validateIP)) {return;}
@@ -473,6 +483,23 @@ function saveconfig() {
 	} else {
 		cmd.push('uci -q del network.wan.dns');
 		cmd.push('uci -q del network.wan.peerdns');
+	}
+
+	// firewall
+	firewall_dmz=getValue("firewall_dmz");
+	if (validateIP(firewall_dmz) != 0) {
+		if (firewall_dmz != "") {
+			showMsg("Błąd w polu " + getLabelText("firewall_dmz"), true);
+			return;
+		}
+	}
+	if (firewall_dmz == "") {
+		cmd.push('uci del firewall.dmz');
+	} else {
+		cmd.push('uci set firewall.dmz=redirect');
+		cmd.push('uci set firewall.dmz.src=wan');
+		cmd.push('uci set firewall.dmz.proto=all');
+		cmd.push('uci set firewall.dmz.dest_ip='+firewall_dmz);
 	}
 
 	// lan
@@ -558,6 +585,7 @@ function saveconfig() {
 
 	// commit & restart services
 	cmd.push('uci commit');
+	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('ifup wan');
 	if (wlan_restart_required) {
 		cmd.push('wifi');
@@ -623,6 +651,7 @@ function showmodemsection() {
 		setDisplay("div_status_modem", "none");
 	}
 }
+
 /*****************************************************************************/
 
 function btn_system_reboot() {

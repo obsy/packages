@@ -207,6 +207,9 @@ for R in $RADIOS; do
 	echo '},'
 done
 
+DMZ=$(uci -q get firewall.dmz.dest_ip)
+echo '"firewall_dmz":"'$DMZ'"'
+
 echo '}'
 
 }
