@@ -30,7 +30,9 @@ endef
 define Package/easyconfig/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)
+
 	echo ${PKG_VERSION} > $(1)/www/easyconfig/version.txt
+	$(SED) 's/?v=1/?v='${PKG_VERSION}'/g' $(1)/www/easyconfig.html
 
 	$(FIND) $(1) -type f -name '*.js' | while read src; do \
 		uglifyjs "$$$$src" -o "$$$$src".1 && \
