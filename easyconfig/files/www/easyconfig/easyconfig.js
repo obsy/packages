@@ -134,6 +134,8 @@ function setValue(element1, value) {
 		element.innerHTML = value;
 	} else if (element.tagName == "H3") {
 		element.innerHTML = value;
+	} else if (element.tagName == "SPAN") {
+		element.innerHTML = value;
 	} else if (element.type === 'checkbox') {
 		element.checked = value;
 	} else {
@@ -672,11 +674,16 @@ function showwatchdog() {
 
 	ubus_call('"easyconfig", "show_watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
+		setDisplay("div_watchdog_minavgmax","none")
 		if (data.watchdog_enabled) {
 			setValue("watchdog_dest", data.watchdog_dest);
 			setValue("watchdog_period", data.watchdog_period);
 			setValue("watchdog_delay", data.watchdog_delay);
 			setValue("watchdog_action", data.watchdog_action);
+			if (data.watchdog_minavgmax != "") {
+				setDisplay("div_watchdog_minavgmax","block")
+				setValue("watchdog_minavgmax", data.watchdog_minavgmax);
+			}
 		}
 	});
 }
@@ -685,6 +692,10 @@ function savewatchdog() {
 	var watchdog_enabled = getValue("watchdog_enabled");
 	var watchdog_dest = getValue("watchdog_dest");
 	watchdog_dest = watchdog_dest.replace(/(["\\ ])/g,'');
+	if (watchdog_dest == "") {
+		showMsg("Błąd w polu " + getLabelText("watchdog_dest"), true);
+		return;
+	}
 	var watchdog_period = getValue("watchdog_period");
 	if (validateNumericRange(watchdog_period,1,59) != 0) {
 		showMsg("Błąd w polu " + getLabelText("watchdog_period"), true);

@@ -219,9 +219,10 @@
 
 		<p>&nbsp;</p>
 		<div class="form-group" id="div_firewall_dmz">
-			<label for="firewall_dmz" class="col-xs-6 col-sm-3 control-label">DMZ</label>
+			<label for="firewall_dmz" class="col-xs-6 col-sm-3 control-label">Adres IP w DMZ</label>
 			<div class="col-xs-6 col-sm-9">
 			<input id="firewall_dmz" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<em><small class="form-text text-muted">musi być z tej samej klasy co sieć lokalna</small></em>
 			</div>
 		</div>
 
@@ -416,6 +417,10 @@
 		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" onclick="btn_pages(2);" >Kliknij tutaj aby ustawić połączenie</a>
 	</div>
 
+	<div class="alert alert-info" id="div_watchdog_minavgmax" style="display:none;">
+		Wynik z ostatniego sprawdzenia: <strong><span id="watchdog_minavgmax"></span></strong> (min/avg/max)
+	</div>
+
 	<form class="form-horizontal">
 		<div class="form-group" id="div_watchdog_enabled">
 			<label for="watchdog_enabled" class="col-xs-6 col-sm-3 control-label">Włączony</label>
@@ -428,7 +433,7 @@
 		</div>
 
 		<div class="form-group" id="div_watchdog_dest">
-			<label for="watchdog_dest" class="col-xs-6 col-sm-3 control-label">Adres do pingowania</label>
+			<label for="watchdog_dest" class="col-xs-6 col-sm-3 control-label">Adres lub nazwa</label>
 			<div class="col-xs-6 col-sm-9">
 			<input id="watchdog_dest" type="text" class="form-control">
 			</div>
@@ -443,7 +448,7 @@
 		</div>
 
 		<div class="form-group" id="div_watchdog_delay">
-			<label for="watchdog_delay" class="col-xs-6 col-sm-3 control-label">Opóźnienie na starcie</label>
+			<label for="watchdog_delay" class="col-xs-6 col-sm-3 control-label">Opóźnienie przy starcie systemu</label>
 			<div class="col-xs-6 col-sm-9">
 			<input id="watchdog_delay" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
 			<em><small class="form-text text-muted">[1 - 59] minut</small></em>

@@ -12,7 +12,9 @@ T=$(uci -q get network.wan.proto)
 UPTIME=$(awk '{printf "%d", $1}' /proc/uptime)
 [ $UPTIME -le $1 ] && exit 0
 
-PR=$(ping -q -c $2 $3 2>/dev/null | awk '/packets received/ {print $4}')
+ping -q -c $2 $3 > /tmp/easyconfig_watchdog 2>/dev/null
+
+PR=$(awk '/packets received/ {print $4}' /tmp/easyconfig_watchdog)
 [ -z "$PR" ] && PR=0
 if [ "$PR" = "0" ]; then
 	case "$4" in
