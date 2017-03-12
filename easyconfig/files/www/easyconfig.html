@@ -20,12 +20,13 @@
 <div id="menu" class="sidenav">
 	<a href="#" class="closebtn" onclick="closenav()">&times;</a>
 	<hr>
-	<a href="#" onclick="btn_pages(1);" >Status</a>
-	<a href="#" onclick="btn_pages(2);" >Ustawienia</a>
-	<a href="#" onclick="btn_pages(3);" >System</a>
+	<a href="#" onclick="btn_pages('status');" >Status</a>
+	<a href="#" onclick="btn_pages('settings');" >Ustawienia</a>
+	<a href="#" onclick="btn_pages('system');" >System</a>
 	<hr>
-	<a href="#" onclick="btn_pages(4);" >Monitor połączenia</a>
-	<a href="#" onclick="btn_pages(5);" >Site Survey</a>
+	<a href="#" onclick="btn_pages('watchdog');" >Monitor połączenia</a>
+	<a href="#" onclick="btn_pages('sitesurvey');" >Site Survey</a>
+	<a href="#" onclick="btn_pages('wlanclients');" >Lista klientów</a>
 </div>
 
 
@@ -35,15 +36,15 @@
 	<h3 class="section">Logowanie</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="system_login" class="col-xs-6 col-sm-3 control-label">Login</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="system_login" class="col-xs-4 col-sm-3 control-label">Login</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="system_login" type="text" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('system_password').focus()" autofocus>
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="system_password" class="col-xs-6 col-sm-3 control-label">Hasło</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="system_password" class="col-xs-4 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="system_password" type="password" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('loginbtn').click()">
 			</div>
 		</div>
@@ -112,7 +113,7 @@
 	<div class="row">
 		<label class="col-xs-6 text-right">Połączonych klientów</label>
 		<div class="col-xs-6">
-		<p id="wlan_clients">0</p>
+		<a href="#" onclick="btn_pages('wlanclients');" class="click"><p id="wlan_clients">0</p></a>
 		</div>
 	</div>
 
@@ -143,59 +144,59 @@
 	<h3 class="section">Internet</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="wan_proto" class="col-xs-6 col-sm-3 control-label">Typ połączenia</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_proto" class="col-xs-4 col-sm-3 control-label">Typ połączenia</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wan_proto" class="form-control" onchange="enableWan(this.value)">
 			</select>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_ipaddr">
-			<label for="wan_ipaddr" class="col-xs-6 col-sm-3 control-label">Adres IP</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_netmask">
-			<label for="wan_netmask" class="col-xs-6 col-sm-3 control-label">Maska</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_netmask" class="col-xs-4 col-sm-3 control-label">Maska</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_netmask" type="text" class="form-control" onkeyup='proofreadMask(this)'>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_gateway">
-			<label for="wan_gateway" class="col-xs-6 col-sm-3 control-label">Brama</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_gateway" class="col-xs-4 col-sm-3 control-label">Brama</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_gateway" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_device">
-			<label for="wan_device" class="col-xs-6 col-sm-3 control-label">Urządzenie</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_device" class="col-xs-4 col-sm-3 control-label">Urządzenie</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wan_device" class="form-control">
 			</select>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_apn">
-			<label for="wan_apn" class="col-xs-6 col-sm-3 control-label">APN</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_apn" class="col-xs-4 col-sm-3 control-label">APN</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_apn" type="text" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_pincode">
-			<label for="wan_pincode" class="col-xs-6 col-sm-3 control-label">PIN</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_pincode" class="col-xs-4 col-sm-3 control-label">PIN</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_pincode" type="text" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_dns">
-			<label for="wan_dns" class="col-xs-6 col-sm-3 control-label">Inne serwery DNS</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_dns" class="col-xs-4 col-sm-3 control-label">Inne serwery DNS</label>
+			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="wan_dns" type="checkbox" onchange="enableDns(this.checked)">
 				<div class="slider round"></div>
@@ -204,23 +205,23 @@
 		</div>
 
 		<div class="form-group" id="div_wan_dns1">
-			<label for="wan_dns1" class="col-xs-6 col-sm-3 control-label">DNS 1</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_dns1" class="col-xs-4 col-sm-3 control-label">DNS 1</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_dns1" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_dns2">
-			<label for="wan_dns2" class="col-xs-6 col-sm-3 control-label">DNS 2</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wan_dns2" class="col-xs-4 col-sm-3 control-label">DNS 2</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wan_dns2" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			</div>
 		</div>
 
 		<p>&nbsp;</p>
 		<div class="form-group" id="div_firewall_dmz">
-			<label for="firewall_dmz" class="col-xs-6 col-sm-3 control-label">Adres IP w DMZ</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="firewall_dmz" class="col-xs-4 col-sm-3 control-label">Adres IP w DMZ</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="firewall_dmz" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			<em><small class="form-text text-muted">musi być z tej samej klasy co sieć lokalna</small></em>
 			</div>
@@ -231,15 +232,15 @@
 	<h3 class="section">Sieć lokalna</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="lan_ipaddr" class="col-xs-6 col-sm-3 control-label">Adres IP</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="lan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="lan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="lan_dhcp_enabled" class="col-xs-6 col-sm-3 control-label">Serwer DHCP włączony</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="lan_dhcp_enabled" class="col-xs-4 col-sm-3 control-label">Serwer DHCP włączony</label>
+			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="lan_dhcp_enabled" type="checkbox">
 				<div class="slider round"></div>
@@ -252,8 +253,8 @@
 	<h3 class="section" id="radio0">Wi-Fi</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="wlan_enabled0" class="col-xs-6 col-sm-3 control-label">Wi-Fi włączone</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_enabled0" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
+			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="wlan_enabled0" type="checkbox">
 				<div class="slider round"></div>
@@ -262,23 +263,23 @@
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_ssid0" class="col-xs-6 col-sm-3 control-label">Nazwa sieci (SSID)</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_ssid0" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wlan_ssid0" type="text" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_channel0" class="col-xs-6 col-sm-3 control-label">Kanał</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_channel0" class="col-xs-4 col-sm-3 control-label">Kanał</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_channel0" class="form-control">
 			</select>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wlan_encryption0">
-			<label for="wlan_encryption0" class="col-xs-6 col-sm-3 control-label">Szyfrowanie</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_encryption0" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_encryption0" class="form-control" onchange="enableWlanEncryption(this.value, 0)">
 			<option value='none'>Brak</option>
 			<option value='psk'>WPA</option>
@@ -288,8 +289,8 @@
 		</div>
 
 		<div class="form-group" id="div_wlan_key0">
-			<label for="wlan_key0" class="col-xs-6 col-sm-3 control-label">Hasło</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_key0" class="col-xs-4 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wlan_key0" type="text" class="form-control">
 			</div>
 		</div>
@@ -300,8 +301,8 @@
 	<h3 class="section" id="radio1">Wi-Fi</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="wlan_enabled1" class="col-xs-6 col-sm-3 control-label">Wi-Fi włączone</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_enabled1" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
+			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="wlan_enabled1" type="checkbox">
 				<div class="slider round"></div>
@@ -310,15 +311,15 @@
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_ssid1" class="col-xs-6 col-sm-3 control-label">Nazwa sieci (SSID)</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_ssid1" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wlan_ssid1" type="text" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_channel1" class="col-xs-6 col-sm-3 control-label">Kanał</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_channel1" class="col-xs-4 col-sm-3 control-label">Kanał</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_channel1" class="form-control">
 			</select>
 			</div>
@@ -326,8 +327,8 @@
 
 
 		<div class="form-group" id="div_wlan_encryption1">
-			<label for="wlan_encryption1" class="col-xs-6 col-sm-3 control-label">Szyfrowanie</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_encryption1" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
+			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_encryption1" class="form-control" onchange="enableWlanEncryption(this.value, 1)">
 			<option value='none'>Brak</option>
 			<option value='psk'>WPA</option>
@@ -337,8 +338,8 @@
 		</div>
 
 		<div class="form-group" id="div_wlan_key1">
-			<label for="wlan_key1" class="col-xs-6 col-sm-3 control-label">Hasło</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="wlan_key1" class="col-xs-4 col-sm-3 control-label">Hasło</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="wlan_key1" type="text" class="form-control">
 			</div>
 		</div>
@@ -348,22 +349,22 @@
 	<h3 class="section">System</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="password1" class="col-xs-6 col-sm-3 control-label">Nowe hasło</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="password1" class="col-xs-4 col-sm-3 control-label">Nowe hasło</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="password1" type="password" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="password2" class="col-xs-6 col-sm-3 control-label">Potwierdź hasło</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="password2" class="col-xs-4 col-sm-3 control-label">Potwierdź hasło</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="password2" type="password" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="system_hostname" class="col-xs-6 col-sm-3 control-label">Nazwa systemu</label>
-			<div class="col-xs-6 col-sm-9">
+			<label for="system_hostname" class="col-xs-4 col-sm-3 control-label">Nazwa systemu</label>
+			<div class="col-xs-8 col-sm-9">
 			<input id="system_hostname" type="text" class="form-control">
 			</div>
 		</div>
@@ -414,7 +415,7 @@
 
 	<h3 class="section">Monitor połączenia</h3>
 	<div class="alert alert-warning" id="watchdog_enabled_info">
-		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" onclick="btn_pages(2);" >Kliknij tutaj aby ustawić połączenie</a>
+		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" onclick="btn_pages('settings');" class="click">Kliknij tutaj aby ustawić połączenie -></a>
 	</div>
 
 	<div class="alert alert-info" id="div_watchdog_minavgmax" style="display:none;">
@@ -477,20 +478,21 @@
 	<div id="div_sitesurvey" style="display:none;">
 
 	<h3 class="section">Site Survey</h3>
-	<div class="row">
-		<div class="col-xs-12">
-			<span>Sortowanie po</span>
-			<a href="#" class="click" onclick="sitesurveycallback('ssid');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|
-			<a href="#" class="click" onclick="sitesurveycallback('mac');"><span id="sitesurvey_sortby_mac"> adresie mac </span></a>|
-			<a href="#" class="click" onclick="sitesurveycallback('signal');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|
-			<a href="#" class="click" onclick="sitesurveycallback('freq');"><span id="sitesurvey_sortby_freq"> kanale </span></a>
-		</div>
-	</div>
-	<p></p>
 	<div id="div_sitesurvey_content"></div>
 	<h3 class="section"></h3>
 	<div class="text-center">
 		<input type="button" class="btn btn-default" onclick="showsitesurvey();" value="Odśwież" />
+	</div>
+
+	</div>
+
+	<div id="div_wlanclients" style="display:none;">
+
+	<h3 class="section">Lista klientów</h3>
+	<div id="div_wlanclients_content"></div>
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="showwlanclients();" value="Odśwież" />
 	</div>
 
 	</div>

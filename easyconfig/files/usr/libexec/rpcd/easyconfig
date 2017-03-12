@@ -245,9 +245,39 @@ echo '}'
 
 ##############################################################################
 
+show_clients()
+{
+WLAN_MAC=""
+RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+for R in $RADIOS; do
+	IFNAME=$(wifi status $R | awk -F\" '/ifname/ {print $4}')
+	if [ -n "$IFNAME" ]; then
+		for i in $IFNAME; do
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes/) {rx[MAC]=$3} if($0 ~ /tx bytes/) {tx[MAC]=$3}} END for (w in station) {printf "%s;%d;%d ", w, tx[w], rx[w]}')
+		done
+	fi
+done
+
+echo '{"clients":['
+for M in $WLAN_MAC; do
+	MAC=$(echo $M | cut -f1 -d";")
+	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"name\":\"%s\",", $2, $3, $4}' /tmp/dhcp.leases)
+	if [ -n "$T" ]; then
+		echo -n "$T"
+	else
+		echo -n '{"mac":"'$M'","ip":"","name":"",'
+	fi
+	echo '"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
+done
+echo '{"mac":"","ip":"","name":"","rx":0,"tx":0}'
+echo ']}'
+}
+
+##############################################################################
+
 case "$1" in
 	list)
-		echo '{ "status": { }, "show_config": { }, "show_watchdog": { } }'
+		echo '{ "status": { }, "show_config": { }, "show_watchdog": { }, "show_clients": { } }'
 	;;
 	call)
 		case "$2" in
@@ -259,6 +289,9 @@ case "$1" in
 				;;
 			show_watchdog)
 				show_watchdog
+				;;
+			show_clients)
+				show_clients
 				;;
 		esac
 	;;

@@ -624,7 +624,7 @@ function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
 		setValue('system_uptime', data.system_uptime);
 		setValue('system_load', data.system_load);
-		setValue('wlan_clients', data.wlan_clients);
+		setValue('wlan_clients', data.wlan_clients + ' ->');
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);
 		setValue('wan_uptime', data.wan_uptime);
@@ -735,20 +735,89 @@ function showsitesurvey() {
 }
 
 function sitesurveycallback(sortby) {
-	all=["ssid","mac","signal","freq"];
-	for(var idx=0; idx<all.length; idx++){
-		var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
-		e.style.fontWeight = (sortby==all[idx])?700:400;
-	}
 
 	var div = document.getElementById('div_sitesurvey_content');
-	scan = sortJSON(wifiscanresults, sortby, '123');
-	var html="";
-	for(var idx=0; idx<scan.length; idx++){
-		if (scan[idx].mac == '00:00:00:00:00:00') {continue;}
-		html = html + '<hr><div class="row"><div class="col-xs-6"><h4>' + scan[idx].ssid + '</h4>' + scan[idx].mac + '</div><div class="col-xs-6 text-right">RSSI ' + scan[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + scan[idx].channel + ' (' + scan[idx].freq + ' MHz)<br>' + (scan[idx].encryption?'Szyfrowanie ' + scan[idx].encryption:'') + '</div></div>';
+	var html = "";
+	if (wifiscanresults.length > 1) {
+		html += '<div class="row"><div class="col-xs-12">';
+		html += '<span>Sortowanie po</span>';
+		html += '<a href="#" class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|';
+		html += '<a href="#" class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></a>|';
+		html += '<a href="#" class="click" onclick="sitesurveycallback(\'signal\');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|';
+		html += '<a href="#" class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></a>';
+		html += '<div></div><p></p>';
+
+		var sorted = sortJSON(wifiscanresults, sortby, '123');
+		for(var idx=0; idx<sorted.length; idx++){
+			if (sorted[idx].mac == '') {continue;}
+			html += '<hr><div class="row"><div class="col-xs-6"><h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '</div><div class="col-xs-6 text-right">RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'') + '</div></div>';
+		}
+	} else {
+		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>'
 	}
 	div.innerHTML = html;
+
+	if (wifiscanresults.length > 1) {
+		all=["ssid","mac","signal","freq"];
+		for(var idx=0; idx<all.length; idx++){
+			var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
+			e.style.fontWeight = (sortby==all[idx])?700:400;
+		}
+	}
+}
+
+/*****************************************************************************/
+
+function bytesToSize(bytes) {
+	var sizes = ['', 'KiB', 'MiB', 'GiB', 'TiB'];
+	if (bytes == 0) return '0';
+	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+};
+
+var wlanclients;
+
+function showwlanclients() {
+
+	ubus_call('"easyconfig", "show_clients", { }', function(data) {
+		wlanclients = data.clients;
+		wlanclientscallback("name");
+	});
+}
+
+function wlanclientscallback(sortby) {
+
+	var div = document.getElementById('div_wlanclients_content');
+	var html = "";
+	if (wlanclients.length > 1) {
+		html += '<div class="row">';
+		html += '<div class="col-xs-6"><a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name">Nazwa</span></a></div>';
+		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx">Wysłano</span></a></div>';
+		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx">Pobrano</span></a></div>';
+		html += '</div><hr>';
+
+		var sorted = sortJSON(wlanclients, sortby, '123');
+		for(var idx=0; idx<sorted.length; idx++){
+			if (sorted[idx].mac == '') {continue;}
+			html += '<div class="row">';
+			html += '<div class="col-xs-6">'+(sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac)+'</div>';
+			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
+			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
+			html += '</div>';
+		}
+	} else {
+		html += '<div class="alert alert-warning">Brak podłączonych klientów</div>'
+	}
+	div.innerHTML = html;
+
+	if (wlanclients.length > 1) {
+		all=["name","tx","rx"];
+		for(var idx=0; idx<all.length; idx++){
+			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
+			e.style.fontWeight = (sortby==all[idx])?700:400;
+		}
+	}
+
 }
 
 /*****************************************************************************/
@@ -763,18 +832,19 @@ function closenav() {
 
 function btn_pages(page) {
 	closenav();
-	setDisplay("div_status",   (page==1)?"block":"none");
-	setDisplay("div_settings", (page==2)?"block":"none");
-	setDisplay("div_system",   (page==3)?"block":"none");
-	setDisplay("div_watchdog", (page==4)?"block":"none");
-	setDisplay("div_sitesurvey", (page==5)?"block":"none");
+	setDisplay("div_status",   (page == 'status')?"block":"none");
+	setDisplay("div_settings", (page == 'settings')?"block":"none");
+	setDisplay("div_system",   (page == 'system')?"block":"none");
+	setDisplay("div_watchdog", (page == 'watchdog')?"block":"none");
+	setDisplay("div_sitesurvey", (page == 'sitesurvey')?"block":"none");
+	setDisplay("div_wlanclients", (page == 'wlanclients')?"block":"none");
 
-	if (page==1) {
+	if (page == 'status') {
 		showstatus();
 		showmodemsection();
 	}
 
-	if (page==4) {
+	if (page == 'watchdog') {
 		showwatchdog();
 		var block=(config.wan_proto == "none");
 		setElementEnabled("watchdog_enabled", true, block);
@@ -785,7 +855,11 @@ function btn_pages(page) {
 		setDisplay("watchdog_enabled_info", block?"block":"none");
 	}
 
-	if (page==5) {
+	if (page == 'sitesurvey') {
 		showsitesurvey();
+	}
+
+	if (page == 'wlanclients') {
+		showwlanclients();
 	}
 }

@@ -15,6 +15,6 @@ for (w in wifi_enc) {
 }
 }'
 done
-echo '{"mac":"00:00:00:00:00:00","ssid":"","freq":"","signal":"","channel":"","encryption":""}'
+echo '{"mac":"","ssid":"","freq":"","signal":"","channel":"","encryption":""}'
 echo ']'
 exit 0
