@@ -624,7 +624,7 @@ function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
 		setValue('system_uptime', data.system_uptime);
 		setValue('system_load', data.system_load);
-		setValue('wlan_clients', data.wlan_clients + ' ->');
+		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);
 		setValue('wan_uptime', data.wan_uptime);
@@ -752,6 +752,7 @@ function sitesurveycallback(sortby) {
 			if (sorted[idx].mac == '') {continue;}
 			html += '<hr><div class="row"><div class="col-xs-6"><h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '</div><div class="col-xs-6 text-right">RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'') + '</div></div>';
 		}
+		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>'
 	}
