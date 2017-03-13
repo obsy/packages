@@ -18,15 +18,15 @@
 <body>
 
 <div id="menu" class="sidenav">
-	<a href="#" class="closebtn" onclick="closenav()">&times;</a>
+	<a href="#" class="closebtn" onclick="closenav();">&times;</a>
 	<hr>
-	<a href="#" onclick="btn_pages('status');" >Status</a>
-	<a href="#" onclick="btn_pages('settings');" >Ustawienia</a>
-	<a href="#" onclick="btn_pages('system');" >System</a>
+	<a href="#" onclick="btn_pages('status');">Status</a>
+	<a href="#" onclick="btn_pages('settings');">Ustawienia</a>
+	<a href="#" onclick="btn_pages('system');">System</a>
 	<hr>
-	<a href="#" onclick="btn_pages('watchdog');" >Monitor połączenia</a>
-	<a href="#" onclick="btn_pages('sitesurvey');" >Analiza W-Fi</a>
-	<a href="#" onclick="btn_pages('wlanclients');" >Lista klientów</a>
+	<a href="#" onclick="btn_pages('watchdog');">Monitor połączenia</a>
+	<a href="#" onclick="btn_pages('sitesurvey');">Analiza W-Fi</a>
+	<a href="#" onclick="btn_pages('wlanclients');">Lista klientów</a>
 </div>
 
 
@@ -58,7 +58,7 @@
 <div id="div_content" style="display:none;">
 
 	<div class="row">
-		<div class="col-xs-4"><h3><span class="btn btn-default text-left" onclick="opennav()">&#9776;</span></h3></div>
+		<div class="col-xs-4"><h3><span class="btn btn-default text-left" onclick="opennav();">&#9776;</span></h3></div>
 		<div class="col-xs-4"><h3 id="system_hostname_label" class="text-center">&nbsp;</h3></div>
 		<div class="col-xs-4"></div>
 	</div>
@@ -113,7 +113,7 @@
 	<div class="row">
 		<label class="col-xs-6 text-right">Połączonych klientów</label>
 		<div class="col-xs-6">
-		<a href="#" onclick="btn_pages('wlanclients');" class="click"><p id="wlan_clients">0</p></a>
+		<a href="#" class="click" onclick="btn_pages('wlanclients');"><p id="wlan_clients">0</p></a>
 		</div>
 	</div>
 
@@ -154,21 +154,21 @@
 		<div class="form-group" id="div_wan_ipaddr">
 			<label for="wan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="wan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_netmask">
 			<label for="wan_netmask" class="col-xs-4 col-sm-3 control-label">Maska</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_netmask" type="text" class="form-control" onkeyup='proofreadMask(this)'>
+			<input id="wan_netmask" type="text" class="form-control" onkeyup="proofreadMask(this)">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_gateway">
 			<label for="wan_gateway" class="col-xs-4 col-sm-3 control-label">Brama</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_gateway" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="wan_gateway" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			</div>
 		</div>
 
@@ -207,14 +207,14 @@
 		<div class="form-group" id="div_wan_dns1">
 			<label for="wan_dns1" class="col-xs-4 col-sm-3 control-label">DNS 1</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_dns1" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="wan_dns1" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_dns2">
 			<label for="wan_dns2" class="col-xs-4 col-sm-3 control-label">DNS 2</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_dns2" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="wan_dns2" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			</div>
 		</div>
 
@@ -222,7 +222,7 @@
 		<div class="form-group" id="div_firewall_dmz">
 			<label for="firewall_dmz" class="col-xs-4 col-sm-3 control-label">Adres IP w DMZ</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="firewall_dmz" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="firewall_dmz" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			<em><small class="form-text text-muted">musi być z tej samej klasy co sieć lokalna</small></em>
 			</div>
 		</div>
@@ -234,7 +234,7 @@
 		<div class="form-group">
 			<label for="lan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="lan_ipaddr" type="text" class="form-control" onkeyup='proofreadIp(this)'>
+			<input id="lan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this)">
 			</div>
 		</div>
 
@@ -289,9 +289,9 @@
 		</div>
 
 		<div class="form-group" id="div_wlan_key0">
-			<label for="wlan_key0" class="col-xs-4 col-sm-3 control-label">Hasło</label>
+			<label for="wlan_key0" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('wlan_key0');">Hasło</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_key0" type="text" class="form-control">
+			<input id="wlan_key0" type="password" class="form-control">
 			</div>
 		</div>
 	</form>
@@ -338,9 +338,9 @@
 		</div>
 
 		<div class="form-group" id="div_wlan_key1">
-			<label for="wlan_key1" class="col-xs-4 col-sm-3 control-label">Hasło</label>
+			<label for="wlan_key1" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('wlan_key1');">Hasło</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_key1" type="text" class="form-control">
+			<input id="wlan_key1" type="password" class="form-control">
 			</div>
 		</div>
 	</form>
@@ -349,14 +349,14 @@
 	<h3 class="section">System</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="password1" class="col-xs-4 col-sm-3 control-label">Nowe hasło</label>
+			<label for="password1" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('password1');">Nowe hasło</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="password1" type="password" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="password2" class="col-xs-4 col-sm-3 control-label">Potwierdź hasło</label>
+			<label for="password2" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('password2');">Potwierdź hasło</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="password2" type="password" class="form-control">
 			</div>
@@ -415,7 +415,7 @@
 
 	<h3 class="section">Monitor połączenia</h3>
 	<div class="alert alert-warning" id="watchdog_enabled_info">
-		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" onclick="btn_pages('settings');" class="click">Kliknij tutaj aby ustawić połączenie &rarr;</a>
+		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" class="click" onclick="btn_pages('settings');">Kliknij tutaj aby ustawić połączenie &rarr;</a>
 	</div>
 
 	<div class="alert alert-info" id="div_watchdog_minavgmax" style="display:none;">

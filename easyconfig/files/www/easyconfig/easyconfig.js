@@ -110,6 +110,11 @@ function getLabelText(element) {
 
 var modal;
 
+function showPassword(element) {
+	var e = document.getElementById(element);
+	e.type = (e.type=='password') ? 'text' : 'password';
+}
+
 function removeOptions(element) {
 	var select = document.getElementById(element);
 	for(var idx = select.options.length - 1 ; idx >= 0 ; idx--) {
