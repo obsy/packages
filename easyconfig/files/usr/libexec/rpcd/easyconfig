@@ -265,7 +265,7 @@ for M in $WLAN_MAC; do
 	if [ -n "$T" ]; then
 		echo -n "$T"
 	else
-		echo -n '{"mac":"'$M'","ip":"","name":"",'
+		echo -n '{"mac":"'$MAC'","ip":"","name":"",'
 	fi
 	echo '"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
 done
