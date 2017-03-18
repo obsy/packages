@@ -1,13 +1,16 @@
 #!/bin/sh
 
 #
-# (c) 2010-2016 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2017 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 RES="/usr/share/3ginfo-lite"
 
-touch /tmp/modem
-DEVICE=$(cat /tmp/modem)
+DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
+if [ "x$DEVICE" = "x" ]; then
+	touch /tmp/modem
+	DEVICE=$(cat /tmp/modem)
+fi
 
 if [ "x$DEVICE" = "x" ]; then
 	devices=$(ls /dev/ttyUSB* /dev/cdc-wdm* /dev/ttyACM* /dev/ttyHS* 2>/dev/null | sort -r)
