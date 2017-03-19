@@ -814,6 +814,7 @@ function wlanclientscallback(sortby) {
 			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokuj</a></div>';
 			html += '</div>';
 		}
+		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
 	} else {
 		html += '<div class="alert alert-warning">Brak podłączonych klientów</div>'
 	}
