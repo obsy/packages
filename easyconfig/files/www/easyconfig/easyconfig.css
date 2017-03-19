@@ -153,7 +153,7 @@ h3 {
   border-radius: 4px;
 }
 
-.click, .calck:hover, .click:visited, .click:link {
+.click, .click:hover, .click:visited, .click:link {
   text-decoration: none;
   color: #31708f;
 }
