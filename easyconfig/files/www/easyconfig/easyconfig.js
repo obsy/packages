@@ -832,7 +832,7 @@ function wlanclientscallback(sortby) {
 
 function wlanclientblock(mac, name) {
 
-	if (confirm('Zablokować dostęp do internetu dla ' + name + '?')) {
+	if (confirm('Zablokować dostęp do internetu dla "' + name + '"?')) {
 		ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
 			showMsg(name + " stracił dostęp do internetu");
 		});
