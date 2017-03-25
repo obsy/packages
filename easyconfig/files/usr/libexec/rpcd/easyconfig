@@ -262,12 +262,16 @@ echo '{"clients":['
 for M in $WLAN_MAC; do
 	MAC=$(echo $M | cut -f1 -d";")
 	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"name\":\"%s\",", $2, $3, $4}' /tmp/dhcp.leases)
-	if [ -n "$T" ]; then
-		echo -n "$T"
-	else
-		echo -n '{"mac":"'$MAC'","ip":"","name":"",'
+	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","name":"",'
+
+	NMAC=$(echo $MAC | sed 's/://g')
+	T1=$(uci -q get dhcp.m$NMAC.mac)
+	if [ "x$T1" = "x$MAC" ]; then
+		T1=$(uci -q get dhcp.m$NMAC.networkid)
+		[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
 	fi
-	echo '"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
+
+	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
 done
 echo '{"mac":"","ip":"","name":"","rx":0,"tx":0}'
 echo ']}'

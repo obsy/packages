@@ -808,7 +808,7 @@ function wlanclientscallback(sortby) {
 			if (sorted[idx].mac == '') {continue;}
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<div class="row space">';
-			html += '<div class="col-md-4">'+name+'</div>';
+			html += '<div class="col-md-4"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
 			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokuj</a></div>';
@@ -837,6 +837,42 @@ function wlanclientblock(mac, name) {
 			showMsg(name + " stracił dostęp do internetu");
 		});
 	}
+}
+
+function hostnameedit(mac,name) {
+	document.getElementById('div_hostname').style.display = "block";
+	document.getElementById('hostname_mac').value=mac;
+	document.getElementById('hostname_name').value=name;
+	document.getElementById('hostname_name').focus();
+}
+
+function cancelhostname() {
+	document.getElementById('div_hostname').style.display = "none";
+}
+
+function savehostname() {
+	cancelhostname();
+
+	var mac = getValue('hostname_mac');
+	var nmac = mac.replace(/:/g,'');
+	var name = getValue('hostname_name');
+
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+	cmd.push('uci -q del dhcp.m' + nmac);
+	cmd.push('uci set dhcp.m' + nmac + '=mac');
+	cmd.push('uci set dhcp.m' + nmac + '.mac=\\\"' + mac + '\\\"');
+	cmd.push('uci set dhcp.m' + nmac + '.networkid=\\\"' + name +'\\\"');
+	cmd.push('uci commit dhcp');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			showwlanclients();
+		});
+	});
 }
 
 /*****************************************************************************/
