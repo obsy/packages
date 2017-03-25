@@ -9,7 +9,7 @@ function proofreadMask(input) {
 }
 
 function proofreadText(input, proofFunction, validReturnCode) {
-	if(input.disabled != true) {
+	if (input.disabled != true) {
 		if (proofFunction(input.value) == validReturnCode) {
 			input.style.color = "#555";
 			input.closest('div').className = input.closest('div').className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
@@ -26,15 +26,15 @@ function proofreadNumericRange(input, min, max) {
 
 function validateIP(address) {
 	var errorCode = 0;
-	if((address == "0.0.0.0") || (address == "255.255.255.255")) {
+	if ((address == "0.0.0.0") || (address == "255.255.255.255")) {
 		errorCode = 1;
 	} else {
 		var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-		if(ipFields == null) {
+		if (ipFields == null) {
 			errorCode = 1;
 		} else {
 			for(field=1; field <= 4; field++) {
-				if((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
+				if ((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
 					errorCode = 1;
 				}
 			}
@@ -46,18 +46,18 @@ function validateIP(address) {
 function validateMask(mask) {
 	var errorCode = 0;
 	var ipFields = mask.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-	if(ipFields == null) {
+	if (ipFields == null) {
 		errorCode = 1;
 	} else {
 		previousField = 255;
 		for(field=1; field <= 4; field++) {
-			if(ipFields[field] > 255) {
+			if (ipFields[field] > 255) {
 				errorCode = 1;
 			}
-			if(previousField < 255 && ipFields[field] != 0 && errorCode < 2) {
+			if (previousField < 255 && ipFields[field] != 0 && errorCode < 2) {
 				errorCode = 1;
 			}
-			if(ipFields[field] != 255 &&
+			if (ipFields[field] != 255 &&
 				ipFields[field] != 254 &&
 				ipFields[field] != 252 &&
 				ipFields[field] != 248 &&
@@ -78,10 +78,10 @@ function validateMask(mask) {
 
 function validateNumericRange(num, min, max) {
 	var errorCode = num.match(/^[\d]+$/) == null ? 1 : 0;
-	if(errorCode == 0) {
+	if (errorCode == 0) {
 		errorCode = num < min ? 2 : 0;
 	}
-	if(errorCode == 0) {
+	if (errorCode == 0) {
 		errorCode = num > max ? 3 : 0;
 	}
 	return errorCode;
@@ -116,9 +116,9 @@ function showPassword(element) {
 }
 
 function removeOptions(element) {
-	var select = document.getElementById(element);
-	for(var idx = select.options.length - 1 ; idx >= 0 ; idx--) {
-		select.remove(idx);
+	var e = document.getElementById(element);
+	for(var idx = e.options.length - 1 ; idx >= 0 ; idx--) {
+		e.remove(idx);
 	}
 }
 
@@ -126,70 +126,69 @@ function cleanField(element) {
 	document.getElementById(element).value = "";
 }
 
-function setValue(element1, value) {
-	element=document.getElementById(element1);
-	if (element.tagName == "SELECT") {
-		for(var i = 0; i < element.options.length; i++) {
-			if(element.options[i].value == value) {
-				element.selectedIndex = i;
+function setValue(element, value) {
+	var e = document.getElementById(element);
+	if (e.tagName == "SELECT") {
+		for(var i = 0; i < e.options.length; i++) {
+			if (e.options[i].value == value) {
+				e.selectedIndex = i;
 				break;
 			}
 		}
-	} else if (element.tagName == "P") {
-		element.innerHTML = value;
-	} else if (element.tagName == "H3") {
-		element.innerHTML = value;
-	} else if (element.tagName == "SPAN") {
-		element.innerHTML = value;
-	} else if (element.type === 'checkbox') {
-		element.checked = value;
+	} else if (e.tagName == "P") {
+		e.innerHTML = value;
+	} else if (e.tagName == "H3") {
+		e.innerHTML = value;
+	} else if (e.tagName == "SPAN") {
+		e.innerHTML = value;
+	} else if (e.type === 'checkbox') {
+		e.checked = value;
 	} else {
-		element.value = value;
+		e.value = value;
 	}
 }
 
-function getValue(element1) {
-	element=document.getElementById(element1);
-	if (element.tagName == "SELECT") {
-		return element.options[element.selectedIndex].value;
-	} else if (element.type === 'checkbox') {
-		return element.checked
+function getValue(element) {
+	var e = document.getElementById(element);
+	if (e.tagName == "SELECT") {
+		return e.options[e.selectedIndex].value;
+	} else if (e.type === 'checkbox') {
+		return e.checked;
 	} else {
-		var val=element.value;
+		var val=e.value;
 		return val.replace(/(["\\])/g,'');
 	}
 }
 
 function setDisplay(element, show) {
-	document.getElementById(element).style.display=show;
+	document.getElementById(element).style.display = show;
 }
 
-function enableDns(enable)
-{
+function enableDns(enable) {
 	setValue("wan_dns", enable);
 	setElementEnabled("wan_dns1", true, !enable);
 	setElementEnabled("wan_dns2", true, !enable);
 }
 
 function enableWan(proto) {
-	fields=[];
+	var fields = [];
 	if ((proto == "static") || (proto == "dhcp") || (proto == "dhcp_hilink")) {
-		fields=["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
+		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
 
-	all=["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn"];
-	for(idx=0; idx < all.length; idx++) {
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn"];
+	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
-	for(idx=0; idx < fields.length; idx++) {
+	for(var idx=0; idx < fields.length; idx++) {
 		setElementEnabled(fields[idx], true, (proto == "dhcp" || proto == "dhcp_hilink"));
 	}
 	if (proto != "static" && proto != "none") {
 		setElementEnabled("wan_dns", true, false);
-		t = (config.wan_use_dns == 1)
+		var t = (config.wan_use_dns == 1)
 		setValue("wan_dns", t);
 		setElementEnabled("wan_dns1", true, !t);
 		setElementEnabled("wan_dns2", true, !t);
@@ -205,13 +204,13 @@ function enableWlanEncryption(encryption, cnt) {
 }
 
 function setElementEnabled(element, show, disabled) {
-	element1=document.getElementById(element);
-	if(show) {
-		element1.disabled=disabled;
-		element1.readonly=disabled;
+	var e = document.getElementById(element);
+	if (show) {
+		e.disabled = disabled;
+		e.readonly = disabled;
 		setDisplay("div_" + element, "block");
 	} else {
-		element1.disabled=true;
+		e.disabled = true;
 		setDisplay("div_" + element, "none");
 	}
 }
@@ -220,15 +219,15 @@ function showMsg(msg, error) {
 	closeMsg();
 
 	if (!msg || 0 === msg.length) {msg = "Proszę czekać...";}
-	element = document.getElementById('msgtxt');
-	element.innerHTML = msg;
+	var e = document.getElementById('msgtxt');
+	e.innerHTML = msg;
 
 	if (error) {
-		element.style.color = "red";
-		element.className += " has-error";
+		e.style.color = "red";
+		e.className += " has-error";
 	} else {
-		element.style.color = "#555";
-		element.className = element.className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
+		e.style.color = "#555";
+		e.className = e.className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
 	}
 
 	modal = document.getElementById('div_msg');
@@ -315,10 +314,10 @@ function ubus_call(param, callback)
 
 function login()
 {
-	system_user=getValue("system_login");
-	system_pass=getValue("system_password");
+	var system_user = getValue("system_login");
+	var system_pass = getValue("system_password");
 
-	ubus('"session", "login", { "username": "'+system_user+'", "password": "'+system_pass+'" }', function(data) {
+	ubus('"session", "login", { "username": "' + system_user + '", "password": "' + system_pass + '" }', function(data) {
 		if (data.error) {
 			ubus_error(data.error.code);
 		} else {
@@ -344,29 +343,29 @@ function showconfig() {
 }
 
 function showcallback(data) {
-	config=data;
+	config = data;
 
 //console.log(config);
 
 	// wan
 	removeOptions('wan_proto');
-	select = document.getElementById('wan_proto');
-	obj = config.wan_protos;
+	var e = document.getElementById('wan_proto');
+	var obj = config.wan_protos;
 	for(var propt in obj){
 		var opt = document.createElement('option');
 		opt.value = propt;
 		opt.innerHTML = obj[propt];
-		select.appendChild(opt);
+		e.appendChild(opt);
 	}
 
 	removeOptions('wan_device');
-	select = document.getElementById('wan_device');
-	arr = config.wan_devices;
+	e = document.getElementById('wan_device');
+	var arr = config.wan_devices;
 	for(var idx=0; idx<arr.length; idx++){
 		var opt = document.createElement('option');
 		opt.value = arr[idx];
 		opt.innerHTML = arr[idx];
-		select.appendChild(opt);
+		e.appendChild(opt);
 	}
 
 	setValue('wan_ipaddr', config.wan_ipaddr);
@@ -448,10 +447,10 @@ function saveconfig() {
 	use_dns = getValue("wan_dns");
 
 	wan_type=getValue('wan_proto');
-	if(wan_type=='none') {
+	if (wan_type=='none') {
 		use_dns = false;
 	}
-	if(wan_type=='static') {
+	if (wan_type=='static') {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
 		if (checkField('wan_netmask', validateMask)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
@@ -461,15 +460,15 @@ function saveconfig() {
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
 		use_dns = true;
 	}
-	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
+	if (wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
 		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
 		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
 	}
-	if(wan_type=='dhcp') {
+	if (wan_type=='dhcp') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
 	}
-	if(wan_type=='dhcp_hilink') {
+	if (wan_type=='dhcp_hilink') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_hilink);
 		wan_type='dhcp';
 	}
@@ -599,10 +598,10 @@ function saveconfig() {
 	}
 
 	//password
-	var pass1=getValue('password1');
-	var pass2=getValue('password2');
-	if(pass1 != '') {
-		if (pass1!=pass2) 	{
+	var pass1 = getValue('password1');
+	var pass2 = getValue('password2');
+	if (pass1 != '') {
+		if (pass1 != pass2) {
 			showMsg("Hasła nie są takie same!", true);
 			return;
 		}
@@ -633,8 +632,7 @@ function showstatus() {
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);
 		setValue('wan_uptime', data.wan_uptime);
-		firmware_version = data.version;
-		setValue('firmware_version', firmware_version);
+		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
 	});
@@ -650,8 +648,8 @@ function showmodem() {
 }
 
 function showmodemsection() {
-	var wan_type=getValue("wan_proto");
-	if(wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
+	var wan_type = getValue("wan_proto");
+	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
 		setDisplay("div_status_modem", "block");
 		showmodem();
 	} else {
@@ -764,7 +762,7 @@ function sitesurveycallback(sortby) {
 	div.innerHTML = html;
 
 	if (wifiscanresults.length > 1) {
-		all=["ssid","mac","signal","freq"];
+		var all=["ssid","mac","signal","freq"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
 			e.style.fontWeight = (sortby==all[idx])?700:400;
@@ -821,13 +819,12 @@ function wlanclientscallback(sortby) {
 	div.innerHTML = html;
 
 	if (wlanclients.length > 1) {
-		all=["name","tx","rx"];
+		var all=["name","tx","rx"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
 			e.style.fontWeight = (sortby==all[idx])?700:400;
 		}
 	}
-
 }
 
 function wlanclientblock(mac, name) {
