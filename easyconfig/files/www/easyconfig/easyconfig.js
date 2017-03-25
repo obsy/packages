@@ -797,7 +797,7 @@ function wlanclientscallback(sortby) {
 	var html = "";
 	if (wlanclients.length > 1) {
 		html += '<div class="row">';
-		html += '<div class="col-xs-4"><a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name">Nazwa</span></a></div>';
+		html += '<div class="col-md-4"><a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name">Nazwa</span></a></div>';
 		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx">Wysłano</span></a></div>';
 		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx">Pobrano</span></a></div>';
 		html += '<div class="col-xs-2">&nbsp;</div>';
@@ -807,8 +807,8 @@ function wlanclientscallback(sortby) {
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].mac == '') {continue;}
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
-			html += '<div class="row">';
-			html += '<div class="col-xs-4">'+name+'</div>';
+			html += '<div class="row space">';
+			html += '<div class="col-md-4">'+name+'</div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
 			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokuj</a></div>';
@@ -831,9 +831,12 @@ function wlanclientscallback(sortby) {
 }
 
 function wlanclientblock(mac, name) {
-	ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
-		showMsg(name + " stracił dostęp do internetu");
-	});
+
+	if (confirm('Zablokować dostęp do internetu dla ' + name + '?')) {
+		ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
+			showMsg(name + " stracił dostęp do internetu");
+		});
+	}
 }
 
 /*****************************************************************************/
