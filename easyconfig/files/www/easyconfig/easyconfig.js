@@ -231,7 +231,7 @@ function showMsg(msg, error) {
 		element.className = element.className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
 	}
 
-	modal = document.getElementById('msg');
+	modal = document.getElementById('div_msg');
 	modal.style.display = "block";
 
 	window.onclick = function(event) {
@@ -831,23 +831,34 @@ function wlanclientscallback(sortby) {
 }
 
 function wlanclientblock(mac, name) {
+	setValue('confirm_mac', mac);
+	setValue('confirm_name', name);
+	setDisplay("div_confirm", "block");
+	setValue("confirm", 'Zablokować dostęp do internetu dla "' + name + '"?')
+}
 
-	if (confirm('Zablokować dostęp do internetu dla "' + name + '"?')) {
-		ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
-			showMsg(name + " stracił dostęp do internetu");
-		});
-	}
+function cancelconfirm() {
+	setDisplay("div_confirm", "none");
+}
+
+function okconfirm() {
+	cancelconfirm();
+	var mac = getValue('confirm_mac');
+	var name = getValue('confirm_name');
+	ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
+		showMsg('"' + name + '" stracił dostęp do internetu');
+	});
 }
 
 function hostnameedit(mac,name) {
-	document.getElementById('div_hostname').style.display = "block";
-	document.getElementById('hostname_mac').value=mac;
-	document.getElementById('hostname_name').value=name;
+	setDisplay("div_hostname", "block");
+	setValue('hostname_mac', mac);
+	setValue('hostname_name', name);
 	document.getElementById('hostname_name').focus();
 }
 
 function cancelhostname() {
-	document.getElementById('div_hostname').style.display = "none";
+	setDisplay("div_hostname", "none");
 }
 
 function savehostname() {
