@@ -377,10 +377,8 @@ function showcallback(data) {
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
-	if (config.wan_proto=="dhcp")
-	{
-		if (config.wan_ifname == config.wan_ifname_hilink)
-		{
+	if (config.wan_proto=="dhcp") {
+		if (config.wan_ifname == config.wan_ifname_hilink) {
 			setValue('wan_proto', "dhcp_hilink");
 			config.wan_ifname="dhcp_hilink";
 		}
@@ -738,7 +736,6 @@ function showsitesurvey() {
 }
 
 function sitesurveycallback(sortby) {
-
 	var div = document.getElementById('div_sitesurvey_content');
 	var html = "";
 	if (wifiscanresults.length > 1) {
@@ -782,7 +779,6 @@ function bytesToSize(bytes) {
 var wlanclients;
 
 function showwlanclients() {
-
 	ubus_call('"easyconfig", "show_clients", { }', function(data) {
 		wlanclients = data.clients;
 		wlanclientscallback("name");
@@ -790,7 +786,6 @@ function showwlanclients() {
 }
 
 function wlanclientscallback(sortby) {
-
 	var div = document.getElementById('div_wlanclients_content');
 	var html = "";
 	if (wlanclients.length > 1) {
