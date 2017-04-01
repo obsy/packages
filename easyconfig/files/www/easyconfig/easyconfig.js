@@ -880,6 +880,50 @@ function savehostname() {
 
 /*****************************************************************************/
 
+function showqueries() {
+	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_queries.sh"]}', function(data) {
+		queries = JSON.parse((data.stdout).replace(/\\/g,"\\\\"));
+		queriescallback("time");
+	});
+}
+
+var queries;
+
+function queriescallback(sortby) {
+	var div = document.getElementById('div_queries_content');
+	var html = "";
+	if (queries.length > 1) {
+		html += '<div class="row">';
+		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
+		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
+		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
+		html += '</div><hr>';
+
+		var sorted = sortJSON(queries, sortby, '123');
+		for(var idx=0; idx<sorted.length; idx++){
+			if (sorted[idx].time == '') {continue;}
+			html += '<div class="row space">';
+			html += '<div class="col-xs-4">' + sorted[idx].time + '</div>';
+			html += '<div class="col-xs-4">' + sorted[idx].query + '</div>';
+			html += '<div class="col-xs-4">' + sorted[idx].host + '</div>';
+			html += '</div>';
+		}
+	} else {
+		html += '<div class="alert alert-warning">Brak zapytań DNS</div>'
+	}
+	div.innerHTML = html;
+
+	if (queries.length > 1) {
+		var all=["time","query","host"];
+		for(var idx=0; idx<all.length; idx++){
+			var e = document.getElementById('queries_sortby_'+all[idx]);
+			e.style.fontWeight = (sortby==all[idx])?700:400;
+		}
+	}
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }
@@ -896,6 +940,7 @@ function btn_pages(page) {
 	setDisplay("div_watchdog", (page == 'watchdog')?"block":"none");
 	setDisplay("div_sitesurvey", (page == 'sitesurvey')?"block":"none");
 	setDisplay("div_wlanclients", (page == 'wlanclients')?"block":"none");
+	setDisplay("div_queries", (page == 'queries')?"block":"none");
 
 	if (page == 'status') {
 		showstatus();
@@ -919,5 +964,9 @@ function btn_pages(page) {
 
 	if (page == 'wlanclients') {
 		showwlanclients();
+	}
+
+	if (page == 'queries') {
+		showqueries();
 	}
 }

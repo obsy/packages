@@ -27,6 +27,7 @@
 	<a href="#" onclick="btn_pages('watchdog');">Monitor połączenia</a>
 	<a href="#" onclick="btn_pages('sitesurvey');">Lista W-Fi</a>
 	<a href="#" onclick="btn_pages('wlanclients');">Lista klientów</a>
+	<a href="#" onclick="btn_pages('queries');">Lista zapytań DNS</a>
 </div>
 
 
@@ -493,6 +494,17 @@
 	<h3 class="section"></h3>
 	<div class="text-center">
 		<input type="button" class="btn btn-default" onclick="showwlanclients();" value="Odśwież" />
+	</div>
+
+	</div>
+
+	<div id="div_queries" style="display:none;">
+
+	<h3 class="section">Lista zapytań DNS</h3>
+	<div id="div_queries_content"></div>
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="showqueries();" value="Odśwież" />
 	</div>
 
 	</div>
