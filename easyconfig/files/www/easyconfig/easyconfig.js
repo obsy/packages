@@ -904,8 +904,8 @@ function queriescallback(sortby) {
 			if (sorted[idx].time == '') {continue;}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-4">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-4">' + sorted[idx].query + '</div>';
-			html += '<div class="col-xs-4">' + sorted[idx].host + '</div>';
+			html += '<div class="col-xs-4 wraptext">' + sorted[idx].query + '</div>';
+			html += '<div class="col-xs-4 wraptext">' + sorted[idx].host + '</div>';
 			html += '</div>';
 		}
 	} else {

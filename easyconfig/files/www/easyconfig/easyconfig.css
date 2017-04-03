@@ -161,3 +161,7 @@ h3 {
 .space {
   margin-bottom: 10px;
 }
+
+.wraptext {
+  word-wrap: break-word;
+}
