@@ -165,3 +165,15 @@ h3 {
 .wraptext {
   word-wrap: break-word;
 }
+
+.btn .icon-bar+.icon-bar {
+ margin-top: 4px;
+}
+
+.btn .icon-bar {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background-color: #333;
+  border-radius: 1px;
+}

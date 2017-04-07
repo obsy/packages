@@ -1,6 +1,6 @@
 #!/bin/sh
 echo "["
-T=$(logread  | awk '$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13}END{print "{\"time\":\"\",\"query\":\"\",\"host\":\"\"}"}')
+T=$(logread -e "query\[A\]" | awk '$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13}END{print "{\"time\":\"\",\"query\":\"\",\"host\":\"\"}"}')
 IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)".*/\1/g' | sort | uniq)
 
 for IP in $IPS; do
