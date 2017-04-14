@@ -137,28 +137,26 @@ echo '"wan_ifname":"'$WAN_IFNAME'",'
 echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
 
-echo '"wan_protos":{"none":"Brak"'
+echo '"wan_protos":["none"'
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then
-	echo ',"dhcp":"DHCP"'
-	echo ',"static":"Statyczny IP"'
+	echo ',"dhcp","static"'
 fi
-
 tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
 if [ -n "$tty" ] ; then
-	echo ',"3g":"Modem USB (RAS)"'
+	echo ',"3g"'
 fi
 qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
 if [ -n "$qmi" ] ; then
-	echo ',"qmi":"Modem USB (QMI)"'
+	echo ',"qmi"'
 fi
 ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
 if [ -n "$ncm" ] ; then
-	echo ',"ncm":"Modem USB (NCM)"'
+	echo ',"ncm"'
 fi
 if [ -n "$WAN_IFNAME_HILINK" ]; then
-	echo ',"dhcp_hilink":"Modem USB (HiLink)"'
+	echo ',"dhcp_hilink"'
 fi
-echo '},'
+echo '],'
 
 echo '"wan_devices":['
 ttys=$(ls -1 /dev/ttyUSB* /dev/ttyACM* /dev/cdc-wdm* 2>/dev/null)

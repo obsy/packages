@@ -91,7 +91,7 @@ input[type=button] {
 }
 
 h3 {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .sidenav {
@@ -172,7 +172,7 @@ h3 {
 
 .btn .icon-bar {
   display: block;
-  width: 16px;
+  width: 12px;
   height: 2px;
   background-color: #333;
   border-radius: 1px;

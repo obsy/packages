@@ -348,14 +348,12 @@ function showcallback(data) {
 //console.log(config);
 
 	// wan
-	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
-	var obj = config.wan_protos;
-	for(var propt in obj){
-		var opt = document.createElement('option');
-		opt.value = propt;
-		opt.innerHTML = obj[propt];
-		e.appendChild(opt);
+	var arr = config.wan_protos;
+	for (var idx=e.length-1; idx>-1; idx--) {
+		if (arr.indexOf(e.options[idx].value) == -1) {
+			e.remove(idx);
+		}
 	}
 
 	removeOptions('wan_device');

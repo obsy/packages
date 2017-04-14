@@ -156,6 +156,13 @@
 			<label for="wan_proto" class="col-xs-4 col-sm-3 control-label">Typ połączenia</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="wan_proto" class="form-control" onchange="enableWan(this.value)">
+			<option value='none'>Brak</option>
+			<option value='dhcp'>DHCP</option>
+			<option value='static'>Statyczny IP</option>
+			<option value='3g'>Modem USB (RAS)</option>
+			<option value='qmi'>Modem USB (QMI)</option>
+			<option value='ncm'>Modem USB (NCM)</option>
+			<option value='dhcp_hilink'>Modem USB (HiLink)</option>
 			</select>
 			</div>
 		</div>
