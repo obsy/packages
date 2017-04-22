@@ -411,14 +411,6 @@ CID=$(echo "$O" | awk -F[,] '/\'$CREG'/ {printf "%s", toupper($4)}' | sed 's/[^A
 if [ "x$CID" != "x" ]; then
 	CID_NUM=$(printf %d 0x$CID)
 
-	if [ $FORMAT -eq 0 ]; then
-		T="$LAC_NUM"
-		[ "x$LAC" = "xFFFE" -a "x$TAC" != "x-" ] && T="$TAC_NUM"
-		if [ "x$LAC" != "x-" -a "x$T" != "x-" -a "x$COPS_MCC" != "x-" -a "x$COPS_MNC" != "x-" ]; then
-			CID="<a href=\"http://opencellid.org/#action=filters.measuresOfGivenBaseStation\&mcc=$COPS_MCC\&mnc=$COPS_MNC\&lac=$T\&cellid=$CID_NUM\&lang=$LANG\">$CID</a>"
-		fi
-	fi
-
 	if [ ${#CID} -gt 4 ]; then
 		T=$(echo "$CID" | awk '{print substr($1,length(substr($1,1,length($1)-4))+1)}')
 	else
@@ -438,6 +430,17 @@ if [ "x$CID" != "x" ]; then
 		if [ $FORMAT -eq 2 ]; then
 			BTSINFO=$(echo "$BTSINFO" | sed 's!<a.*>\(.*\)</a>!\1!g')
 		fi
+	fi
+
+	if [ $FORMAT -eq 0 ]; then
+		case $COPS_NUM in
+			26001*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=3\&amp;mode=adv\">$CID</a>";;
+			26002*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=1\&amp;mode=adv\">$CID</a>";;
+			26003*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=2\&amp;mode=adv\">$CID</a>";;
+			26006*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=4\&amp;mode=adv\">$CID</a>";;
+			26016*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=7\&amp;mode=adv\">$CID</a>";;
+			26017*) CID="<a href=\"http://btsearch.pl/szukaj.php?search="$CID"h\&amp;siec=8\&amp;mode=adv\">$CID</a>";;
+		esac
 	fi
 else
 	CID="-"
