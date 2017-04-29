@@ -23,7 +23,7 @@ if [ -z "$token" ]; then
 	/usr/bin/wget -q -O /dev/null --keep-session-cookies --save-cookies $cookie "http://$IP/html/home.html"
 fi
 
-files="device/signal monitoring/status net/current-plmn net/signal-para device/information"
+files="device/signal monitoring/status net/current-plmn net/signal-para device/information device/basic_information"
 for f in $files; do
 	nf=$(echo $f | sed 's!/!-!g')
 	if [ -n "$token" ]; then
@@ -128,7 +128,12 @@ else
 fi
 
 device=$(getvalue device-information DeviceName)
-[ -n "$device" ] && echo "DEVICE:huawei $device HiLink"
+if [ -n "$device" ]; then
+	echo "DEVICE:Huawei $device HiLink"
+else
+	device=$(getvalue device-basic_information devicename)
+	[ -n "$device" ] && echo "DEVICE:Huawei $device"
+fi
 
 if [ "x$2" != "xdebug" ]; then
 	for f in $files webserver/token; do
