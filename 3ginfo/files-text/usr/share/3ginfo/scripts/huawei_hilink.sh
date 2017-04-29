@@ -129,10 +129,12 @@ fi
 
 device=$(getvalue device-information DeviceName)
 if [ -n "$device" ]; then
-	echo "DEVICE:Huawei $device HiLink"
+	class=$(getvalue device-information Classify)
+	echo "DEVICE:Huawei $device $class"
 else
 	device=$(getvalue device-basic_information devicename)
-	[ -n "$device" ] && echo "DEVICE:Huawei $device"
+	class=$(getvalue device-basic_information classify)
+	[ -n "$device" ] && echo "DEVICE:Huawei $device $class"
 fi
 
 if [ "x$2" != "xdebug" ]; then
