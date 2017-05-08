@@ -182,6 +182,8 @@ for R in $RADIOS; do
 		WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
 		WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
 		[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
+		WLAN_ISOLATE1=$(uci -q get wireless.$WLAN_SEC.isolate)
+		[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE=1 || WLAN_ISOLATE=0
 	else
 		WLAN_DISABLED=1
 	fi
@@ -190,6 +192,7 @@ for R in $RADIOS; do
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$WLAN_KEY'",'
+	echo '"wlan_isolate":"'$WLAN_ISOLATE'",'
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	echo '"wlan_channels":{'
 	O=""

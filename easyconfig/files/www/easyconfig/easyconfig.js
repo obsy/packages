@@ -417,6 +417,7 @@ function showcallback(data) {
 		setValue('wlan_encryption' + radios[i], config["radio" + radios[i]].wlan_encryption);
 		setValue('wlan_key' + radios[i], config["radio" + radios[i]].wlan_key);
 		enableWlanEncryption(config["radio" + radios[i]].wlan_encryption, radios[i])
+		setValue('wlan_isolate' + radios[i], config["radio" + radios[i]].wlan_isolate==1);
 		setDisplay("div_radio" + radios[i], "block");
 	}
 
@@ -573,6 +574,14 @@ function saveconfig() {
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.key=\\\"'+wlan_key+'\\\"');
 		}
+		if (getValue("wlan_isolate"+radios[i])) {
+			wlan_restart_required=true;
+			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.isolate=1');
+		} else {
+			wlan_restart_required=true;
+			cmd.push('uci -q del wireless.'+config["radio"+radios[i]].wlan_section+'.isolate');
+		}
+
 		if (wlan_restart_required) {
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.mode=ap');
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.network=lan');
