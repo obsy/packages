@@ -262,8 +262,8 @@ done
 echo '{"clients":['
 for M in $WLAN_MAC; do
 	MAC=$(echo $M | cut -f1 -d";")
-	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"name\":\"%s\",", $2, $3, $4}' /tmp/dhcp.leases)
-	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","name":"",'
+	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"%s\",\"name\":\"%s\",", $2, $3, $4, $4}' /tmp/dhcp.leases)
+	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
 
 	NMAC=$(echo $MAC | sed 's/://g')
 	T1=$(uci -q get dhcp.m$NMAC.mac)
@@ -274,7 +274,7 @@ for M in $WLAN_MAC; do
 
 	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
 done
-echo '{"mac":"","ip":"","name":"","rx":0,"tx":0}'
+echo '{"mac":"","ip":"","real_name":"","name":"","rx":0,"tx":0}'
 echo ']}'
 }
 

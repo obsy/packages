@@ -811,7 +811,7 @@ function wlanclientscallback(sortby) {
 			html += '<div class="col-md-4"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
-			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokuj</a></div>';
+			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\');">blokuj</a></div>';
 			html += '</div>';
 		}
 		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
@@ -829,7 +829,12 @@ function wlanclientscallback(sortby) {
 	}
 }
 
-function wlanclientblock(mac, name) {
+function wlanclientblock(mac, name, real_name, tx, rx) {
+	setValue('host_mac', mac);
+	setValue('host_real_name', real_name);
+	setValue('host_tx', tx);
+	setValue('host_rx', rx);
+
 	setValue('confirm_mac', mac);
 	setValue('confirm_name', name);
 	setDisplay("div_confirm", "block");
