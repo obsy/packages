@@ -808,7 +808,7 @@ function wlanclientscallback(sortby) {
 			if (sorted[idx].mac == '') {continue;}
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<div class="row space">';
-			html += '<div class="col-md-4"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
+			html += '<div class="col-md-4"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
 			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
 			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\');">blokuj</a></div>';
@@ -854,23 +854,23 @@ function okconfirm() {
 	});
 }
 
-function hostnameedit(mac,name) {
-	setDisplay("div_hostname", "block");
-	setValue('hostname_mac', mac);
-	setValue('hostname_name', name);
-	document.getElementById('hostname_name').focus();
+function clientnameedit(mac, name) {
+	setDisplay("div_clientname", "block");
+	setValue('clientname_mac', mac);
+	setValue('clientname_name', name);
+	document.getElementById('clientname_name').focus();
 }
 
-function cancelhostname() {
-	setDisplay("div_hostname", "none");
+function cancelclientname() {
+	setDisplay("div_clientname", "none");
 }
 
-function savehostname() {
-	cancelhostname();
+function saveclientname() {
+	cancelclientname();
 
-	var mac = getValue('hostname_mac');
+	var mac = getValue('clientname_mac');
 	var nmac = mac.replace(/:/g,'');
-	var name = getValue('hostname_name');
+	var name = getValue('clientname_name');
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
