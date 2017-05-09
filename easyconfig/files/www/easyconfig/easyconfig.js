@@ -829,26 +829,26 @@ function wlanclientscallback(sortby) {
 	}
 }
 
-function wlanclientblock(mac, name, real_name, tx, rx) {
-	setValue('host_mac', mac);
-	setValue('host_real_name', real_name);
-	setValue('host_tx', tx);
-	setValue('host_rx', rx);
+function wlanclientblock(mac, name, realname, tx, rx) {
+	setValue('block_host_mac', mac);
+	setValue('block_host_realname', realname);
+	setValue('block_host_tx', tx);
+	setValue('block_host_rx', rx);
 
-	setValue('confirm_mac', mac);
-	setValue('confirm_name', name);
-	setDisplay("div_confirm", "block");
-	setValue("confirm", 'Zablokować dostęp do internetu dla "' + name + '"?')
+	setValue('block_mac', mac);
+	setValue('block_name', name);
+	setDisplay("div_block", "block");
+	setValue("block_text", 'Zablokować dostęp do internetu dla "' + name + '"?')
 }
 
-function cancelconfirm() {
-	setDisplay("div_confirm", "none");
+function cancelblock() {
+	setDisplay("div_block", "none");
 }
 
-function okconfirm() {
-	cancelconfirm();
-	var mac = getValue('confirm_mac');
-	var name = getValue('confirm_name');
+function okblock() {
+	cancelblock();
+	var mac = getValue('block_mac');
+	var name = getValue('block_name');
 	ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
 		showMsg('"' + name + '" stracił dostęp do internetu');
 	});
