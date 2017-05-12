@@ -602,10 +602,11 @@ function saveconfig() {
 
 	// system
 	system_hostname=getValue('system_hostname');
-	if (validateHostname(system_hostname) != 0) {
+	if (system_hostname == "") {
 		showMsg("Błąd w polu " + getLabelText("system_hostname"), true);
 		return;
 	}
+	if (checkField('system_hostname', validateHostname)) {return;}
 
 	cmd.push('uci set system.@system[0].hostname=\\\"'+system_hostname+'\\\"');
 	setValue('system_hostname_label', system_hostname);
