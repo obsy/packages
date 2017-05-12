@@ -103,6 +103,11 @@ numeric=$(getvaluen net-current-plmn Numeric)
 echo "+COPS: 0,2,\"$numeric\",x"
 
 lac=$(getvalue net-signal-para Lac)
+if [ -z "$lac" ]; then
+	/usr/bin/wget -t 3 -O /tmp/add-param "http://$IP/config/deviceinformation/add_param.xml" > /dev/null 2>&1
+	lac=$(getvalue add-param lac)
+	rm /tmp/add-param
+fi
 cid=$(getvalue net-signal-para CellID)
 if [ -z "$cid" ]; then
 	cell_id=$(getvalue device-signal cell_id)
