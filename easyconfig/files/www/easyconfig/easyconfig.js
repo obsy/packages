@@ -1,5 +1,9 @@
 /*****************************************************************************/
 
+function proofreadHostname(input) {
+	proofreadText(input, validateHostname, 0);
+}
+
 function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
@@ -22,6 +26,14 @@ function proofreadText(input, proofFunction, validReturnCode) {
 
 function proofreadNumericRange(input, min, max) {
 	proofreadText(input, function(text){return validateNumericRange(text,min,max)}, 0);
+}
+
+function validateHostname(name) {
+	var errorCode = 0;
+	if (name.match(/[^a-zA-Z0-9\-]/) !== null) {
+		errorCode = 1;
+	}
+	return errorCode;
 }
 
 function validateIP(address) {
@@ -590,6 +602,11 @@ function saveconfig() {
 
 	// system
 	system_hostname=getValue('system_hostname');
+	if (validateHostname(system_hostname) != 0) {
+		showMsg("Błąd w polu " + getLabelText("system_hostname"), true);
+		return;
+	}
+
 	cmd.push('uci set system.@system[0].hostname=\\\"'+system_hostname+'\\\"');
 	setValue('system_hostname_label', system_hostname);
 	document.title = system_hostname;
