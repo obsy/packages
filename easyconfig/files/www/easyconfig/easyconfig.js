@@ -30,8 +30,11 @@ function proofreadNumericRange(input, min, max) {
 
 function validateHostname(name) {
 	var errorCode = 0;
-	if (name.match(/[^a-zA-Z0-9\-]/) !== null) {
+
+	if (name == "") {
 		errorCode = 1;
+	} else if (name.match(/[^a-zA-Z0-9\-]/) !== null) {
+		errorCode = 2;
 	}
 	return errorCode;
 }
@@ -602,10 +605,6 @@ function saveconfig() {
 
 	// system
 	system_hostname=getValue('system_hostname');
-	if (system_hostname == "") {
-		showMsg("Błąd w polu " + getLabelText("system_hostname"), true);
-		return;
-	}
 	if (checkField('system_hostname', validateHostname)) {return;}
 
 	cmd.push('uci set system.@system[0].hostname=\\\"'+system_hostname+'\\\"');
