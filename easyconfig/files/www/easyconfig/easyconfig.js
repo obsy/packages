@@ -264,7 +264,7 @@ var counter=0;
 var token="00000000000000000000000000000000";
 
 var ubus = function(param, successHandler, errorHandler) {
-console.log(param);
+//console.log(param);
 
 	showMsg();
 	counter++;
