@@ -177,3 +177,26 @@ h3 {
   background-color: #333;
   border-radius: 1px;
 }
+
+.wifi {
+  padding: 20px;
+}
+
+.wifi, .wifi:before {
+  display: inline-block;
+  border: 60px double transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+}
+
+.wifi:before {
+  content: '';
+  width: 0;
+  height: 0;
+}
+
+@media (max-width: 768px) {
+  .margintop {
+    margin-top: -90px;
+  }
+}

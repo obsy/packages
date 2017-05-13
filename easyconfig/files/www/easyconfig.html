@@ -34,25 +34,26 @@
 <div class="container">
 
 <div id="div_login" style="display:block;">
-	<h3 class="section">Logowanie</h3>
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="system_login" class="col-xs-4 col-sm-3 control-label">Login</label>
-			<div class="col-xs-8 col-sm-9">
-			<input id="system_login" type="text" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('system_password').focus()" autofocus>
-			</div>
+	<h3 class="section"></h3>
+	<div class="space">&nbsp;</div>
+	<div class="row">
+		<div class="col-sm-6 text-center">
+			<div class="wifi"></div>
 		</div>
 
-		<div class="form-group">
-			<label for="system_password" class="col-xs-4 col-sm-3 control-label">Hasło</label>
-			<div class="col-xs-8 col-sm-9">
-			<input id="system_password" type="password" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('loginbtn').click()">
+		<div class="col-sm-6 margintop">
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label for="system_password" class="col-xs-12 text-left">Hasło</label>
+					<div class="col-xs-12">
+						<input id="system_password" type="password" class="form-control" onkeydown="if (event.keyCode == 13) document.getElementById('loginbtn').click()" autofocus>
+					</div>
+				</div>
+			</form>
+			<div class="text-center">
+				<input type="button" class="btn btn-primary" id="loginbtn" onclick="login();" value="Logowanie" />
 			</div>
 		</div>
-	</form>
-
-	<div class="text-center">
-		<input type="button" class="btn btn-primary" id="loginbtn" onclick="login();" value="Logowanie" />
 	</div>
 </div>
 
