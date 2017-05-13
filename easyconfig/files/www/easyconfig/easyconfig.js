@@ -329,9 +329,10 @@ function ubus_call(param, callback)
 
 function login()
 {
+	var system_user = getValue("system_login");
 	var system_pass = getValue("system_password");
 
-	ubus('"session", "login", { "username": "root", "password": "' + system_pass + '" }', function(data) {
+	ubus('"session", "login", { "username": "' + system_user + '", "password": "' + system_pass + '" }', function(data) {
 		if (data.error) {
 			ubus_error(data.error.code);
 		} else {
