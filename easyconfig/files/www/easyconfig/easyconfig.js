@@ -692,6 +692,16 @@ function btn_system_reboot() {
 /*****************************************************************************/
 
 function showwatchdog() {
+
+	var block=(config.wan_proto == "none");
+	setElementEnabled("watchdog_enabled", true, block);
+	setElementEnabled("watchdog_dest", true, block);
+	setElementEnabled("watchdog_period", true, block);
+	setElementEnabled("watchdog_delay", true, block);
+	setElementEnabled("watchdog_action", true, block);
+	setDisplay("watchdog_enabled_info", block?"block":"none");
+	setDisplay("div_watchdog_minavgmax","none")
+
 	setValue("watchdog_dest", "google.com");
 	setValue("watchdog_period", 3);
 	setValue("watchdog_delay", 3);
@@ -699,7 +709,6 @@ function showwatchdog() {
 
 	ubus_call('"easyconfig", "show_watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
-		setDisplay("div_watchdog_minavgmax","none")
 		if (data.watchdog_enabled) {
 			setValue("watchdog_dest", data.watchdog_dest);
 			setValue("watchdog_period", data.watchdog_period);
@@ -978,13 +987,6 @@ function btn_pages(page) {
 
 	if (page == 'watchdog') {
 		showwatchdog();
-		var block=(config.wan_proto == "none");
-		setElementEnabled("watchdog_enabled", true, block);
-		setElementEnabled("watchdog_dest", true, block);
-		setElementEnabled("watchdog_period", true, block);
-		setElementEnabled("watchdog_delay", true, block);
-		setElementEnabled("watchdog_action", true, block);
-		setDisplay("watchdog_enabled_info", block?"block":"none");
 	}
 
 	if (page == 'sitesurvey') {
