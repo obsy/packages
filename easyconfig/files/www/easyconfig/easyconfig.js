@@ -589,12 +589,17 @@ function saveconfig() {
 			wlan_restart_required=true;
 			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.key=\\\"'+wlan_key+'\\\"');
 		}
+
 		if (getValue("wlan_isolate"+radios[i])) {
-			wlan_restart_required=true;
-			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.isolate=1');
+			if (config["radio"+radios[i]].wlan_isolate === "0") {
+				wlan_restart_required=true;
+				cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.isolate=1');
+			}
 		} else {
-			wlan_restart_required=true;
-			cmd.push('uci -q del wireless.'+config["radio"+radios[i]].wlan_section+'.isolate');
+			if (config["radio"+radios[i]].wlan_isolate === "1") {
+				wlan_restart_required=true;
+				cmd.push('uci -q del wireless.'+config["radio"+radios[i]].wlan_section+'.isolate');
+			}
 		}
 
 		if (wlan_restart_required) {
