@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20170512
+PKG_VERSION:=20170524
 
 include $(INCLUDE_DIR)/package.mk
 
