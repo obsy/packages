@@ -25,9 +25,10 @@
 	<a href="#" onclick="btn_pages('system');">System</a>
 	<hr>
 	<a href="#" onclick="btn_pages('watchdog');">Monitor połączenia</a>
-	<a href="#" onclick="btn_pages('sitesurvey');">Lista W-Fi</a>
-	<a href="#" onclick="btn_pages('wlanclients');">Lista klientów</a>
-	<a href="#" onclick="btn_pages('queries');">Lista zapytań DNS</a>
+	<a href="#" onclick="btn_pages('sitesurvey');">Sieci Wi-Fi</a>
+	<a href="#" onclick="btn_pages('wlanclients');">Klienci</a>
+	<a href="#" onclick="btn_pages('queries');">Zapytania DNS</a>
+	<a href="#" onclick="btn_pages('traffic');">Transfer</a>
 </div>
 
 
@@ -165,13 +166,6 @@
 			<label for="wan_proto" class="col-xs-4 col-sm-3 control-label">Typ połączenia</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="wan_proto" class="form-control" onchange="enableWan(this.value)">
-			<option value='none'>Brak</option>
-			<option value='dhcp'>Port WAN (DHCP)</option>
-			<option value='static'>Port WAN (Statyczny IP)</option>
-			<option value='3g'>Modem USB (RAS)</option>
-			<option value='qmi'>Modem USB (QMI)</option>
-			<option value='ncm'>Modem USB (NCM)</option>
-			<option value='dhcp_hilink'>Modem USB (HiLink lub RNDIS)</option>
 			</select>
 			</div>
 		</div>
@@ -524,7 +518,7 @@
 
 	<div id="div_sitesurvey" style="display:none;">
 
-	<h3 class="section">Lista Wi-Fi</h3>
+	<h3 class="section">Sieci Wi-Fi</h3>
 	<div id="div_sitesurvey_content"></div>
 	<h3 class="section"></h3>
 	<div class="text-center">
@@ -535,7 +529,7 @@
 
 	<div id="div_wlanclients" style="display:none;">
 
-	<h3 class="section">Lista klientów</h3>
+	<h3 class="section">Klienci</h3>
 	<div id="div_wlanclients_content"></div>
 	<h3 class="section"></h3>
 	<div class="text-center">
@@ -546,7 +540,7 @@
 
 	<div id="div_queries" style="display:none;">
 
-	<h3 class="section">Lista zapytań DNS</h3>
+	<h3 class="section">Zapytania DNS</h3>
 	<div id="div_queries_content"></div>
 	<h3 class="section"></h3>
 	<div class="text-center">
@@ -554,6 +548,143 @@
 	</div>
 
 	</div>
+
+	<div id="div_traffic" style="display:none;">
+
+	<h3 class="section">Transfer</h3>
+	<div class="alert alert-info">
+		<strong>UWAGA!</strong> Wyliczenia mogą się różnić od wskazań operatora
+	</div>
+
+	<form class="form-horizontal">
+		<div class="form-group" id="div_traffic_enabled">
+			<label for="traffic_enabled" class="col-xs-6 col-sm-3 control-label">Zliczanie transferu włączone</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="traffic_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_traffic_period">
+			<label for="traffic_period" class="col-xs-6 col-sm-3 control-label">Okres zapisu danych</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="traffic_period" class="form-control">
+			<option value='1'>1 minuta</option>
+			<option value='3'>3 minuty</option>
+			<option value='5'>5 minut</option>
+			<option value='10'>10 minut</option>
+			<option value='15'>15 minut</option>
+			<option value='30'>30 minut</option>
+			<option value='60'>1 godzina</option>
+			<option value='120'>2 godziny</option>
+			<option value='360'>6 godzin</option>
+			<option value='720'>12 godzin</option>
+			<option value='1440'>24 godziny</option>
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_traffic_cycle">
+			<label for="traffic_cycle" class="col-xs-6 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
+			<div class="col-xs-6 col-sm-9">
+			<select id="traffic_cycle" class="form-control">
+			<option value='1'>1</option>
+			<option value='2'>2</option>
+			<option value='3'>3</option>
+			<option value='4'>4</option>
+			<option value='5'>5</option>
+			<option value='6'>6</option>
+			<option value='7'>7</option>
+			<option value='8'>8</option>
+			<option value='9'>9</option>
+			<option value='10'>10</option>
+			<option value='11'>11</option>
+			<option value='12'>12</option>
+			<option value='13'>13</option>
+			<option value='14'>14</option>
+			<option value='15'>15</option>
+			<option value='16'>16</option>
+			<option value='17'>17</option>
+			<option value='18'>18</option>
+			<option value='19'>19</option>
+			<option value='20'>20</option>
+			<option value='21'>21</option>
+			<option value='22'>22</option>
+			<option value='23'>23</option>
+			<option value='24'>24</option>
+			<option value='25'>25</option>
+			<option value='26'>26</option>
+			<option value='27'>27</option>
+			<option value='28'>28</option>
+			<option value='29'>29</option>
+			<option value='30'>30</option>
+			<option value='31'>31</option>
+			</select>
+			</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-primary" onclick="savetraffic();" value="Zapisz zmiany" />
+		</div>
+
+	</form>
+
+	<h3 class="section"></h3>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Dziś</label>
+		<div class="col-xs-6">
+		<p id="traffic_today">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Wczoraj</label>
+		<div class="col-xs-6">
+		<p id="traffic_yesterday">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Ostatnie 7 dni</label>
+		<div class="col-xs-6">
+		<p id="traffic_last7d">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Ostatnie 30 dni</label>
+		<div class="col-xs-6">
+		<p id="traffic_last30d">0</p>
+		</div>
+	</div>
+	<div class="row space">
+		<label class="col-xs-6 text-right">Łącznie</label>
+		<div class="col-xs-6">
+		<p id="traffic_total">0</p><small><p id="traffic_total_since">&nbsp;</p></small>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Bieżący okres rozliczeniowy</label>
+		<div class="col-xs-6">
+		<p id="traffic_currentperiod">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</label>
+		<div class="col-xs-6">
+		<p id="traffic_lastperiod">0</p>
+		</div>
+	</div>
+
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="removetraffic();" value="Usuń dane" />
+		<input type="button" class="btn btn-default" onclick="showtraffic();" value="Odśwież" />
+	</div>
+
+	</div>
+
 
 </div>
 
@@ -614,6 +745,19 @@
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelblock();" value="Anuluj" />
 			<input type="button" class="btn btn-primary" onclick="okblock();" value="OK" />
+		</div>
+	</div>
+</div>
+
+<div id="div_removetraffic" class="modal">
+	<div class="row modal-content text-center">
+		<div class="text-center space">
+			<span id="removetraffic_text">Usunąć dane o transferze?</span>
+		</div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelremovetraffic();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="okremovetraffic();" value="OK" />
 		</div>
 	</div>
 </div>

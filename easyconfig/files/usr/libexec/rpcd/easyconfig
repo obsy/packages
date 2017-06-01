@@ -280,9 +280,36 @@ echo ']}'
 
 ##############################################################################
 
+traffic()
+{
+if [ ! -e /usr/lib/easyconfig/easyconfig_traffic.txt.gz ]; then
+	mkdir -p /usr/lib/easyconfig
+	touch /usr/lib/easyconfig/easyconfig_traffic.txt
+	gzip /usr/lib/easyconfig/easyconfig_traffic.txt
+fi
+echo '{'
+[ -e /etc/crontabs/root ] && TEN=$(grep easyconfig_traffic /etc/crontabs/root)
+if [ -n "$TEN" ]; then
+	echo '"traffic_enabled": true,'
+else
+	echo '"traffic_enabled": false,'
+fi
+
+T_PERIOD=$(uci -q get system.@system[0].traffic_period)
+[ -z "$T_PERIOD" ] && T_PERIOD=10
+T_CYCLE=$(uci -q get system.@system[0].traffic_cycle)
+[ -z "$T_CYCLE" ] && T_CYCLE=1
+
+echo '"traffic_period": "'$T_PERIOD'",'
+echo '"traffic_cycle": "'$T_CYCLE'"'
+echo '}'
+}
+
+##############################################################################
+
 case "$1" in
 	list)
-		echo '{ "status": { }, "show_config": { }, "show_watchdog": { }, "show_clients": { } }'
+		echo '{ "status": { }, "show_config": { }, "show_watchdog": { }, "show_clients": { }, "traffic": { } }'
 	;;
 	call)
 		case "$2" in
@@ -297,6 +324,9 @@ case "$1" in
 				;;
 			show_clients)
 				show_clients
+				;;
+			traffic)
+				traffic
 				;;
 		esac
 	;;

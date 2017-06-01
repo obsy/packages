@@ -363,12 +363,23 @@ function showcallback(data) {
 //console.log(config);
 
 	// wan
+	var wan = [];
+	wan['none']="Brak";
+	wan['dhcp']="Port WAN (DHCP)";
+	wan['static']="Port WAN (Statyczny IP)";
+	wan['3g']="Modem USB (RAS)";
+	wan['qmi']="Modem USB (QMI)";
+	wan['ncm']="Modem USB (NCM)";
+	wan['dhcp_hilink']="Modem USB (HiLink lub RNDIS)";
+
+	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
 	var arr = config.wan_protos;
-	for (var idx=e.length-1; idx>-1; idx--) {
-		if (arr.indexOf(e.options[idx].value) == -1) {
-			e.remove(idx);
-		}
+	for (var idx=0; idx<arr.length; idx++) {
+		var opt = document.createElement('option');
+		opt.value = arr[idx];
+		opt.innerHTML = wan[arr[idx]];
+		e.appendChild(opt);
 	}
 
 	removeOptions('wan_device');
@@ -847,7 +858,7 @@ function wlanclientscallback(sortby) {
 		}
 		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
 	} else {
-		html += '<div class="alert alert-warning">Brak podłączonych klientów</div>'
+		html += '<div class="alert alert-warning">Brak podłączonych klientów Wi-Fi</div>'
 	}
 	div.innerHTML = html;
 
@@ -967,6 +978,209 @@ function queriescallback(sortby) {
 
 /*****************************************************************************/
 
+function lastDays(cnt,d) {
+	d = +(d || new Date());
+	var days = [];
+	var i=cnt;
+	while (i--) {
+		days.push(formatDate(new Date(d-=8.64e7)));
+	}
+	return days;
+}
+
+function currentPeriod(start) {
+	var d = new Date();
+	var days = [];
+	var i=31;
+	d.setDate(d.getDate() + 1);
+	while (i--) {
+		var nd = new Date(d-=8.64e7);
+		days.push(formatDate(nd));
+		if (nd.getDate() == start) {
+			return days;
+		}
+	}
+	return days;
+}
+
+function lastPeriod(start) {
+	d = new Date();
+	var days = [];
+	var i=62;
+	var t=0;
+	d.setDate(d.getDate() + 1);
+	while (i--) {
+		var nd = new Date(d-=8.64e7);
+		if (nd.getDate() == start) {
+			if (t == 1) {
+				days.push(formatDate(nd));
+				t=0;
+			} else {
+				t=1;
+			}
+			continue;
+		}
+		if (t == 1) {
+			days.push(formatDate(nd));
+		}
+	}
+	return days;
+}
+
+function formatDate(d) {
+	function z(n){return (n<10?'0':'')+ +n;}
+	return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+}
+
+function showtraffic() {
+
+	ubus_call('"easyconfig", "traffic", { }', function(data) {
+		setValue("traffic_enabled", data.traffic_enabled);
+		setValue("traffic_period", data.traffic_period);
+		setValue("traffic_cycle", data.traffic_cycle);
+
+		var traffic_cycle = data.traffic_cycle;
+
+		ubus_call('"file", "exec", {"command":"zcat","params":["/usr/lib/easyconfig/easyconfig_traffic.txt.gz"]}', function(data) {
+
+		var today = new Array(formatDate(new Date));
+		var yesterday = lastDays(1);
+		var last7d = lastDays(7);
+		var last30d = lastDays(30);
+		var current_period = currentPeriod(traffic_cycle);
+		var last_period = lastPeriod(traffic_cycle);
+
+		var traffic_today=0;
+		var traffic_yesterday=0;
+		var traffic_last7d=0;
+		var traffic_last30d=0;
+		var traffic_total=0;
+		var traffic_currentperiod=0;
+		var traffic_lastperiod=0;
+		var total_since="";
+
+		var traffic = [];
+		if (data.stdout) {
+			traffic = data.stdout.split("\n");
+		}
+		for (var idx in traffic) {
+			if (traffic[idx] == "") {continue;}
+			var t_date=traffic[idx].split(" ")[0];
+			var t_value=traffic[idx].split(" ")[1];
+			if (total_since == "") {total_since = t_date;}
+
+			if (t_date == today[0]) {
+				traffic_today = t_value;
+			}
+
+			if (t_date == yesterday[0]) {
+				traffic_yesterday = t_value;
+			}
+
+			for (var idx1=0; idx1<7; idx1++) {
+				if (t_date == last7d[idx1]) {
+					traffic_last7d += parseInt(t_value);
+				}
+			}
+
+			for (var idx1=0; idx1<30; idx1++) {
+				if (t_date == last30d[idx1]) {
+					traffic_last30d += parseInt(t_value);
+				}
+			}
+
+			for (var idx1=0; idx1<current_period.length; idx1++) {
+				if (t_date == current_period[idx1]) {
+					traffic_currentperiod += parseInt(t_value);
+				}
+			}
+
+			for (var idx1=0; idx1<last_period.length; idx1++) {
+				if (t_date == last_period[idx1]) {
+					traffic_lastperiod += parseInt(t_value);
+				}
+			}
+
+			traffic_total += parseInt(t_value);
+			if (total_since > t_date) {total_since = t_date;}
+		}
+
+		setValue("traffic_today", bytesToSize(traffic_today));
+		setValue("traffic_yesterday", bytesToSize(traffic_yesterday));
+		setValue("traffic_last7d", bytesToSize(traffic_last7d));
+		setValue("traffic_last30d", bytesToSize(traffic_last30d));
+		setValue("traffic_total", bytesToSize(traffic_total));
+		if (total_since) {
+			setValue("traffic_total_since", '(od '+ total_since + ')');
+		} else {
+			setValue("traffic_total_since", ' ');
+		}
+		setValue("traffic_currentperiod", bytesToSize(traffic_currentperiod));
+		setValue("traffic_lastperiod", bytesToSize(traffic_lastperiod));
+
+		});
+
+	});
+
+}
+
+function savetraffic() {
+
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+
+	cmd.push('touch /etc/crontabs/root');
+	cmd.push('sed -i \\\"/easyconfig_traffic/d\\\" /etc/crontabs/root');
+	if (getValue("traffic_enabled")) {
+		cmd.push('echo \\\"*/1 * * * * /usr/bin/easyconfig_traffic.sh\\\" >> /etc/crontabs/root');
+	}
+	cmd.push('uci set system.@system[0].traffic_period='+getValue("traffic_period"));
+	cmd.push('uci set system.@system[0].traffic_cycle='+getValue("traffic_cycle"));
+	cmd.push('uci commit system');
+	cmd.push('/etc/init.d/cron restart');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			showtraffic();
+		});
+	});
+
+}
+
+function removetraffic() {
+	setDisplay("div_removetraffic", "block");
+}
+
+function cancelremovetraffic() {
+	setDisplay("div_removetraffic", "none");
+}
+
+function okremovetraffic() {
+	cancelremovetraffic();
+
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+	cmd.push('rm /usr/lib/easyconfig/easyconfig_traffic.txt.gz');
+	cmd.push('touch /usr/lib/easyconfig/easyconfig_traffic.txt');
+	cmd.push('gzip /usr/lib/easyconfig/easyconfig_traffic.txt');
+	cmd.push('rm /tmp/easyconfig_traffic.txt');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			showtraffic();
+		});
+	});
+
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }
@@ -984,6 +1198,7 @@ function btn_pages(page) {
 	setDisplay("div_sitesurvey", (page == 'sitesurvey')?"block":"none");
 	setDisplay("div_wlanclients", (page == 'wlanclients')?"block":"none");
 	setDisplay("div_queries", (page == 'queries')?"block":"none");
+	setDisplay("div_traffic", (page == 'traffic')?"block":"none");
 
 	if (page == 'status') {
 		showstatus();
@@ -1004,5 +1219,9 @@ function btn_pages(page) {
 
 	if (page == 'queries') {
 		showqueries();
+	}
+
+	if (page == 'traffic') {
+		showtraffic();
 	}
 }
