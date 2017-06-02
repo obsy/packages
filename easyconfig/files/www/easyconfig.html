@@ -556,6 +556,57 @@
 		<strong>UWAGA!</strong> Wyliczenia mogą się różnić od wskazań operatora
 	</div>
 
+	<div class="row">
+		<label class="col-xs-6 text-right">Dziś</label>
+		<div class="col-xs-6">
+		<p id="traffic_today">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Wczoraj</label>
+		<div class="col-xs-6">
+		<p id="traffic_yesterday">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Ostatnie 7 dni</label>
+		<div class="col-xs-6">
+		<p id="traffic_last7d">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Ostatnie 30 dni</label>
+		<div class="col-xs-6">
+		<p id="traffic_last30d">0</p>
+		</div>
+	</div>
+	<div class="row space">
+		<label class="col-xs-6 text-right">Łącznie</label>
+		<div class="col-xs-6">
+		<p id="traffic_total">0</p><small><p id="traffic_total_since">&nbsp;</p></small>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Bieżący okres rozliczeniowy</label>
+		<div class="col-xs-6">
+		<p id="traffic_currentperiod">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</label>
+		<div class="col-xs-6">
+		<p id="traffic_lastperiod">0</p>
+		</div>
+	</div>
+
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="removetraffic();" value="Usuń dane" />
+		<input type="button" class="btn btn-default" onclick="showtraffic();" value="Odśwież" />
+	</div>
+
+	<h3 class="section"></h3>
+
 	<form class="form-horizontal">
 		<div class="form-group" id="div_traffic_enabled">
 			<label for="traffic_enabled" class="col-xs-6 col-sm-3 control-label">Zliczanie transferu włączone</label>
@@ -631,57 +682,6 @@
 		</div>
 
 	</form>
-
-	<h3 class="section"></h3>
-
-	<div class="row">
-		<label class="col-xs-6 text-right">Dziś</label>
-		<div class="col-xs-6">
-		<p id="traffic_today">0</p>
-		</div>
-	</div>
-	<div class="row">
-		<label class="col-xs-6 text-right">Wczoraj</label>
-		<div class="col-xs-6">
-		<p id="traffic_yesterday">0</p>
-		</div>
-	</div>
-	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 7 dni</label>
-		<div class="col-xs-6">
-		<p id="traffic_last7d">0</p>
-		</div>
-	</div>
-	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 30 dni</label>
-		<div class="col-xs-6">
-		<p id="traffic_last30d">0</p>
-		</div>
-	</div>
-	<div class="row space">
-		<label class="col-xs-6 text-right">Łącznie</label>
-		<div class="col-xs-6">
-		<p id="traffic_total">0</p><small><p id="traffic_total_since">&nbsp;</p></small>
-		</div>
-	</div>
-	<div class="row">
-		<label class="col-xs-6 text-right">Bieżący okres rozliczeniowy</label>
-		<div class="col-xs-6">
-		<p id="traffic_currentperiod">0</p>
-		</div>
-	</div>
-	<div class="row">
-		<label class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</label>
-		<div class="col-xs-6">
-		<p id="traffic_lastperiod">0</p>
-		</div>
-	</div>
-
-	<h3 class="section"></h3>
-	<div class="text-center">
-		<input type="button" class="btn btn-default" onclick="removetraffic();" value="Usuń dane" />
-		<input type="button" class="btn btn-default" onclick="showtraffic();" value="Odśwież" />
-	</div>
 
 	</div>
 
