@@ -937,13 +937,13 @@ function saveclientname() {
 function showqueries() {
 	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_queries.sh"]}', function(data) {
 		queries = JSON.parse((data.stdout).replace(/\\/g,"\\\\"));
-		queriescallback("time");
+		queriescallback("time", "321");
 	});
 }
 
 var queries;
 
-function queriescallback(sortby) {
+function queriescallback(sortby, order) {
 	var div = document.getElementById('div_queries_content');
 	var html = "";
 	if (queries.length > 1) {
@@ -953,7 +953,7 @@ function queriescallback(sortby) {
 		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
 		html += '</div><hr>';
 
-		var sorted = sortJSON(queries, sortby, '123');
+		var sorted = sortJSON(queries, sortby, (order?order:'123'));
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].time == '') {continue;}
 			html += '<div class="row space">';
