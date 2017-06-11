@@ -67,6 +67,6 @@ case "$TECH" in
 	 *) MODE="-";;
 esac
 
-echo "{\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"mode\":\"$MODE\"}"
+echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\"}"
 
 exit 0
