@@ -55,18 +55,6 @@ else
 fi
 [ "x$COPS" = "x" ] && COPS=$COPS_NUM
 
-# MODE
-TECH=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}')
-case "$TECH" in
-	2*) MODE="UMTS";;
-	3*) MODE="EDGE";;
-	4*) MODE="HSDPA";;
-	5*) MODE="HSUPA";;
-	6*) MODE="HSPA";;
-	7*) MODE="LTE";;
-	 *) MODE="-";;
-esac
-
 # CREG
 T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $2}')
 case "$T" in
@@ -78,6 +66,18 @@ case "$T" in
 	 *) REG="-";;
 esac
 
+# MODE
+T=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}')
+[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $5}')
+case "$T" in
+	2*) MODE="UMTS";;
+	3*) MODE="EDGE";;
+	4*) MODE="HSDPA";;
+	5*) MODE="HSUPA";;
+	6*) MODE="HSPA";;
+	7*) MODE="LTE";;
+	 *) MODE="-";;
+esac
 
 echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\",\"registration\":\"$REG\"}"
 
