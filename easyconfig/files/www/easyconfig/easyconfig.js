@@ -682,6 +682,25 @@ function showmodem() {
 		setValue('modem_signal', data.signal?data.signal + "%":"?");
 		setValue('modem_operator', data.operator_name);
 		setValue('modem_mode', data.mode);
+		switch(data.registration) {
+		case "0":
+			setValue('modem_registration', 'Brak rejestracj');
+			break;
+		case "1":
+			setValue('modem_registration', 'Zarejestrowana, sieć macierzysta');
+			break;
+		case "2":
+			setValue('modem_registration', 'Brak rejestracji, wyszukiwanie operatora');
+			break;
+		case "3":
+			setValue('modem_registration', 'Odmowa rejestracji');
+			break;
+		case "5":
+			setValue('modem_registration', 'Zarejestrowana, roaming');
+			break;
+		default:
+			setValue('modem_registration', '-');
+		}
 	});
 }
 
