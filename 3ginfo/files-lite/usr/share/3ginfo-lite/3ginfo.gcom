@@ -12,6 +12,10 @@ opengt
  let $r="+COPS"
  gosub readatcmd
 
+ let $c="AT+CREG=2;+CREG?^m"
+ let $r="+CREG"
+ gosub readatcmd
+
  exit 0
 
 :readatcmd

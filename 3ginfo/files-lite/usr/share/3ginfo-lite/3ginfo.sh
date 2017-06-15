@@ -67,6 +67,18 @@ case "$TECH" in
 	 *) MODE="-";;
 esac
 
-echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\"}"
+# CREG
+T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $2}')
+case "$T" in
+	0*) REG="0";;
+	1*) REG="1";;
+	2*) REG="2";;
+	3*) REG="3";;
+	5*) REG="5";;
+	 *) REG="-";;
+esac
+
+
+echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\",\"registration\":\"$REG\"}"
 
 exit 0
