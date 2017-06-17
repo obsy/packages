@@ -75,7 +75,7 @@ case "$T" in
 esac
 
 # MODE
-T=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}')
+T=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}' | head -1)
 [ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $5}')
 case "$T" in
 	2*) MODE="UMTS";;
