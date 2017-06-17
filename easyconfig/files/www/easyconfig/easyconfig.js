@@ -684,7 +684,7 @@ function showmodem() {
 		setValue('modem_mode', data.mode);
 		switch(data.registration) {
 		case "0":
-			setValue('modem_registration', 'Brak rejestracj');
+			setValue('modem_registration', 'Brak rejestracji');
 			break;
 		case "1":
 			setValue('modem_registration', 'Zarejestrowana, sieć macierzysta');
