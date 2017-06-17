@@ -8,6 +8,10 @@ opengt
  let $r="+CSQ"
  gosub readatcmd
 
+ let $c="AT+COPS=3,0;+COPS?^m"
+ let $r="+COPS"
+ gosub readatcmd
+
  let $c="AT+COPS=3,2;+COPS?^m"
  let $r="+COPS"
  gosub readatcmd

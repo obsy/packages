@@ -42,7 +42,7 @@ else
 	CSQ_PER="0"
 fi
 
-# COPS
+# COPS numeric
 COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
 if [ "x$COPS_NUM" = "x" ]; then
 	COPS_NUM="-"
@@ -54,6 +54,14 @@ else
 	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 fi
 [ "x$COPS" = "x" ] && COPS=$COPS_NUM
+
+# COPS alphanumeric
+T=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
+if [ "x$T" != "x" ]; then
+	if [ "x$T" != "x$COPS" ]; then
+		COPS="$T"
+	fi
+fi
 
 # CREG
 T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $2}')
