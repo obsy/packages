@@ -687,7 +687,7 @@ function showmodem() {
 			setValue('modem_registration', 'Brak sieci');
 			break;
 		case "1":
-			setValue('modem_registration', 'Zalogowania do sieci macierzystej');
+			setValue('modem_registration', 'Zalogowana do sieci macierzystej');
 			break;
 		case "2":
 			setValue('modem_registration', 'Wyszukiwanie operatora');
@@ -696,7 +696,7 @@ function showmodem() {
 			setValue('modem_registration', 'Odmowa dostępu');
 			break;
 		case "5":
-			setValue('modem_registration', 'Zalogowania do sieci w roamingu');
+			setValue('modem_registration', 'Zalogowana do sieci w roamingu');
 			break;
 		default:
 			setValue('modem_registration', '-');
