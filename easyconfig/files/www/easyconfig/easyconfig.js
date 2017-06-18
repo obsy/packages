@@ -684,19 +684,19 @@ function showmodem() {
 		setValue('modem_mode', data.mode);
 		switch(data.registration) {
 		case "0":
-			setValue('modem_registration', 'Brak rejestracji');
+			setValue('modem_registration', 'Brak sieci');
 			break;
 		case "1":
-			setValue('modem_registration', 'Zarejestrowana, sieć macierzysta');
+			setValue('modem_registration', 'Zalogowania do sieci macierzystej');
 			break;
 		case "2":
-			setValue('modem_registration', 'Brak rejestracji, wyszukiwanie operatora');
+			setValue('modem_registration', 'Wyszukiwanie operatora');
 			break;
 		case "3":
-			setValue('modem_registration', 'Odmowa rejestracji');
+			setValue('modem_registration', 'Odmowa dostępu');
 			break;
 		case "5":
-			setValue('modem_registration', 'Zarejestrowana, roaming');
+			setValue('modem_registration', 'Zalogowania do sieci w roamingu');
 			break;
 		default:
 			setValue('modem_registration', '-');
