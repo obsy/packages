@@ -278,7 +278,11 @@ var ubus = function(param, successHandler, errorHandler) {
 	xhr.setRequestHeader("Content-Type", "application/json");
 
 	if (responseTypeAware) {
-		xhr.responseType = 'json';
+		try {
+			xhr.responseType = 'json';
+		} catch(error) {
+			responseTypeAware = false;
+		}
 	}
 	xhr.onreadystatechange = function() {
 		var status = xhr.status;
