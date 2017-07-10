@@ -175,15 +175,23 @@ for R in $RADIOS; do
 	echo '"'$R'":{'
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
-	WLAN_SEC=$(uci show wireless | grep "device='$R'" | cut -f2 -d.)
-	if [ -n "$WLAN_SEC" ]; then
-		WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
-		WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
-		WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
-		WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
-		[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
-		WLAN_ISOLATE1=$(uci -q get wireless.$WLAN_SEC.isolate)
-		[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE=1 || WLAN_ISOLATE=0
+	T=$(uci show wireless | awk -F. '/device=/{print $2}')
+	if [ -n "$T" ]; then
+		for WLAN_SEC in $T; do
+			[ "x$(uci -q get wireless.$WLAN_SEC.network)" = "xlan" ] || continue
+			[ "x$(uci -q get wireless.$WLAN_SEC.mode)" = "xap" ] || continue
+			WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
+			WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
+			WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
+			WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
+			[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
+			WLAN_ISOLATE1=$(uci -q get wireless.$WLAN_SEC.isolate)
+			[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE=1 || WLAN_ISOLATE=0
+		done
+		if [ "x$WLAN_SSID" = "x" ]; then
+			WLAN_SEC=""
+			WLAN_DISABLED=1
+		fi
 	else
 		WLAN_DISABLED=1
 	fi

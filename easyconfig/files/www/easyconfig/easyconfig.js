@@ -606,7 +606,7 @@ function saveconfig() {
 		}
 
 		if (getValue("wlan_isolate"+radios[i])) {
-			if (config["radio"+radios[i]].wlan_isolate === "0") {
+			if (config["radio"+radios[i]].wlan_isolate !== "1") {
 				wlan_restart_required=true;
 				cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.isolate=1');
 			}
