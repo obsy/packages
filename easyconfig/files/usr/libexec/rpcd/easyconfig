@@ -187,6 +187,7 @@ for R in $RADIOS; do
 			[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
 			WLAN_ISOLATE1=$(uci -q get wireless.$WLAN_SEC.isolate)
 			[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE=1 || WLAN_ISOLATE=0
+			break
 		done
 		if [ "x$WLAN_SSID" = "x" ]; then
 			WLAN_SEC=""
