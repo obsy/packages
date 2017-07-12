@@ -4,6 +4,10 @@ function proofreadHostname(input) {
 	proofreadText(input, validateHostname, 0);
 }
 
+function proofreadHost(input) {
+	proofreadText(input, validateHost, 0);
+}
+
 function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
@@ -34,6 +38,17 @@ function validateHostname(name) {
 	if (name == "") {
 		errorCode = 1;
 	} else if (name.match(/[^a-zA-Z0-9\-]/) !== null) {
+		errorCode = 2;
+	}
+	return errorCode;
+}
+
+function validateHost(name) {
+	var errorCode = 0;
+
+	if (name == "") {
+		errorCode = 1;
+	} else if (name.match(/[^a-zA-Z0-9.]/) !== null) {
 		errorCode = 2;
 	}
 	return errorCode;
@@ -762,12 +777,8 @@ function showwatchdog() {
 
 function savewatchdog() {
 	var watchdog_enabled = getValue("watchdog_enabled");
+	if (checkField('watchdog_dest', validateHost)) {return;}
 	var watchdog_dest = getValue("watchdog_dest");
-	watchdog_dest = watchdog_dest.replace(/(["\\ ])/g,'');
-	if (watchdog_dest == "") {
-		showMsg("Błąd w polu " + getLabelText("watchdog_dest"), true);
-		return;
-	}
 	var watchdog_period = getValue("watchdog_period");
 	if (validateNumericRange(watchdog_period,1,59) != 0) {
 		showMsg("Błąd w polu " + getLabelText("watchdog_period"), true);
