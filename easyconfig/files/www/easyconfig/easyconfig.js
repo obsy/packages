@@ -731,7 +731,6 @@ function btn_system_reboot() {
 /*****************************************************************************/
 
 function showwatchdog() {
-
 	var block=(config.wan_proto == "none");
 	setElementEnabled("watchdog_enabled", true, block);
 	setElementEnabled("watchdog_dest", true, block);
@@ -781,10 +780,27 @@ function savewatchdog() {
 	}
 	var watchdog_action = getValue("watchdog_action");
 
-	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_watchdog_helper.sh","'+watchdog_enabled+'","'+watchdog_dest+'","'+watchdog_period+'","'+watchdog_delay+'","'+watchdog_action+'"]}', function(data) {
-		if (data.code === 0) {
-			showMsg("Zapisano zmiany");
-		}
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+	cmd.push('F=$(mktemp)');
+	cmd.push('touch /etc/crontabs/root');
+	cmd.push('grep -v easyconfig_watchdog /etc/crontabs/root > $F');
+
+	if (watchdog_enabled) {
+		cmd.push('echo \\\"*/' + watchdog_period + ' * * * * /usr/bin/easyconfig_watchdog.sh ' + (watchdog_delay * 60) + ' 3 ' + watchdog_dest + ' ' + watchdog_action + '\\\" >> $F');
+	}
+
+	cmd.push('mv $F /etc/crontabs/root');
+	cmd.push('rm -f $F');
+	cmd.push('/etc/init.d/cron restart');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			showwatchdog();
+		});
 	});
 }
 
