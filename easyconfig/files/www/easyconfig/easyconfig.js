@@ -908,7 +908,7 @@ function wlanclientscallback(sortby) {
 		}
 		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
 	} else {
-		html += '<div class="alert alert-warning">Brak podłączonych klientów Wi-Fi</div>'
+		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>'
 	}
 	div.innerHTML = html;
 
