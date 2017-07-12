@@ -231,8 +231,14 @@ echo '{'
 [ -e /etc/crontabs/root ] && WAT=$(grep easyconfig_watchdog /etc/crontabs/root)
 
 if [ -z "$WAT" ]; then
-	echo '"watchdog_enabled": false'
+	W_ENABLED="false"
+	W_PERIOD="3"
+	W_DELAY="3"
+	W_DEST="google.com"
+	W_ACTION="wan"
+	W_MAM=""
 else
+	W_ENABLED="true"
 	W_PERIOD=$(echo "$WAT" | cut -f1 -d" " | cut -f2 -d/)
 	W_DELAY=$(echo "$WAT" | cut -f7 -d" ")
 	W_DELAY=$((W_DELAY / 60))
@@ -242,14 +248,13 @@ else
 	if [ -e /tmp/easyconfig_watchdog ]; then
 		W_MAM=$(awk -F= '/round-trip/{print $2}' /tmp/easyconfig_watchdog)
 	fi
-
-	echo '"watchdog_enabled": true,'
-	echo '"watchdog_period": "'$W_PERIOD'",'
-	echo '"watchdog_delay": "'$W_DELAY'",'
-	echo '"watchdog_dest": "'$W_DEST'",'
-	echo '"watchdog_action": "'$W_ACTION'",'
-	echo '"watchdog_minavgmax": "'$W_MAM'"'
 fi
+echo '"watchdog_enabled": '$W_ENABLED','
+echo '"watchdog_period": "'$W_PERIOD'",'
+echo '"watchdog_delay": "'$W_DELAY'",'
+echo '"watchdog_dest": "'$W_DEST'",'
+echo '"watchdog_action": "'$W_ACTION'",'
+echo '"watchdog_minavgmax": "'$W_MAM'"'
 echo '}'
 }
 

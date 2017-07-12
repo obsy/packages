@@ -755,22 +755,15 @@ function showwatchdog() {
 	setDisplay("watchdog_enabled_info", block?"block":"none");
 	setDisplay("div_watchdog_minavgmax","none")
 
-	setValue("watchdog_dest", "google.com");
-	setValue("watchdog_period", 3);
-	setValue("watchdog_delay", 3);
-	setValue("watchdog_action", "wan");
-
 	ubus_call('"easyconfig", "show_watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
-		if (data.watchdog_enabled) {
-			setValue("watchdog_dest", data.watchdog_dest);
-			setValue("watchdog_period", data.watchdog_period);
-			setValue("watchdog_delay", data.watchdog_delay);
-			setValue("watchdog_action", data.watchdog_action);
-			if (data.watchdog_minavgmax != "") {
-				setDisplay("div_watchdog_minavgmax","block")
-				setValue("watchdog_minavgmax", data.watchdog_minavgmax);
-			}
+		setValue("watchdog_dest", data.watchdog_dest);
+		setValue("watchdog_period", data.watchdog_period);
+		setValue("watchdog_delay", data.watchdog_delay);
+		setValue("watchdog_action", data.watchdog_action);
+		if (data.watchdog_minavgmax != "") {
+			setDisplay("div_watchdog_minavgmax","block")
+			setValue("watchdog_minavgmax", data.watchdog_minavgmax);
 		}
 	});
 }
