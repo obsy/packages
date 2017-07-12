@@ -373,7 +373,7 @@ function login()
 /*****************************************************************************/
 
 function showconfig() {
-	ubus_call('"easyconfig", "show_config", { }', showcallback);
+	ubus_call('"easyconfig", "config", { }', showcallback);
 }
 
 function showcallback(data) {
@@ -755,7 +755,7 @@ function showwatchdog() {
 	setDisplay("watchdog_enabled_info", block?"block":"none");
 	setDisplay("div_watchdog_minavgmax","none")
 
-	ubus_call('"easyconfig", "show_watchdog", { }', function(data) {
+	ubus_call('"easyconfig", "watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
 		setValue("watchdog_dest", data.watchdog_dest);
 		setValue("watchdog_period", data.watchdog_period);
@@ -878,7 +878,7 @@ function bytesToSize(bytes) {
 var wlanclients;
 
 function showwlanclients() {
-	ubus_call('"easyconfig", "show_clients", { }', function(data) {
+	ubus_call('"easyconfig", "clients", { }', function(data) {
 		wlanclients = data.clients;
 		wlanclientscallback("name");
 	});

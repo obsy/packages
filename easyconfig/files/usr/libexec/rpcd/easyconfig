@@ -294,7 +294,7 @@ echo ']}'
 
 ##############################################################################
 
-traffic()
+show_traffic()
 {
 if [ ! -e /usr/lib/easyconfig/easyconfig_traffic.txt.gz ]; then
 	mkdir -p /usr/lib/easyconfig
@@ -323,24 +323,24 @@ echo '}'
 
 case "$1" in
 	list)
-		echo '{ "status": { }, "show_config": { }, "show_watchdog": { }, "show_clients": { }, "traffic": { } }'
+		echo '{ "status": { }, "config": { }, "watchdog": { }, "clients": { }, "traffic": { } }'
 	;;
 	call)
 		case "$2" in
 			status)
 				show_status
 				;;
-			show_config)
+			config)
 				show_config
 				;;
-			show_watchdog)
+			watchdog)
 				show_watchdog
 				;;
-			show_clients)
+			clients)
 				show_clients
 				;;
 			traffic)
-				traffic
+				show_traffic
 				;;
 		esac
 	;;
