@@ -232,23 +232,23 @@ echo '{'
 
 if [ -z "$WAT" ]; then
 	W_ENABLED="false"
-	W_PERIOD="3"
-	W_DELAY="3"
-	W_DEST="google.com"
-	W_ACTION="wan"
 	W_MAM=""
 else
 	W_ENABLED="true"
-	W_PERIOD=$(echo "$WAT" | cut -f1 -d" " | cut -f2 -d/)
-	W_DELAY=$(echo "$WAT" | cut -f7 -d" ")
-	W_DELAY=$((W_DELAY / 60))
-	W_DEST=$(echo "$WAT" | cut -f9 -d" ")
-	W_ACTION=$(echo "$WAT" | cut -f10 -d" ")
-
 	if [ -e /tmp/easyconfig_watchdog ]; then
 		W_MAM=$(awk -F= '/round-trip/{print $2}' /tmp/easyconfig_watchdog)
 	fi
 fi
+
+W_PERIOD=$(uci -q get easyconfig.@watchdog[0].period)
+[ -z "$W_PERIOD" ] && W_PERIOD="3"
+W_DELAY=$(uci -q get easyconfig.@watchdog[0].delay)
+[ -z "$W_DELAY" ] && W_DELAY="3"
+W_DEST=$(uci -q get easyconfig.@watchdog[0].dest)
+[ -z "$W_DEST" ] && W_DEST="google.com"
+W_ACTION=$(uci -q get easyconfig.@watchdog[0].action)
+[ -z "$W_ACTION" ] && W_ACTION="wan"
+
 echo '"watchdog_enabled": '$W_ENABLED','
 echo '"watchdog_period": "'$W_PERIOD'",'
 echo '"watchdog_delay": "'$W_DELAY'",'
@@ -309,9 +309,9 @@ else
 	echo '"traffic_enabled": false,'
 fi
 
-T_PERIOD=$(uci -q get system.@system[0].traffic_period)
+T_PERIOD=$(uci -q get easyconfig.@traffic[0].period)
 [ -z "$T_PERIOD" ] && T_PERIOD=10
-T_CYCLE=$(uci -q get system.@system[0].traffic_cycle)
+T_CYCLE=$(uci -q get easyconfig.@traffic[0].cycle)
 [ -z "$T_CYCLE" ] && T_CYCLE=1
 
 echo '"traffic_period": "'$T_PERIOD'",'

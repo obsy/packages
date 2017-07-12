@@ -797,6 +797,13 @@ function savewatchdog() {
 	cmd.push('mv $F /etc/crontabs/root');
 	cmd.push('rm -f $F');
 	cmd.push('/etc/init.d/cron restart');
+
+	cmd.push('uci set easyconfig.@watchdog[0].period='+watchdog_period);
+	cmd.push('uci set easyconfig.@watchdog[0].delay='+watchdog_delay);
+	cmd.push('uci set easyconfig.@watchdog[0].dest='+watchdog_dest);
+	cmd.push('uci set easyconfig.@watchdog[0].action='+watchdog_action);
+	cmd.push('uci commit easyconfig');
+
 	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit 0');
 	cmd.push('');
@@ -1177,10 +1184,12 @@ function savetraffic() {
 	if (getValue("traffic_enabled")) {
 		cmd.push('echo \\\"*/1 * * * * /usr/bin/easyconfig_traffic.sh\\\" >> /etc/crontabs/root');
 	}
-	cmd.push('uci set system.@system[0].traffic_period='+getValue("traffic_period"));
-	cmd.push('uci set system.@system[0].traffic_cycle='+getValue("traffic_cycle"));
-	cmd.push('uci commit system');
 	cmd.push('/etc/init.d/cron restart');
+
+	cmd.push('uci set easyconfig.@traffic[0].period='+getValue("traffic_period"));
+	cmd.push('uci set easyconfig.@traffic[0].cycle='+getValue("traffic_cycle"));
+	cmd.push('uci commit easyconfig');
+
 	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit 0');
 	cmd.push('');

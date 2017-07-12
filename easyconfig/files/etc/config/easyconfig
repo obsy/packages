@@ -1,0 +1,11 @@
+
+config traffic
+	option period '10'
+	option cycle '1'
+
+config watchdog
+	option dest 'google.com'
+	option period '3'
+	option delay '3'
+	option action 'wan'
+
