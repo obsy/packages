@@ -1,9 +1,9 @@
 
-config traffic
+config service traffic
 	option period '10'
 	option cycle '1'
 
-config watchdog
+config service watchdog
 	option dest 'google.com'
 	option period '3'
 	option delay '3'

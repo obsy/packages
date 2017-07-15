@@ -748,10 +748,6 @@ function btn_system_reboot() {
 function showwatchdog() {
 	var block=(config.wan_proto == "none");
 	setElementEnabled("watchdog_enabled", true, block);
-	setElementEnabled("watchdog_dest", true, block);
-	setElementEnabled("watchdog_period", true, block);
-	setElementEnabled("watchdog_delay", true, block);
-	setElementEnabled("watchdog_action", true, block);
 	setDisplay("watchdog_enabled_info", block?"block":"none");
 	setDisplay("div_watchdog_minavgmax","none")
 
@@ -798,10 +794,10 @@ function savewatchdog() {
 	cmd.push('rm -f $F');
 	cmd.push('/etc/init.d/cron restart');
 
-	cmd.push('uci set easyconfig.@watchdog[0].period='+watchdog_period);
-	cmd.push('uci set easyconfig.@watchdog[0].delay='+watchdog_delay);
-	cmd.push('uci set easyconfig.@watchdog[0].dest='+watchdog_dest);
-	cmd.push('uci set easyconfig.@watchdog[0].action='+watchdog_action);
+	cmd.push('uci set easyconfig.watchdog.period='+watchdog_period);
+	cmd.push('uci set easyconfig.watchdog.delay='+watchdog_delay);
+	cmd.push('uci set easyconfig.watchdog.dest='+watchdog_dest);
+	cmd.push('uci set easyconfig.watchdog.action='+watchdog_action);
 	cmd.push('uci commit easyconfig');
 
 	cmd.push('rm -- \\\"$0\\\"');
@@ -1186,8 +1182,8 @@ function savetraffic() {
 	}
 	cmd.push('/etc/init.d/cron restart');
 
-	cmd.push('uci set easyconfig.@traffic[0].period='+getValue("traffic_period"));
-	cmd.push('uci set easyconfig.@traffic[0].cycle='+getValue("traffic_cycle"));
+	cmd.push('uci set easyconfig.traffic.period='+getValue("traffic_period"));
+	cmd.push('uci set easyconfig.traffic.cycle='+getValue("traffic_cycle"));
 	cmd.push('uci commit easyconfig');
 
 	cmd.push('rm -- \\\"$0\\\"');

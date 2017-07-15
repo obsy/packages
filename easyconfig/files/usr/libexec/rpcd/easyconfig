@@ -240,13 +240,13 @@ else
 	fi
 fi
 
-W_PERIOD=$(uci -q get easyconfig.@watchdog[0].period)
+W_PERIOD=$(uci -q get easyconfig.watchdog.period)
 [ -z "$W_PERIOD" ] && W_PERIOD="3"
-W_DELAY=$(uci -q get easyconfig.@watchdog[0].delay)
+W_DELAY=$(uci -q get easyconfig.watchdog.delay)
 [ -z "$W_DELAY" ] && W_DELAY="3"
-W_DEST=$(uci -q get easyconfig.@watchdog[0].dest)
+W_DEST=$(uci -q get easyconfig.watchdog.dest)
 [ -z "$W_DEST" ] && W_DEST="google.com"
-W_ACTION=$(uci -q get easyconfig.@watchdog[0].action)
+W_ACTION=$(uci -q get easyconfig.watchdog.action)
 [ -z "$W_ACTION" ] && W_ACTION="wan"
 
 echo '"watchdog_enabled": '$W_ENABLED','
@@ -309,9 +309,9 @@ else
 	echo '"traffic_enabled": false,'
 fi
 
-T_PERIOD=$(uci -q get easyconfig.@traffic[0].period)
+T_PERIOD=$(uci -q get easyconfig.traffic.period)
 [ -z "$T_PERIOD" ] && T_PERIOD=10
-T_CYCLE=$(uci -q get easyconfig.@traffic[0].cycle)
+T_CYCLE=$(uci -q get easyconfig.traffic.cycle)
 [ -z "$T_CYCLE" ] && T_CYCLE=1
 
 echo '"traffic_period": "'$T_PERIOD'",'
