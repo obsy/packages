@@ -64,6 +64,7 @@ if [ "x$T" != "x" ]; then
 fi
 
 # CREG
+T=99
 CNT=$(echo "$O" | grep "+CREG:" | sed 's/[^:,]//g')
 if [ "x$CNT" = "x:,,,," ]; then
 	T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $2}')
@@ -71,8 +72,6 @@ else
 	CNT=$(echo "$O" | grep "+CGREG:" | sed 's/[^:,]//g')
 	if [ "x$CNT" = "x:,,,," ]; then
 		T=$(echo "$O" | awk -F[,] '/^\+CGREG/ {print $2}')
-	else
-		T=99
 	fi
 fi
 case "$T" in
