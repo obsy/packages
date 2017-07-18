@@ -321,9 +321,51 @@ echo '}'
 
 ##############################################################################
 
+show_modem()
+{
+	if [ "x$(uci -q get network.wan.proto)" = "xqmi" ]; then
+		D=$(uci -q get network.wan.device)
+		T=$(uqmi -sd $D --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')
+
+		. /usr/share/libubox/jshn.sh
+		json_load "$T"
+
+		json_get_var TYPE type
+		MODE=$(echo $TYPE | tr 'a-z' 'A-Z')
+
+		json_get_var PLMN_DESCRIPTION plmn_description
+
+		json_get_var RSSI rssi
+		if [ -n "$RSSI" ]; then
+			[ $RSSI -ge -51 ] && RSSI=-51
+			SIGNAL=$(((RSSI+113)*100/62))
+		else
+			SIGNAL=0
+		fi
+
+		json_get_var REGISTRATION registration
+		json_get_var ROAMING roaming
+		case "x$REGISTRATION" in
+			"xnot_registered") REGISTRATION="0";;
+			"xregistered") REGISTRATION="1";;
+			"xsearching") REGISTRATION="2";;
+			"xregistering_denied") REGISTRATION="3";;
+			*) REGISTRATION="4";;
+		esac
+		[ "x$ROAMING" = "x1" ] && REGISTRATION="5"
+
+		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$PLMN_DESCRIPTION\",\"mode\":\"$MODE\",\"registration\":\"$REGISTRATION\"}"
+
+	else
+		/usr/share/3ginfo-lite/3ginfo.sh
+	fi
+}
+
+##############################################################################
+
 case "$1" in
 	list)
-		echo '{ "status": { }, "config": { }, "watchdog": { }, "clients": { }, "traffic": { } }'
+		echo '{ "status": { }, "config": { }, "watchdog": { }, "clients": { }, "traffic": { }, "modem": { } }'
 	;;
 	call)
 		case "$2" in
@@ -341,6 +383,9 @@ case "$1" in
 				;;
 			traffic)
 				show_traffic
+				;;
+			modem)
+				show_modem
 				;;
 		esac
 	;;

@@ -696,8 +696,7 @@ function showstatus() {
 }
 
 function showmodem() {
-	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/share/3ginfo-lite/3ginfo.sh"]}', function(data) {
-		data=JSON.parse(data.stdout);
+	ubus_call('"easyconfig", "modem", { }', function(data) {
 		setValue('modem_signal', data.signal?data.signal + "%":"?");
 		setValue('modem_operator', data.operator_name);
 		setValue('modem_mode', data.mode);
