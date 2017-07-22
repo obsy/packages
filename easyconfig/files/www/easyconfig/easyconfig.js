@@ -32,6 +32,10 @@ function proofreadNumericRange(input, min, max) {
 	proofreadText(input, function(text){return validateNumericRange(text,min,max)}, 0);
 }
 
+function proofreadNumeric(input) {
+	proofreadText(input, function(text){return validateNumeric(text)}, 0);
+}
+
 function validateHostname(name) {
 	var errorCode = 0;
 
@@ -115,6 +119,10 @@ function validateNumericRange(num, min, max) {
 		errorCode = num > max ? 3 : 0;
 	}
 	return errorCode;
+}
+
+function validateNumeric(num) {
+	return num.match(/^[\d]+$/) == null ? 1 : 0;
 }
 
 function checkField(element, proofFunction) {
@@ -1084,6 +1092,19 @@ function showtraffic() {
 		setValue("traffic_period", data.traffic_period);
 		setValue("traffic_cycle", data.traffic_cycle);
 
+		setValue("traffic_warning_enabled", (data.traffic_warning_enabled=="1"));
+		setValue("traffic_warning_value", data.traffic_warning_value);
+		setValue("traffic_warning_unit", data.traffic_warning_unit);
+		setValue("traffic_warning_cycle", data.traffic_warning_cycle);
+
+		var traffic_warning_cycle = data.traffic_warning_cycle;
+		var traffic_warning_limit = -1;
+		if (data.traffic_warning_enabled=="1") {
+			traffic_warning_limit = data.traffic_warning_value;
+			if (data.traffic_warning_unit == "m") {traffic_warning_limit *= 1024*1024;}
+			if (data.traffic_warning_unit == "g") {traffic_warning_limit *= 1024*1024*1024;}
+			if (data.traffic_warning_unit == "t") {traffic_warning_limit *= 1024*1024*1024*1024;}
+		}
 		var traffic_cycle = data.traffic_cycle;
 
 		ubus_call('"file", "exec", {"command":"zcat","params":["/usr/lib/easyconfig/easyconfig_traffic.txt.gz"]}', function(data) {
@@ -1150,6 +1171,21 @@ function showtraffic() {
 			if (total_since > t_date) {total_since = t_date;}
 		}
 
+		var e1 = document.getElementById("traffic_today");
+		e1.style.color = "#333";
+		e1.style.fontWeight="normal";
+		var e2 = document.getElementById("traffic_currentperiod");
+		e2.style.color = "#333";
+		e2.style.fontWeight="normal";
+		if (traffic_warning_limit > -1) {
+			if (traffic_warning_cycle == "d") {
+				if (traffic_today >= traffic_warning_limit) { e1.style.color = "red"; e1.style.fontWeight="bold";}
+			}
+			if (traffic_warning_cycle == "p") {
+				if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; e2.style.fontWeight="bold";}
+			}
+		}
+
 		setValue("traffic_today", bytesToSize(traffic_today));
 		setValue("traffic_yesterday", bytesToSize(traffic_yesterday));
 		setValue("traffic_last7d", bytesToSize(traffic_last7d));
@@ -1170,6 +1206,7 @@ function showtraffic() {
 }
 
 function savetraffic() {
+	if (checkField('traffic_warning_value', validateNumeric)) {return;}
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
@@ -1183,6 +1220,10 @@ function savetraffic() {
 
 	cmd.push('uci set easyconfig.traffic.period='+getValue("traffic_period"));
 	cmd.push('uci set easyconfig.traffic.cycle='+getValue("traffic_cycle"));
+	cmd.push('uci set easyconfig.traffic.warning_enabled='+(getValue("traffic_warning_enabled")?"1":"0"));
+	cmd.push('uci set easyconfig.traffic.warning_value='+getValue("traffic_warning_value"));
+	cmd.push('uci set easyconfig.traffic.warning_cycle='+getValue("traffic_warning_cycle"));
+	cmd.push('uci set easyconfig.traffic.warning_unit='+getValue("traffic_warning_unit"));
 	cmd.push('uci commit easyconfig');
 
 	cmd.push('rm -- \\\"$0\\\"');

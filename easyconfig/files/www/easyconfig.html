@@ -682,6 +682,44 @@
 			</div>
 		</div>
 
+		<div class="form-group" id="div_traffic_warning_enabled">
+			<label for="traffic_warning_enabled" class="col-xs-6 col-sm-3 control-label">Ostrzeżenie włączone</label>
+			<div class="col-xs-6 col-sm-9">
+			<label class="switch">
+				<input id="traffic_warning_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_traffic_warning">
+		<div class="input-group">
+			<label for="traffic_warning_value" class="col-xs-6 col-sm-3 control-label">Poziom ostrzeżenia</label>
+			<div class="col-xs-6 col-sm-9">
+
+			<div class="row">
+			<div class="col-sm-5">
+				<input id="traffic_warning_value" type="text" class="form-control" onkeyup="proofreadNumeric(this)">
+			</div>
+			<div class="col-sm-3">
+				<select id="traffic_warning_unit" class="form-control">
+				<option value='m'>MB</option>
+				<option value='g'>GB</option>
+				<option value='t'>TB</option>
+				</select>
+			</div>
+			<div class="col-sm-4">
+				<select id="traffic_warning_cycle" class="form-control">
+				<option value='d'>dziennie</option>
+				<option value='p'>na okres</option>
+				</select>
+			</div>
+			</div>
+
+			</div>
+		</div>
+		</div>
+
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-primary" onclick="savetraffic();" value="Zapisz zmiany" />
