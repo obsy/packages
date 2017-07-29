@@ -321,7 +321,7 @@ T_WARNING_VALUE=$(uci -q get easyconfig.traffic.warning_value)
 T_WARNING_UNIT=$(uci -q get easyconfig.traffic.warning_unit)
 [ -z "$T_WARNING_UNIT" ] && T_WARNING_UNIT="g"
 T_WARNING_CYCLE=$(uci -q get easyconfig.traffic.warning_cycle)
-[ -z "$T_WARNING_CYCLE" ] && T_WARNING_CYCLE="m"
+[ -z "$T_WARNING_CYCLE" ] && T_WARNING_CYCLE="p"
 
 echo '"traffic_period": "'$T_PERIOD'",'
 echo '"traffic_cycle": "'$T_CYCLE'",'
