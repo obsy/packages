@@ -555,7 +555,7 @@ function saveconfig() {
 		}
 	}
 	if (firewall_dmz == "") {
-		cmd.push('uci del firewall.dmz');
+		cmd.push('uci -q del firewall.dmz');
 	} else {
 		cmd.push('uci set firewall.dmz=redirect');
 		cmd.push('uci set firewall.dmz.src=wan');
