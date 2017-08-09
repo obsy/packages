@@ -219,7 +219,18 @@ for R in $RADIOS; do
 done
 
 DMZ=$(uci -q get firewall.dmz.dest_ip)
-echo '"firewall_dmz":"'$DMZ'"'
+echo '"firewall_dmz":"'$DMZ'",'
+
+if [ -e /sbin/stat.sh ]; then
+	T=$(uci -q get system.@system[0].stat)
+	if [ "x$T" = "x1" ]; then
+		echo '"stat":"1"'
+	else
+		echo '"stat":"0"'
+	fi
+else
+	echo '"stat":"-1"'
+fi
 
 echo '}'
 

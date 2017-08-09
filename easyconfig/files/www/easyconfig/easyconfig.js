@@ -479,8 +479,13 @@ function showcallback(data) {
 	setValue('system_hostname', config.system_hostname);
 	document.title = config.system_hostname;
 
-	//firewall
+	// firewall
 	setValue('firewall_dmz', config.firewall_dmz);
+
+	// stat
+	setDisplay("div_stat", (config.stat != -1?"block":"none"));
+	if (config.stat != -1)
+		setValue('stat_enabled', (config.stat == 1));
 
 	showmodemsection();
 }
@@ -654,6 +659,21 @@ function saveconfig() {
 	setValue('system_hostname_label', system_hostname);
 	document.title = system_hostname;
 
+	// stat
+	if (config.stat != -1) {
+		if (getValue("stat_enabled")) {
+			if (config.stat !== "1") {
+				cmd.push('uci set system.@system[0].stat=1');
+				cmd.push('/sbin/stat-cron.sh');
+			}
+		} else {
+			if (config.stat == "1") {
+				cmd.push('uci set system.@system[0].stat=0');
+				cmd.push('/sbin/stat-cron.sh');
+			}
+		}
+	}
+
 	// commit & restart services
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/firewall restart');
@@ -662,7 +682,7 @@ function saveconfig() {
 		cmd.push('wifi');
 	}
 
-	//password
+	// password
 	var pass1 = getValue('password1');
 	var pass2 = getValue('password2');
 	if (pass1 != '') {
