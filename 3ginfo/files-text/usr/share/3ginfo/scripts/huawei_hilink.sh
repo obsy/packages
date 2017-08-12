@@ -20,6 +20,10 @@ cookie=$(mktemp)
 /usr/bin/wget -t 25 -O /tmp/webserver-token "http://$IP/api/webserver/token" >/dev/null 2>&1
 token=$(getvaluen webserver-token token)
 if [ -z "$token" ]; then
+	/usr/bin/wget -t 25 -O /tmp/webserver-token "http://$IP/api/webserver/SesTokInfo" >/dev/null 2>&1
+	sesinfo=$(getvalue webserver-token SesInfo)
+fi
+if [ -z "$sesinfo" ]; then
 	/usr/bin/wget -q -O /dev/null --keep-session-cookies --save-cookies $cookie "http://$IP/html/home.html"
 fi
 
@@ -28,6 +32,8 @@ for f in $files; do
 	nf=$(echo $f | sed 's!/!-!g')
 	if [ -n "$token" ]; then
 		/usr/bin/wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --header "__RequestVerificationToken: $token" >/dev/null 2>&1
+	elif [ -n "$sesinfo" ]; then
+		/usr/bin/wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --header "Cookie: $sesinfo" >/dev/null 2>&1
 	else
 		/usr/bin/wget -t 3 -O /tmp/$nf "http://$IP/api/$f" --load-cookies=$cookie >/dev/null 2>&1
 	fi
