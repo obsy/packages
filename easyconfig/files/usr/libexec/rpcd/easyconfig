@@ -8,7 +8,7 @@
 
 show_status()
 {
-SYSTEM_UPTIME=$(awk '{printf " %dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}' /proc/uptime)
+SYSTEM_UPTIME=$(awk '{printf "%dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}' /proc/uptime)
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
 
@@ -18,7 +18,7 @@ json_get_var WAN_UPTIME uptime
 json_get_var IFNAME l3_device
 
 if [ -n "$WAN_UPTIME" ]; then
-	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf " %dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}')
+	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "%dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}')
 else
 	WAN_UPTIME="-"
 fi
