@@ -36,6 +36,14 @@ function proofreadNumeric(input) {
 	proofreadText(input, function(text){return validateNumeric(text)}, 0);
 }
 
+function proofreadussd(input) {
+	proofreadText(input, validateussd, 0);
+}
+
+function proofreadtnumber(input) {
+	proofreadText(input, validatetnumber, 0);
+}
+
 function validateHostname(name) {
 	var errorCode = 0;
 
@@ -123,6 +131,28 @@ function validateNumericRange(num, min, max) {
 
 function validateNumeric(num) {
 	return num.match(/^[\d]+$/) == null ? 1 : 0;
+}
+
+function validateussd(name) {
+	var errorCode = 0;
+
+	if (name == "") {
+		errorCode = 1;
+	} else if (name.match(/[^0-9\*#]/) !== null) {
+		errorCode = 2;
+	}
+	return errorCode;
+}
+
+function validatetnumber(name) {
+	var errorCode = 0;
+
+	if (name == "") {
+		errorCode = 1;
+	} else if (name.match(/[^0-9]/) !== null) {
+	errorCode = 2;
+	}
+	return errorCode;
 }
 
 function checkField(element, proofFunction) {
@@ -399,6 +429,7 @@ function showcallback(data) {
 	wan['ncm']="Modem USB (NCM)";
 	wan['dhcp_hilink']="Modem USB (HiLink lub RNDIS)";
 
+	var serial_interface = false;
 	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
 	var arr = config.wan_protos;
@@ -407,7 +438,11 @@ function showcallback(data) {
 		opt.value = arr[idx];
 		opt.innerHTML = wan[arr[idx]];
 		e.appendChild(opt);
+		if (arr[idx] == "3g") { serial_interface = true;}
 	}
+
+	if (config.sms_tool == 1 && serial_interface)
+		setDisplay("menu_ussdsms", "block");
 
 	removeOptions('wan_device');
 	e = document.getElementById('wan_device');
@@ -1289,6 +1324,85 @@ function okremovetraffic() {
 
 /*****************************************************************************/
 
+function sendussd() {
+	if (checkField('ussd_code', validateussd)) {return;}
+	var ussd = getValue("ussd_code");
+
+	ubus_call('"easyconfig", "ussd", {"code":"' + ussd + '"}', function(data) {
+		showMsg(data.response);
+	});
+}
+
+function sendsms() {
+	if (checkField('sms_number', validatetnumber)) {return;}
+	var tnumber = getValue("sms_number");
+	var msg = getValue("sms_msg");
+	if (!msg || 0 === msg.length) {
+		showMsg("Błąd w polu " + getLabelText("sms_msg"), true);
+		return;
+	}
+
+	ubus_call('"easyconfig", "sms", {"action":"send","arg1":"' + tnumber + '","arg2":"' + msg + '"}', function(data) {
+		if ((data.response).match(/sms sent sucessfully/) == null)
+			showMsg("Wystąpił problem z wysłaniem wiadomości")
+		else {
+			showMsg("Wysłano wiadomość")
+		}
+	});
+}
+
+function readsms() {
+	ubus_call('"easyconfig", "sms", {"action":"read","arg1":"","arg2":""}', function(data) {
+		var div = document.getElementById('div_sms_content');
+		var html = "<br>";
+
+		var arr = data.msg;
+		if (arr.length == 0)
+			html += '<div class="alert alert-warning">Brak wiadomości</div>'
+		else
+			html += '<div><strong>Liczba wiadomości: ' + arr.length + '</strong></div><hr>'
+
+		var sorted = sortJSON(arr, 'timestamp', '123');
+
+		for (var idx=0; idx<sorted.length; idx++) {
+			html += '<div class="row">';
+			html += '<div class="col-xs-10">Od: ' + sorted[idx].from + ', odebrano: ' + sorted[idx].timestamp + '</div>';
+			html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="deletesms(\'' + sorted[idx].index + '\');">usuń</a></div>';
+			html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
+			html += '</div><hr>';
+		}
+
+		div.innerHTML = html;
+	});
+}
+
+function deletesms(index) {
+	setValue("sms_index", index);
+	setDisplay("div_deletesms", "block");
+}
+
+function canceldeletesms() {
+	setDisplay("div_deletesms", "none");
+}
+
+function okdeletesms() {
+	var index = getValue("sms_index");
+	canceldeletesms();
+	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
+		if ((data.response).match(/Deleted message/) == null)
+			showMsg("Wystąpił problem z usunięciem wiadomości")
+		else {
+			readsms();
+		}
+	});
+}
+
+function sms_msg_len(input) {
+	setValue("sms_len", 160 - (input.value).length);
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }
@@ -1307,6 +1421,7 @@ function btn_pages(page) {
 	setDisplay("div_wlanclients", (page == 'wlanclients')?"block":"none");
 	setDisplay("div_queries", (page == 'queries')?"block":"none");
 	setDisplay("div_traffic", (page == 'traffic')?"block":"none");
+	setDisplay("div_ussdsms", (page == 'ussdsms')?"block":"none");
 
 	if (page == 'status') {
 		showstatus();
@@ -1331,5 +1446,9 @@ function btn_pages(page) {
 
 	if (page == 'traffic') {
 		showtraffic();
+	}
+
+	if (page == 'ussdsms') {
+		readsms();
 	}
 }

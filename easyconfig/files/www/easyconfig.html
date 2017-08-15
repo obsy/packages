@@ -29,6 +29,9 @@
 	<a href="#" onclick="btn_pages('wlanclients');">Klienci</a>
 	<a href="#" onclick="btn_pages('queries');">Zapytania DNS</a>
 	<a href="#" onclick="btn_pages('traffic');">Transfer</a>
+	<div id="menu_ussdsms" style="display:none;">
+		<a href="#" onclick="btn_pages('ussdsms');">USSD / SMS</a>
+	</div>
 </div>
 
 
@@ -739,6 +742,49 @@
 
 	</div>
 
+	<div id="div_ussdsms" style="display:none;">
+
+	<h3 class="section">USSD</h3>
+
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="ussd_code" class="col-xs-4 col-sm-3 control-label">Kod USSD</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="ussd_code" type="text" class="form-control" onkeyup="proofreadussd(this)">
+			</div>
+		</div>
+
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="sendussd();" value="Wyślij" />
+		</div>
+	</form>
+
+	<h3 class="section">SMS</h3>
+
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="sms_number" class="col-xs-4 col-sm-3 control-label">Numer telefonu</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="sms_number" type="text" class="form-control" onkeyup="proofreadtnumber(this)">
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="sms_msg" class="col-xs-4 col-sm-3 control-label">Treść wiadomości</label>
+			<div class="col-xs-8 col-sm-9">
+			<textarea id="sms_msg" class="form-control" rows="4" maxlength="160" onkeyup="sms_msg_len(this)"></textarea>
+			<em><small class="form-text text-muted">Pozostało znaków: <span id="sms_len">160</span></small></em>
+			</div>
+		</div>
+
+		<div class="text-center">
+			<input type="button" class="btn btn-primary" onclick="readsms();" value="Odśwież" />
+			<input type="button" class="btn btn-default" onclick="sendsms();" value="Wyślij" />
+		</div>
+	</form>
+	<div id="div_sms_content"></div>
+
+	</div>
+
 
 </div>
 
@@ -812,6 +858,20 @@
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelremovetraffic();" value="Anuluj" />
 			<input type="button" class="btn btn-primary" onclick="okremovetraffic();" value="OK" />
+		</div>
+	</div>
+</div>
+
+<div id="div_deletesms" class="modal">
+	<div class="row modal-content text-center">
+		<div class="text-center space">
+			<span id="deletesms_text">Usunąć wiadomość?</span>
+			<input id="sms_index" type="hidden">
+		</div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="canceldeletesms();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="okdeletesms();" value="OK" />
 		</div>
 	</div>
 </div>

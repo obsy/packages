@@ -9,3 +9,10 @@ config service watchdog
 	option delay '3'
 	option action 'wan'
 
+config service sms
+	option storage 'SM'
+
+config service ussd
+	option raw_input '0'
+	option raw_output '0'
+
