@@ -1354,22 +1354,21 @@ function sendsms() {
 function readsms() {
 	ubus_call('"easyconfig", "sms", {"action":"read","arg1":"","arg2":""}', function(data) {
 		var div = document.getElementById('div_sms_content');
-		var html = "<br>";
+		var html = "";
 
 		var arr = data.msg;
-		if (arr.length == 0)
-			html += '<div class="alert alert-warning">Brak wiadomości</div>'
-		else
-			html += '<div><strong>Liczba wiadomości: ' + arr.length + '</strong></div><hr>'
-
-		var sorted = sortJSON(arr, 'timestamp', '123');
-
-		for (var idx=0; idx<sorted.length; idx++) {
-			html += '<div class="row">';
-			html += '<div class="col-xs-10">Od: ' + sorted[idx].from + ', odebrano: ' + sorted[idx].timestamp + '</div>';
-			html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="deletesms(\'' + sorted[idx].index + '\');">usuń</a></div>';
-			html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
-			html += '</div><hr>';
+		if (arr.length > 0) {
+			var sorted = sortJSON(arr, 'timestamp', '123');
+			for (var idx=0; idx<sorted.length; idx++) {
+				html += '<hr><div class="row">';
+				html += '<div class="col-xs-10">Od: ' + sorted[idx].from + ', odebrano: ' + sorted[idx].timestamp + '</div>';
+				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="deletesms(\'' + sorted[idx].index + '\');">usuń</a></div>';
+				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
+				html += '</div>';
+			}
+			html += "<hr><p>Liczba wiadomości: " + arr.length + "</p>";
+		} else {
+			html += '<br><div class="alert alert-warning">Brak wiadomości</div>'
 		}
 
 		div.innerHTML = html;
