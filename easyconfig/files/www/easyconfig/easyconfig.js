@@ -1361,7 +1361,11 @@ function readsms() {
 			var sorted = sortJSON(arr, 'timestamp', '123');
 			for (var idx=0; idx<sorted.length; idx++) {
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-10">Od: ' + sorted[idx].from + ', odebrano: ' + sorted[idx].timestamp + '</div>';
+				html += '<div class="col-xs-10">Od: ' + sorted[idx].from + ', odebrano: ' + sorted[idx].timestamp;
+				if (sorted[idx].part) {
+					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
+				}
+				html += '</div>';
 				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="deletesms(\'' + sorted[idx].index + '\');">usuń</a></div>';
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';

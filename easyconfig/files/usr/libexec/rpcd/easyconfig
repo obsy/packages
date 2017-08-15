@@ -462,6 +462,8 @@ show_sms() {
 			if echo "$line" | grep -q "SMS segment "; then
 				T=$(echo $line | cut -f3 -d" ")
 				echo '"part":"'$T'",'
+				T=$(echo $line | cut -f5 -d" ")
+				echo '"total":"'$T'",'
 				continue
 			fi
 			if [ "$key" = "1" ]; then
