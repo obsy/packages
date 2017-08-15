@@ -18,12 +18,28 @@ define Package/easyconfig/description
   Easyconfig - prosty system konfiguracji
 endef
 
+define Package/easyconfig/conffiles
+/etc/config/mwan3
+/etc/mwan3.user
+endef
+
 define Build/Compile
 endef
 
 define Package/easyconfig/postinst
 #!/bin/sh
-/etc/uci-defaults/zz-easyconfig.sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	/etc/init.d/rpcd restart
+	/etc/uci-defaults/zz-easyconfig.sh
+fi
+exit 0
+endef
+
+define Package/easyconfig/postrm
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	/etc/init.d/rpcd restart
+fi
 exit 0
 endef
 
