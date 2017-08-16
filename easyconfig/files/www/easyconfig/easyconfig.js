@@ -229,7 +229,7 @@ function getValue(element) {
 }
 
 function setDisplay(element, show) {
-	document.getElementById(element).style.display = show;
+	document.getElementById(element).style.display = (show?"block":"none");
 }
 
 function enableDns(enable) {
@@ -264,7 +264,7 @@ function enableWan(proto) {
 
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
 
-	setDisplay("div_status_wan", (proto == "none")?"none":"block");
+	setDisplay("div_status_wan", (proto != "none"));
 }
 
 function enableWlanEncryption(encryption, cnt) {
@@ -276,11 +276,10 @@ function setElementEnabled(element, show, disabled) {
 	if (show) {
 		e.disabled = disabled;
 		e.readonly = disabled;
-		setDisplay("div_" + element, "block");
 	} else {
 		e.disabled = true;
-		setDisplay("div_" + element, "none");
 	}
+	setDisplay("div_" + element, show);
 }
 
 function showMsg(msg, error) {
@@ -395,8 +394,8 @@ function login()
 		} else {
 			if (data.result[0] === 0) {
 				token = data.result[1].ubus_rpc_session;
-				setDisplay("div_login", "none");
-				setDisplay("div_content", "block");
+				setDisplay("div_login", false);
+				setDisplay("div_content", true);
 				showconfig();
 				showstatus();
 			} else {
@@ -442,7 +441,7 @@ function showcallback(data) {
 	}
 
 	if (config.sms_tool == 1 && serial_interface)
-		setDisplay("menu_ussdsms", "block");
+		setDisplay("menu_ussdsms", true);
 
 	removeOptions('wan_device');
 	e = document.getElementById('wan_device');
@@ -475,7 +474,7 @@ function showcallback(data) {
 	setValue('lan_ipaddr', config.lan_ipaddr);
 	setValue('lan_dhcp_enabled', (config.lan_dhcp_enabled == 1));
 	setValue('dhcp_logqueries', (config.dhcp_logqueries == 1));
-	setDisplay("menu_queries", (config.dhcp_logqueries == 1)?"block":"none");
+	setDisplay("menu_queries", (config.dhcp_logqueries == 1));
 
 	// wlan
 	var radios=[];
@@ -508,7 +507,7 @@ function showcallback(data) {
 		setValue('wlan_key' + radios[i], config["radio" + radios[i]].wlan_key);
 		enableWlanEncryption(config["radio" + radios[i]].wlan_encryption, radios[i])
 		setValue('wlan_isolate' + radios[i], config["radio" + radios[i]].wlan_isolate==1);
-		setDisplay("div_radio" + radios[i], "block");
+		setDisplay("div_radio" + radios[i], true);
 	}
 
 	// system
@@ -520,7 +519,7 @@ function showcallback(data) {
 	setValue('firewall_dmz', config.firewall_dmz);
 
 	// stat
-	setDisplay("div_stat", (config.statistics.enabled != -1?"block":"none"));
+	setDisplay("div_stat", (config.statistics.enabled != -1));
 	if (config.statistics.enabled != -1)
 		setValue('stat_enabled', (config.statistics.enabled == 1));
 
@@ -612,10 +611,10 @@ function saveconfig() {
 
 	if (getValue("dhcp_logqueries")) {
 		cmd.push('uci set dhcp.@dnsmasq[0].logqueries=1');
-		setDisplay("menu_queries", "block");
+		setDisplay("menu_queries", true);
 	} else {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].logqueries');
-		setDisplay("menu_queries", "none");
+		setDisplay("menu_queries", false);
 	}
 
 	// wlan
@@ -803,10 +802,10 @@ function showmodem() {
 function showmodemsection() {
 	var wan_type = getValue("wan_proto");
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
-		setDisplay("div_status_modem", "block");
+		setDisplay("div_status_modem", true);
 		showmodem();
 	} else {
-		setDisplay("div_status_modem", "none");
+		setDisplay("div_status_modem", false);
 	}
 }
 
@@ -825,8 +824,8 @@ function btn_system_reboot() {
 function showwatchdog() {
 	var block=(config.wan_proto == "none");
 	setElementEnabled("watchdog_enabled", true, block);
-	setDisplay("watchdog_enabled_info", block?"block":"none");
-	setDisplay("div_watchdog_minavgmax","none")
+	setDisplay("watchdog_enabled_info", block);
+	setDisplay("div_watchdog_minavgmax", false)
 
 	ubus_call('"easyconfig", "watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
@@ -835,7 +834,7 @@ function showwatchdog() {
 		setValue("watchdog_delay", data.watchdog_delay);
 		setValue("watchdog_action", data.watchdog_action);
 		if (data.watchdog_minavgmax != "") {
-			setDisplay("div_watchdog_minavgmax","block")
+			setDisplay("div_watchdog_minavgmax", true)
 			setValue("watchdog_minavgmax", data.watchdog_minavgmax);
 		}
 	});
@@ -1002,12 +1001,12 @@ function wlanclientblock(mac, name, realname, tx, rx) {
 
 	setValue('block_mac', mac);
 	setValue('block_name', name);
-	setDisplay("div_block", "block");
+	setDisplay("div_block", true);
 	setValue("block_text", 'Zablokować dostęp do internetu dla "' + name + '"?')
 }
 
 function cancelblock() {
-	setDisplay("div_block", "none");
+	setDisplay("div_block", false);
 }
 
 function okblock() {
@@ -1020,14 +1019,14 @@ function okblock() {
 }
 
 function clientnameedit(mac, name) {
-	setDisplay("div_clientname", "block");
+	setDisplay("div_clientname", true);
 	setValue('clientname_mac', mac);
 	setValue('clientname_name', name);
 	document.getElementById('clientname_name').focus();
 }
 
 function cancelclientname() {
-	setDisplay("div_clientname", "none");
+	setDisplay("div_clientname", false);
 }
 
 function saveclientname() {
@@ -1309,11 +1308,11 @@ function savetraffic() {
 }
 
 function removetraffic() {
-	setDisplay("div_removetraffic", "block");
+	setDisplay("div_removetraffic", true);
 }
 
 function cancelremovetraffic() {
-	setDisplay("div_removetraffic", "none");
+	setDisplay("div_removetraffic", false);
 }
 
 function okremovetraffic() {
@@ -1396,11 +1395,11 @@ function readsms() {
 
 function deletesms(index) {
 	setValue("sms_index", index);
-	setDisplay("div_deletesms", "block");
+	setDisplay("div_deletesms", true);
 }
 
 function canceldeletesms() {
-	setDisplay("div_deletesms", "none");
+	setDisplay("div_deletesms", false);
 }
 
 function okdeletesms() {
@@ -1431,15 +1430,15 @@ function closenav() {
 
 function btn_pages(page) {
 	closenav();
-	setDisplay("div_status",   (page == 'status')?"block":"none");
-	setDisplay("div_settings", (page == 'settings')?"block":"none");
-	setDisplay("div_system",   (page == 'system')?"block":"none");
-	setDisplay("div_watchdog", (page == 'watchdog')?"block":"none");
-	setDisplay("div_sitesurvey", (page == 'sitesurvey')?"block":"none");
-	setDisplay("div_wlanclients", (page == 'wlanclients')?"block":"none");
-	setDisplay("div_queries", (page == 'queries')?"block":"none");
-	setDisplay("div_traffic", (page == 'traffic')?"block":"none");
-	setDisplay("div_ussdsms", (page == 'ussdsms')?"block":"none");
+	setDisplay("div_status",   (page == 'status'));
+	setDisplay("div_settings", (page == 'settings'));
+	setDisplay("div_system",   (page == 'system'));
+	setDisplay("div_watchdog", (page == 'watchdog'));
+	setDisplay("div_sitesurvey", (page == 'sitesurvey'));
+	setDisplay("div_wlanclients", (page == 'wlanclients'));
+	setDisplay("div_queries", (page == 'queries'));
+	setDisplay("div_traffic", (page == 'traffic'));
+	setDisplay("div_ussdsms", (page == 'ussdsms'));
 
 	if (page == 'status') {
 		showstatus();
