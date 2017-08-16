@@ -518,9 +518,9 @@ function showcallback(data) {
 	setValue('firewall_dmz', config.firewall_dmz);
 
 	// stat
-	setDisplay("div_stat", (config.stat != -1?"block":"none"));
-	if (config.stat != -1)
-		setValue('stat_enabled', (config.stat == 1));
+	setDisplay("div_stat", (config.statistics.enabled != -1?"block":"none"));
+	if (config.statistics.enabled != -1)
+		setValue('stat_enabled', (config.statistics.enabled == 1));
 
 	showmodemsection();
 }
@@ -695,14 +695,14 @@ function saveconfig() {
 	document.title = system_hostname;
 
 	// stat
-	if (config.stat != -1) {
+	if (config.statistics.enabled != -1) {
 		if (getValue("stat_enabled")) {
-			if (config.stat !== "1") {
+			if (config.statistics.enabled !== "1") {
 				cmd.push('uci set system.@system[0].stat=1');
 				cmd.push('/sbin/stat-cron.sh');
 			}
 		} else {
-			if (config.stat == "1") {
+			if (config.statistics.enabled == "1") {
 				cmd.push('uci set system.@system[0].stat=0');
 				cmd.push('/sbin/stat-cron.sh');
 			}
@@ -740,6 +740,11 @@ function saveconfig() {
 			cleanField('password2');
 		});
 	});
+}
+
+function showstatistics() {
+	var w = window.open('http://dl.eko.one.pl/cgi-bin/router.cgi?token=' + config.statistics.token, '_blank');
+	win.focus();
 }
 
 /*****************************************************************************/

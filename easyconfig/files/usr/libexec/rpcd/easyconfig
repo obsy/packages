@@ -121,12 +121,6 @@ else
 	LAN_DHCP_ENABLED=1
 fi
 
-if [ -e /usr/bin/sms_tool ]; then
-	SMS_TOOL=1
-else
-	SMS_TOOL=0
-fi
-
 echo '{'
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
@@ -227,15 +221,27 @@ done
 DMZ=$(uci -q get firewall.dmz.dest_ip)
 echo '"firewall_dmz":"'$DMZ'",'
 
+echo '"statistics":{'
+
 if [ -e /sbin/stat.sh ]; then
+	T=$(/sbin/stat.sh token)
+	echo '"token":"'$T'",'
 	T=$(uci -q get system.@system[0].stat)
 	if [ "x$T" = "x1" ]; then
-		echo '"stat":"1",'
+		echo '"enabled":"1"'
 	else
-		echo '"stat":"0",'
+		echo '"enabled":"0"'
 	fi
 else
-	echo '"stat":"-1",'
+	echo '"enabled":"-1"'
+fi
+
+echo '},'
+
+if [ -e /usr/bin/sms_tool ]; then
+	SMS_TOOL=1
+else
+	SMS_TOOL=0
 fi
 
 echo '"sms_tool":"'$SMS_TOOL'"'

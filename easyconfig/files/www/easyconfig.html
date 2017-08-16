@@ -420,10 +420,17 @@
 		<div class="form-group" id="div_stat" style="display:none;">
 			<label for="stat_enabled" class="col-xs-4 col-sm-3 control-label">Statystyki włączone</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
+			 <div class="row">
+			  <div class="col-xs-6">
+			   <label class="switch">
 				<input id="stat_enabled" type="checkbox">
 				<div class="slider round"></div>
-			</label>
+			   </label>
+			  </div>
+			  <div class="col-xs-6 text-right">
+				<a href="#" class="click" onclick="showstatistics();">Zobacz statystykę</a>
+			  </div>
+			 </div>
 			</div>
 		</div>
 	</form>
