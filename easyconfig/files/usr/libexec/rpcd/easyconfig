@@ -244,7 +244,10 @@ else
 	SMS_TOOL=0
 fi
 
-echo '"sms_tool":"'$SMS_TOOL'"'
+echo '"sms_tool":"'$SMS_TOOL'",'
+
+T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
+echo '"dhcp_logqueries":"'$T'"'
 
 echo '}'
 

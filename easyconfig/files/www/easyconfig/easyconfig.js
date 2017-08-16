@@ -474,6 +474,8 @@ function showcallback(data) {
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
 	setValue('lan_dhcp_enabled', (config.lan_dhcp_enabled == 1));
+	setValue('dhcp_logqueries', (config.dhcp_logqueries == 1));
+	setDisplay("menu_queries", (config.dhcp_logqueries == 1)?"block":"none");
 
 	// wlan
 	var radios=[];
@@ -606,6 +608,14 @@ function saveconfig() {
 		cmd.push('uci -q del dhcp.lan.ignore');
 	} else {
 		cmd.push('uci set dhcp.lan.ignore=1');
+	}
+
+	if (getValue("dhcp_logqueries")) {
+		cmd.push('uci set dhcp.@dnsmasq[0].logqueries=1');
+		setDisplay("menu_queries", "block");
+	} else {
+		cmd.push('uci -q del dhcp.@dnsmasq[0].logqueries');
+		setDisplay("menu_queries", "none");
 	}
 
 	// wlan
