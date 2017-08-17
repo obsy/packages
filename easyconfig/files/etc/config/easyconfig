@@ -10,7 +10,7 @@ config service watchdog
 	option action 'wan'
 
 config service sms
-	option storage 'SM'
+	option storage ''
 
 config service ussd
 	option raw_input '0'
