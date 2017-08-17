@@ -19,8 +19,8 @@ define Package/easyconfig/description
 endef
 
 define Package/easyconfig/conffiles
-/etc/config/mwan3
-/etc/mwan3.user
+/etc/config/easyconfig
+/usr/lib/easyconfig/easyconfig_traffic.txt.gz
 endef
 
 define Build/Compile
