@@ -365,7 +365,7 @@ echo '}'
 
 show_modem()
 {
-	if [ "x$(uci -q get network.wan.proto)" = "xqmi" ]; then
+	if [ "x$(uci -q get network.wan.proto)" = "xqmi" -a "x$(uci -q get easyconfig.modem.use_uqmi)" = "x1" ]; then
 		D=$(uci -q get network.wan.device)
 		T=$(uqmi -sd $D --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')
 
@@ -396,7 +396,6 @@ show_modem()
 		[ "x$ROAMING" = "x1" ] && REGISTRATION="5"
 
 		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$PLMN_DESCRIPTION\",\"mode\":\"$MODE\",\"registration\":\"$REGISTRATION\"}"
-
 	else
 		/usr/share/3ginfo-lite/3ginfo.sh
 	fi

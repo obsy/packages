@@ -16,3 +16,5 @@ config service ussd
 	option raw_input '0'
 	option raw_output '0'
 
+config service modem
+	option use_uqmi '0'
