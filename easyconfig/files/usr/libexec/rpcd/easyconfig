@@ -44,7 +44,7 @@ for R in $RADIOS; do
 	fi
 done
 
-GUI_VERSION=$(cat /www/easyconfig/version.txt)
+GUI_VERSION="-devel-"
 VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
 MODEL=$(cat /tmp/sysinfo/model)
 

@@ -49,6 +49,7 @@ define Package/easyconfig/install
 
 	echo ${PKG_VERSION} > $(1)/www/easyconfig/version.txt
 	$(SED) 's/?v=1/?v='${PKG_VERSION}'/g' $(1)/www/easyconfig.html
+	$(SED) 's/GUI_VERSION="-devel-"/GUI_VERSION="'${PKG_VERSION}'"/g' $(1)/usr/libexec/rpcd/easyconfig
 
 	$(FIND) $(1) -type f -name '*.js' | while read src; do \
 		uglifyjs "$$$$src" -o "$$$$src".1 && \
