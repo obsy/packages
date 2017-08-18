@@ -7,12 +7,17 @@ for IP in $IPS; do
 	MAC=$(awk '/'$IP'/{print $2}' /tmp/dhcp.leases)
 	if [ -n "$MAC" ]; then
 		NAME1=$(awk '/'$IP'/{print $4}' /tmp/dhcp.leases)
+	else
+		NAME1=""
+		MAC=$(awk '/'$IP'/{print $4}' /proc/net/arp)
+	fi
+	if [ -n "$MAC" ]; then
 		NMAC=$(echo $MAC | sed 's/://g')
 		NAME2=$(uci -q get dhcp.m$NMAC.networkid)
 		if [ -n "$NAME2" ]; then
-			NAME=$NAME2
+			NAME="$NAME2"
 		else
-			NAME=$NAME1
+			NAME="$NAME1"
 		fi
 		if [ -n "$NAME" ]; then
 			T=$(echo "$T" | sed "s/\"host\":\"$IP\"/\"host\":\"$NAME\"/g")
