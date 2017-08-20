@@ -1338,6 +1338,15 @@ function okremovetraffic() {
 
 /*****************************************************************************/
 
+function removeDiacritics(str) {
+	var from = "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ";
+	var to   = "acelnoszzACELNOSZZ";
+	for (var idx=0, l=from.length; idx<l; idx++) {
+		str = str.replace(new RegExp(from.charAt(idx), 'g'), to.charAt(idx));
+	}
+	return str;
+}
+
 function sendussd() {
 	if (checkField('ussd_code', validateussd)) {return;}
 	var ussd = getValue("ussd_code");
@@ -1355,6 +1364,8 @@ function sendsms() {
 		showMsg("Błąd w polu " + getLabelText("sms_msg"), true);
 		return;
 	}
+
+	msg = removeDiacritics(msg);
 
 	ubus_call('"easyconfig", "sms", {"action":"send","arg1":"' + tnumber + '","arg2":"' + msg + '"}', function(data) {
 		if ((data.response).match(/sms sent sucessfully/) == null)
