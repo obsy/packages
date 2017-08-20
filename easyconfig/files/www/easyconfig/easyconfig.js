@@ -150,7 +150,7 @@ function validatetnumber(name) {
 	if (name == "") {
 		errorCode = 1;
 	} else if (name.match(/[^0-9]/) !== null) {
-	errorCode = 2;
+		errorCode = 2;
 	}
 	return errorCode;
 }
