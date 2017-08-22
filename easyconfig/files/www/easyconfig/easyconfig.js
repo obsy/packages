@@ -952,7 +952,6 @@ function sitesurveycallback(sortby) {
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
-console.log(sorted[idx]);
 			if (sorted[idx].mac == '') {continue;}
 			html += '<hr><div class="row"><div class="col-xs-6"><h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + parseInt(ts - sorted[idx].timestamp) + 's temu</div><div class="col-xs-6 text-right">RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'') + '</div></div>';
 		}
