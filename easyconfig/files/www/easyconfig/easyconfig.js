@@ -831,6 +831,7 @@ function showwatchdog() {
 		setValue("watchdog_enabled", data.watchdog_enabled);
 		setValue("watchdog_dest", data.watchdog_dest);
 		setValue("watchdog_period", data.watchdog_period);
+		setValue("watchdog_period_count", data.watchdog_period_count);
 		setValue("watchdog_delay", data.watchdog_delay);
 		setValue("watchdog_action", data.watchdog_action);
 		if (data.watchdog_minavgmax != "") {
@@ -849,6 +850,11 @@ function savewatchdog() {
 		showMsg("Błąd w polu " + getLabelText("watchdog_period"), true);
 		return;
 	}
+	var watchdog_period_count = getValue("watchdog_period_count");
+	if (validateNumericRange(watchdog_period_count,1,59) != 0) {
+		showMsg("Błąd w polu " + getLabelText("watchdog_period_count"), true);
+		return;
+	}
 	var watchdog_delay = getValue("watchdog_delay");
 	if (validateNumericRange(watchdog_delay,1,59) != 0) {
 		showMsg("Błąd w polu " + getLabelText("watchdog_delay"), true);
@@ -863,7 +869,7 @@ function savewatchdog() {
 	cmd.push('grep -v easyconfig_watchdog /etc/crontabs/root > $F');
 
 	if (watchdog_enabled) {
-		cmd.push('echo \\\"*/' + watchdog_period + ' * * * * /usr/bin/easyconfig_watchdog.sh ' + (watchdog_delay * 60) + ' 3 ' + watchdog_dest + ' ' + watchdog_action + '\\\" >> $F');
+		cmd.push('echo \\\"*/' + watchdog_period + ' * * * * /usr/bin/easyconfig_watchdog.sh ' + (watchdog_delay * 60) + ' 3 ' + watchdog_dest + ' ' + watchdog_period_count + ' ' + watchdog_action + '\\\" >> $F');
 	}
 
 	cmd.push('mv $F /etc/crontabs/root');
@@ -871,6 +877,7 @@ function savewatchdog() {
 	cmd.push('/etc/init.d/cron restart');
 
 	cmd.push('uci set easyconfig.watchdog.period='+watchdog_period);
+	cmd.push('uci set easyconfig.watchdog.period_count='+watchdog_period_count);
 	cmd.push('uci set easyconfig.watchdog.delay='+watchdog_delay);
 	cmd.push('uci set easyconfig.watchdog.dest='+watchdog_dest);
 	cmd.push('uci set easyconfig.watchdog.action='+watchdog_action);

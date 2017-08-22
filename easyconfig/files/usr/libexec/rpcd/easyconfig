@@ -271,6 +271,8 @@ fi
 
 W_PERIOD=$(uci -q get easyconfig.watchdog.period)
 [ -z "$W_PERIOD" ] && W_PERIOD="3"
+W_PERIOD_CNT=$(uci -q get easyconfig.watchdog.period_count)
+[ -z "$W_PERIOD_CNT" ] && W_PERIOD_CNT="1"
 W_DELAY=$(uci -q get easyconfig.watchdog.delay)
 [ -z "$W_DELAY" ] && W_DELAY="3"
 W_DEST=$(uci -q get easyconfig.watchdog.dest)
@@ -280,6 +282,7 @@ W_ACTION=$(uci -q get easyconfig.watchdog.action)
 
 echo '"watchdog_enabled": '$W_ENABLED','
 echo '"watchdog_period": "'$W_PERIOD'",'
+echo '"watchdog_period_count": "'$W_PERIOD_CNT'",'
 echo '"watchdog_delay": "'$W_DELAY'",'
 echo '"watchdog_dest": "'$W_DEST'",'
 echo '"watchdog_action": "'$W_ACTION'",'
