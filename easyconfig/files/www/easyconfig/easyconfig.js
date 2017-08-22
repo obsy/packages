@@ -40,10 +40,6 @@ function proofreadussd(input) {
 	proofreadText(input, validateussd, 0);
 }
 
-function proofreadtnumber(input) {
-	proofreadText(input, validatetnumber, 0);
-}
-
 function validateHostname(name) {
 	var errorCode = 0;
 
@@ -139,17 +135,6 @@ function validateussd(name) {
 	if (name == "") {
 		errorCode = 1;
 	} else if (name.match(/[^0-9\*#]/) !== null) {
-		errorCode = 2;
-	}
-	return errorCode;
-}
-
-function validatetnumber(name) {
-	var errorCode = 0;
-
-	if (name == "") {
-		errorCode = 1;
-	} else if (name.match(/[^0-9]/) !== null) {
 		errorCode = 2;
 	}
 	return errorCode;
@@ -1389,7 +1374,7 @@ function sendussd() {
 }
 
 function sendsms() {
-	if (checkField('sms_number', validatetnumber)) {return;}
+	if (checkField('sms_number', validateNumeric)) {return;}
 	var tnumber = getValue("sms_number");
 	var msg = getValue("sms_msg");
 	if (!msg || 0 === msg.length) {
