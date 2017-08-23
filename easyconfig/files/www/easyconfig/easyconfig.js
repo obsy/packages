@@ -531,6 +531,7 @@ function saveconfig() {
 		if (checkField('wan_netmask', validateMask)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
 
+		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
 		cmd.push('uci set network.wan.ipaddr='+getValue('wan_ipaddr'));
 		cmd.push('uci set network.wan.netmask='+getValue('wan_netmask'));
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
