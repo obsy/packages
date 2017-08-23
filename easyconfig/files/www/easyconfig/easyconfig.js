@@ -517,7 +517,7 @@ function saveconfig() {
 	cmd.push('#!/bin/sh');
 
 	// wan
-	cmd.push('uci del network.wan');
+	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
 	use_dns = getValue("wan_dns");
@@ -553,7 +553,7 @@ function saveconfig() {
 	config.wan_proto=wan_type;
 
 	if (wan_type == "none") {
-		cmd.push('uci del firewall.dmz');
+		cmd.push('uci -q del firewall.dmz');
 	}
 
 	// dns
