@@ -299,6 +299,8 @@ function closeMsg() {
 var config;
 var counter=0;
 var token="00000000000000000000000000000000";
+var expires;
+var timeout;
 
 var ubus = function(param, successHandler, errorHandler) {
 //console.log(param);
@@ -342,6 +344,7 @@ var ubus = function(param, successHandler, errorHandler) {
 function ubus_error(error) {
 	closeMsg();
 	if (error == -32002) {
+		document.getElementById("system_password").focus();
 		location.reload();
 	} else {
 		showMsg("Błąd pobierania danych!", true);
@@ -356,6 +359,12 @@ function ubus_call(param, callback)
 			ubus_error(data.error.code);
 		} else {
 			if (data.result[0] === 0) {
+
+				if (expires) {
+					clearTimeout(expires);
+					expires = setTimeout(function(){ document.getElementById("system_password").focus(); location.reload(); }, timeout * 1000);
+				}
+
 				callback(data.result[1]);
 			} else {
 				showMsg("Błąd pobierania danych!", true);
@@ -379,6 +388,11 @@ function login()
 		} else {
 			if (data.result[0] === 0) {
 				token = data.result[1].ubus_rpc_session;
+
+				if (expires) {clearTimeout(expires);}
+				expires = setTimeout(function(){ location.reload(); }, data.result[1].expires * 1000);
+				timeout = data.result[1].timeout;
+
 				setDisplay("div_login", false);
 				setDisplay("div_content", true);
 				showconfig();
