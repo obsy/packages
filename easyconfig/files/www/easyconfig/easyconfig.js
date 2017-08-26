@@ -1409,7 +1409,7 @@ function readsms() {
 					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
 				}
 				html += '</div>';
-				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="deletesms(\'' + sorted[idx].index + '\');">usuń</a></div>';
+				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].from + '\',\'' + sorted[idx].timestamp + '\');">usuń</a></div>';
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';
 			}
@@ -1422,18 +1422,19 @@ function readsms() {
 	});
 }
 
-function deletesms(index) {
+function removesms(index, sender, timestamp) {
 	setValue("sms_index", index);
-	setDisplay("div_deletesms", true);
+	setValue("removesms_text", "Usunąć wiadomość od \"" + sender + "\" otrzymaną " + timestamp + "?");
+	setDisplay("div_removesms", true);
 }
 
-function canceldeletesms() {
-	setDisplay("div_deletesms", false);
+function cancelremovesms() {
+	setDisplay("div_removesms", false);
 }
 
-function okdeletesms() {
+function okremovesms() {
 	var index = getValue("sms_index");
-	canceldeletesms();
+	cancelremovesms();
 	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
 		if ((data.response).match(/Deleted message/) == null)
 			showMsg("Wystąpił problem z usunięciem wiadomości")
