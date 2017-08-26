@@ -461,7 +461,7 @@ show_sms() {
 			fi
 			if echo "$line" | grep -q "From: "; then
 				T=$(echo $line | cut -f2 -d" ")
-				echo '"from":"'$T'",'
+				echo '"sender":"'$T'",'
 				continue
 			fi
 			if echo "$line" | grep -q "Date/Time: "; then
