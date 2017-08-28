@@ -1274,16 +1274,29 @@ function showtraffic() {
 
 		var e1 = document.getElementById("traffic_today");
 		e1.style.color = "#333";
-		e1.style.fontWeight="normal";
 		var e2 = document.getElementById("traffic_currentperiod");
 		e2.style.color = "#333";
-		e2.style.fontWeight="normal";
+		setDisplay("div_traffic_today_progress", false);
+		setDisplay("div_traffic_currentperiod_progress", false);
+
 		if (traffic_warning_limit > -1) {
 			if (traffic_warning_cycle == "d") {
-				if (traffic_today >= traffic_warning_limit) { e1.style.color = "red"; e1.style.fontWeight="bold";}
+				if (traffic_today >= traffic_warning_limit) { e1.style.color = "red"; }
+
+				var percent = parseInt((traffic_today * 100) / traffic_warning_limit);
+				setValue("traffic_today_progress", percent + "%, " + bytesToSize(traffic_today) + " z " + bytesToSize(traffic_warning_limit));
+				if (percent > 100) {percent = 100;}
+				document.getElementById("div_traffic_today_progress1").style.width = percent + '%';
+				setDisplay("div_traffic_today_progress", true);
 			}
 			if (traffic_warning_cycle == "p") {
-				if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; e2.style.fontWeight="bold";}
+				if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; }
+
+				var percent = parseInt((traffic_currentperiod * 100) / traffic_warning_limit);
+				setValue("traffic_currentperiod_progress", percent + "%, " + bytesToSize(traffic_currentperiod) + " z " + bytesToSize(traffic_warning_limit));
+				if (percent > 100) {percent = 100;}
+				document.getElementById("div_traffic_currentperiod_progress1").style.width = percent + '%';
+				setDisplay("div_traffic_currentperiod_progress", true);
 			}
 		}
 
@@ -1295,7 +1308,7 @@ function showtraffic() {
 		if (total_since) {
 			setValue("traffic_total_since", '(od '+ total_since + ')');
 		} else {
-			setValue("traffic_total_since", ' ');
+			setValue("traffic_total_since", '');
 		}
 		setValue("traffic_currentperiod", bytesToSize(traffic_currentperiod));
 		setValue("traffic_lastperiod", bytesToSize(traffic_lastperiod));
