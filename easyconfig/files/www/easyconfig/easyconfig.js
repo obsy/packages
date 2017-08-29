@@ -1399,12 +1399,10 @@ function sendussd() {
 
 function sendsms() {
 	if (checkField('sms_number', validateNumeric)) {return;}
+	if (checkField('sms_msg', validateSMSText)) {return;}
+
 	var tnumber = getValue("sms_number");
 	var msg = getValue("sms_msg");
-	if (!msg || 0 === msg.length) {
-		showMsg("Błąd w polu " + getLabelText("sms_msg"), true);
-		return;
-	}
 
 	msg = removeDiacritics(msg);
 
@@ -1467,8 +1465,24 @@ function okremovesms() {
 	});
 }
 
-function sms_msg_len(input) {
-	setValue("sms_len", 160 - (input.value).length);
+function validateSMSText(msg) {
+	var errorCode = 0;
+
+	if (!msg || 0 === msg.length) {
+		errorCode = 1;
+	}
+	var count = (msg.match(/[\^{}\\[~]|]/g) || []).length;
+	var len = 160 - msg.length - count;
+	if (len < 0) {
+		errorCode = 2;
+	}
+
+	setValue("sms_len", len);
+	return errorCode;
+}
+
+function proofreadSMSText(input) {
+	proofreadText(input, validateSMSText, 0);
 }
 
 /*****************************************************************************/
