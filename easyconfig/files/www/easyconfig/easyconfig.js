@@ -798,7 +798,7 @@ function showmodem() {
 function showmodemsection() {
 	var wan_type = getValue("wan_proto");
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
-		setDisplay("menu_ussdsms", true);
+		setDisplay("menu_ussdsms", (config.sms_tool == 1));
 		setDisplay("div_status_modem", true);
 		showmodem();
 	} else {
