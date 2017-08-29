@@ -742,6 +742,7 @@ function saveconfig() {
 		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
 			cleanField('password1');
 			cleanField('password2');
+			showconfig();
 		});
 	});
 }
