@@ -822,9 +822,7 @@ function btn_system_reboot() {
 /*****************************************************************************/
 
 function showwatchdog() {
-	var block=(config.wan_proto == "none");
-	setElementEnabled("watchdog_enabled", true, block);
-	setDisplay("watchdog_enabled_info", block);
+	setDisplay("watchdog_enabled_info", (config.wan_proto == "none"));
 	setDisplay("div_watchdog_minavgmax", false)
 
 	ubus_call('"easyconfig", "watchdog", { }', function(data) {
