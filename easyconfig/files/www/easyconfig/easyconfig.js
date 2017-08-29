@@ -427,7 +427,6 @@ function showcallback(data) {
 	wan['ncm']="Modem USB (NCM)";
 	wan['dhcp_hilink']="Modem USB (HiLink lub RNDIS)";
 
-	var serial_interface = false;
 	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
 	var arr = config.wan_protos;
@@ -436,11 +435,7 @@ function showcallback(data) {
 		opt.value = arr[idx];
 		opt.innerHTML = wan[arr[idx]];
 		e.appendChild(opt);
-		if (arr[idx] == "3g") { serial_interface = true;}
 	}
-
-	if (config.sms_tool == 1 && serial_interface)
-		setDisplay("menu_ussdsms", true);
 
 	removeOptions('wan_device');
 	e = document.getElementById('wan_device');
@@ -802,9 +797,11 @@ function showmodem() {
 function showmodemsection() {
 	var wan_type = getValue("wan_proto");
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
+		setDisplay("menu_ussdsms", true);
 		setDisplay("div_status_modem", true);
 		showmodem();
 	} else {
+		setDisplay("menu_ussdsms", false);
 		setDisplay("div_status_modem", false);
 	}
 }
