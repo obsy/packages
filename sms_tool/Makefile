@@ -11,8 +11,8 @@ PKG_SOURCE_VERSION:=273fc7028c58a42c46a317d46858c49f1ce174d0
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sms_tool
-  SECTION:=base
-  CATEGORY:=Network
+  SECTION:=utils
+  CATEGORY:=Utilities
   TITLE:=sms tool
   URL:=https://github.com/obsy/sms_tool
 endef
