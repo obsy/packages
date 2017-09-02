@@ -221,6 +221,11 @@ done
 DMZ=$(uci -q get firewall.dmz.dest_ip)
 echo '"firewall_dmz":"'$DMZ'",'
 
+T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
+echo '"dhcp_logqueries":"'$T'",'
+
+echo '"services":{'
+
 echo '"statistics":{'
 
 if [ -e /sbin/stat.sh ]; then
@@ -239,15 +244,12 @@ fi
 echo '},'
 
 if [ -e /usr/bin/sms_tool ]; then
-	SMS_TOOL=1
+	echo '"ussdsms":true,'
 else
-	SMS_TOOL=0
+	echo '"ussdsms":false,'
 fi
 
-echo '"sms_tool":"'$SMS_TOOL'",'
-
-T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
-echo '"dhcp_logqueries":"'$T'"'
+echo '}'
 
 echo '}'
 
