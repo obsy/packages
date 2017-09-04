@@ -35,7 +35,7 @@ fi
 WLAN_CLIENTS=0
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
-	IFNAME=$(wifi status $R |  awk -F\" '/ifname/ {print $4}')
+	IFNAME=$(ubus call network.wireless status '{"device":"'$R'"}' |  awk -F\" '/ifname/ {print $4}')
 	if [ -n "$IFNAME" ]; then
 		for i in $IFNAME; do
 			CNT=$(iw dev $i station dump | grep Station | wc -l)
@@ -80,11 +80,7 @@ WAN_PINCODE=$(uci -q get network.wan.pincode)
 WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
 
 if [ -e /etc/board.json ]; then
-	json_load "$(cat /etc/board.json)"
-	json_select network
-	if json_select wan > /dev/null; then
-		json_get_var WAN_IFNAME_DEFAULT ifname
-	fi
+	WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
 elif [ -e /etc/gargoyle_default_ifs ]; then
 	WAN_IFNAME_DEFAULT=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 fi
