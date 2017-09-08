@@ -199,6 +199,9 @@ h3 {
   .margintop {
     margin-top: -90px;
   }
+  .center-xd {
+    text-align: center;
+  }
 }
 
 .progress {
@@ -212,4 +215,55 @@ h3 {
   background-color: #337ab7;
   border-radius: 4px;
   width: 0%;
+}
+
+.sizing-box {
+  height: 100px;
+  width: 150px;
+}
+
+.signal-bars {
+  display: inline-block;
+}
+
+.signal-bars .bar {
+  width: 14%;
+  margin-left: 1%;
+  min-height: 20%;
+  display: inline-block;
+}
+.signal-bars .bar.first-bar  { height: 20%; }
+.signal-bars .bar.second-bar { height: 40%; }
+.signal-bars .bar.third-bar  { height: 60%; }
+.signal-bars .bar.fourth-bar { height: 80%; }
+.signal-bars .bar.fifth-bar  { height: 99%; }
+
+.lone .bar {
+  background-color: #ff0000;
+  border: thin solid #800000;
+}
+.ltwo .bar {
+  background-color: #ff6a00;
+  border: thin solid #803500;
+}
+.lthree .bar {
+  background-color: #ffd800;
+  border: thin solid #806a00;
+}
+.lfour .bar {
+  background-color: #b6ff00;
+  border: thin solid #558000;
+}
+.lfive .bar {
+  background-color: #4cff00;
+  border: thin solid #2a8000;
+}
+
+.four-bars .bar.fifth-bar,
+.three-bars .bar.fifth-bar,
+.three-bars .bar.fourth-bar,
+.one-bar .bar:not(.first-bar),
+.two-bars .bar:not(.first-bar):not(.second-bar) {
+  background-color: #fafafa;
+  border: thin solid #f3f3f3;
 }

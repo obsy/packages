@@ -92,27 +92,40 @@
 	<div id="div_status_modem" style="display:none;">
 		<h3 class="section">Modem</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Operator</label>
-			<div class="col-xs-6">
-			<p id="modem_operator">-</p>
+			<div class="col-sm-8">
+				<div class="row">
+					<label class="col-xs-6 text-right">Operator</label>
+					<div class="col-xs-6">
+					<p id="modem_operator">-</p>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-xs-6 text-right">Sygnał</label>
+					<div class="col-xs-6">
+					<p id="modem_signal">-</p>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-xs-6 text-right">Technologia</label>
+					<div class="col-xs-6">
+					<p id="modem_mode">-</p>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-xs-6 text-right">Status karty SIM</label>
+					<div class="col-xs-6">
+					<p id="modem_registration">-</p>
+					</div>
+				</div>
 			</div>
-		</div>
-		<div class="row">
-			<label class="col-xs-6 text-right">Sygnał</label>
-			<div class="col-xs-6">
-			<p id="modem_signal">-</p>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-xs-6 text-right">Technologia</label>
-			<div class="col-xs-6">
-			<p id="modem_mode">-</p>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-xs-6 text-right">Status karty SIM</label>
-			<div class="col-xs-6">
-			<p id="modem_registration">-</p>
+			<div class="col-sm-4 center-xd">
+				<div class="signal-bars sizing-box lone one-bar" id="modem_signal_bars">
+					<div class="first-bar bar"></div>
+					<div class="second-bar bar"></div>
+					<div class="third-bar bar"></div>
+					<div class="fourth-bar bar"></div>
+					<div class="fifth-bar bar"></div>
+				</div>
 			</div>
 		</div>
 	</div>

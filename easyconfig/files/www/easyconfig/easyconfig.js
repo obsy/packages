@@ -18,12 +18,13 @@ function proofreadMask(input) {
 
 function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
+		e = input.closest('div');
 		if (proofFunction(input.value) == validReturnCode) {
 			input.style.color = "#555";
-			input.closest('div').className = input.closest('div').className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
+			removeClasses(e, ["has-error"]);
 		} else {
 			input.style.color = "red";
-			input.closest('div').className += " has-error";
+			addClasses(e, ["has-error"]);
 		}
 	}
 }
@@ -216,6 +217,21 @@ function getValue(element) {
 function setDisplay(element, show) {
 	document.getElementById(element).style.display = (show?"block":"none");
 }
+
+function addClasses(element, classes) {
+	for(var i = 0; i < classes.length; i++) {
+		if (!e.className.match(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g')))
+			e.className += " " + classes[i];
+	}
+}
+
+function removeClasses(element, classes) {
+	for(var i = 0; i < classes.length; i++) {
+		e.className = e.className.replace(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g'), '');
+	}
+}
+
+/*****************************************************************************/
 
 function enableDns(enable) {
 	setValue("wan_dns", enable);
@@ -771,6 +787,27 @@ function showstatus() {
 function showmodem() {
 	ubus_call('"easyconfig", "modem", { }', function(data) {
 		setValue('modem_signal', data.signal?data.signal + "%":"?");
+
+		if (data.signal) {
+			e = document.getElementById("modem_signal_bars");
+			removeClasses(e, ["lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
+			if (data.signal > 80) {
+				addClasses(e, ["lfive","five-bars"]);
+			}
+			if (data.signal < 80 && data.signal > 61) {
+				addClasses(e, ["lfour","four-bars"]);
+			}
+			if (data.signal < 60 && data.signal > 41) {
+				addClasses(e, ["lthree","three-bars"]);
+			}
+			if (data.signal < 40 && data.signal > 21) {
+				addClasses(e, ["ltwo","two-bars"]);
+			}
+			if (data.signal < 20) {
+				addClasses(e, ["lone","one-bar"]);
+			}
+		}
+
 		setValue('modem_operator', data.operator_name);
 		setValue('modem_mode', data.mode);
 		switch(data.registration) {
