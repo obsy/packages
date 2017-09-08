@@ -202,19 +202,14 @@ h3 {
 }
 
 .progress {
-  background-color:#d9edf7;
-  border-color:#d9edf7;
-  border-radius:4px;
+  border: solid 1px #337ab7;
+  background-color: #d9edf7;
+  border-color: #337ab7;
+  border-radius: 4px;
 }
 
 .progress-bar {
-  background-color:#337ab7;
-  border-radius:4px;
-  text-align:center;
-  white-space:nowrap;
-  width:0%;
-}
-
-.progress-text {
-  margin-left: 5px;
+  background-color: #337ab7;
+  border-radius: 4px;
+  width: 0%;
 }

@@ -1280,7 +1280,7 @@ function showtraffic() {
 				if (traffic_today >= traffic_warning_limit) { e1.style.color = "red"; }
 
 				var percent = parseInt((traffic_today * 100) / traffic_warning_limit);
-				setValue("traffic_today_progress", percent + "%, " + bytesToSize(traffic_today) + " z " + bytesToSize(traffic_warning_limit));
+				setValue("traffic_today_progress", ' (' + percent + "% z " + bytesToSize(traffic_warning_limit) + ')');
 				if (percent > 100) {percent = 100;}
 				document.getElementById("div_traffic_today_progress1").style.width = percent + '%';
 				setDisplay("div_traffic_today_progress", true);
@@ -1289,7 +1289,7 @@ function showtraffic() {
 				if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; }
 
 				var percent = parseInt((traffic_currentperiod * 100) / traffic_warning_limit);
-				setValue("traffic_currentperiod_progress", percent + "%, " + bytesToSize(traffic_currentperiod) + " z " + bytesToSize(traffic_warning_limit));
+				setValue("traffic_currentperiod_progress", ' (' + percent + "% z " + bytesToSize(traffic_warning_limit) + ')');
 				if (percent > 100) {percent = 100;}
 				document.getElementById("div_traffic_currentperiod_progress1").style.width = percent + '%';
 				setDisplay("div_traffic_currentperiod_progress", true);
