@@ -18,7 +18,7 @@ function proofreadMask(input) {
 
 function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
-		e = input.closest('div');
+		var e = input.closest('div');
 		if (proofFunction(input.value) == validReturnCode) {
 			input.style.color = "#555";
 			removeClasses(e, ["has-error"]);
@@ -220,14 +220,14 @@ function setDisplay(element, show) {
 
 function addClasses(element, classes) {
 	for(var i = 0; i < classes.length; i++) {
-		if (!e.className.match(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g')))
-			e.className += " " + classes[i];
+		if (!element.className.match(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g')))
+			element.className += " " + classes[i];
 	}
 }
 
 function removeClasses(element, classes) {
 	for(var i = 0; i < classes.length; i++) {
-		e.className = e.className.replace(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g'), '');
+		element.className = element.className.replace(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g'), '');
 	}
 }
 
@@ -292,10 +292,10 @@ function showMsg(msg, error) {
 
 	if (error) {
 		e.style.color = "red";
-		e.className += " has-error";
+		addClasses(e, ["has-error"]);
 	} else {
 		e.style.color = "#555";
-		e.className = e.className.replace( /(?:^|\s)has-error(?!\S)/g , '' )
+		removeClasses(e, ["has-error"]);
 	}
 
 	modal = document.getElementById('div_msg');
@@ -789,7 +789,7 @@ function showmodem() {
 		setValue('modem_signal', data.signal?data.signal + "%":"?");
 
 		if (data.signal) {
-			e = document.getElementById("modem_signal_bars");
+			var e = document.getElementById("modem_signal_bars");
 			removeClasses(e, ["lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
 			if (data.signal > 80) {
 				addClasses(e, ["lfive","five-bars"]);
