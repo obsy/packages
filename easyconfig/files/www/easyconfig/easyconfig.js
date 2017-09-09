@@ -790,7 +790,7 @@ function showmodem() {
 
 		if (data.signal) {
 			var e = document.getElementById("modem_signal_bars");
-			removeClasses(e, ["lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
+			removeClasses(e, ["lzero","lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
 			if (data.signal > 80) {
 				addClasses(e, ["lfive","five-bars"]);
 			}
@@ -803,8 +803,11 @@ function showmodem() {
 			if (data.signal < 40 && data.signal > 21) {
 				addClasses(e, ["ltwo","two-bars"]);
 			}
-			if (data.signal < 20) {
+			if (data.signal < 20 && data.signal > 0) {
 				addClasses(e, ["lone","one-bar"]);
+			}
+			if (data.signal == 0) {
+				addClasses(e, ["lzero","one-bar"]);
 			}
 		}
 

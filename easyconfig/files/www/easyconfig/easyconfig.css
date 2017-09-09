@@ -238,6 +238,10 @@ h3 {
 .signal-bars .bar.fourth-bar { height: 80%; }
 .signal-bars .bar.fifth-bar  { height: 99%; }
 
+.lzero .bar {
+  background-color: #fafafa;
+  border: thin solid #ccc;
+}
 .lone .bar {
   background-color: #ff0000;
   border: thin solid #800000;
@@ -265,5 +269,5 @@ h3 {
 .one-bar .bar:not(.first-bar),
 .two-bars .bar:not(.first-bar):not(.second-bar) {
   background-color: #fafafa;
-  border: thin solid #f3f3f3;
+  border: thin solid #ccc;
 }
