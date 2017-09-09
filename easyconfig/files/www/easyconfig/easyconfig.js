@@ -989,12 +989,48 @@ function sitesurveycallback(sortby) {
 			html += '<hr><div class="row"><div class="col-xs-6"><h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + parseInt(ts - sorted[idx].timestamp) + 's temu</div><div class="col-xs-6 text-right">RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'') + '</div></div>';
 		}
 		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
+
+		html += '<hr><h3 class="section">Wykorzystanie kanałów</h3>';
+
+		var channels = [];
+		if (config.radio0) {
+			for (var ch in config.radio0.wlan_channels) {
+				channels[ch] = 0;
+			}
+		}
+		if (config.radio1) {
+			for (var ch in config.radio1.wlan_channels) {
+				channels[ch] = 0;
+			}
+		}
+
+		for (var ch in channels) {
+			html += '<div class="row">';
+			html += '<div class="col-xs-1 text-right">' + ch + '</div>';
+			html += '<div class="col-xs-6">';
+			html += '	<div class="progress" style="margin-bottom:2px;">';
+			html += '		<div class="progress-bar" id="channel' + ch + 'bar">&nbsp;</div>';
+			html += '	</div>';
+			html += '</div>';
+			html += '<div class="col-xs-5"><span id="channel' + ch + 'percent">0%</div>';
+			html += '</div>';
+		}
+
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>'
 	}
 	div.innerHTML = html;
 
 	if (wifiscanresults.length > 1) {
+		for(var idx = 0; idx < sorted.length; idx++){
+			if (sorted[idx].mac == '') {continue;}
+			if (sorted[idx].channel != '?') {channels[sorted[idx].channel]++;}
+		}
+		for (var ch in channels) {
+			var percent = parseInt(channels[ch] * 100 / (sorted.length - 1)) + '%';
+			document.getElementById("channel" + ch + "bar").style.width = percent;
+			setValue("channel" + ch + "percent", percent == "0%"?" ":(percent + ", " + channels[ch] + " z " + (sorted.length - 1)));
+		}
 		var all=["ssid","mac","signal","freq","timestamp"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
@@ -1025,7 +1061,6 @@ function wlanclientscallback(sortby) {
 	var div = document.getElementById('div_wlanclients_content');
 	var html = "";
 	if (wlanclients.length > 1) {
-
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name"> nazwie </span></a>|';
