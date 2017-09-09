@@ -973,14 +973,14 @@ function sitesurveycallback(sortby) {
 	var div = document.getElementById('div_sitesurvey_content');
 	var html = "";
 	if (wifiscanresults.length > 1) {
-		html += '<div class="row"><div class="col-xs-12">';
+		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'signal\');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></a>';
-		html += '<div></div><p></p>';
+		html += '<div></div>';
 
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
@@ -1025,22 +1025,32 @@ function wlanclientscallback(sortby) {
 	var div = document.getElementById('div_wlanclients_content');
 	var html = "";
 	if (wlanclients.length > 1) {
-		html += '<div class="row">';
-		html += '<div class="col-md-4"><a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name">Nazwa</span></a></div>';
-		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx">Wysłano</span></a></div>';
-		html += '<div class="col-xs-3"><a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx">Pobrano</span></a></div>';
-		html += '<div class="col-xs-2">&nbsp;</div>';
-		html += '</div><hr>';
 
+		html += '<div class="row space"><div class="col-xs-12">';
+		html += '<span>Sortowanie po</span>';
+		html += '<a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name"> nazwie </span></a>|';
+		html += '<a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></a>|';
+		html += '<a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></a>|';
+		html += '<a href="#" class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></a>';
+		html += '<div></div>';
+
+		var total = 0;
+		for(var idx=0; idx<wlanclients.length; idx++){
+			if (wlanclients[idx].mac == '') {continue;}
+			total += wlanclients[idx].tx + wlanclients[idx].rx;
+		}
+		for(var idx=0; idx<wlanclients.length; idx++){
+			if (wlanclients[idx].mac == '') {continue;}
+			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
+		}
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].mac == '') {continue;}
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
-			html += '<div class="row space">';
-			html += '<div class="col-md-4"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
-			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].tx)+'</div>';
-			html += '<div class="col-xs-3">'+bytesToSize(sorted[idx].rx)+'</div>';
-			html += '<div class="col-xs-2"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\');">blokuj</a></div>';
+			html += '<hr><div class="row">';
+			html += '<div class="col-xs-9"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\');">blokuj</a></div>';
+			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
 		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
@@ -1050,7 +1060,7 @@ function wlanclientscallback(sortby) {
 	div.innerHTML = html;
 
 	if (wlanclients.length > 1) {
-		var all=["name","tx","rx"];
+		var all=["name","tx","rx","percent"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
 			e.style.fontWeight = (sortby==all[idx])?700:400;
