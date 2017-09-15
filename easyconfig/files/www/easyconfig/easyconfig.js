@@ -989,7 +989,14 @@ function sitesurveycallback(sortby) {
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].mac == '') {continue;}
-			html += '<hr><div class="row"><div class="col-xs-6"><h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + parseInt(ts - sorted[idx].timestamp) + 's temu</div><div class="col-xs-6 text-right">RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'') + '</div></div>';
+			html += '<hr><div class="row">';
+			html += '<div class="col-xs-6">';
+			html += '<h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + parseInt(ts - sorted[idx].timestamp) + 's temu';
+			html += '</div>';
+			html += '<div class="col-xs-6 text-right">';
+			html += sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"") + (sorted[idx].mode3!=""?", " + sorted[idx].mode3:"") + '<br>';
+			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq + ' MHz)<br>' + (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption:'');
+			html += '</div></div>';
 		}
 		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
 
