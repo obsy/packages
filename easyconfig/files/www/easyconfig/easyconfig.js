@@ -791,16 +791,16 @@ function showmodem() {
 		if (data.signal) {
 			var e = document.getElementById("modem_signal_bars");
 			removeClasses(e, ["lzero","lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
-			if (data.signal > 80) {
+			if (data.signal >= 80) {
 				addClasses(e, ["lfive","five-bars"]);
 			}
-			if (data.signal < 80 && data.signal > 61) {
+			if (data.signal < 80 && data.signal >= 60) {
 				addClasses(e, ["lfour","four-bars"]);
 			}
-			if (data.signal < 60 && data.signal > 41) {
+			if (data.signal < 60 && data.signal >= 40) {
 				addClasses(e, ["lthree","three-bars"]);
 			}
-			if (data.signal < 40 && data.signal > 21) {
+			if (data.signal < 40 && data.signal >= 20) {
 				addClasses(e, ["ltwo","two-bars"]);
 			}
 			if (data.signal < 20 && data.signal > 0) {
