@@ -940,6 +940,12 @@ function sortJSON(data, key, way) {
 	});
 }
 
+function formatTime(s) {
+	var mins = parseInt(s / 60);
+	var secs = s % 60;
+	return (mins > 0?mins + 'm ':'') + secs + 's';
+}
+
 var wifiscanresults;
 
 function showsitesurvey() {
@@ -1015,7 +1021,7 @@ function sitesurveycallback(sortby) {
 			if (sorted[idx].mac == '') {continue;}
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-6">';
-			html += '<h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + parseInt(ts - sorted[idx].timestamp) + 's temu';
+			html += '<h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp)) + ' temu';
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
 			html += sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"") + (sorted[idx].mode3!=""?", " + sorted[idx].mode3:"") + '<br>';
