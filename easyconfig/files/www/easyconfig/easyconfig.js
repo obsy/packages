@@ -500,7 +500,7 @@ function showcallback(data) {
 		for(var propt in obj){
 			var opt = document.createElement('option');
 			opt.value = propt;
-			opt.innerHTML = obj[propt];
+			opt.innerHTML = propt + " (" + obj[propt][1] + " dBm)" + (obj[propt][2]?" DFS":"");
 			select.appendChild(opt);
 			if (propt < 36) {is_radio2=true};
 			if (propt >= 36) {is_radio5=true};
@@ -950,6 +950,30 @@ function showsitesurvey() {
 		var l = arr.length;
 		for (var idx1=0; idx1 < l; idx1++) {
 			arr[idx1].timestamp = parseInt(ts).toString();
+
+			if (arr[idx1].channel == "?") {
+				if (config.radio0) {
+					obj = config.radio0.wlan_channels;
+					for(var propt in obj) {
+						if (obj[propt][0] == arr[idx1].freq) {
+							arr[idx1].channel = propt;
+							break;
+						}
+					}
+				}
+				if (arr[idx1].channel == "?") {
+					if (config.radio1) {
+						obj = config.radio1.wlan_channels;
+						for(var propt in obj) {
+							if (obj[propt][0] == arr[idx1].freq) {
+								arr[idx1].channel = propt;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 		}
 		if (wifiscanresults) {
 			for (var idx=wifiscanresults.length - 1; idx >= 0; idx--) {
