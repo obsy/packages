@@ -15,8 +15,8 @@ if($0 ~ /center freq segment 1:/) {if($6>0){wifi_mode2[MAC] = "VHT40"}}
 if($0 ~ /channel width: 1 (80 MHz)/) {wifi_mode2[MAC] = "VHT80"}
 if($0 ~ /Group cipher: CCMP/) {wifi_enc[MAC] = "WPA"}
 if($0 ~ /Group cipher: TKIP/) {wifi_enc[MAC] = "WPA"}
-if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA PSK"}
-if($0 ~ /Authentication suites: IEEE 802.1X/) {wifi_enc[MAC] = "WPA EAP"}
+if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA Personal"}
+if($0 ~ /Authentication suites: IEEE 802.1X/) {wifi_enc[MAC] = "WPA Enterprise"}
 } END {
 for (w in wifi_enc) {
     printf "{\"mac\":\"%s\",\"ssid\":\"%s\",\"freq\":\"%s\",\"signal\":\"%s\",\"channel\":\"%s\",\"encryption\":\"%s\",\"mode1\":\"%s\",\"mode2\":\"%s\"},\n", w, wifi_ssid[w], wifi_freq[w], wifi_sig[w], wifi_chan[w], wifi_enc[w], wifi_mode1[w], wifi_mode2[w]
