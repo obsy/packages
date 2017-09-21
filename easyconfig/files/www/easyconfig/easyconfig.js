@@ -949,8 +949,8 @@ function formatTime(s) {
 var wifiscanresults;
 
 function showsitesurvey() {
-	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_wifiscan.sh"]}', function(data) {
-		var arr = JSON.parse((data.stdout).replace(/\\/g,"\\\\"));
+	ubus_call('"easyconfig", "wifiscan", {}', function(data) {
+		var arr = data.result;
 
 		var ts = Date.now()/1000;
 		var l = arr.length;
@@ -1209,8 +1209,8 @@ function saveclientname() {
 /*****************************************************************************/
 
 function showqueries() {
-	ubus_call('"file", "exec", {"command":"/bin/sh","params":["/usr/bin/easyconfig_queries.sh"]}', function(data) {
-		queries = JSON.parse((data.stdout).replace(/\\/g,"\\\\"));
+	ubus_call('"easyconfig", "queries", {}', function(data) {
+		queries = data.result;
 		queriescallback("time", "321");
 	});
 }
