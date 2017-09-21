@@ -1091,10 +1091,12 @@ function bytesToSize(bytes) {
 };
 
 var wlanclients;
+var clientslogs;
 
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", { }', function(data) {
 		wlanclients = data.clients;
+		clientslogs = data.logs;
 		wlanclientscallback("name");
 	});
 }
@@ -1134,6 +1136,23 @@ function wlanclientscallback(sortby) {
 	} else {
 		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>'
 	}
+
+	html += '<h3 class="section">Historia połączeń</h3>'
+	if (clientslogs.length > 1) {
+		var sorted = sortJSON(clientslogs, 'time', '321');
+		for(var idx=0; idx<sorted.length; idx++){
+			if (sorted[idx].mac == '') {continue;}
+			html += '<div class="row space">';
+			html += '<div class="col-xs-3">' + sorted[idx].time + '</div>';
+			html += '<div class="col-xs-3">' + (sorted[idx].event=='login'?'połączenie':'rozłączenie') + '</div>';
+			html += '<div class="col-xs-6 visible-xs">' + (sorted[idx].name!=""?sorted[idx].name + '<br>' + sorted[idx].mac:sorted[idx].mac) + '</div>';
+			html += '<div class="col-xs-6 hidden-xs">' + (sorted[idx].name!=""?sorted[idx].name + ' / ' + sorted[idx].mac:sorted[idx].mac) + '</div>';
+			html += '</div>';
+		}
+	} else {
+		html += '<div class="alert alert-warning">Brak historii połączeń</div>'
+	}
+
 	div.innerHTML = html;
 
 	if (wlanclients.length > 1) {

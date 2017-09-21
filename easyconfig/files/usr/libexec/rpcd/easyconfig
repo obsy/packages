@@ -319,7 +319,22 @@ for M in $WLAN_MAC; do
 	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")'},'
 done
 echo '{"mac":"","ip":"","real_name":"","name":"","rx":0,"tx":0}'
-echo ']}'
+echo '],'
+
+echo '"logs":['
+T=$(logread -e "DHCPACK(" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}')
+T=$(printf "%s\n%s" "$T" "$(logread -e "AP-STA-DISCONNECTED" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}')")
+MACS=$(echo "$T" | sed 's/.*"mac":"\(.*\)","name".*/\1/g' | sort | uniq)
+
+for MAC in $MACS; do
+	NMAC=$(echo $MAC | sed 's/://g')
+	NAME=$(uci -q get dhcp.m$NMAC.networkid)
+	[ -n "$NAME" ] && T=$(echo "$T" | sed "s/,\"name\":\".*\",/,\"name\":\"$NAME\",/g")
+done
+
+echo "$T"
+echo '{"time":"","mac":"","name":"","event":""}]'
+echo '}'
 }
 
 ##############################################################################
