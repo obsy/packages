@@ -311,7 +311,8 @@ function detectwan(pin) {
 				showMsg("Nie wykryto żadnego dostępnego połączenia z internetem");
 				return;
 			}
-			msg  = '<div class="row space"><div class="col-xs-6 text-right">Proponowane ustawienia:</div></div>';
+			msg = '';
+			msg += '<div class="row space"><div class="col-xs-12 text-center">Proponowane ustawienia<hr></div></div>';
 			msg += '<div class="row space">';
 			msg += '<div class="col-xs-6 text-right">Typ połączenia</div>';
 			if (data.proto == "dhcp") {
@@ -336,7 +337,7 @@ function detectwan(pin) {
 				msg += '<div class="col-xs-6 text-left">' + data.apn + '</div>';
 			}
 			msg += '</div>';
-			msg += '<div class="row"><div class="col-xs-6 text-right">Zapisać zmiany?</div></div>';
+			msg += '<div class="row"><div class="col-xs-12 text-center"><hr>Zapisać zmiany?</div></div>';
 			setValue('detectwan_data', JSON.stringify(data));
 			setValue('detectwan_txt', msg);
 			setDisplay('div_detectwan', true);
