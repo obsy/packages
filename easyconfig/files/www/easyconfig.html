@@ -935,6 +935,33 @@
 	</div>
 </div>
 
+<div id="div_detectwan" class="modal">
+	<div class="row modal-content">
+		<input id="detectwan_data" type="hidden">
+		<div id="detectwan_txt"></div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="canceldetectwan();" value="Nie" />
+			<input type="button" class="btn btn-primary" onclick="okdetectwan();" value="Tak" />
+		</div>
+	</div>
+</div>
+
+<div id="div_detectwan_pin" class="modal">
+	<div class="row modal-content">
+		<label>Wykryto modem USB, podaj PIN do karty SIM</label>
+		<input id="detectwan_proto" type="hidden">
+		<input id="detectwan_device" type="hidden">
+		<input id="detectwan_pin" type="text" class="form-control space">
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="canceldetectwan_pin();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="okdetectwan_pin();" value="OK" />
+		</div>
+	</div>
+</div>
+
+
 <div class="text-center">&nbsp;</div>
 
 </body>

@@ -195,6 +195,8 @@ function setValue(element, value) {
 		e.innerHTML = value;
 	} else if (e.tagName == "SPAN") {
 		e.innerHTML = value;
+	} else if (e.tagName == "DIV") {
+		e.innerHTML = value;
 	} else if (e.type === 'checkbox') {
 		e.checked = value;
 	} else {
@@ -239,7 +241,118 @@ function enableDns(enable) {
 	setElementEnabled("wan_dns2", true, !enable);
 }
 
+function canceldetectwan() {
+	setDisplay('div_detectwan', false);
+}
+
+function okdetectwan() {
+	canceldetectwan();
+
+	var data = JSON.parse(document.getElementById('detectwan_data').value);
+
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+	cmd.push('uci -q del network.wan');
+	cmd.push('uci set network.wan=interface');
+
+	if (data.proto == '3g' || data.proto == 'qmi' || data.proto == 'ncm') {
+		cmd.push('uci set network.wan.proto=' + data.proto);
+		cmd.push('uci set network.wan.device=\\\"' + data.device + '\\\"');
+		cmd.push('uci set network.wan.apn=\\\"' + data.apn + '\\\"');
+		cmd.push('uci set network.wan.pincode=' + data.pincode);
+	}
+	if (data.proto == 'dhcp_hilink' || data.proto == 'dhcp') {
+		cmd.push('uci set network.wan.proto=dhcp');
+		cmd.push('uci set network.wan.ifname=' + data.ifname);
+	}
+
+	cmd.push('uci commit network');
+	cmd.push('ifup wan');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"' + cmd.join('\n') + '"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			showconfig();
+		});
+	});
+}
+
+function canceldetectwan_pin() {
+	setDisplay('div_detectwan_pin', false);
+}
+
+function okdetectwan_pin() {
+	canceldetectwan_pin();
+
+	if (validateNumeric(getValue('detectwan_pin')) != 0) {
+		showMsg("Podany PIN nie jest odpowiednią wartością");
+	} else {
+		var pin = getValue('detectwan_pin');
+		ubus_call('"easyconfig", "pincode", {"proto":"' + getValue('detectwan_proto') + '","device":"' + getValue('detectwan_device') + '","pincode":"' + pin + '"}', function(data) {
+			detectwan(pin);
+		});
+	}
+}
+
+function detectwan(pin) {
+	ubus_call('"easyconfig", "detect_wan", {}', function(data) {
+		if (data.action) {
+			if (data.action == "pinrequired") {
+				setValue('detectwan_proto', data.proto);
+				setValue('detectwan_device', data.device);
+				setDisplay('div_detectwan_pin', true);
+				document.getElementById('detectwan_pin').focus();
+			}
+		} else {
+			data.pincode = pin;
+			if (data.proto == "none") {
+				showMsg("Nie wykryto żadnego dostępnego połączenia z internetem");
+				return;
+			}
+			msg  = '<div class="row space"><div class="col-xs-6 text-right">Proponowane ustawienia:</div></div>';
+			msg += '<div class="row space">';
+			msg += '<div class="col-xs-6 text-right">Typ połączenia</div>';
+			if (data.proto == "dhcp") {
+				msg += '<div class="col-xs-6 text-left">Port WAN (DHCP)</div>';
+			}
+			if (data.proto == "dhcp_hilink") {
+				msg += '<div class="col-xs-6 text-left">Modem USB (Hilink lub RNDIS)</div>';
+			}
+			if (data.proto == "qmi" || data.proto == "ncm" || data.proto == "3g") {
+				msg += '<div class="col-xs-6 text-left">Modem USB '
+				if (data.proto == "qmi") { msg += '(QMI)'; }
+				if (data.proto == "ncm") { msg += '(NCM)'; }
+				if (data.proto == "3g")  { msg += '(RAS)'; }
+				msg += '</div>';
+				msg += '</div>';
+				msg += '<div class="row space">';
+				msg += '<div class="col-xs-6 text-right">Urządzenie</div>';
+				msg += '<div class="col-xs-6 text-left">' + data.device + '</div>';
+				msg += '</div>';
+				msg += '<div class="row space">';
+				msg += '<div class="col-xs-6 text-right">APN</div>';
+				msg += '<div class="col-xs-6 text-left">' + data.apn + '</div>';
+			}
+			msg += '</div>';
+			msg += '<div class="row"><div class="col-xs-6 text-right">Zapisać zmiany?</div></div>';
+			setValue('detectwan_data', JSON.stringify(data));
+			setValue('detectwan_txt', msg);
+			setDisplay('div_detectwan', true);
+		}
+	});
+}
+
 function enableWan(proto) {
+
+	if (proto == "detect") {
+		var proto = document.getElementById('wan_proto').getAttribute("data-prev");
+		setValue('wan_proto', proto);
+		detectwan('');
+		return;
+	}
+
 	var fields = [];
 	if ((proto == "static") || (proto == "dhcp") || (proto == "dhcp_hilink")) {
 		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
@@ -266,6 +379,7 @@ function enableWan(proto) {
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
 
 	setDisplay("div_status_wan", (proto != "none"));
+	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
 }
 
 function enableWlanEncryption(encryption, cnt) {
@@ -435,21 +549,26 @@ function showcallback(data) {
 
 	// wan
 	var wan = [];
-	wan['none']="Brak";
-	wan['dhcp']="Port WAN (DHCP)";
-	wan['static']="Port WAN (Statyczny IP)";
-	wan['3g']="Modem USB (RAS)";
-	wan['qmi']="Modem USB (QMI)";
-	wan['ncm']="Modem USB (NCM)";
-	wan['dhcp_hilink']="Modem USB (HiLink lub RNDIS)";
+	wan['none'] = "Brak";
+	wan['dhcp'] = "Port WAN (DHCP)";
+	wan['static'] = "Port WAN (Statyczny IP)";
+	wan['3g'] = "Modem USB (RAS)";
+	wan['qmi'] = "Modem USB (QMI)";
+	wan['ncm'] = "Modem USB (NCM)";
+	wan['dhcp_hilink'] = "Modem USB (HiLink lub RNDIS)";
+	wan['-'] = " ";
+	wan['detect'] = "Wykryj...";
 
 	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
 	var arr = config.wan_protos;
+	arr.push('-');
+	arr.push('detect');
 	for (var idx=0; idx<arr.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = arr[idx];
 		opt.innerHTML = wan[arr[idx]];
+		if (arr[idx] == '-') { opt.disabled = true; }
 		e.appendChild(opt);
 	}
 

@@ -584,6 +584,123 @@ show_wifiscan() {
 
 ##############################################################################
 
+pincode()
+{
+	read input;
+	json_load "$input"
+	json_get_vars proto device pincode
+
+	if [ "x$proto" = "xqmi" ]; then
+		uqmi -d $device --verify-pin1 $pincode > /dev/null 2>&1
+	fi
+	if [ "x$proto" = "xncm" -o "x$proto" = "x3g" ]; then
+		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom > /dev/null 2>&1
+	fi
+	echo '{}'
+}
+
+detect_wan()
+{
+# modem usb qmi
+	T=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$T" ] ; then
+		F=$(mktemp)
+		DEVICE=""
+		DEVICES=$(ls /dev/cdc-wdm*)
+		for D in $DEVICES; do
+			echo "" > $F
+			(uqmi -s -d $D --get-pin-status > $F) &
+			sleep 2
+			killall uqmi > /dev/null 2>&1
+			if cat $F | grep -q '"pin1_status"'; then
+				DEVICE=$D
+				break
+			fi
+		done
+
+		if [ -n "$DEVICE" ]; then
+			if cat $F | grep -q '"pin1_status":"not_verified"'; then
+				rm $F > /dev/null 2>&1
+				echo '{"proto":"qmi","device":"'$DEVICE'","action":"pinrequired"}'
+				exit 0
+			fi
+			rm $F > /dev/null 2>&1
+			echo '{"proto":"qmi","device":"'$DEVICE'","apn":"internet"}'
+			exit 0
+		fi
+	fi
+
+# modem usb ncm
+	ifdown wan
+	T=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$T" ] ; then
+		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm*)
+
+		for D in $DEVICES; do
+			O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
+			if echo "$O" | grep -q "SIM PIN"; then
+				echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
+				exit 0
+			fi
+			if echo "$O" | grep -q "+CPIN"; then
+				DEVICE=$D
+				break
+			fi
+		done
+
+		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+		echo '{"proto":"ncm","device":"'$D'","apn":"'${APN:-internet}'"}'
+		exit 0
+	fi
+
+# modem usb, generic
+	ifdown wan
+	T=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
+	if [ -n "$T" ] ; then
+
+		for D in $T; do
+			O=$(gcom -d $D -s /etc/gcom/checkpin.gcom)
+			if echo "$O" | grep -q "SIM PIN"; then
+				echo '{"proto":"3g","device":"'$D'","action":"pinrequired"}'
+				exit 0
+			fi
+			if echo "$O" | grep -q "+CPIN"; then
+				DEVICE=$D
+				break
+			fi
+		done
+
+		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+		echo '{"proto":"3g","device":"'$D'","apn":"'${APN:-internet}'"}'
+		exit 0
+	fi
+
+# modem usb hilink or rndis
+	T=$(egrep -Hi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+	[ -z "$T" ] && T=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
+	if [ -n "$T" ]; then
+		echo '{"proto":"dhcp_hilink","ifname":"'$T'"}'
+		exit 0
+	fi
+
+# wan port
+	if [ -e /etc/board.json ]; then
+		T=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+	elif [ -e /etc/gargoyle_default_ifs ]; then
+		T=$(awk '{print $2}' /etc/gargoyle_default_ifs)
+	fi
+	if [ -n "$T" ] ; then
+		echo '{"proto":"dhcp","ifname":"'$T'"}'
+		exit 0
+	fi
+
+# none
+	echo '{"proto":"none"}'
+	exit 0
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -596,7 +713,9 @@ case "$1" in
 		echo '"ussd":{"code":"string"},'
 		echo '"sms":{"action":"string","arg1":"string","arg2":"string"},'
 		echo '"queries":{},'
-		echo '"wifiscan":{}'
+		echo '"wifiscan":{},'
+		echo '"detect_wan":{},'
+		echo '"pincode":{"proto":"string","device":"string","pincode":"string"}'
 		echo '}'
 	;;
 	call)
@@ -630,6 +749,12 @@ case "$1" in
 				;;
 			wifiscan)
 				show_wifiscan
+				;;
+			detect_wan)
+				detect_wan
+				;;
+			pincode)
+				pincode
 				;;
 		esac
 	;;
