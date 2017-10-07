@@ -329,11 +329,11 @@ MACS=$(echo "$T" | sed 's/.*"mac":"\(.*\)","name".*/\1/g' | sort | uniq)
 for MAC in $MACS; do
 	NMAC=$(echo $MAC | sed 's/://g')
 	NAME=$(uci -q get dhcp.m$NMAC.networkid)
-	[ -n "$NAME" ] && T=$(echo "$T" | sed "s/,\"mac\":\"$MAC\",\"name\":\".*\",\"event\"/,\"mac\":\"$MAC\",\"name\":\"$NAME\",\"event\"/g")
+	[ -n "$NAME" ] && T=$(echo "$T" | sed "s/,\"mac\":\"$MAC\",\"name\":\".*\",\"event\"/,\"mac\":\"\",\"name\":\"$NAME\",\"event\"/g")
 done
 
-echo "$T"
-echo '{"time":"","mac":"","name":"","event":""}]'
+echo "${T%?}"
+echo ']'
 echo '}'
 }
 

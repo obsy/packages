@@ -1261,12 +1261,15 @@ function wlanclientscallback(sortby) {
 	if (clientslogs.length > 1) {
 		var sorted = sortJSON(clientslogs, 'time', '321');
 		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].mac == '') {continue;}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-3">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-3">' + (sorted[idx].event=='login'?'połączenie':'rozłączenie') + '</div>';
-			html += '<div class="col-xs-6 visible-xs">' + (sorted[idx].name!=""?sorted[idx].name + '<br>' + sorted[idx].mac:sorted[idx].mac) + '</div>';
-			html += '<div class="col-xs-6 hidden-xs">' + (sorted[idx].name!=""?sorted[idx].name + ' / ' + sorted[idx].mac:sorted[idx].mac) + '</div>';
+			if (sorted[idx].mac == '') {
+				html += '<div class="col-xs-6">' + sorted[idx].name + '</div>';
+			} else {
+				html += '<div class="col-xs-6 visible-xs">' + (sorted[idx].name!=""?sorted[idx].name + '<br>' + sorted[idx].mac:sorted[idx].mac) + '</div>';
+				html += '<div class="col-xs-6 hidden-xs">' + (sorted[idx].name!=""?sorted[idx].name + ' / ' + sorted[idx].mac:sorted[idx].mac) + '</div>';
+			}
 			html += '</div>';
 		}
 	} else {
