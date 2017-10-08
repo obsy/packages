@@ -295,7 +295,7 @@ show_clients()
 WLAN_MAC=""
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
-	IFNAME=$(wifi status $R | awk -F\" '/ifname/ {print $4}')
+	IFNAME=$(ubus call  network.wireless status '{"device":"'$R'"}' | awk -F\" '/ifname/ {print $4}')
 	if [ -n "$IFNAME" ]; then
 		for i in $IFNAME; do
 			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes/) {rx[MAC]=$3} if($0 ~ /tx bytes/) {tx[MAC]=$3}} END for (w in station) {printf "%s;%d;%d ", w, tx[w], rx[w]}')
@@ -324,8 +324,8 @@ echo '],'
 echo '"logs":['
 T=$(logread -e "DHCPACK(" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}')
 T=$(printf "%s\n%s" "$T" "$(logread -e "AP-STA-DISCONNECTED" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}')")
-MACS=$(echo "$T" | sed 's/.*"mac":"\(.*\)","name".*/\1/g' | sort | uniq)
 
+MACS=$(uci show dhcp | awk -F\' '/.mac=/{print $2}')
 for MAC in $MACS; do
 	NMAC=$(echo $MAC | sed 's/://g')
 	NAME=$(uci -q get dhcp.m$NMAC.networkid)
