@@ -2,10 +2,15 @@
 config service traffic
 	option period '10'
 	option cycle '1'
+	option warning_enabled '0'
+	option warning_unit 'g'
+	option warning_cycle 'p'
+	option warning_value '3'
 
 config service watchdog
 	option dest 'google.com'
-	option period '3'
+	option period '1'
+	option period_count '10'
 	option delay '3'
 	option action 'wan'
 
