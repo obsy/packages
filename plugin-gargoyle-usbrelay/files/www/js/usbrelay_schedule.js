@@ -5,7 +5,7 @@
  * itself remain covered by the GPL. 
  * See http://gargoyle-router.com/faq.html#qfoss for more information
  *
- * 2014 Cezary Jackiewicz <cezary@eko.one.pl> - ugly/primitive adaptation to usbrelay
+ * 2014-2017 Cezary Jackiewicz <cezary@eko.one.pl> - ugly/primitive adaptation to usbrelay
  */
 var Usch=new Object(); //part of i18n
 
@@ -399,9 +399,14 @@ function ShowTab(achor_tab) {
 				tab_li_items[i].style.display = 'none';
 			}
 		}
+		if (tab_li_items[i].nodeName == "LI" & tab_li_items[i].className == "active")
+		{
+			tab_li_items[i].className = "";
+		}
 	}
 	ShowTabField((achor_tab.id).split("tab_ID_")[1]);
 	achor_tab.className = 'selected';
+	document.getElementById(achor_tab.id).parentNode.className = "active";
 }
 
 function SetupTabs(timer_style) {
@@ -681,7 +686,7 @@ function LoadCrontabs() {
 	weeklyPeriod = Usch.WeekA;
 
 	InitSummaryText();
-	shellvarsupdater = setInterval("GetWifiUpdate(null)", 5000);
+	shellvarsupdater = setInterval("GetWifiUpdate1(null)", 5000);
 	
 	for ( var i=0; i < raw_cron_data.length; i++ ) {
 		if (raw_cron_data[i].search(garCronWIFI + ".*" + usbrelay_port) > 0) { 
@@ -764,7 +769,7 @@ function saveChanges() { 	//follow reboot.sh somewhat
 	commands.push("mv /tmp/cron.tmp /etc/crontabs/root");
 	commands.push("/etc/init.d/cron restart");
 	
-	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));		
+	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req) {
 		if (req.readyState == 4) {
 			setControlsEnabled(true);
@@ -774,7 +779,7 @@ function saveChanges() { 	//follow reboot.sh somewhat
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
-function GetWifiUpdate(force_wifi) {
+function GetWifiUpdate1(force_wifi) {
 	var commands = [];
 	if (force_wifi != null) {
 		commands.push("/usr/lib/gargoyle/usbrelay.sh " + force_wifi + " " + usbrelay_port);
@@ -784,7 +789,7 @@ function GetWifiUpdate(force_wifi) {
 	commands.push("echo \"var usbrelay_status = new Array();\"");
 	commands.push("/usr/lib/gargoyle/usbrelay.sh status | awk -F':' '/" + usbrelay_port + ":o/{print \"usbrelay_status.push(\\\"\"$2\"\\\");\" }'");
 
-	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));		
+	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req) {
 		if (req.readyState == 4) {
 			var shell_output = req.responseText.replace(/Success/, "");

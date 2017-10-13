@@ -1,6 +1,6 @@
 #!/usr/bin/haserl
 <%
-	# This program is copyright © 2014 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+	# This program is copyright © 2014-2017 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
 	# itself remain covered by the GPL.
@@ -18,15 +18,20 @@
 //-->
 </script>
 
-<form>
-	<fieldset>
-		<legend class="sectionheader"><%~ usbrelay.Relay %></legend>
-		<div id="no_usbrelay" style="display:none;">
-			<p><em><%~ NoRelay %></em></p>
+<h1 class="page-header"><%~ usbrelay.Relay %></h1>
+<div class="row">
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-body">
+
+			<div id="no_usbrelay" style="display:none;">
+				<p><em><%~ NoRelay %></em></p>
+			</div>
+			<div id="usbrelay_table_container"></div>
+			</div>
 		</div>
-		<div id="usbrelay_table_container"></div>
-	</fieldset>
-</form>
+	</div>
+</div>
 
 <script>
 <!--
