@@ -584,7 +584,9 @@
 	<div id="div_sitesurvey" style="display:none;">
 
 	<h3 class="section">Sieci Wi-Fi</h3>
-	<div id="div_sitesurvey_content"></div>
+	<div id="div_sitesurvey_content">
+		<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>
+	</div>
 	<h3 class="section"></h3>
 	<div class="text-center">
 		<input type="button" class="btn btn-default" onclick="showsitesurvey();" value="Odśwież" />
@@ -595,7 +597,13 @@
 	<div id="div_wlanclients" style="display:none;">
 
 	<h3 class="section">Klienci</h3>
-	<div id="div_wlanclients_content"></div>
+	<div id="div_wlanclients_content">
+		<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>
+	</div>
+	<h3 class="section">Historia połączeń</h3>
+	<div id="div_clientslogs_content">
+		<div class="alert alert-warning">Brak historii połączeń</div>
+	</div>
 	<h3 class="section"></h3>
 	<div class="text-center">
 		<input type="button" class="btn btn-default" onclick="showwlanclients();" value="Odśwież" />
@@ -606,7 +614,9 @@
 	<div id="div_queries" style="display:none;">
 
 	<h3 class="section">Zapytania DNS</h3>
-	<div id="div_queries_content"></div>
+	<div id="div_queries_content">
+		<div class="alert alert-warning">Brak zapytań DNS</div>
+	</div>
 	<h3 class="section"></h3>
 	<div class="text-center">
 		<input type="button" class="btn btn-default" onclick="showqueries();" value="Odśwież" />
