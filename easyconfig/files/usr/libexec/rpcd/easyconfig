@@ -19,10 +19,15 @@ json_get_var WAN_UPTIME uptime
 json_get_var IFNAME l3_device
 
 if [ -n "$WAN_UPTIME" ]; then
+	WAN_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
 	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "%dd %02d:%02d:%02d\n",$1/3600/24, $1/3600%24,$1%3600/60,$1%60}')
 else
+	WAN_SINCE="-"
 	WAN_UPTIME="-"
 fi
+
+F=/tmp/easyconfig_wan_cnt
+[ -e $F ] && WAN_UP_CNT=$(cat $F) || WAN_UP_CNT="-"
 
 if [ -n "$IFNAME" ]; then
 	WAN_RX=$(ifconfig $IFNAME | awk -F[\(\)] '/bytes/ {printf "%s",$2}')
@@ -54,7 +59,9 @@ echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"wlan_clients":"'$WLAN_CLIENTS'",'
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
+echo '"wan_since":"'$WAN_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
+echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"version":"'$VERSION'",'
 echo '"gui_version":"'$GUI_VERSION'",'
 echo '"model":"'$MODEL'"'

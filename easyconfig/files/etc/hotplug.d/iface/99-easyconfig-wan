@@ -1,0 +1,12 @@
+#!/bin/sh
+
+[ $ACTION = "ifup" ] || exit 0
+[ $INTERFACE = "wan" ] || exit 0
+
+FILE=/tmp/easyconfig_wan_cnt
+[ -e $FILE ] || echo 0 > $FILE
+T=$(cat $FILE)
+T=$((T+1))
+echo $T > $FILE
+
+exit 0

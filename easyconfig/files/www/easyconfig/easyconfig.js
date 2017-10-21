@@ -897,7 +897,8 @@ function showstatus() {
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);
-		setValue('wan_uptime', data.wan_uptime);
+		setValue('wan_uptime', data.wan_uptime + (data.wan_since == '-'?'':'<br><small>(od ' + data.wan_since + ')</small>'));
+		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
