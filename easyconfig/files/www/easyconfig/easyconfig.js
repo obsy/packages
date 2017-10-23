@@ -897,7 +897,8 @@ function showstatus() {
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);
-		setValue('wan_uptime', data.wan_uptime + (data.wan_since == '-'?'':'<br><small>(od ' + data.wan_since + ')</small>'));
+		setValue('wan_uptime', data.wan_uptime)
+		setValue('wan_since', data.wan_since == '-'?'':' (od ' + data.wan_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
@@ -1555,6 +1556,7 @@ function showtraffic() {
 				if (percent > 100) {percent = 100;}
 				document.getElementById("div_traffic_today_progress1").style.width = percent + '%';
 				setDisplay("div_traffic_today_progress", true);
+				setValue("traffic_currentperiod_progress", '');
 			}
 			if (traffic_warning_cycle == "p") {
 				if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; }
@@ -1564,6 +1566,7 @@ function showtraffic() {
 				if (percent > 100) {percent = 100;}
 				document.getElementById("div_traffic_currentperiod_progress1").style.width = percent + '%';
 				setDisplay("div_traffic_currentperiod_progress", true);
+				setValue("traffic_today_progress", '');
 			}
 		}
 
@@ -1573,7 +1576,7 @@ function showtraffic() {
 		setValue("traffic_last30d", bytesToSize(traffic_last30d));
 		setValue("traffic_total", bytesToSize(traffic_total));
 		if (total_since) {
-			setValue("traffic_total_since", '(od '+ total_since + ')');
+			setValue("traffic_total_since", ' (od '+ total_since + ')');
 		} else {
 			setValue("traffic_total_since", '');
 		}

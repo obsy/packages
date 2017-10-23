@@ -271,3 +271,7 @@ h3 {
   background-color: #fafafa;
   border: thin solid #ccc;
 }
+
+.oneline {
+  clear: both;
+}
