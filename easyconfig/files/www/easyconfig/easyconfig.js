@@ -1144,11 +1144,22 @@ function sitesurveycallback(sortby) {
 
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
+		var rogueap = false;
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].mac == '') {continue;}
+
+			rogueap = false;
+			if (config.radio0) {
+				if (config.radio0.wlan_ssid === sorted[idx].ssid) { rogueap = true; }
+			}
+			if (config.radio1) {
+				if (config.radio1.wlan_ssid === sorted[idx].ssid) { rogueap = true; }
+			}
+
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-6">';
-			html += '<h4>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp)) + ' temu';
+			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp)) + ' temu';
+			if (rogueap) {html += '<br><span style="color:red;">Wrogi AP</span>';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
