@@ -640,6 +640,11 @@ function showcallback(data) {
 		setDisplay("div_radio" + radios[i], true);
 	}
 
+	if (!is_radio2 && !is_radio5) {
+		setDisplay('menu_wlan', false);
+		setDisplay('div_status_wlan', false);
+	}
+
 	// system
 	setValue('system_hostname_label', config.system_hostname);
 	setValue('system_hostname', config.system_hostname);

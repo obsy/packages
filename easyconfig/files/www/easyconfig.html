@@ -25,8 +25,10 @@
 	<a href="#" onclick="btn_pages('system');">System</a>
 	<hr>
 	<a href="#" onclick="btn_pages('watchdog');">Monitor połączenia</a>
-	<a href="#" onclick="btn_pages('sitesurvey');">Sieci Wi-Fi</a>
-	<a href="#" onclick="btn_pages('wlanclients');">Klienci</a>
+	<div id="menu_wlan">
+		<a href="#" onclick="btn_pages('sitesurvey');">Sieci Wi-Fi</a>
+		<a href="#" onclick="btn_pages('wlanclients');">Klienci</a>
+	</div>
 	<div id="menu_queries" style="display:none;">
 		<a href="#" onclick="btn_pages('queries');">Zapytania DNS</a>
 	</div>
@@ -158,11 +160,13 @@
 		</div>
 	</div>
 
-	<h3 class="section">Wi-Fi</h3>
-	<div class="row">
-		<label class="col-xs-6 text-right">Połączonych klientów</label>
-		<div class="col-xs-6">
-		<a href="#" class="click" onclick="btn_pages('wlanclients');"><p id="wlan_clients">0</p></a>
+	<div id="div_status_wlan">
+		<h3 class="section">Wi-Fi</h3>
+		<div class="row">
+			<label class="col-xs-6 text-right">Połączonych klientów</label>
+			<div class="col-xs-6">
+			<a href="#" class="click" onclick="btn_pages('wlanclients');"><p id="wlan_clients">0</p></a>
+			</div>
 		</div>
 	</div>
 
