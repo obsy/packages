@@ -899,6 +899,7 @@ function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
 		setValue('system_uptime', data.system_uptime);
 		setValue('system_load', data.system_load);
+		setValue('system_time', data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx);
 		setValue('wan_tx', data.wan_tx);

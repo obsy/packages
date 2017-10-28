@@ -13,6 +13,7 @@ show_status()
 SYSTEM_UPTIME=$(awk '{printf "%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
+SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
 
 json_load "$(ubus call network.interface.wan status)"
 json_get_var WAN_UPTIME uptime
@@ -62,6 +63,7 @@ WAN_UPTIME=$(echo ${WAN_UPTIME/0d /})
 echo '{'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
 echo '"system_load":"'$SYSTEM_LOAD'",'
+echo '"system_time":"'$SYSTEM_TIME'",'
 echo '"wlan_clients":"'$WLAN_CLIENTS'",'
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
