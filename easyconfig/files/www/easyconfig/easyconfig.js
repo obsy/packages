@@ -1164,8 +1164,8 @@ function sitesurveycallback(sortby) {
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
 			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
-			html += (sorted[idx].encryption?'Szyfrowanie ' + sorted[idx].encryption + '<br>':'');
-			html += 'Standard 802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"") + '<br>';
+			html += (sorted[idx].encryption?'<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>':'');
+			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"") + '<br>';
 			html += '</div></div>';
 		}
 		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
