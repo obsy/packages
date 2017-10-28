@@ -11,17 +11,32 @@
 show_status()
 {
 SYSTEM_UPTIME=$(awk '{printf "%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
+SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d 0h /})
+SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d /})
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
-SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
+
+if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
+else
+	SYSTEM_TIME="-"
+fi
 
 json_load "$(ubus call network.interface.wan status)"
 json_get_var WAN_UPTIME uptime
 json_get_var IFNAME l3_device
 
 if [ -n "$WAN_UPTIME" ]; then
-	WAN_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
+
+	if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+		WAN_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
+	else
+		WAN_SINCE="-"
+	fi
+
 	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}')
+	WAN_UPTIME=$(echo ${WAN_UPTIME/0d 0h /})
+	WAN_UPTIME=$(echo ${WAN_UPTIME/0d /})
 else
 	WAN_SINCE="-"
 	WAN_UPTIME="-"
@@ -53,12 +68,6 @@ done
 GUI_VERSION="-devel-"
 VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
 MODEL=$(cat /tmp/sysinfo/model)
-
-SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d 0h /})
-SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d /})
-
-WAN_UPTIME=$(echo ${WAN_UPTIME/0d 0h /})
-WAN_UPTIME=$(echo ${WAN_UPTIME/0d /})
 
 echo '{'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
