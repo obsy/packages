@@ -1387,18 +1387,18 @@ function queriescallback(sortby, order) {
 	var html = "";
 	if (queries.length > 1) {
 		html += '<div class="row">';
-		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
-		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
-		html += '<div class="col-xs-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
+		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
+		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
+		html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
 		html += '</div><hr>';
 
 		var sorted = sortJSON(queries, sortby, (order?order:'123'));
 		for(var idx=0; idx<sorted.length; idx++){
 			if (sorted[idx].time == '') {continue;}
 			html += '<div class="row space">';
-			html += '<div class="col-xs-4">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-4 wraptext">' + sorted[idx].query + '</div>';
-			html += '<div class="col-xs-4 wraptext">' + sorted[idx].host + '</div>';
+			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
+			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
+			html += '<div class="col-xs-12 col-sm-4">' + sorted[idx].query + '</div>';
 			html += '</div>';
 		}
 	} else {
