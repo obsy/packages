@@ -237,8 +237,8 @@ function removeClasses(element, classes) {
 
 function enableDns(enable) {
 	setValue("wan_dns", enable);
-	setElementEnabled("wan_dns1", true, !enable);
-	setElementEnabled("wan_dns2", true, !enable);
+	setElementEnabled("wan_dns1", enable, false);
+	setElementEnabled("wan_dns2", enable, false);
 }
 
 function canceldetectwan() {
@@ -355,7 +355,7 @@ function enableWan(proto) {
 	}
 
 	var fields = [];
-	if ((proto == "static") || (proto == "dhcp") || (proto == "dhcp_hilink")) {
+	if (proto == "static") {
 		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
@@ -367,14 +367,14 @@ function enableWan(proto) {
 		setElementEnabled(all[idx], false, false);
 	}
 	for(var idx=0; idx < fields.length; idx++) {
-		setElementEnabled(fields[idx], true, (proto == "dhcp" || proto == "dhcp_hilink"));
+		setElementEnabled(fields[idx], true, false);
 	}
 	if (proto != "static" && proto != "none") {
 		setElementEnabled("wan_dns", true, false);
 		var t = (config.wan_use_dns == 1)
 		setValue("wan_dns", t);
-		setElementEnabled("wan_dns1", true, !t);
-		setElementEnabled("wan_dns2", true, !t);
+		setElementEnabled("wan_dns1", t, false);
+		setElementEnabled("wan_dns2", t, false);
 	}
 
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
