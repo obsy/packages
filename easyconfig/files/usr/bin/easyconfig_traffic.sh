@@ -1,6 +1,6 @@
 #!/bin/sh
 
-IFACE=$(ifstatus wan | jsonfilter -e '@.l3_device')
+IFACE=$(ifstatus wan | jsonfilter -e '@.l3_device' 2>/dev/null)
 [ -z "$IFACE" ] && exit 0
 
 TT=/tmp/easyconfig_traffic.tmp
@@ -16,8 +16,8 @@ TDB=/tmp/easyconfig_traffic.txt
 
 D=$(date +%Y-%m-%d)
 
-NEWRX=$(awk '/'$IFACE'/{print $2}' /proc/net/dev)
-NEWTX=$(awk '/'$IFACE'/{print $10}' /proc/net/dev)
+NEWRX=$(awk '/'$IFACE':/{print $2}' /proc/net/dev)
+NEWTX=$(awk '/'$IFACE':/{print $10}' /proc/net/dev)
 OLDRX=$(awk '{print $1}' $TT)
 OLDTX=$(awk '{print $2}' $TT)
 CNT=$(awk '{print $3}' $TT)
@@ -34,7 +34,7 @@ sed -i '/'$D'/d' $TDB
 T=$((OLDT+RX+TX))
 echo "$D $T" >> $TDB
 
-PERIOD=$(uci -q get system.@system[0].traffic_period)
+PERIOD=$(uci -q get easyconfig.traffic.period)
 [ -z "$PERIOD" ] && PERIOD=10
 if [ $CNT -ge $PERIOD ]; then
 
