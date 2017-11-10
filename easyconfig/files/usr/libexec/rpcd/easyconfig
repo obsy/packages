@@ -10,9 +10,10 @@
 
 show_status()
 {
-SYSTEM_UPTIME=$(awk '{printf "%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
-SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d 0h /})
-SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/0d /})
+SYSTEM_UPTIME=$(awk '{printf "@%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
+SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@0d 0h /})
+SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@0d /})
+SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@/})
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
 
@@ -34,9 +35,10 @@ if [ -n "$WAN_UPTIME" ]; then
 		WAN_SINCE="-"
 	fi
 
-	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}')
-	WAN_UPTIME=$(echo ${WAN_UPTIME/0d 0h /})
-	WAN_UPTIME=$(echo ${WAN_UPTIME/0d /})
+	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "@%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}')
+	WAN_UPTIME=$(echo ${WAN_UPTIME/@0d 0h /})
+	WAN_UPTIME=$(echo ${WAN_UPTIME/@0d /})
+	WAN_UPTIME=$(echo ${WAN_UPTIME/@/})
 else
 	WAN_SINCE="-"
 	WAN_UPTIME="-"
