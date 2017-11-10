@@ -1587,6 +1587,9 @@ function showtraffic() {
 				setDisplay("div_traffic_currentperiod_progress", true);
 				setValue("traffic_today_progress", '');
 			}
+		} else {
+			setValue("traffic_today_progress", '');
+			setValue("traffic_currentperiod_progress", '');
 		}
 
 		setValue("traffic_today", bytesToSize(traffic_today));
