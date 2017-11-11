@@ -901,8 +901,8 @@ function showstatus() {
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
-		setValue('wan_rx', bytesToSize(data.wan_rx));
-		setValue('wan_tx', bytesToSize(data.wan_tx));
+		setValue('wan_rx', data.wan_rx == '-'?'-':bytesToSize(data.wan_rx));
+		setValue('wan_tx', data.wan_tx == '-'?'-':bytesToSize(data.wan_tx));
 		setValue('wan_uptime', data.wan_uptime)
 		setValue('wan_since', data.wan_since == '-'?'':' (od ' + data.wan_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
