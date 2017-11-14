@@ -361,9 +361,6 @@ function enableWan(proto) {
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
-	if (proto == "dhcp_hilink") {
-		fields=["hilink_url"];
-	}
 
 	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","hilink_url"];
 	for(var idx=0; idx < all.length; idx++) {
@@ -384,6 +381,10 @@ function enableWan(proto) {
 
 	setDisplay("div_status_wan", (proto != "none"));
 	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
+
+	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.hilink_url) {
+		setElementEnabled("hilink_url", true, false);
+	}
 }
 
 function enableWlanEncryption(encryption, cnt) {
@@ -391,10 +392,8 @@ function enableWlanEncryption(encryption, cnt) {
 }
 
 function btn_hilink_url() {
-	if (config.hilink_url) {
-		var win = window.open(config.hilink_url, '_blank');
-		win.focus();
-	}
+	var win = window.open(config.hilink_url, '_blank');
+	win.focus();
 }
 
 /*****************************************************************************/
@@ -607,7 +606,6 @@ function showcallback(data) {
 	if (config.wan_proto=="dhcp") {
 		if (config.wan_ifname == config.wan_ifname_hilink) {
 			setValue('wan_proto', "dhcp_hilink");
-			config.wan_ifname="dhcp_hilink";
 		}
 	}
 	enableWan(getValue("wan_proto"));
