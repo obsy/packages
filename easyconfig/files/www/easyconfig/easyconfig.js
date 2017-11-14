@@ -361,8 +361,11 @@ function enableWan(proto) {
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
+	if (proto == "dhcp_hilink") {
+		fields=["hilink_url"];
+	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","hilink_url"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -386,6 +389,15 @@ function enableWan(proto) {
 function enableWlanEncryption(encryption, cnt) {
 	setElementEnabled("wlan_key"+cnt, (encryption!="none" && encryption!=""), false);
 }
+
+function btn_hilink_url() {
+	if (config.hilink_url) {
+		var win = window.open(config.hilink_url, '_blank');
+		win.focus();
+	}
+}
+
+/*****************************************************************************/
 
 function setElementEnabled(element, show, disabled) {
 	var e = document.getElementById(element);

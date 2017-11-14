@@ -143,6 +143,15 @@ else
 	LAN_DHCP_ENABLED=1
 fi
 
+HILINK_URL=""
+if [ -n "$WAN_IFNAME_HILINK" ]; then
+	if grep -q "usb:v12D1p" /sys/class/net/$WAN_IFNAME_HILINK/device/modalias 2>/dev/null; then
+		if [ -n "$WAN_GATEWAY" ]; then
+			HILINK_URL="http://$WAN_GATEWAY"
+		fi
+	fi
+fi
+
 echo '{'
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
@@ -158,6 +167,7 @@ echo '"wan_pincode":"'$WAN_PINCODE'",'
 echo '"wan_ifname":"'$WAN_IFNAME'",'
 echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
+echo '"hilink_url":"'$HILINK_URL'",'
 
 echo '"wan_protos":["none"'
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then
