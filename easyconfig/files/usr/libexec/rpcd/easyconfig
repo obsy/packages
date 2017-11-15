@@ -595,7 +595,7 @@ show_wifiscan() {
 	for IFACE in /sys/class/net/wlan[0-9]; do
 		IFACE1=$(basename $IFACE)
 		iw dev $IFACE1 scan 2>/dev/null | awk '{gsub("(on","");if($1 == "BSS") {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""}
-			if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); wifi_ssid[MAC]=t}
+			if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
 			if($1 == "signal:") {wifi_sig[MAC] = $2}
 			if($1 == "freq:") {wifi_freq[MAC] = $2; if($2<5000){wifi_mode1[MAC] = "g"}else{wifi_mode1[MAC] = "a"}}
 			if($0 ~ /primary channel:/) {wifi_chan[MAC] = $4}
