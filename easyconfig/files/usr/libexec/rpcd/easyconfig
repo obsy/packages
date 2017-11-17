@@ -695,7 +695,7 @@ detect_wan()
 	if [ -n "$T" ] ; then
 
 		for D in $T; do
-			O=$(gcom -d $D -s /etc/gcom/checkpin.gcom)
+			O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
 			if echo "$O" | grep -q "SIM PIN"; then
 				echo '{"proto":"3g","device":"'$D'","action":"pinrequired"}'
 				exit 0
