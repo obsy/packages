@@ -908,13 +908,14 @@ function showstatistics() {
 function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
 		setValue('system_uptime', data.system_uptime);
+		setValue('system_uptime_since', data.system_uptime_since == '-'?'':' (od ' + data.system_uptime_since + ')');
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx == '-'?'-':bytesToSize(data.wan_rx));
 		setValue('wan_tx', data.wan_tx == '-'?'-':bytesToSize(data.wan_tx));
 		setValue('wan_uptime', data.wan_uptime)
-		setValue('wan_since', data.wan_since == '-'?'':' (od ' + data.wan_since + ')');
+		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('wan_ipaddr_status', data.wan_ipaddr);
 		setValue('firmware_version', data.version);

@@ -10,6 +10,13 @@
 
 show_status()
 {
+T=$(awk '{printf "%d\n", $1}' /proc/uptime)
+if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T))")
+else
+	SYSTEM_UPTIME_SINCE="-"
+fi
+
 SYSTEM_UPTIME=$(awk '{printf "@%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
 SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@0d 0h /})
 SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@0d /})
@@ -39,9 +46,9 @@ fi
 if [ -n "$WAN_UPTIME" ]; then
 
 	if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
-		WAN_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
+		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
 	else
-		WAN_SINCE="-"
+		WAN_UPTIME_SINCE="-"
 	fi
 
 	WAN_UPTIME=$(echo $WAN_UPTIME | awk '{printf "@%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}')
@@ -49,7 +56,7 @@ if [ -n "$WAN_UPTIME" ]; then
 	WAN_UPTIME=$(echo ${WAN_UPTIME/@0d /})
 	WAN_UPTIME=$(echo ${WAN_UPTIME/@/})
 else
-	WAN_SINCE="-"
+	WAN_UPTIME_SINCE="-"
 	WAN_UPTIME="-"
 fi
 
@@ -81,13 +88,14 @@ VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs
 MODEL=$(cat /tmp/sysinfo/model)
 
 echo '{'
+echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
 echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
 echo '"wlan_clients":"'$WLAN_CLIENTS'",'
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
-echo '"wan_since":"'$WAN_SINCE'",'
+echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
