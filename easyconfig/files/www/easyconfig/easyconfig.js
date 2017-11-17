@@ -916,6 +916,7 @@ function showstatus() {
 		setValue('wan_uptime', data.wan_uptime)
 		setValue('wan_since', data.wan_since == '-'?'':' (od ' + data.wan_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
+		setValue('wan_ipaddr_status', data.wan_ipaddr);
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);

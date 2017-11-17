@@ -26,6 +26,15 @@ fi
 json_load "$(ubus call network.interface.wan status)"
 json_get_var WAN_UPTIME uptime
 json_get_var IFNAME l3_device
+json_get_var PROTO proto
+
+. /lib/functions/network.sh
+if [ "x$PROTO" = "xqmi" -o "x$PROTO" = "xncm" ]; then
+	network_get_ipaddr WAN_IPADDR wan_4
+else
+	network_get_ipaddr WAN_IPADDR wan
+fi
+[ -z "$WAN_IPADDR" ] && WAN_IPADDR="-"
 
 if [ -n "$WAN_UPTIME" ]; then
 
@@ -81,6 +90,7 @@ echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_since":"'$WAN_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
+echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"version":"'$VERSION'",'
 echo '"gui_version":"'$GUI_VERSION'",'
 echo '"model":"'$MODEL'"'
