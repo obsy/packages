@@ -13,8 +13,10 @@ show_status()
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
 	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T))")
+	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
 else
 	SYSTEM_UPTIME_SINCE="-"
+	SYSTEM_TIME="-"
 fi
 
 SYSTEM_UPTIME=$(awk '{printf "@%dd %dh %dm\n", $1/3600/24, $1/3600%24, $1%3600/60}' /proc/uptime)
@@ -23,12 +25,6 @@ SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@0d /})
 SYSTEM_UPTIME=$(echo ${SYSTEM_UPTIME/@/})
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
-
-if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
-	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
-else
-	SYSTEM_TIME="-"
-fi
 
 json_load "$(ubus call network.interface.wan status)"
 json_get_var WAN_UPTIME uptime
