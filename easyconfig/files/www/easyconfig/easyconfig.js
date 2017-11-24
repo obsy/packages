@@ -268,15 +268,8 @@ function okdetectwan() {
 
 	cmd.push('uci commit network');
 	cmd.push('ifup wan');
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
 
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"' + cmd.join('\n') + '"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			showconfig();
-		});
-	});
+	execute(cmd, showconfig);
 }
 
 function canceldetectwan_pin() {
@@ -514,6 +507,18 @@ function ubus_call(param, callback)
 		}
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
+	});
+}
+
+function execute(cmd, callback) {
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit 0');
+	cmd.push('');
+
+	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"' + cmd.join('\n') + '"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+			callback();
+		});
 	});
 }
 
@@ -883,19 +888,9 @@ function saveconfig() {
 		cmd.push('(echo \\\"'+pass1+'\\\"; sleep 1; echo \\\"'+pass1+'\\\") | passwd root');
 	}
 
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
-
 //console.log(cmd);
 
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			cleanField('password1');
-			cleanField('password2');
-			showconfig();
-		});
-	});
+	execute(cmd, function(){ cleanField('password1'); cleanField('password2'); showconfig(); });
 }
 
 function showstatistics() {
@@ -1059,15 +1054,7 @@ function savewatchdog() {
 	cmd.push('uci set easyconfig.watchdog.action='+watchdog_action);
 	cmd.push('uci commit easyconfig');
 
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
-
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			showwatchdog();
-		});
-	});
+	execute(cmd, showwatchdog);
 }
 
 /*****************************************************************************/
@@ -1374,15 +1361,8 @@ function saveclientname() {
 	cmd.push('uci set dhcp.m' + nmac + '.mac=\\\"' + mac + '\\\"');
 	cmd.push('uci set dhcp.m' + nmac + '.networkid=\\\"' + name +'\\\"');
 	cmd.push('uci commit dhcp');
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
 
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			showwlanclients();
-		});
-	});
+	execute(cmd, showwlanclients);
 }
 
 /*****************************************************************************/
@@ -1644,16 +1624,7 @@ function savetraffic() {
 	cmd.push('uci set easyconfig.traffic.warning_unit='+getValue("traffic_warning_unit"));
 	cmd.push('uci commit easyconfig');
 
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
-
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			showtraffic();
-		});
-	});
-
+	execute(cmd, showtraffic);
 }
 
 function removetraffic() {
@@ -1673,16 +1644,8 @@ function okremovetraffic() {
 	cmd.push('touch /usr/lib/easyconfig/easyconfig_traffic.txt');
 	cmd.push('gzip /usr/lib/easyconfig/easyconfig_traffic.txt');
 	cmd.push('rm /tmp/easyconfig_traffic.txt');
-	cmd.push('rm -- \\\"$0\\\"');
-	cmd.push('exit 0');
-	cmd.push('');
 
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"'+cmd.join('\n')+'"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
-			showtraffic();
-		});
-	});
-
+	execute(cmd, showtraffic);
 }
 
 /*****************************************************************************/
