@@ -57,7 +57,7 @@ qmi|ncm)
 	SEC=wan
 	;;
 esac
-WAN=$(ifstatus $SEC | grep -A 2 "ipv4-address" | awk -F\" '/"address"/ {print $4}')
+WAN=$(ubus call network.interface status '{"interface":"'$SEC'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
 [ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$SEC.ipaddr)
 [ -n "$WAN" ] && WAN="$WAN, proto: "$PROTO
 
@@ -75,7 +75,7 @@ for i in $IFACES; do
 	DEV=$(uci -q get wireless.$i.device)
 	OFF=$(uci -q get wireless.$DEV.disabled)
 	OFF2=$(uci -q get wireless.$i.disabled)
-	UP=$(ubus call network.wireless status '{"device":"'$DEV'"}' | jsonfilter -e @.*.up)
+	UP=$(ubus call network.wireless status '{"device":"'$DEV'"}' 2>/dev/null | jsonfilter -q -e @.*.up)
 	if [ -n "$SSID" ] && [ "x$OFF" != "x1" ] && [ "x$OFF2" != "x1" ] && [ "x$UP" == "xtrue" ]; then
 		MODE=$(uci -q -P /var/state get wireless.$i.mode)
 		CHANNEL=$(uci -q get wireless.$DEV.channel)
