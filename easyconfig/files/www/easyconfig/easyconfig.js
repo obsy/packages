@@ -1306,8 +1306,9 @@ function clientslogscallback() {
 		var sorted = sortJSON(clientslogs, 'time', '321');
 		for(var idx=0; idx<sorted.length; idx++){
 			html += '<div class="row space">';
-			html += '<div class="col-xs-3">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-3">' + (sorted[idx].event=='login'?'połączenie':'rozłączenie') + '</div>';
+			html += '<div class="col-xs-4 col-sm-3">' + sorted[idx].time + '</div>';
+			html += '<div class="col-xs-2 visible-xs">' + (sorted[idx].event=='login'?'poł.':'rozł.') + '</div>';
+			html += '<div class="col-sm-3 hidden-xs">' + (sorted[idx].event=='login'?'połączenie':'rozłączenie') + '</div>';
 			if (sorted[idx].mac == '') {
 				html += '<div class="col-xs-6">' + sorted[idx].name + '</div>';
 			} else {
