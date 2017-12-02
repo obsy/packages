@@ -902,14 +902,14 @@ function showstatistics() {
 
 function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
-		setValue('system_uptime', data.system_uptime);
+		setValue('system_uptime', formatTime(data.system_uptime, false));
 		setValue('system_uptime_since', data.system_uptime_since == '-'?'':' (od ' + data.system_uptime_since + ')');
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('wan_rx', data.wan_rx == '-'?'-':bytesToSize(data.wan_rx));
 		setValue('wan_tx', data.wan_tx == '-'?'-':bytesToSize(data.wan_tx));
-		setValue('wan_uptime', data.wan_uptime)
+		setValue('wan_uptime', formatTime(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('wan_ipaddr_status', data.wan_ipaddr);
@@ -1067,10 +1067,21 @@ function sortJSON(data, key, way) {
 	});
 }
 
-function formatTime(s) {
-	var mins = parseInt(s / 60);
-	var secs = s % 60;
-	return (mins > 0?mins + 'm ':'') + secs + 's';
+function formatTime(s, showsec) {
+	if (s === "-") {return s;}
+	var d = Math.floor(s/86400),
+	    h = Math.floor(s/3600) % 24,
+	    m = Math.floor(s/60)%60,
+	    s = s % 60;
+	var time = d>0?d+'d ':'';
+	if (time != "") {time += h+'h '} else {time = h>0?h+'h ':''}
+	if (time != "") {time += m+'m '} else {time = m>0?m+'m ':''}
+	if (showsec) {
+		time += s+'s';
+	} else {
+		if (time == "") {time += m+'m'};
+	}
+	return time;
 }
 
 var wifiscanresults;
@@ -1158,7 +1169,7 @@ function sitesurveycallback(sortby) {
 
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-6">';
-			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp)) + ' temu';
+			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';
 			if (rogueap) {html += '<br><span style="color:red;">Wrogi AP</span>';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
