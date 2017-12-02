@@ -1280,7 +1280,7 @@ function wlanclientscallback(sortby) {
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].inactive + '\',\'' + sorted[idx].band + '\');">blokuj</a></div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">blokuj</a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1323,7 +1323,7 @@ function clientslogscallback() {
 	div.innerHTML = html;
 }
 
-function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connected_since, inactive, band) {
+function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
 	setValue('block_host_mac', mac);
 	setValue('block_host_realname', realname);
 	setValue('block_host_tx', tx);
@@ -1331,7 +1331,6 @@ function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connect
 	setValue('block_host_signal', signal + ' dBm');
 	setValue('block_host_connected', formatTime(connected, false));
 	setValue('block_host_connected_since', connected_since == '-'?'':' (od ' + connected_since + ')');
-	setValue('block_host_inactive', formatTime(inactive, true));
 	setValue('block_host_band', band==2?'2.4GHz':'5GHz');
 	setValue('block_mac', mac);
 	setValue('block_name', name);
