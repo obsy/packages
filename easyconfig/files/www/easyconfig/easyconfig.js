@@ -1280,7 +1280,7 @@ function wlanclientscallback(sortby) {
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\');">blokuj</a></div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].inactive + '\');">blokuj</a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1322,12 +1322,15 @@ function clientslogscallback() {
 	div.innerHTML = html;
 }
 
-function wlanclientblock(mac, name, realname, tx, rx) {
+function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connected_since, inactive) {
 	setValue('block_host_mac', mac);
 	setValue('block_host_realname', realname);
 	setValue('block_host_tx', tx);
 	setValue('block_host_rx', rx);
-
+	setValue('block_host_signal', signal + ' dBm');
+	setValue('block_host_connected', formatTime(connected, false));
+	setValue('block_host_connected_since', connected_since == '-'?'':' (od ' + connected_since + ')');
+	setValue('block_host_inactive', formatTime(inactive, true));
 	setValue('block_mac', mac);
 	setValue('block_name', name);
 	setDisplay("div_block", true);
