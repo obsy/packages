@@ -30,7 +30,7 @@ if [ $CNT -ge $4 ]; then
 	case "$5" in
 		"reboot")
 			logger -t $0 "Reboot"
-			reboot
+			ubus call easyconfig reboot
 			;;
 		"wan")
 			logger -t $0 "WAN Restart"
