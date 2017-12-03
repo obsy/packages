@@ -761,6 +761,19 @@ detect_wan()
 
 ##############################################################################
 
+reboot()
+{
+	[ -e /etc/crontabs/root ] && TEN=$(grep easyconfig_traffic /etc/crontabs/root)
+	if [ -n "$TEN" ]; then
+		uci set easyconfig.traffic.period=1
+		/usr/bin/easyconfig_traffic.sh
+	fi
+	sync
+	/sbin/reboot
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -775,7 +788,8 @@ case "$1" in
 		echo '"queries":{},'
 		echo '"wifiscan":{},'
 		echo '"detect_wan":{},'
-		echo '"pincode":{"proto":"string","device":"string","pincode":"string"}'
+		echo '"pincode":{"proto":"string","device":"string","pincode":"string"}',
+		echo '"reboot":{},'
 		echo '}'
 	;;
 	call)
@@ -815,6 +829,9 @@ case "$1" in
 				;;
 			pincode)
 				pincode
+				;;
+			reboot)
+				reboot
 				;;
 		esac
 	;;

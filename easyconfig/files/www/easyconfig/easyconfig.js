@@ -985,7 +985,7 @@ function showmodemsection() {
 /*****************************************************************************/
 
 function btn_system_reboot() {
-	ubus('"system", "reboot", {}', function(data) {
+	ubus('"easyconfig", "reboot", {}', function(data) {
 		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
