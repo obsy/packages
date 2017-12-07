@@ -1169,14 +1169,20 @@ function sitesurveycallback(sortby) {
 
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-6">';
-			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>' + sorted[idx].mac + '<br>widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';
+			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>';
+			html += sorted[idx].mac + '<br>';
+
+			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
+			if (key in manuf) {html += manuf[key] + '<br>';}
+
+			html += 'widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';
 			if (rogueap) {html += '<br><span style="color:red;">Wrogi AP</span>';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
 			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
 			html += (sorted[idx].encryption?'<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>':'');
-			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"") + '<br>';
+			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"");
 			html += '</div></div>';
 		}
 		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
@@ -1325,6 +1331,14 @@ function clientslogscallback() {
 
 function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
 	setValue('block_host_mac', mac);
+
+	var key = mac.substring(0,8).toUpperCase();
+	if (key in manuf) {
+		setValue('block_host_vendor', manuf[key]);
+	} else {
+		setValue('block_host_vendor', "");
+	}
+
 	setValue('block_host_realname', realname);
 	setValue('block_host_tx', tx);
 	setValue('block_host_rx', rx);
