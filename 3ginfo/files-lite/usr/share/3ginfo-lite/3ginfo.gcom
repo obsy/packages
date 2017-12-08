@@ -41,6 +41,9 @@ opengt
  if len($s) < 2 goto loop2
  if $mid($s,1,2) = "ER" return
  if $mid($s,1,2) = "CO" return
+ if len($s) < 10 goto loop2
+ if $mid($s,1,10) = "+CME ERROR" print $s
+ return
 :loop2
  if i = 0 return
  let i=i-1

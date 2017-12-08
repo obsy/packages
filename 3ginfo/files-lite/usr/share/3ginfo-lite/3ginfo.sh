@@ -96,6 +96,21 @@ case "$T" in
 	 *) MODE="-";;
 esac
 
+T=$(echo "$O" | awk -F[,\ ] '/^\+CME ERROR:/ {print $0}' | head -n1)
+if [ -n "$T" ]; then
+	case "$T" in
+	"+CME ERROR: 10") REG="SIM not inserted";;
+	"+CME ERROR: 11") REG="SIM PIN required";;
+	"+CME ERROR: 12") REG="SIM PUK required";;
+	"+CME ERROR: 13") REG="SIM failure";;
+	"+CME ERROR: 14") REG="SIM busy";;
+	"+CME ERROR: 15") REG="SIM wrong";;
+	"+CME ERROR: 17") REG="SIM PIN2 required";;
+	"+CME ERROR: 18") REG"SIM PUK2 required";;
+		       *) REG=$(echo "$T" | cut -f2 -d: | xargs);;
+	esac
+fi
+
 echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\",\"registration\":\"$REG\"}"
 
 exit 0
