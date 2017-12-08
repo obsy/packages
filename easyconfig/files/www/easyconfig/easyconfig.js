@@ -965,7 +965,7 @@ function showmodem() {
 			setValue('modem_registration', 'Zalogowana do sieci w roamingu');
 			break;
 		default:
-			setValue('modem_registration', '-');
+			setValue('modem_registration', data.registration == '-'?'-':data.registration);
 		}
 	});
 }
