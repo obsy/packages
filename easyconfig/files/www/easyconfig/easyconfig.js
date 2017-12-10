@@ -364,10 +364,9 @@ function enableWan(proto) {
 	}
 	if (proto != "static" && proto != "none") {
 		setElementEnabled("wan_dns", true, false);
-		var t = (config.wan_use_dns == 1)
-		setValue("wan_dns", t);
-		setElementEnabled("wan_dns1", t, false);
-		setElementEnabled("wan_dns2", t, false);
+		setValue("wan_dns", config.wan_use_dns);
+		setElementEnabled("wan_dns1", config.wan_use_dns, false);
+		setElementEnabled("wan_dns2", config.wan_use_dns, false);
 	}
 
 	setElementEnabled("firewall_dmz", (proto != "none"), false);

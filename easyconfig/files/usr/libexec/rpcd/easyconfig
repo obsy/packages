@@ -103,7 +103,7 @@ WAN_NETMASK=$(uci -q -P /var/state get network.wan.netmask)
 WAN_GATEWAY=$(uci -q -P /var/state get network.wan.gateway)
 WAN_DNS=$(uci -q -P /var/state get network.wan.dns)
 WAN_USE_DNS=$(uci -q get network.wan.dns)
-[ -n "$WAN_USE_DNS" ] && WAN_USE_DNS=1 || WAN_USE_DNS=0
+[ -n "$WAN_USE_DNS" ] && WAN_USE_DNS="true" || WAN_USE_DNS="false"
 WAN_APN=$(uci -q get network.wan.apn)
 [ -z "$WAN_APN" ] && WAN_APN="internet"
 WAN_DEVICE=$(uci -q get network.wan.device)
@@ -124,7 +124,7 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	network_get_physdev WAN_IFNAME wan
 	network_get_gateway WAN_GATEWAY wan
 	network_get_ipaddr WAN_IPADDR wan
-	[ $WAN_USE_DNS -eq 0 ] && network_get_dnsserver WAN_DNS wan
+	network_get_dnsserver WAN_DNS wan
 	network_get_subnet WAN_NETMASK wan
 	WAN_NETMASK=${WAN_NETMASK##*/}
 	if [ -n "$WAN_NETMASK" ]; then
@@ -166,7 +166,7 @@ echo '"wan_proto":"'$WAN_PROTO'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"wan_netmask":"'$WAN_NETMASK'",'
 echo '"wan_gateway":"'$WAN_GATEWAY'",'
-echo '"wan_use_dns":"'$WAN_USE_DNS'",'
+echo '"wan_use_dns":'$WAN_USE_DNS','
 echo '"wan_dns1":"'$WAN_DNS1'",'
 echo '"wan_dns2":"'$WAN_DNS2'",'
 echo '"wan_apn":"'$WAN_APN'",'
