@@ -618,6 +618,7 @@ function showcallback(data) {
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
 	setValue('lan_dhcp_enabled', (config.lan_dhcp_enabled == 1));
+	setValue('lan_forcedns', config.lan_forcedns);
 	setValue('dhcp_logqueries', (config.dhcp_logqueries == 1));
 	setDisplay("menu_queries", (config.dhcp_logqueries == 1));
 
@@ -745,6 +746,7 @@ function saveconfig() {
 		cmd.push('uci -q del firewall.dmz');
 	} else {
 		cmd.push('uci set firewall.dmz=redirect');
+		cmd.push('uci set firewall.dnz.name=DMZ');
 		cmd.push('uci set firewall.dmz.src=wan');
 		cmd.push('uci set firewall.dmz.proto=all');
 		cmd.push('uci set firewall.dmz.dest_ip='+firewall_dmz);
@@ -758,6 +760,18 @@ function saveconfig() {
 		cmd.push('uci -q del dhcp.lan.ignore');
 	} else {
 		cmd.push('uci set dhcp.lan.ignore=1');
+	}
+
+	if (getValue("lan_forcedns")) {
+		cmd.push('uci set firewall.forcedns=redirect');
+		cmd.push('uci set firewall.forcedns.name=\\\"Force DNS\\\"');
+		cmd.push('uci set firewall.forcedns.src=lan');
+		cmd.push('uci set firewall.forcedns.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.forcedns.src_dport=53');
+		cmd.push('uci set firewall.forcedns.dest_port=53');
+		cmd.push('uci set firewall.forcedns.target=DNAT');
+	} else {
+		cmd.push('uci -q del firewall.forcedns');
 	}
 
 	if (getValue("dhcp_logqueries")) {

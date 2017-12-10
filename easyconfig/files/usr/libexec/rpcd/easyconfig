@@ -258,8 +258,12 @@ for R in $RADIOS; do
 	echo '},'
 done
 
-DMZ=$(uci -q get firewall.dmz.dest_ip)
-echo '"firewall_dmz":"'$DMZ'",'
+T=$(uci -q get firewall.dmz.dest_ip)
+echo '"firewall_dmz":"'$T'",'
+
+T=$(uci -q get firewall.forcedns)
+[ "x$T" = "xredirect" ] && T="true" || T="false"
+echo '"lan_forcedns":'$T','
 
 T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
 echo '"dhcp_logqueries":"'$T'",'
