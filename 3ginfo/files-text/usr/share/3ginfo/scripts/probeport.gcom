@@ -2,7 +2,7 @@ let $d = $env("DEVICE")
 if $d = "" goto timeout
 
 open com $d
-set com 57600n81
+set com 115200n81
 set senddelay 0.05
 waitquiet 2 0.5
 send "AT^m"
