@@ -55,12 +55,10 @@ else
 fi
 [ "x$COPS" = "x" ] && COPS=$COPS_NUM
 
-# COPS alphanumeric
-T=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
-if [ "x$T" != "x" ]; then
-	if [ "x$T" != "x$COPS" ]; then
-		COPS="$T"
-	fi
+if [ -z "$FORCE_PLMN" ]; then
+	# COPS alphanumeric
+	T=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
+	[ "x$T" != "x" ] && COPS="$T"
 fi
 
 # CREG
