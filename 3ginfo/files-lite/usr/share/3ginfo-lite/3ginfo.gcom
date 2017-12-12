@@ -46,6 +46,6 @@ opengt
  print $s
  return
 :loop2
- if i = 0 return
+ if i = 0 exit 0
  let i=i-1
  goto loop
