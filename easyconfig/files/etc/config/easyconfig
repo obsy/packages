@@ -22,4 +22,5 @@ config service ussd
 	option raw_output '0'
 
 config service modem
-	option use_uqmi '0'
+	option force_qmi '0'
+	option force_plmn '0'
