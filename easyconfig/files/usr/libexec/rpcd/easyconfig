@@ -445,39 +445,48 @@ echo '}'
 
 show_modem()
 {
-	if [ "x$(uci -q get network.wan.proto)" = "xqmi" -a "x$(uci -q get easyconfig.modem.use_uqmi)" = "x1" ]; then
+	if [ "x$(uci -q get network.wan.proto)" = "xqmi" -a "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ]; then
 		D=$(uci -q get network.wan.device)
 		T=$(uqmi -sd $D --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')
 
 		json_load "$T"
 
-		json_get_var TYPE type
-		MODE=$(echo $TYPE | tr 'a-z' 'A-Z')
+		json_get_vars type plmn_description rssi registration roaming plmn_mcc plmn_mnc
 
-		json_get_var PLMN_DESCRIPTION plmn_description
+		MODE=$(echo $type | tr 'a-z' 'A-Z')
 
-		json_get_var RSSI rssi
-		if [ -n "$RSSI" ]; then
-			[ $RSSI -ge -51 ] && RSSI=-51
-			SIGNAL=$(((RSSI+113)*100/62))
+		if [ "x$(uci -q get easyconfig.modem.force_plmn)" = "x1" ]; then
+			COPS_NUM="$plmn_mcc"$(printf %02d $plmn_mnc)
+			T=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/3ginfo-lite/mccmnc.dat)
+			[ "x$T" = "x" ] || plmn_description=$T
+		fi
+
+		if [ -n "$rssi" ]; then
+			[ $rssi -ge -51 ] && rssi=-51
+			SIGNAL=$(((rssi+113)*100/62))
 		else
 			SIGNAL=0
 		fi
 
-		json_get_var REGISTRATION registration
-		json_get_var ROAMING roaming
-		case "x$REGISTRATION" in
-			"xnot_registered") REGISTRATION="0";;
-			"xregistered") REGISTRATION="1";;
-			"xsearching") REGISTRATION="2";;
-			"xregistering_denied") REGISTRATION="3";;
-			*) REGISTRATION="4";;
+		case "x$registration" in
+			"xnot_registered") registration="0";;
+			"xregistered")
+				registration="1"
+				[ "x$roaming" = "x1" ] && registration="5"
+				;;
+			"xsearching")
+				registration="2"
+				plmn_description="-"
+				;;
+			"xregistering_denied") registration="3";;
+			*) registration="4";;
 		esac
-		[ "x$ROAMING" = "x1" ] && REGISTRATION="5"
 
-		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$PLMN_DESCRIPTION\",\"mode\":\"$MODE\",\"registration\":\"$REGISTRATION\"}"
+		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$plmn_description\",\"mode\":\"$MODE\",\"registration\":\"$registration\"}"
 	else
-		/usr/share/3ginfo-lite/3ginfo.sh
+		T=$(uci -q get easyconfig.modem.force_plmn)
+		[ "x$T" = "x1" ] || T=""
+		FORCE_PLMN=$T /usr/share/3ginfo-lite/3ginfo.sh
 	fi
 }
 
