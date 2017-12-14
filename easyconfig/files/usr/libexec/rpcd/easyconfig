@@ -540,25 +540,18 @@ show_sms() {
 					echo '"},'
 				fi
 				echo '{'
-				T=$(echo $line | cut -f2 -d" ")
-				echo '"index":"'$T'",'
+				echo '"index":"'${line:5}'",'
 				first="0"
 				key="1"
 			;;
 			*"From: "*)
-				T=$(echo $line | cut -f2 -d" ")
-				echo '"sender":"'$T'",'
+				echo '"sender":"'${line:6}'",'
 			;;
 			*"Date/Time: "*)
-				T=$(echo $line | cut -f2 -d" ")
-				T1=$(echo $line | cut -f3 -d" ")
-				echo '"timestamp":"'$T $T1'",'
+				echo '"timestamp":"'${line:11}'",'
 			;;
 			*"SMS segment "*)
-				T=$(echo $line | cut -f3 -d" ")
-				echo '"part":"'$T'",'
-				T=$(echo $line | cut -f5 -d" ")
-				echo '"total":"'$T'",'
+				echo "$line" | sed 's/SMS segment\s\(.*\)\sof\s\(.*\)/"part":"\1",\"total\":"\2",/'
 			;;
 			*)
 				if [ "$key" = "1" ]; then
