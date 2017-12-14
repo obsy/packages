@@ -534,7 +534,8 @@ show_sms() {
 		first="1"
 		key="0"
 		while read -r line; do
-			if echo "$line" | grep -q "MSG: "; then
+			case "$line" in
+			*"MSG: "*)
 				if [ "$first" = "0" ]; then
 					echo '"},'
 				fi
@@ -543,33 +544,32 @@ show_sms() {
 				echo '"index":"'$T'",'
 				first="0"
 				key="1"
-				continue
-			fi
-			if echo "$line" | grep -q "From: "; then
+			;;
+			*"From: "*)
 				T=$(echo $line | cut -f2 -d" ")
 				echo '"sender":"'$T'",'
-				continue
-			fi
-			if echo "$line" | grep -q "Date/Time: "; then
+			;;
+			*"Date/Time: "*)
 				T=$(echo $line | cut -f2 -d" ")
 				T1=$(echo $line | cut -f3 -d" ")
 				echo '"timestamp":"'$T $T1'",'
-				continue
-			fi
-			if echo "$line" | grep -q "SMS segment "; then
+			;;
+			*"SMS segment "*)
 				T=$(echo $line | cut -f3 -d" ")
 				echo '"part":"'$T'",'
 				T=$(echo $line | cut -f5 -d" ")
 				echo '"total":"'$T'",'
-				continue
-			fi
-			if [ "$key" = "1" ]; then
-				printf "%s" '"content":"'
-				key="0"
-			else
-				printf "\\n"
-			fi
-			printf "%s" "$line"
+			;;
+			*)
+				if [ "$key" = "1" ]; then
+					printf "%s" '"content":"'
+					key="0"
+				else
+					printf "\\n"
+				fi
+				printf "%s" "$line"
+			;;
+			esac
 		done <<EOF
 $T
 EOF
