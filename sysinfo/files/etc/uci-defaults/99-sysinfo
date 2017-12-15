@@ -1,8 +1,0 @@
-#!/bin/sh
-
-grep -q sysinfo.sh /etc/profile && exit 0
-if grep -q "banner.failsafe" /etc/profile; then
-	sed -i 's!/etc/banner.failsafe!/etc/banner.failsafe || /sbin/sysinfo.sh!' $TARGET_DIR/etc/profile
-fi
-
-exit 0
