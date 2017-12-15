@@ -682,6 +682,7 @@ function saveconfig() {
 	cmd.push('#!/bin/sh');
 
 	// wan
+	cmd.push('[ -e /tmp/modem ] && rm /tmp/modem');
 	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
