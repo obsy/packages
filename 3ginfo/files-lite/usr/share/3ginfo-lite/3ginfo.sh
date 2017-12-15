@@ -104,7 +104,7 @@ if [ -n "$T" ]; then
 	"+CME ERROR: 14") REG="SIM busy";;
 	"+CME ERROR: 15") REG="SIM wrong";;
 	"+CME ERROR: 17") REG="SIM PIN2 required";;
-	"+CME ERROR: 18") REG"SIM PUK2 required";;
+	"+CME ERROR: 18") REG="SIM PUK2 required";;
 		       *) REG=$(echo "$T" | cut -f2 -d: | xargs);;
 	esac
 fi
