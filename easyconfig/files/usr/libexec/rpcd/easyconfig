@@ -261,7 +261,7 @@ done
 T=$(uci -q get firewall.dmz.dest_ip)
 echo '"firewall_dmz":"'$T'",'
 
-T=$(uci -q get firewall.forcedns)
+T=$(uci -q get firewall.adblock_dns)
 [ "x$T" = "xredirect" ] && T="true" || T="false"
 echo '"lan_forcedns":'$T','
 

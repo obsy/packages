@@ -761,15 +761,15 @@ function saveconfig() {
 	}
 
 	if (getValue("lan_forcedns")) {
-		cmd.push('uci set firewall.forcedns=redirect');
-		cmd.push('uci set firewall.forcedns.name=\\\"Force DNS\\\"');
-		cmd.push('uci set firewall.forcedns.src=lan');
-		cmd.push('uci set firewall.forcedns.proto=\\\"tcp udp\\\"');
-		cmd.push('uci set firewall.forcedns.src_dport=53');
-		cmd.push('uci set firewall.forcedns.dest_port=53');
-		cmd.push('uci set firewall.forcedns.target=DNAT');
+		cmd.push('uci set firewall.adblock_dns=redirect');
+		cmd.push('uci set firewall.adblock_dns.name=\\\"Adblock DNS\\\"');
+		cmd.push('uci set firewall.adblock_dns.src=lan');
+		cmd.push('uci set firewall.adblock_dns.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.adblock_dns.src_dport=53');
+		cmd.push('uci set firewall.adblock_dns.dest_port=53');
+		cmd.push('uci set firewall.adblock_dns.target=DNAT');
 	} else {
-		cmd.push('uci -q del firewall.forcedns');
+		cmd.push('uci -q del firewall.adblock_dns');
 	}
 
 	if (getValue("dhcp_logqueries")) {
