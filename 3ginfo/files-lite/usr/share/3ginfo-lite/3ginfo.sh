@@ -10,6 +10,8 @@ DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 if [ "x$DEVICE" = "x" ]; then
 	touch /tmp/modem
 	DEVICE=$(cat /tmp/modem)
+else
+	echo "$DEVICE" > /tmp/modem
 fi
 
 if [ "x$DEVICE" = "x" ]; then
