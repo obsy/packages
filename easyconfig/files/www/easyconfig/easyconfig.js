@@ -1705,7 +1705,11 @@ function sendussd() {
 	var ussd = getValue("ussd_code");
 
 	ubus_call('"easyconfig", "ussd", {"code":"' + ussd + '"}', function(data) {
-		showMsg(data.response);
+		if (data.response == "") {
+			showMsg("Brak odpowiedzi z modemu");
+		} else {
+			showMsg((data.response).replace(/(\r\n|\r|\n)/g, '<br />'));
+		}
 	});
 }
 

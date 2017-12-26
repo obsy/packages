@@ -508,7 +508,10 @@ show_ussd() {
 		DEVICE=$(cat /tmp/modem)
 		T=$(sms_tool -d $DEVICE $OPT ussd "$code")
 	fi
-	echo "{\"response\":\"$T\"}" | tr '\n\r' '  '
+
+	json_init
+	json_add_string "response" "$T"
+	json_dump
 }
 
 ##############################################################################
