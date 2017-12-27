@@ -85,7 +85,7 @@ esac
 
 # MODE
 T=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}' | head -1)
-[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $5}')
+[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $5}' | xargs)
 case "$T" in
 	2*) MODE="UMTS";;
 	3*) MODE="EDGE";;
