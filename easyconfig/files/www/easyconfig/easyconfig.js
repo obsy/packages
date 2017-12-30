@@ -681,8 +681,16 @@ function saveconfig() {
 
 	// wan
 	cmd.push('[ -e /tmp/modem ] && rm /tmp/modem');
-	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
+	cmd.push('uci -q del network.wan.ifname');
+	cmd.push('uci -q del network.wan.ipaddr');
+	cmd.push('uci -q del network.wan.netmask');
+	cmd.push('uci -q del network.wan.gateway');
+	cmd.push('uci -q del network.wan.apn');
+	cmd.push('uci -q del network.wan.device');
+	cmd.push('uci -q del network.wan.pincode');
+	cmd.push('uci -q del network.wan.ifname');
+	cmd.push('uci -q del network.wan.proto');
 
 	use_dns = getValue("wan_dns");
 
