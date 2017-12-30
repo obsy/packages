@@ -752,7 +752,7 @@ function saveconfig() {
 		cmd.push('uci -q del firewall.dmz');
 	} else {
 		cmd.push('uci set firewall.dmz=redirect');
-		cmd.push('uci set firewall.dnz.name=DMZ');
+		cmd.push('uci set firewall.dmz.name=DMZ');
 		cmd.push('uci set firewall.dmz.src=wan');
 		cmd.push('uci set firewall.dmz.proto=all');
 		cmd.push('uci set firewall.dmz.dest_ip='+firewall_dmz);
