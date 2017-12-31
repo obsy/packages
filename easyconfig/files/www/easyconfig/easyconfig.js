@@ -141,14 +141,6 @@ function validateussd(name) {
 	return errorCode;
 }
 
-function checkField(element, proofFunction) {
-	if (proofFunction(getValue(element)) != 0) {
-		showMsg("Błąd w polu " + getLabelText(element), true);
-		return true;
-	}
-	return false;
-}
-
 function getLabelText(element) {
 	labels = document.getElementsByTagName('LABEL');
 	for (var i = 0; i < labels.length; i++) {
@@ -158,6 +150,25 @@ function getLabelText(element) {
 		}
 	}
 	return "???";
+}
+
+function checkField(element, proofFunction) {
+	if (proofFunction(getValue(element)) != 0) {
+		showMsg("Błąd w polu " + getLabelText(element), true);
+		return true;
+	}
+	return false;
+}
+
+function checkFieldAllowEmpty(element, proofFunction) {
+	var val = getValue(element);
+	if (proofFunction(val) != 0) {
+		if (val != "") {
+			showMsg("Błąd w polu " + getLabelText(element), true);
+			return true;
+		}
+	}
+	return false;
 }
 
 /*****************************************************************************/
@@ -692,7 +703,7 @@ function saveconfig() {
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.proto');
 
-	use_dns = getValue("wan_dns");
+	use_dns = getValue('wan_dns');
 
 	wan_type=getValue('wan_proto');
 	if (wan_type=='none') {
@@ -724,30 +735,32 @@ function saveconfig() {
 	cmd.push('uci set network.wan.proto='+wan_type);
 	config.wan_proto=wan_type;
 
-	if (wan_type == "none") {
+	if (wan_type == 'none') {
 		cmd.push('uci -q del firewall.dmz');
 	}
 
 	// dns
 	if (use_dns) {
-		if (checkField('wan_dns1', validateIP)) {return;}
-		if (checkField('wan_dns2', validateIP)) {return;}
+		if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
+		if (checkFieldAllowEmpty('wan_dns2', validateIP)) {return;}
 
-		cmd.push('uci set network.wan.dns=\\\"'+getValue('wan_dns1')+' '+getValue('wan_dns2')+'\\\"');
-		cmd.push('uci set network.wan.peerdns=0');
+		var dnss = [getValue('wan_dns1'), getValue('wan_dns2')].filter(function (val) {return val;}).join(' ');
+		if (dnss == '') {
+			cmd.push('uci -q del network.wan.dns');
+			cmd.push('uci -q del network.wan.peerdns');
+		} else {
+			cmd.push('uci set network.wan.dns=\\\"' + dnss + '\\\"');
+			cmd.push('uci set network.wan.peerdns=0');
+		}
 	} else {
 		cmd.push('uci -q del network.wan.dns');
 		cmd.push('uci -q del network.wan.peerdns');
 	}
 
 	// firewall
-	firewall_dmz=getValue("firewall_dmz");
-	if (validateIP(firewall_dmz) != 0) {
-		if (firewall_dmz != "") {
-			showMsg("Błąd w polu " + getLabelText("firewall_dmz"), true);
-			return;
-		}
-	}
+	if (checkFieldAllowEmpty('firewall_dmz', validateIP)) {return;}
+
+	var firewall_dmz = getValue('firewall_dmz');
 	if (firewall_dmz == "") {
 		cmd.push('uci -q del firewall.dmz');
 	} else {
@@ -755,7 +768,7 @@ function saveconfig() {
 		cmd.push('uci set firewall.dmz.name=DMZ');
 		cmd.push('uci set firewall.dmz.src=wan');
 		cmd.push('uci set firewall.dmz.proto=all');
-		cmd.push('uci set firewall.dmz.dest_ip='+firewall_dmz);
+		cmd.push('uci set firewall.dmz.dest_ip=' + firewall_dmz);
 	}
 
 	// lan
