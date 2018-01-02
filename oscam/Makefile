@@ -2,8 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oscam
 PKG_SOURCE_URL:=http://www.streamboard.tv/svn/oscam/trunk
-#PKG_VERSION:=$(shell LC_ALL=C svn info ${PKG_SOURCE_URL} | awk '/Revision/ {print $$2}')
-PKG_VERSION:=11391
+PKG_VERSION:=$(shell LC_ALL=C svn info ${PKG_SOURCE_URL} | awk '/Revision/ {print $$2}')
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=svn
