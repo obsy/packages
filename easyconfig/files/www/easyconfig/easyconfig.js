@@ -840,9 +840,14 @@ function saveconfig() {
 			cmd.push('uci set wireless.radio'+radios[i]+'.channel='+wlan_channel);
 			cmd.push('uci set wireless.radio'+radios[i]+'.hwmode=11'+((wlan_channel < 36)?'g':'a'));
 		}
-		if (config["radio"+radios[i]].wlan_ssid != getValue('wlan_ssid'+radios[i])) {
+		wlan_ssid=getValue('wlan_ssid'+radios[i]);
+		if (config["radio"+radios[i]].wlan_ssid != wlan_ssid) {
+			if (wlan_ssid == "") {
+				showMsg("Błąd w polu " + getLabelText('wlan_ssid'+radios[i]), true);
+				return;
+			}
 			wlan_restart_required=true;
-			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.ssid=\\\"'+getValue('wlan_ssid'+radios[i])+'\\\"');
+			cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.ssid=\\\"'+wlan_ssid+'\\\"');
 		}
 		wlan_encryption=getValue('wlan_encryption'+radios[i]);
 		if (config["radio"+radios[i]].wlan_encryption != wlan_encryption) {
