@@ -59,15 +59,10 @@ else
 fi
 
 WLAN_CLIENTS=0
-RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
-for R in $RADIOS; do
-	IFNAME=$(ubus call network.wireless status '{"device":"'$R'"}' |  awk -F\" '/ifname/ {print $4}')
-	if [ -n "$IFNAME" ]; then
-		for i in $IFNAME; do
-			CNT=$(iw dev $i station dump | grep Station | wc -l)
-			WLAN_CLIENTS=$((WLAN_CLIENTS + CNT))
-		done
-	fi
+IFACES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[*].ifname')
+for i in $IFACES; do
+	CNT=$(iw dev $i station dump | grep Station | wc -l)
+	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
 GUI_VERSION="-devel-"
