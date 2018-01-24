@@ -1458,7 +1458,7 @@ var queries;
 function queriescallback(sortby, order) {
 	var div = document.getElementById('div_queries_content');
 	var html = "";
-	if (queries.length > 1) {
+	if (queries.length > 0) {
 		html += '<div class="row">';
 		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
 		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
@@ -1467,7 +1467,6 @@ function queriescallback(sortby, order) {
 
 		var sorted = sortJSON(queries, sortby, (order?order:'123'));
 		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].time == '') {continue;}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
@@ -1479,7 +1478,7 @@ function queriescallback(sortby, order) {
 	}
 	div.innerHTML = html;
 
-	if (queries.length > 1) {
+	if (queries.length > 0) {
 		var all=["time","query","host"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('queries_sortby_'+all[idx]);
