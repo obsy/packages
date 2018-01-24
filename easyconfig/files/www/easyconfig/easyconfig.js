@@ -1312,7 +1312,7 @@ function showwlanclients() {
 function wlanclientscallback(sortby) {
 	var div = document.getElementById('div_wlanclients_content');
 	var html = "";
-	if (wlanclients.length > 1) {
+	if (wlanclients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name"> nazwie </span></a>|';
@@ -1323,16 +1323,13 @@ function wlanclientscallback(sortby) {
 
 		var total = 0;
 		for(var idx=0; idx<wlanclients.length; idx++){
-			if (wlanclients[idx].mac == '') {continue;}
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
 		for(var idx=0; idx<wlanclients.length; idx++){
-			if (wlanclients[idx].mac == '') {continue;}
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
 		}
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].mac == '') {continue;}
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
@@ -1340,13 +1337,13 @@ function wlanclientscallback(sortby) {
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
-		html += "<hr><p>Liczba klientów: " + (sorted.length - 1) + "</p>";
+		html += "<hr><p>Liczba klientów: " + sorted.length + "</p>";
 	} else {
 		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>'
 	}
 	div.innerHTML = html;
 
-	if (wlanclients.length > 1) {
+	if (wlanclients.length > 0) {
 		var all=["name","tx","rx","percent"];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
