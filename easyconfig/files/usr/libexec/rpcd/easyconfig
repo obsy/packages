@@ -642,7 +642,6 @@ show_wifiscan() {
 				}
 			}'
 	done
-	echo '{"mac":"","ssid":"","freq":"","signal":"","channel":"","encryption":"","mode1":"","mode2":""}'
 	echo ']}'
 }
 

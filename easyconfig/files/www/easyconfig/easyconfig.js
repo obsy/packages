@@ -1195,7 +1195,7 @@ function showsitesurvey() {
 function sitesurveycallback(sortby) {
 	var div = document.getElementById('div_sitesurvey_content');
 	var html = "";
-	if (wifiscanresults.length > 1) {
+	if (wifiscanresults.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|';
@@ -1209,7 +1209,6 @@ function sitesurveycallback(sortby) {
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
 		var rogueap = false;
 		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].mac == '') {continue;}
 
 			rogueap = false;
 			if (config.radio0) {
@@ -1237,7 +1236,7 @@ function sitesurveycallback(sortby) {
 			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"");
 			html += '</div></div>';
 		}
-		html += "<hr><p>Liczba sieci bezprzewodowych: " + (sorted.length - 1) + "</p>";
+		html += "<hr><p>Liczba sieci bezprzewodowych: " + sorted.length + "</p>";
 
 		html += '<hr><h3 class="section">Wykorzystanie kanałów</h3>';
 
@@ -1270,15 +1269,14 @@ function sitesurveycallback(sortby) {
 	}
 	div.innerHTML = html;
 
-	if (wifiscanresults.length > 1) {
+	if (wifiscanresults.length > 0) {
 		for(var idx = 0; idx < sorted.length; idx++){
-			if (sorted[idx].mac == '') {continue;}
 			if (sorted[idx].channel != '?') {channels[sorted[idx].channel]++;}
 		}
 		for (var ch in channels) {
-			var percent = parseInt(channels[ch] * 100 / (sorted.length - 1)) + '%';
+			var percent = parseInt(channels[ch] * 100 / sorted.length) + '%';
 			document.getElementById("channel" + ch + "bar").style.width = percent;
-			setValue("channel" + ch + "percent", percent == "0%"?" ":(percent + ", " + channels[ch] + " z " + (sorted.length - 1)));
+			setValue("channel" + ch + "percent", percent == "0%"?" ":(percent + ", " + channels[ch] + " z " + sorted.length));
 		}
 		var all=["ssid","mac","signal","freq","timestamp"];
 		for(var idx=0; idx<all.length; idx++){
