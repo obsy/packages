@@ -381,7 +381,7 @@ function enableWan(proto) {
 	if (proto != "static" && proto != "none") {
 		var t = ([config.wan_dns1,config.wan_dns2]).sort().filter(function (val) {return val;}).join(',');
 
-		if (t == "") {
+		if (t == "" || config.wan_dns_dhcp) {
 			setValue("wan_dns", "isp");
 		} else {
 			setValue("wan_dns", "custom");
