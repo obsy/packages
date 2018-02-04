@@ -371,7 +371,7 @@ function enableWan(proto) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url","wan_dns_url"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -627,9 +627,9 @@ function showcallback(data) {
 	}
 
 	removeOptions('wan_dns');
-	var sorteddns = sortJSON(dns, 'name', '123');
-	sorteddns.unshift({"ip":["isp"], "name":"Otrzymane od dostawcy", "url":""});
-	sorteddns.unshift({"ip":["custom"], "name":"Inne", "url":""});
+	var sorteddns = [];
+	sorteddns = sortJSON(dns, 'name', '123');
+	sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
 	e = document.getElementById('wan_dns');
 	for(var idx=0; idx<sorteddns.length; idx++){
 		var opt = document.createElement('option');
