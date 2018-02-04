@@ -246,10 +246,15 @@ function removeClasses(element, classes) {
 
 /*****************************************************************************/
 
-function enableDns(enable) {
-	setValue("wan_dns", enable);
-	setElementEnabled("wan_dns1", enable, false);
-	setElementEnabled("wan_dns2", enable, false);
+function enableDns(value) {
+	setElementEnabled("wan_dns1", (value === "custom"), false);
+	setElementEnabled("wan_dns2", (value === "custom"), false);
+
+	var e1 = document.getElementById("wan_dns");
+	var url = e1.options[e1.selectedIndex].getAttribute("data-url")
+	var e = document.getElementById("wan_dns_url");
+	e.setAttribute("href", url);
+	setElementEnabled("wan_dns_url", (url!=""), false);
 }
 
 function canceldetectwan() {
@@ -366,7 +371,7 @@ function enableWan(proto) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url","wan_dns_url"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -374,8 +379,22 @@ function enableWan(proto) {
 		setElementEnabled(fields[idx], true, false);
 	}
 	if (proto != "static" && proto != "none") {
+		var t = ([config.wan_dns1,config.wan_dns2]).sort().filter(function (val) {return val;}).join(',');
+
+		if (t == "") {
+			setValue("wan_dns", "isp");
+		} else {
+			setValue("wan_dns", "custom");
+			for(var idx=0; idx<dns.length; idx++){
+				var ip = (dns[idx].ip).sort();
+				if (ip == t) {
+					setValue("wan_dns", t);
+					break;
+				}
+			}
+		}
 		setElementEnabled("wan_dns", true, false);
-		enableDns(config.wan_use_dns);
+		enableDns(getValue("wan_dns"));
 	}
 
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
@@ -607,6 +626,19 @@ function showcallback(data) {
 		e.appendChild(opt);
 	}
 
+	removeOptions('wan_dns');
+	var sorteddns = sortJSON(dns, 'name', '123');
+	sorteddns.unshift({"ip":["isp"], "name":"Otrzymane od dostawcy", "url":""});
+	sorteddns.unshift({"ip":["custom"], "name":"Inne", "url":""});
+	e = document.getElementById('wan_dns');
+	for(var idx=0; idx<sorteddns.length; idx++){
+		var opt = document.createElement('option');
+		opt.value = (sorteddns[idx].ip).sort();
+		opt.innerHTML = sorteddns[idx].name;
+		opt.setAttribute("data-url", sorteddns[idx].url);
+		e.appendChild(opt);
+	}
+
 	setValue('wan_ipaddr', config.wan_ipaddr);
 	setValue('wan_netmask', config.wan_netmask);
 	setValue('wan_gateway', config.wan_gateway);
@@ -707,7 +739,7 @@ function saveconfig() {
 
 	wan_type=getValue('wan_proto');
 	if (wan_type=='none') {
-		use_dns = false;
+		use_dns = 'none';
 	}
 	if (wan_type=='static') {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
@@ -718,7 +750,7 @@ function saveconfig() {
 		cmd.push('uci set network.wan.ipaddr='+getValue('wan_ipaddr'));
 		cmd.push('uci set network.wan.netmask='+getValue('wan_netmask'));
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
-		use_dns = true;
+		use_dns = 'custom';
 	}
 	if (wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
@@ -740,16 +772,22 @@ function saveconfig() {
 	}
 
 	// dns
-	if (use_dns) {
-		if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
-		if (checkFieldAllowEmpty('wan_dns2', validateIP)) {return;}
-
-		var dnss = [getValue('wan_dns1'), getValue('wan_dns2')].filter(function (val) {return val;}).join(' ');
-		if (dnss == '') {
+	if (use_dns != 'none') {
+		var t = '';
+		if (use_dns == 'custom') {
+			if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
+			if (checkFieldAllowEmpty('wan_dns2', validateIP)) {return;}
+			t = [getValue('wan_dns1'), getValue('wan_dns2')].filter(function (val) {return val;}).join(' ');
+		} else if (use_dns == 'isp') {
+			t = '';
+		} else {
+			t = use_dns.replace(",", " ");
+		}
+		if (t == '') {
 			cmd.push('uci -q del network.wan.dns');
 			cmd.push('uci -q del network.wan.peerdns');
 		} else {
-			cmd.push('uci set network.wan.dns=\\\"' + dnss + '\\\"');
+			cmd.push('uci set network.wan.dns=\\\"' + t + '\\\"');
 			cmd.push('uci set network.wan.peerdns=0');
 		}
 	} else {

@@ -15,6 +15,7 @@
 	<link href="/easyconfig/easyconfig.css?v=1" rel="stylesheet">
 	<script src="/easyconfig/easyconfig.js?v=1"></script>
 	<script src="/easyconfig/manuf.js?v=1"></script>
+	<script src="/easyconfig/dns.js?v=1"></script>
 </head>
 <body>
 
@@ -270,12 +271,17 @@
 		</div>
 
 		<div class="form-group" id="div_wan_dns">
-			<label for="wan_dns" class="col-xs-4 col-sm-3 control-label">Inne serwery DNS</label>
+			<label for="wan_dns" class="col-xs-4 col-sm-3 control-label">Serwery DNS</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="wan_dns" type="checkbox" onchange="enableDns(this.checked)">
-				<div class="slider round"></div>
-			</label>
+			<select id="wan_dns" class="form-control" onchange="enableDns(this.value)">
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_dns_url">
+			<label class="col-xs-4 col-sm-3 control-label">&nbsp;</label>
+			<div class="col-xs-8 col-sm-9">
+			<a href="#" id="wan_dns_url" class="click" target="_blank">opis serwera</a>
 			</div>
 		</div>
 
