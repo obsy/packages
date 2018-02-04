@@ -403,17 +403,13 @@ function enableWan(proto) {
 	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
 
 	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.dashboard_url) {
+		document.getElementById("dashboard_url").setAttribute("href", config.dashboard_url);
 		setElementEnabled("dashboard_url", true, false);
 	}
 }
 
 function enableWlanEncryption(encryption, cnt) {
 	setElementEnabled("wlan_key"+cnt, (encryption!="none" && encryption!=""), false);
-}
-
-function btn_dashboard_url() {
-	var win = window.open(config.dashboard_url, '_blank');
-	win.focus();
 }
 
 /*****************************************************************************/
