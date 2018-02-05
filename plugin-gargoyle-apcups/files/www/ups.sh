@@ -10,29 +10,23 @@
 	gargoyle_header_footer -h -s "status" -p "ups" -c "internal.css" -j "ups.js" -z "ups.js" -i ups
 %>
 
-<fieldset>
-	<legend class="sectionheader"><%~ ups.UPS %></legend>
-
-	<div>
-		<span class='leftcolumn'><%~ MODEL %>:</span><span id="model" class='rightcolumn'>-</span>
+<h1 class="page-header"><%~ ups.UPS %></h1>
+<div class="row">
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<ul class="list-group">
+				<li class="list-group-item"><span class="list-group-item-title"><%~ MODEL %>:</span><span id="model">-</span></li>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ STATUS %>:</span><span id="status">-</span></li>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ BCHARGE %>:</span><span id="bcharge">-</span></li>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ LINEV %>:</span><span id="linev">-</span></li>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ LOADPCT %>:</span><span id="loadpct">-</span></li>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ TIMELEFT %>:</span><span id="timeleft">-</span></li>
+				</ul>
+			</div>
+		</div>
 	</div>
-	<div>
-		<span class='leftcolumn'><%~ STATUS %>:</span><span id="status" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'><%~ BCHARGE %>:</span><span id="bcharge" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'><%~ LINEV %>:</span><span id="linev" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'><%~ LOADPCT %>:</span><span id="loadpct" class='rightcolumn'>-</span>
-	</div>
-	<div>
-		<span class='leftcolumn'><%~ TIMELEFT %>:</span><span id="timeleft" class='rightcolumn'>-</span>
-	</div>
-
-</fieldset>
+</div>
 
 <script>
 <!--
