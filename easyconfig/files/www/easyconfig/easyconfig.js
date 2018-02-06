@@ -752,6 +752,8 @@ function saveconfig() {
 	cmd.push('uci -q del network.wan.pincode');
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.proto');
+	cmd.push('uci -q del network.wan.mode');
+	cmd.push('uci -q del network.wan.modes');
 
 	use_dns = getValue('wan_dns');
 
