@@ -267,7 +267,6 @@ function okdetectwan() {
 	var data = JSON.parse(document.getElementById('detectwan_data').value);
 
 	var cmd = [];
-	cmd.push('#!/bin/sh');
 	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
@@ -537,12 +536,14 @@ function ubus_call(param, callback)
 }
 
 function execute(cmd, callback) {
+	cmd.unshift('#!/bin/sh');
 	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit 0');
 	cmd.push('');
 
-	ubus_call('"file", "write", {"path":"/tmp/tmp.sh","data":"' + cmd.join('\n') + '"}', function(data) {
-		ubus_call('"file", "exec", {"command":"sh", "params":["/tmp/tmp.sh"]}', function(data1) {
+	var filename = '/tmp/' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9);
+	ubus_call('"file", "write", {"path":"' + filename + '","data":"' + cmd.join('\n') + '"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["' + filename + '"]}', function(data1) {
 			callback();
 		});
 	});
@@ -737,8 +738,6 @@ function showcallback(data) {
 
 function saveconfig() {
 	var cmd = [];
-
-	cmd.push('#!/bin/sh');
 
 	// wan
 	cmd.push('[ -e /tmp/modem ] && rm /tmp/modem');
@@ -1150,7 +1149,6 @@ function savewatchdog() {
 	var watchdog_action = getValue("watchdog_action");
 
 	var cmd = [];
-	cmd.push('#!/bin/sh');
 	cmd.push('F=$(mktemp)');
 	cmd.push('touch /etc/crontabs/root');
 	cmd.push('grep -v easyconfig_watchdog /etc/crontabs/root > $F');
@@ -1495,7 +1493,6 @@ function saveclientname() {
 	var name = getValue('clientname_name');
 
 	var cmd = [];
-	cmd.push('#!/bin/sh');
 	cmd.push('uci -q del dhcp.m' + nmac);
 	cmd.push('uci set dhcp.m' + nmac + '=mac');
 	cmd.push('uci set dhcp.m' + nmac + '.mac=\\\"' + mac + '\\\"');
@@ -1746,8 +1743,6 @@ function savetraffic() {
 	if (checkField('traffic_warning_value', validateNumeric)) {return;}
 
 	var cmd = [];
-	cmd.push('#!/bin/sh');
-
 	cmd.push('touch /etc/crontabs/root');
 	cmd.push('sed -i \\\"/easyconfig_traffic/d\\\" /etc/crontabs/root');
 	if (getValue("traffic_enabled")) {
@@ -1778,7 +1773,6 @@ function okremovetraffic() {
 	cancelremovetraffic();
 
 	var cmd = [];
-	cmd.push('#!/bin/sh');
 	cmd.push('rm /usr/lib/easyconfig/easyconfig_traffic.txt.gz');
 	cmd.push('touch /usr/lib/easyconfig/easyconfig_traffic.txt');
 	cmd.push('gzip /usr/lib/easyconfig/easyconfig_traffic.txt');
