@@ -157,6 +157,14 @@ if [ -n "$WAN_IFNAME_HILINK" ]; then
 	fi
 fi
 
+WAN_MODEM_MODE=""
+if [ "x$WAN_PROTO" = "xqmi" ]; then
+	WAN_MODEM_MODE=$(uci -q get network.wan.modes)
+fi
+if [ "x$WAN_PROTO" = "xncm" ]; then
+	WAN_MODEM_MODE=$(uci -q get network.wan.mode)
+fi
+
 echo '{'
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
@@ -173,6 +181,7 @@ echo '"wan_ifname":"'$WAN_IFNAME'",'
 echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
 echo '"dashboard_url":"'$DASHBOARD_URL'",'
+echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
 
 echo '"wan_protos":["none"'
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then

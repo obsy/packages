@@ -368,10 +368,13 @@ function enableWan(proto) {
 		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
-		fields=["wan_apn","wan_device","wan_pincode","wan_dns1","wan_dns2"];
+		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode"];
+		if (proto == "3g") {
+			fields.pop();
+		}
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url","wan_modem_mode"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -651,6 +654,25 @@ function showcallback(data) {
 	}
 	enableWan(getValue("wan_proto"));
 
+	if ((config.wan_proto == 'qmi') || (config.wan_proto == 'ncm')) {
+		removeOptions('wan_modem_mode');
+		e = document.getElementById('wan_modem_mode');
+		var t = {"":"wg ustawień modemu","auto":"wybór automatyczny","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (UMTS/HSPA)","gsm":"Tylko 2G (EDGE/GSM)"};
+		for (key in t) {
+			if (t.hasOwnProperty(key)) {
+				var opt = document.createElement('option');
+				if (key == 'auto') {
+					opt.value = (config.wan_proto == 'qmi'?'all':'auto');
+				} else {
+					opt.value = key;
+				}
+				opt.innerHTML = t[key];
+				e.appendChild(opt);
+			}
+		}
+		setValue('wan_modem_mode', config.wan_modem_mode);
+	}
+
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
 	setValue('lan_dhcp_enabled', (config.lan_dhcp_enabled == 1));
@@ -752,6 +774,12 @@ function saveconfig() {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
 		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
 		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
+	}
+	if (wan_type=='qmi') {
+		cmd.push('uci set network.wan.modes=\\\"'+getValue('wan_modem_mode')+'\\\"');
+	}
+	if (wan_type=='ncm') {
+		cmd.push('uci set network.wan.mode=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
 	if (wan_type=='dhcp') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
