@@ -252,8 +252,7 @@ function enableDns(value) {
 
 	var e1 = document.getElementById("wan_dns");
 	var url = e1.options[e1.selectedIndex].getAttribute("data-url")
-	var e = document.getElementById("wan_dns_url");
-	e.setAttribute("href", url);
+	document.getElementById("wan_dns_url").setAttribute("href", url);
 	setElementEnabled("wan_dns_url", (url!=""), false);
 }
 
@@ -329,7 +328,7 @@ function detectwan(pin) {
 			if (data.proto == "dhcp_hilink") {
 				msg += '<div class="col-xs-6 text-left">Modem USB (Hilink lub RNDIS)</div>';
 			}
-			if (data.proto == "qmi" || data.proto == "ncm" || data.proto == "3g") {
+			if (data.proto == "3g" || data.proto == "qmi" || data.proto == "ncm") {
 				msg += '<div class="col-xs-6 text-left">Modem USB '
 				if (data.proto == "qmi") { msg += '(QMI)'; }
 				if (data.proto == "ncm") { msg += '(NCM)'; }
@@ -368,9 +367,6 @@ function enableWan(proto) {
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode"];
-		if (proto == "3g") {
-			fields.pop();
-		}
 	}
 
 	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url","wan_modem_mode"];
@@ -655,18 +651,23 @@ function showcallback(data) {
 	}
 	enableWan(getValue("wan_proto"));
 
-	if ((config.wan_proto == 'qmi') || (config.wan_proto == 'ncm')) {
+	if ((config.wan_proto == '3g') || (config.wan_proto == 'qmi') || (config.wan_proto == 'ncm')) {
 		removeOptions('wan_modem_mode');
 		e = document.getElementById('wan_modem_mode');
-		var t = {"":"wg ustawień modemu","auto":"wybór automatyczny","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (UMTS/HSPA)","gsm":"Tylko 2G (EDGE/GSM)"};
+		var t;
+		if (config.wan_proto == '3g') {
+			t = {"":"Wg ustawień modemu","umts":"Wybór automatyczny 3G/2G","umts_only":"Tylko 3G (UMTS/HSPA)","gprs_only":"Tylko 2G (EDGE/GSM)"};
+		}
+		if (config.wan_proto == 'qmi') {
+			t = {"":"Wg ustawień modemu","all":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (UMTS/HSPA)","gsm":"Tylko 2G (EDGE/GSM)"};
+		}
+		if (config.wan_proto == 'ncm') {
+			t = {"":"Wg ustawień modemu","auto":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (UMTS/HSPA)","gsm":"Tylko 2G (EDGE/GSM)"};
+		}
 		for (key in t) {
 			if (t.hasOwnProperty(key)) {
 				var opt = document.createElement('option');
-				if (key == 'auto') {
-					opt.value = (config.wan_proto == 'qmi'?'all':'auto');
-				} else {
-					opt.value = key;
-				}
+				opt.value = key;
 				opt.innerHTML = t[key];
 				e.appendChild(opt);
 			}
@@ -751,8 +752,9 @@ function saveconfig() {
 	cmd.push('uci -q del network.wan.pincode');
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.proto');
-	cmd.push('uci -q del network.wan.mode');
+	cmd.push('uci -q del network.wan.service');
 	cmd.push('uci -q del network.wan.modes');
+	cmd.push('uci -q del network.wan.mode');
 
 	use_dns = getValue('wan_dns');
 
@@ -775,6 +777,9 @@ function saveconfig() {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
 		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
 		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
+	}
+	if (wan_type=='3g') {
+		cmd.push('uci set network.wan.service=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
 	if (wan_type=='qmi') {
 		cmd.push('uci set network.wan.modes=\\\"'+getValue('wan_modem_mode')+'\\\"');

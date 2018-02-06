@@ -158,6 +158,9 @@ if [ -n "$WAN_IFNAME_HILINK" ]; then
 fi
 
 WAN_MODEM_MODE=""
+if [ "x$WAN_PROTO" = "x3g" ]; then
+	WAN_MODEM_MODE=$(uci -q get network.wan.service)
+fi
 if [ "x$WAN_PROTO" = "xqmi" ]; then
 	WAN_MODEM_MODE=$(uci -q get network.wan.modes)
 fi
