@@ -369,7 +369,7 @@ function enableWan(proto) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode"];
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","dashboard_url","wan_modem_mode"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -400,9 +400,9 @@ function enableWan(proto) {
 	setDisplay("div_status_wan", (proto != "none"));
 	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
 
-	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.dashboard_url) {
-		document.getElementById("dashboard_url").setAttribute("href", config.dashboard_url);
-		setElementEnabled("dashboard_url", true, false);
+	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.wan_dashboard_url) {
+		document.getElementById("wan_dashboard_url").setAttribute("href", config.wan_dashboard_url);
+		setElementEnabled("wan_dashboard_url", true, false);
 	}
 }
 
