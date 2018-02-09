@@ -490,7 +490,9 @@ show_modem()
 			*) registration="4";;
 		esac
 
-		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$plmn_description\",\"mode\":\"$MODE\",\"registration\":\"$registration\"}"
+		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$plmn_description\",\"mode\":\"$MODE\",\"registration\":\"$registration\""
+#		echo ",\"addon\":[{\"RSSI\":\"$rssi\"}]"
+		echo "}"
 	else
 		T=$(uci -q get easyconfig.modem.force_plmn)
 		[ "x$T" = "x1" ] || T=""

@@ -1055,8 +1055,10 @@ function showmodem() {
 				var div = document.getElementById('div_status_modem_addon');
 				var html = "";
 				for (var i in data.addon) {
-					html += '<div class="row"><label class="col-xs-6 text-right">' + data.addon[i].desc + '</label>';
-					html += '<div class="col-xs-6"><p>' + data.addon[i].value + '</p></div></div>';
+					for (var j in data.addon[i]) {
+						html += '<div class="row"><label class="col-xs-6 text-right">' + j + '</label>';
+						html += '<div class="col-xs-6"><p>' + data.addon[i][j] + '</p></div></div>';
+					}
 				}
 				div.innerHTML = html;
 				setDisplay('div_status_modem_addon', true);
