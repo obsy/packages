@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2017 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2018 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 RES="/usr/share/3ginfo-lite"
@@ -64,16 +64,7 @@ if [ -z "$FORCE_PLMN" ]; then
 fi
 
 # CREG
-T=99
-CNT=$(echo "$O" | grep "+CREG:" | sed 's/[^:,]//g')
-if [ "x$CNT" = "x:,,," -o "x$CNT" = "x:,,,," ]; then
-	T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $2}')
-else
-	CNT=$(echo "$O" | grep "+CGREG:" | sed 's/[^:,]//g')
-	if [ "x$CNT" = "x:,,," -o "x$CNT" = "x:,,,," ]; then
-		T=$(echo "$O" | awk -F[,] '/^\+CGREG/ {print $2}')
-	fi
-fi
+eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%04X\";CID_HEX=\"%04X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE1=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
 	0*) REG="0";;
 	1*) REG="1";;
@@ -84,9 +75,8 @@ case "$T" in
 esac
 
 # MODE
-T=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4}' | head -1)
-[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+CREG/ {print $5}' | xargs)
-case "$T" in
+[ -z "$MODE1" ] && MODE1=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4;exit}')
+case "$MODE1" in
 	2*) MODE="UMTS";;
 	3*) MODE="EDGE";;
 	4*) MODE="HSDPA";;
@@ -96,7 +86,7 @@ case "$T" in
 	 *) MODE="-";;
 esac
 
-T=$(echo "$O" | awk -F[,\ ] '/^\+CME ERROR:/ {print $0}' | head -n1)
+T=$(echo "$O" | awk -F[,\ ] '/^\+CME ERROR:/ {print $0;exit}')
 if [ -n "$T" ]; then
 	case "$T" in
 	"+CME ERROR: 10") REG="SIM not inserted";;
@@ -110,7 +100,19 @@ if [ -n "$T" ]; then
 		       *) REG=$(echo "$T" | cut -f2 -d: | xargs);;
 	esac
 fi
-
-echo "{\"csq\":\"$CSQ\",\"signal\":\"$CSQ_PER\",\"operator_name\":\"$COPS\",\"operator_mcc\":\"$COPS_MCC\",\"operator_mnc\":\"$COPS_MNC\",\"mode\":\"$MODE\",\"registration\":\"$REG\"}"
-
+cat <<EOF
+{
+"csq":"$CSQ",
+"signal":"$CSQ_PER",
+"operator_name":"$COPS",
+"operator_mcc":"$COPS_MCC",
+"operator_mnc":"$COPS_MNC",
+"mode":"$MODE",
+"registration":"$REG",
+"lac_dec":"$LAC_DEC",
+"lac_hex":"$LAC_HEX",
+"cid_dec":"$CID_DEC",
+"cid_hex":"$CID_HEX"
+}
+EOF
 exit 0
