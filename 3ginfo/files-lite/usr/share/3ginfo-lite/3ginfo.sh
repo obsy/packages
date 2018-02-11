@@ -75,7 +75,7 @@ case "$T" in
 esac
 
 # MODE
-[ -z "$MODE1" ] && MODE1=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4;exit}')
+[ -z "$MODE1" -o "x$MODE1" = "x0" ] && MODE1=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4;exit}')
 case "$MODE1" in
 	2*) MODE="UMTS";;
 	3*) MODE="EDGE";;
