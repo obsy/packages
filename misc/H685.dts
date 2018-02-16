@@ -113,7 +113,7 @@
 };
 
 &esw {
-	mediatek,portmap = <0x2f>;
+	mediatek,portdisable = <0x27>;
 	mediatek,led_polarity = <0x17>;
 };
 
