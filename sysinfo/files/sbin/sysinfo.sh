@@ -81,7 +81,7 @@ for i in $IFACES; do
 		CHANNEL=$(uci -q get wireless.$DEV.channel)
 		SEC1=$(echo $i | sed 's/\[/\\[/g;s/\]/\\]/g')
 		IFNAME=$(wifi status $DEV | grep -A 1 $SEC1 | awk '/ifname/ {gsub(/[",]/,"");print $2}')
-		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump | grep Station | wc -l)
+		[ -n "$IFNAME" ] && CNT=$(iw dev $IFNAME station dump 2>/dev/null | grep Station | wc -l)
 		printf " | %-"$LINE"s |\n" "$DEV: mode: $MODE, ssid: $SSID, channel: $CHANNEL, conn: ${CNT:-0}"
 	fi
 done
