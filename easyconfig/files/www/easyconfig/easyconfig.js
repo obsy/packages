@@ -1500,10 +1500,10 @@ function saveclientname() {
 	var name = getValue('clientname_name');
 
 	var cmd = [];
-	cmd.push('uci -q del dhcp.m' + nmac);
-	cmd.push('uci set dhcp.m' + nmac + '=mac');
-	cmd.push('uci set dhcp.m' + nmac + '.mac=\\\"' + mac + '\\\"');
-	cmd.push('uci set dhcp.m' + nmac + '.networkid=\\\"' + name +'\\\"');
+	cmd.push('uci -q del easyconfig.m' + nmac);
+	cmd.push('uci set easyconfig.m' + nmac + '=mac');
+	cmd.push('uci set easyconfig.m' + nmac + '.mac=\\\"' + mac + '\\\"');
+	cmd.push('uci set easyconfig.m' + nmac + '.name=\\\"' + name +'\\\"');
 	cmd.push('uci commit dhcp');
 
 	execute(cmd, showwlanclients);

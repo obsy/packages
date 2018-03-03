@@ -376,9 +376,9 @@ for M in $WLAN_MAC; do
 	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
 
 	NMAC=$(echo $MAC | sed 's/://g')
-	T1=$(uci -q get dhcp.m$NMAC.mac)
+	T1=$(uci -q get easyconfig.m$NMAC.mac)
 	if [ "x$T1" = "x$MAC" ]; then
-		T1=$(uci -q get dhcp.m$NMAC.networkid)
+		T1=$(uci -q get easyconfig.m$NMAC.name)
 		[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
 	fi
 
@@ -400,7 +400,7 @@ T=$(printf "%s\n%s" "$T" "$(logread -e "AP-STA-DISCONNECTED" | awk '{printf "{\"
 MACS=$(uci show dhcp | awk -F\' '/.mac=/{print $2}')
 for MAC in $MACS; do
 	NMAC=$(echo $MAC | sed 's/://g')
-	NAME=$(uci -q get dhcp.m$NMAC.networkid)
+	NAME=$(uci -q get easyconfig.m$NMAC.name)
 	[ -n "$NAME" ] && T=$(echo "$T" | sed "s/,\"mac\":\"$MAC\",\"name\":\".*\",\"event\"/,\"mac\":\"\",\"name\":\"$NAME\",\"event\"/g")
 done
 
@@ -617,7 +617,7 @@ show_queries() {
 		fi
 		if [ -n "$MAC" ]; then
 			NMAC=$(echo $MAC | sed 's/://g')
-			NAME2=$(uci -q get dhcp.m$NMAC.networkid)
+			NAME2=$(uci -q get easyconfig.m$NMAC.name)
 			if [ -n "$NAME2" ]; then
 				NAME="$NAME2"
 			else
