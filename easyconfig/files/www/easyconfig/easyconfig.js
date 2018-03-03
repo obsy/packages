@@ -1504,7 +1504,7 @@ function saveclientname() {
 	cmd.push('uci set easyconfig.m' + nmac + '=mac');
 	cmd.push('uci set easyconfig.m' + nmac + '.mac=\\\"' + mac + '\\\"');
 	cmd.push('uci set easyconfig.m' + nmac + '.name=\\\"' + name +'\\\"');
-	cmd.push('uci commit dhcp');
+	cmd.push('uci commit easyconfig');
 
 	execute(cmd, showwlanclients);
 }
