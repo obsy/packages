@@ -1,0 +1,16 @@
+opengt
+ set com 115200n81
+ set senddelay 0.02
+ waitquiet 0.02 0.02
+ flash 0.02
+
+:start
+ send "at+tpweb=\"{\"module\":\"wan\",\"action\":0}\"^m"
+ get 1 "" $s
+ print $s
+
+ send "at+tpweb=\"{\"module\":\"simLock\",\"action\":0}\"^m"
+ get 1 "" $s
+ print $s
+
+ exit 0
