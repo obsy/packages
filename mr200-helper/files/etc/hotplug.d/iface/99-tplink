@@ -1,0 +1,28 @@
+#!/bin/sh
+[ $ACTION = "ifup" ] || exit 0
+[ $INTERFACE = "wan" ] || exit 0
+
+PORT=/dev/ttyUSB0
+sleep 3
+[ -e $PORT ] || exit 0
+
+O=$(gcom -d $PORT -s /etc/gcom/tplink.gcom)
+
+PINSTATE=$(echo "$O" | awk '/pinState/{gsub("+tpweb:","");print $0}' | jsonfilter -e '@.pinState')
+if [ "x$PINSTATE" = "x1" ]; then
+	PIN=$(uci -q get network.wan.pincode)
+	if [ -n "$PIN" ]; then
+		COMMAND="at+tpweb=\"{\"module\":\"simLock\",\"action\":4,\"autoUnlock\":false,\"pin\":\"$PIN\"}\"" gcom -d $PORT -s /etc/gcom/runcommand.gcom
+	fi
+fi
+
+LASTPROFILE=$(echo "$O" | awk '/profileName/{gsub("+tpweb:","");print $0}' | jsonfilter -e '@.profileSettings.list[-1].profileName')
+APN=$(uci -q get network.wan.apn)
+USER=$(uci -q get network.wan.username)
+PASS=$(uci -q get network.wan.password)
+if [ "$APN" != "$LASTPROFILE" ]; then
+    COMMAND="at+tpweb=\"{\"module\":\"wan\",\"action\":3,\"profileSettings\":{\"list\":[{\"profileID\":1}],\"activeProfile\":1,\"defaultProfile\":1}}\"" gcom -d $PORT -s /etc/gcom/runcommand.gcom
+    sleep 2
+    COMMAND="at+tpweb=\"{\"module\":\"wan\",\"action\":2,\"profileSettings\":{\"list\":[{\"profileID\":1,\"profileName\":\"$APN\",\"pdpType\":0,\"ipv4Apn\":\"$APN\",\"ipv4ApnType\":0,\"ipv4Username\":\"$USER\",\"ipv4Password\":\"$PASS\",\"ipv4AuthType\":2,\"ipv6Apn\":\"\",\"ipv6ApnType\":0,\"ipv6Username\":\"\",\"ipv6Password\":\"\",\"ipv6AuthType\":2}],\"activeProfile\":1,\"defaultProfile\":1}}\"" gcom -d $PORT -s /etc/gcom/runcommand.gcom
+fi
+exit 0
