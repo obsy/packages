@@ -6,6 +6,9 @@ PORT=/dev/ttyUSB0
 sleep 3
 [ -e $PORT ] || exit 0
 
+APN=$(uci -q get network.wan.apn)
+[ -z "$APN" ] && exit 0
+
 O=$(gcom -d $PORT -s /etc/gcom/tplink.gcom)
 
 PINSTATE=$(echo "$O" | awk '/pinState/{gsub("+tpweb:","");print $0}' | jsonfilter -e '@.pinState')
@@ -17,7 +20,6 @@ if [ "x$PINSTATE" = "x1" ]; then
 fi
 
 LASTPROFILE=$(echo "$O" | awk '/profileName/{gsub("+tpweb:","");print $0}' | jsonfilter -e '@.profileSettings.list[-1].profileName')
-APN=$(uci -q get network.wan.apn)
 USER=$(uci -q get network.wan.username)
 PASS=$(uci -q get network.wan.password)
 if [ "$APN" != "$LASTPROFILE" ]; then

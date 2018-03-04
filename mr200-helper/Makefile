@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mr200-helper
-PKG_VERSION:=20180301
+PKG_VERSION:=20180304
 
 include $(INCLUDE_DIR)/package.mk
 
