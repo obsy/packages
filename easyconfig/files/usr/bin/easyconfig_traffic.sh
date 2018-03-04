@@ -16,8 +16,8 @@ TDB=/tmp/easyconfig_traffic.txt
 
 D=$(date +%Y-%m-%d)
 
-NEWRX=$(awk '/'$IFACE':/{print $2}' /proc/net/dev)
-NEWTX=$(awk '/'$IFACE':/{print $10}' /proc/net/dev)
+NEWRX=$(awk '/^[ ]*'$IFACE':/{print $2}' /proc/net/dev)
+NEWTX=$(awk '/^[ ]*'$IFACE':/{print $10}' /proc/net/dev)
 OLDRX=$(awk '{print $1}' $TT)
 OLDTX=$(awk '{print $2}' $TT)
 CNT=$(awk '{print $3}' $TT)
