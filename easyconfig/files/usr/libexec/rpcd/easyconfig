@@ -51,8 +51,8 @@ F=/tmp/easyconfig_wan_cnt
 [ -e $F ] && WAN_UP_CNT=$(cat $F) || WAN_UP_CNT="-"
 
 if [ -n "$IFNAME" ]; then
-	WAN_RX=$(awk '/'$IFNAME':/{print $2}' /proc/net/dev)
-	WAN_TX=$(awk '/'$IFNAME':/{print $10}' /proc/net/dev)
+	WAN_RX=$(awk '/^[ ]*'$IFNAME':/{print $2}' /proc/net/dev)
+	WAN_TX=$(awk '/^[ ]*'$IFNAME':/{print $10}' /proc/net/dev)
 else
 	WAN_RX="-"
 	WAN_TX="-"
