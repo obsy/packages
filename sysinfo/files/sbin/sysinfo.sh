@@ -85,6 +85,12 @@ for i in $IFACES; do
 	fi
 done
 
+if [ "$(opkg list_installed | grep "mwan3")" != "" ]; then
+	printLine
+	printf " | %-"$LINE"s |\n" "MWAN3:  Aktualna polityka: $(mwan3 policies | head -n 3 | tail -n 1) $(mwan3 policies | head -n 4 | tail -n 1)"
+	printLine
+fi
+
 printLine
 
 ADDON=""
