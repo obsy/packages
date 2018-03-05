@@ -13,6 +13,10 @@ hr() {
 	fi
 }
 
+printLine() {
+echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+}
+
 MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
 [ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
@@ -86,7 +90,7 @@ for i in $IFACES; do
 	fi
 done
 
-echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+printLine
 
 ADDON=""
 for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
@@ -98,7 +102,7 @@ for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
 done
 
 if [ -n "$ADDON" ]; then
-	echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+	printLine
 fi
 
 exit 0
