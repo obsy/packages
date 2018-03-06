@@ -59,8 +59,8 @@ printf " | %-"$LINE"s |\n" "Flash: $RFS"
 printf " | %-"$LINE"s |\n" "Memory: $MEM"
 printf " | %-"$LINE"s |\n" "LAN: $LAN"
 
-WFACES=$(uci -q show network | grep -e ".*wan.*.proto" | cut -d. -f2)
-for i in $WFACES; do
+WANLIST=$(ubus list | grep -e ".*wan.*" | cut -d. -f3)
+for i in $WANLIST; do
 	PROTO=$(uci -q get network.$i.proto)
 	WAN=$(ubus call network.interface status '{"interface":"'$i'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
 	[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$i.ipaddr)
