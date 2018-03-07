@@ -59,7 +59,7 @@ printf " | %-"$LINE"s |\n" "Flash: $RFS"
 printf " | %-"$LINE"s |\n" "Memory: $MEM"
 printf " | %-"$LINE"s |\n" "LAN: $LAN"
 
-WANLIST=$(ubus list | grep -e ".*wan.*" | cut -d. -f3)
+WANLIST=$(ubus list | grep -e "\..*wan.*" | cut -d. -f3)
 for i in $WANLIST; do
 	PROTO=$(uci -q get network.$i.proto)
 	WAN=$(ubus call network.interface status '{"interface":"'$i'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
@@ -85,13 +85,12 @@ for i in $IFACES; do
 	fi
 done
 
+printLine
+
 if [ "$(opkg list_installed | grep "mwan3")" != "" ]; then
-	printLine
-	printf " | %-"$LINE"s |\n" "MWAN3:  Aktualna polityka: $(mwan3 policies | head -n 3 | tail -n 1) $(mwan3 policies | head -n 4 | tail -n 1)"
+	printf " | %-"$LINE"s |\n" "MWAN3:  Current policy: $(mwan3 policies | head -n 3 | tail -n 1) $(mwan3 policies | head -n 4 | tail -n 1)"
 	printLine
 fi
-
-printLine
 
 ADDON=""
 for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
