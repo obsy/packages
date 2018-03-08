@@ -1615,6 +1615,20 @@ function showtraffic() {
 		setValue("traffic_period", data.traffic_period);
 		setValue("traffic_cycle", data.traffic_cycle);
 
+		var now = new Date();
+		var day = now.getDate();
+		var month = now.getMonth();
+		var year = now.getFullYear();
+		now = new Date(year, month, day);
+		if (day <= data.traffic_cycle) {
+			var newdate = new Date(year, month, data.traffic_cycle);
+		} else {
+			var newdate = month == 11 ? new Date(year+1, 0, data.traffic_cycle) : new Date(year, month+1, data.traffic_cycle);
+		}
+		var timediff = Math.abs(newdate.getTime() - now.getTime());
+		var diffdays = Math.ceil(timediff / (1000 * 3600 * 24));
+		setValue("traffic_currentperiod_daysleft", diffdays);
+
 		setValue("traffic_warning_enabled", (data.traffic_warning_enabled=="1"));
 		setValue("traffic_warning_value", data.traffic_warning_value);
 		setValue("traffic_warning_unit", data.traffic_warning_unit);
