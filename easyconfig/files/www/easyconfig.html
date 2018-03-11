@@ -556,6 +556,51 @@
 		</div>
 	</div>
 
+	<div id="div_upgrade" style="display:block;">
+		<h3 class="section">Aktualizacja</h3>
+
+		<form class="form-horizontal">
+		<input id="upgrade_url" type="hidden">
+		<input id="upgrade_sha256sum" type="hidden">
+
+		<div class="alert" id="div_upgrade_msg" style="display:none">
+			<span id="upgrade_msg"></span>
+		</div>
+
+		<div class="form-group" id="div_upgrade_step1" style="display:block;">
+			<label class="col-xs-6 text-right">Dostępność aktualizacji</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="upgrade_step1();" value="Sprawdź" />
+			</div>
+		</div>
+
+		<div class="form-group" id="div_upgrade_step2" style="display:none;">
+			<label class="col-xs-6 text-right">Pobieranie aktualizacji</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="upgrade_step2();" value="Pobierz" />
+			</div>
+		</div>
+
+		<div id="div_upgrade_step3" style="display:none;">
+			<div class="form-group">
+				<label for="upgrade_preserve_settings" class="col-xs-6 control-label">Zachowaj ustawienia</label>
+				<div class="col-xs-6">
+				<label class="switch">
+					<input id="upgrade_preserve_settings" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-6 text-right">&nbsp;</label>
+				<div class="col-xs-6">
+				<input type="button" class="btn btn-default" onclick="upgrade_step3();" value="Aktualizacja" />
+				</div>
+			</div>
+		</div>
+		</form>
+	</div>
+
 	<h3 class="section"></h3>
 
 	<div class="row">

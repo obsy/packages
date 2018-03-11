@@ -1916,6 +1916,120 @@ function proofreadSMSText(input) {
 
 /*****************************************************************************/
 
+function upgrade_step1() {
+	ubus_call('"easyconfig", "upgrade", {"step":"1"}', function(data) {
+		var msg = "";
+		var e = document.getElementById("div_upgrade_msg");
+		removeClasses(e, ["alert-warning","alert-info"]);
+		if (data.error) {
+			addClasses(e, ["alert-warning"]);
+
+//# 1 nie można pobrać pliku z danymi
+//# 2 nie można znaleźć pliku z firmware
+//# 3 nie ma innej wersji
+
+			if (data.error == 2 || data.error == 3) {
+				msg = "Brak dostępnej nowej wersji.";
+			} else {
+				msg = "Wystąpił błąd podczas sprawdzania aktualizacji. Kod błędu: #" + data.error;
+			}
+			setValue("upgrade_msg", "Kod błędu: " + data.error);
+			setDisplay("div_upgrade_step1", true);
+			setDisplay("div_upgrade_step2", false);
+			setDisplay("div_upgrade_step3", false);
+		} else {
+			addClasses(e, ["alert-info"]);
+
+			setValue("upgrade_url", data.url);
+			setValue("upgrade_sha256sum", data.sha256sum);
+
+			msg += 'Dostępna jest nowa wersja oprogramowania <strong>' + data.version + '</strong>. Wybierz ';
+			msg += 'przycisk "Pobierz" aby pobrać nową wersję. W zależności od szybkości połączenia ';
+			msg += 'z internetem może to potrwać do kilku minut.';
+			msg += '<br><br>Nie zmieniaj ustawień i nie wyłączaj urządzenia w czasie tego procesu.';
+
+			setDisplay("div_upgrade_step1", false);
+			setDisplay("div_upgrade_step2", true);
+			setDisplay("div_upgrade_step3", false);
+		}
+		setValue("upgrade_msg", msg);
+		setDisplay("div_upgrade_msg", true);
+	});
+}
+
+function upgrade_step2() {
+
+	var url = getValue("upgrade_url");
+	var sha256sum = getValue("upgrade_sha256sum");
+
+	ubus_call('"easyconfig", "upgrade", {"step":"2", "arg1":"' + url + '","arg2":"' + sha256sum + '"}', function(data) {
+		var msg = "";
+		var e = document.getElementById("div_upgrade_msg");
+		removeClasses(e, ["alert-warning","alert-info"]);
+		if (data.error) {
+			addClasses(e, ["alert-warning"]);
+
+//# 4 brak podanego url
+//# 5 brak podanego sha256sum
+//# 6 nie zgadza się suma kontrolna pobranego pliku
+
+			if (data.error == 4) {
+				msg = "Wystąpił błąd podczas pobierania pliku. Spróbuj ponownie za kilka minut.";
+			} else {
+				msg = "Wystąpił błąd podczas pobierania pliku. Kod błędu: #" + data.error;
+			}
+
+			setDisplay("div_upgrade_step1", true);
+			setDisplay("div_upgrade_step2", false);
+			setDisplay("div_upgrade_step3", false);
+		} else {
+			addClasses(e, ["alert-info"]);
+
+			msg += 'Wybierz przycisk "Aktualizacja" aby zainstalować nową wersję oprogramowania. ';
+			msg += 'Zaznaczając "Zachowaj ustawienia" możliwe jest zapisane bieżących ustawień. ';
+			msg += 'Po wykonaniu aktualizacji nastąpi automatyczny restart urządzenia.';
+			msg += '<br><br>Nie zmieniaj konfigruacji i nie wyłączaj urządzenia w czasie tego procesu.';
+
+			setDisplay("div_upgrade_step1", false);
+			setDisplay("div_upgrade_step2", false);
+			setDisplay("div_upgrade_step3", true);
+		}
+		setValue("upgrade_msg", msg);
+		setDisplay("div_upgrade_msg", true);
+	});
+}
+
+function upgrade_step3() {
+
+	var sha256sum = getValue("upgrade_sha256sum");
+	var ps = getValue("upgrade_preserve_settings");
+
+	ubus_call('"easyconfig", "upgrade", {"step":"3", "arg1":"' + sha256sum + '","arg2":' + (ps?"true":"false") + '}', function(data) {
+		var msg = "";
+		var e = document.getElementById("div_upgrade_msg");
+		removeClasses(e, ["alert-warning","alert-info"]);
+		if (data.error) {
+			addClasses(e, ["alert-warning"]);
+
+//# 7 brak podanego sha256sum
+//# 8 brak pliku do aktualizacji
+//# 9 nie zgadza sie suma kontrolna pliku
+
+			msg = "Wystąpił błąd podczas wykonywania aktualizacji. Kod błędu: #" + data.error;
+		} else {
+			addClasses(e, ["alert-info"]);
+			msg = "Aktualizację wykonano pomyślnie.";
+		}
+		setDisplay("div_upgrade_step1", true);
+		setDisplay("div_upgrade_step2", false);
+		setDisplay("div_upgrade_step3", false);
+		setValue("upgrade_msg", msg);
+		setDisplay("div_upgrade_msg", true);
+	});
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }

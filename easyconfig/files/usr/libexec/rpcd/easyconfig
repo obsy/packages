@@ -794,6 +794,109 @@ reboot()
 
 ##############################################################################
 
+upgrade()
+{
+	read input;
+	json_load "$input"
+	json_get_vars step arg1 arg2
+
+	# step 2
+	if [ "x$step" = "x2" ]; then
+		# 4 brak podanego url
+		# 5 brak podanego sha256sum
+		# 6 nie zgadza się suma kontrolna pobranego pliku
+
+		if [ -z "$arg1" ]; then
+			echo '{"error":4}'
+			exit 0
+		fi
+		if [ -z "$arg2" ]; then
+			echo '{"error":5}'
+			exit 0
+		fi
+
+		rm /tmp/sysupgrade.bin >/dev/null 2>&1
+		wget -q -T 3 -O /tmp/sysupgrade.bin "$arg1"
+		T=$(sha256sum /tmp/sysupgrade.bin | awk '{print $1}')
+		if [ "x$T" = "x$arg2" ]; then
+			sync
+			echo "{\"sha256sum\":\"$arg2\"}"
+		else
+			rm /tmp/sysupgrade.bin >/dev/null 2>&1
+			echo '{"error":6}'
+		fi
+		exit 0
+	fi
+
+	# step 3
+	if [ "x$step" = "x3" ]; then
+		# 7 brak podanego sha256sum
+		# 8 brak pliku do aktualizacji
+		# 9 nie zgadza się suma kontrolna pobranego pliku
+
+		if [ -z "$arg1" ]; then
+			echo '{"error":7}'
+			exit 0
+		fi
+		[ "x$arg2" = "x1" ] && PS="" || PS="-n"
+
+		if [ ! -e /tmp/sysupgrade.bin ]; then
+			echo '{"error":8}'
+			exit 0
+		fi
+
+		T=$(sha256sum /tmp/sysupgrade.bin | awk '{print $1}')
+		if [ "x$T" = "x$arg1" ]; then
+			sync
+			sysupgrade $PS /tmp/sysupgrade.bin
+			echo '{"upgrade":"ok"}'
+		else
+			rm /tmp/sysupgrade.bin >/dev/null 2>&1
+			echo '{"error":9}'
+		fi
+		exit 0
+	fi
+
+	# step 1
+	# 1 nie można pobrać pliku z danymi
+	# 2 nie można znaleźć pliku z firmware
+	# 3 nie ma innej wersji
+
+	FSUMS=/tmp/upgrade-sha256sums
+
+	ARCH=$(awk -F[\'\"/] '/DISTRIB_TARGET/{print $2}' /etc/openwrt_release)
+	URL="http://dl.eko.one.pl/mifi/$ARCH"
+	wget -q -T 3 -O $FSUMS $URL/sha256sums
+	if [ ! -s $FSUMS ]; then
+		rm $FSUMS >/dev/null 2>&1
+		echo '{"error":1}'
+		exit 0
+	fi
+
+	BOARD=$(cat /tmp/sysinfo/board_name)
+	T=$(egrep "mifi.*$BOARD.*sysupgrade" $FSUMS)
+	rm $FSUMS >/dev/null 2>&1
+	if [ -z "$T" ]; then
+		echo '{"error":2}'
+		exit 0
+	fi
+
+	CHECKSUM=$(echo "$T" | awk '{print $1}')
+	FILE=$(echo "$T" | awk '{print $2}')
+
+	OLD_BUILD=$(awk -F[\'\"/] '/BUILD_ID/{print $2}' /etc/os-release)
+	NEW_BUILD=$(echo $FILE | sed 's|.*-\(r[0-9]*-.*\)-'$BOARD'.*|\1|g')
+
+	if [ "x$OLD_BUILD" = "x$NEW_BUILD" ]; then
+		echo '{"error":3}'
+		exit 0
+	fi
+	echo "{\"version\":\"$NEW_BUILD\",\"url\":\"$URL/$FILE\",\"sha256sum\":\"$CHECKSUM\"}"
+	exit 0
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -808,8 +911,9 @@ case "$1" in
 		echo '"queries":{},'
 		echo '"wifiscan":{},'
 		echo '"detect_wan":{},'
-		echo '"pincode":{"proto":"string","device":"string","pincode":"string"}',
+		echo '"pincode":{"proto":"string","device":"string","pincode":"string"},'
 		echo '"reboot":{},'
+		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"}'
 		echo '}'
 	;;
 	call)
@@ -852,6 +956,9 @@ case "$1" in
 				;;
 			reboot)
 				reboot
+				;;
+			upgrade)
+				upgrade
 				;;
 		esac
 	;;
