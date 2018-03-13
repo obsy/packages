@@ -1973,7 +1973,7 @@ function upgrade_step2() {
 //# 5 brak podanego sha256sum
 //# 6 nie zgadza się suma kontrolna pobranego pliku
 
-			if (data.error == 4) {
+			if (data.error == 6) {
 				msg = "Wystąpił błąd podczas pobierania pliku. Spróbuj ponownie za kilka minut.";
 			} else {
 				msg = "Wystąpił błąd podczas pobierania pliku. Kod błędu: #" + data.error;
