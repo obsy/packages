@@ -531,6 +531,29 @@ function ubus_call(param, callback)
 	});
 }
 
+function ubus_call_noerror(param, callback) {
+	ubus(param, function(data) {
+		if (data.error) {
+			ubus_error(data.error.code);
+		} else {
+			if (data.result[0] === 0) {
+
+				if (expires) {
+					clearTimeout(expires);
+					expires = setTimeout(function(){ document.getElementById("system_password").focus(); location.reload(); }, timeout * 1000);
+				}
+
+				callback(data.result[1]);
+			} else {
+				showMsg("Błąd pobierania danych!", true);
+			}
+		}
+	}, function(status) {
+		var data = {killed:1};
+		callback(data);
+	});
+}
+
 function execute(cmd, callback) {
 	cmd.unshift('#!/bin/sh');
 	cmd.push('rm -- \\\"$0\\\"');
@@ -1929,7 +1952,7 @@ function upgrade_step1() {
 //# 3 nie ma innej wersji
 
 			if (data.error == 2 || data.error == 3) {
-				msg = "Brak dostępnej nowej wersji.";
+				msg = "Brak dostępności nowej wersji.";
 			} else {
 				msg = "Wystąpił błąd podczas sprawdzania aktualizacji. Kod błędu: #" + data.error;
 			}
@@ -1988,7 +2011,7 @@ function upgrade_step2() {
 			msg += 'Wybierz przycisk "Aktualizacja" aby zainstalować nową wersję oprogramowania. ';
 			msg += 'Zaznaczając "Zachowaj ustawienia" możliwe jest zapisane bieżących ustawień. ';
 			msg += 'Po wykonaniu aktualizacji nastąpi automatyczny restart urządzenia.';
-			msg += '<br><br>Nie zmieniaj konfigruacji i nie wyłączaj urządzenia w czasie tego procesu.';
+			msg += '<br><br>Nie zmieniaj konfiguracji i nie wyłączaj urządzenia w czasie tego procesu.';
 
 			setDisplay("div_upgrade_step1", false);
 			setDisplay("div_upgrade_step2", false);
@@ -2004,7 +2027,7 @@ function upgrade_step3() {
 	var sha256sum = getValue("upgrade_sha256sum");
 	var ps = getValue("upgrade_preserve_settings");
 
-	ubus_call('"easyconfig", "upgrade", {"step":"3", "arg1":"' + sha256sum + '","arg2":' + (ps?"true":"false") + '}', function(data) {
+	ubus_call_noerror('"easyconfig", "upgrade", {"step":"3", "arg1":"' + sha256sum + '","arg2":' + (ps?"true":"false") + '}', function(data) {
 		var msg = "";
 		var e = document.getElementById("div_upgrade_msg");
 		removeClasses(e, ["alert-warning","alert-info"]);
@@ -2016,11 +2039,14 @@ function upgrade_step3() {
 //# 9 nie zgadza sie suma kontrolna pliku
 
 			msg = "Wystąpił błąd podczas wykonywania aktualizacji. Kod błędu: #" + data.error;
+			setDisplay("div_upgrade_step1", true);
 		} else {
 			addClasses(e, ["alert-info"]);
-			msg = "Aktualizację wykonano pomyślnie.";
+			msg = "<b>Trwa aktualizowanie systemu...</b>";
+			msg += '<br><br>Nie zmieniaj konfiguracji i nie wyłączaj urządzenia w czasie tego procesu. ';
+			msg += 'Po wykonaniu aktualizacji nastąpi automatyczny restart urządzenia.';
+			setDisplay("div_upgrade_step1", false);
 		}
-		setDisplay("div_upgrade_step1", true);
 		setDisplay("div_upgrade_step2", false);
 		setDisplay("div_upgrade_step3", false);
 		setValue("upgrade_msg", msg);
