@@ -1952,7 +1952,7 @@ function upgrade_step1() {
 //# 3 nie ma innej wersji
 
 			if (data.error == 2 || data.error == 3) {
-				msg = "Brak dostępności nowej wersji.";
+				msg = "Brak nowej wersji.";
 			} else {
 				msg = "Wystąpił błąd podczas sprawdzania aktualizacji. Kod błędu: #" + data.error;
 			}
