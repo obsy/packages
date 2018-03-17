@@ -397,7 +397,7 @@ echo '"logs":['
 T=$(logread -e "DHCPACK(" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}')
 T=$(printf "%s\n%s" "$T" "$(logread -e "AP-STA-DISCONNECTED" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}')")
 
-MACS=$(uci show dhcp | awk -F\' '/.mac=/{print $2}')
+MACS=$(uci show easyconfig | awk -F\' '/.mac=/{print $2}')
 for MAC in $MACS; do
 	NMAC=$(echo $MAC | sed 's/://g')
 	NAME=$(uci -q get easyconfig.m$NMAC.name)
