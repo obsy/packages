@@ -29,10 +29,12 @@ TX=$((NEWTX - OLDTX))
 [ $RX -lt 0 ] && RX=$NEWRX
 [ $TX -lt 0 ] && TX=$NEWTX
 
-OLDT=$(awk '/'$D'/{print $2}' $TDB)
+OLDRX=$(awk '/'$D'/{print $2}' $TDB)
+OLDTX=$(awk '/'$D'/{print $3}' $TDB)
 sed -i '/'$D'/d' $TDB
-T=$((OLDT+RX+TX))
-echo "$D $T" >> $TDB
+TRX=$((OLDRX+RX))
+TTX=$((OLDTX+TX))
+echo "$D $TRX $TTX" >> $TDB
 
 PERIOD=$(uci -q get easyconfig.traffic.period)
 [ -z "$PERIOD" ] && PERIOD=10

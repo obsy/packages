@@ -1677,6 +1677,8 @@ function showtraffic() {
 		var last_period = lastPeriod(traffic_cycle);
 
 		var traffic_today=0;
+		var traffic_today_rx=0;
+		var traffic_today_tx=0;
 		var traffic_yesterday=0;
 		var traffic_last7d=0;
 		var traffic_last30d=0;
@@ -1691,12 +1693,16 @@ function showtraffic() {
 		}
 		for (var idx in traffic) {
 			if (traffic[idx] == "") {continue;}
-			var t_date=traffic[idx].split(" ")[0];
-			var t_value=traffic[idx].split(" ")[1];
+			var t_date = traffic[idx].split(" ")[0];
+			var t_rx = traffic[idx].split(" ")[1];
+			var t_tx = traffic[idx].split(" ")[2];
+			var t_value = (parseInt(t_rx) || 0) + (parseInt(t_tx) || 0);
 			if (total_since == "") {total_since = t_date;}
 
 			if (t_date == today[0]) {
 				traffic_today = t_value;
+				traffic_today_rx = t_rx;
+				traffic_today_tx = t_tx;
 			}
 
 			if (t_date == yesterday[0]) {
@@ -1743,7 +1749,7 @@ function showtraffic() {
 				if (traffic_today >= traffic_warning_limit) { e1.style.color = "red"; }
 
 				var percent = parseInt((traffic_today * 100) / traffic_warning_limit);
-				setValue("traffic_today_progress", ' (' + percent + "% z " + bytesToSize(traffic_warning_limit) + ')');
+				setValue("traffic_today_progress", " (" + percent + "% z " + bytesToSize(traffic_warning_limit) + ")");
 				if (percent > 100) {percent = 100;}
 				document.getElementById("div_traffic_today_progress1").style.width = percent + '%';
 				setDisplay("div_traffic_today_progress", true);
@@ -1765,6 +1771,7 @@ function showtraffic() {
 		}
 
 		setValue("traffic_today", bytesToSize(traffic_today));
+		setValue("traffic_today1", " " + bytesToSize(traffic_today_tx) + "&uarr; " + bytesToSize(traffic_today_rx) + "&darr;");
 		setValue("traffic_yesterday", bytesToSize(traffic_yesterday));
 		setValue("traffic_last7d", bytesToSize(traffic_last7d));
 		setValue("traffic_last30d", bytesToSize(traffic_last30d));
