@@ -11,5 +11,6 @@ var dns=[
 {"ip": ["8.26.56.26", "8.20.247.20"], "name": "Comodo Secure DNS", "url": "https://www.comodo.com/secure-dns/"},
 {"ip": ["77.88.8.8", "77.88.8.1"], "name": "Yandex.DNS Basic", "url": "https://dns.yandex.com/"},
 {"ip": ["77.88.8.88", "77.88.8.2"], "name": "Yandex.DNS Safe", "url": "https://dns.yandex.com/"},
-{"ip": ["77.88.8.7", "77.88.8.3"], "name": "Yandex.DNS Family", "url": "https://dns.yandex.com/"}
+{"ip": ["77.88.8.7", "77.88.8.3"], "name": "Yandex.DNS Family", "url": "https://dns.yandex.com/"},
+{"ip": ["1.1.1.1", "1.0.0.1"], "name": "Cloudflare", "url": "https://1.1.1.1/"}
 ];
