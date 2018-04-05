@@ -1,5 +1,28 @@
 /*****************************************************************************/
 
+function setCookie(cname, cvalue) {
+	var d = new Date();
+	d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+	document.cookie = cname + "=" + cvalue + ";" + "expires="+d.toUTCString() + ";path=/";
+}
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i = 0; i < ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) == ' ') {
+			c = c.substring(1);
+		}
+		if (c.indexOf(name) == 0) {
+			return c.substring(name.length, c.length);
+		}
+	}
+	return "";
+}
+
+/*****************************************************************************/
+
 function proofreadHostname(input) {
 	proofreadText(input, validateHostname, 0);
 }
@@ -419,6 +442,7 @@ function enableWan(proto) {
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
 
 	setDisplay("div_status_wan", (proto != "none"));
+	setCookie("easyconfig_status_wan", (proto != "none"?"1":"0"));
 	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
 
 	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.wan_dashboard_url) {
@@ -609,6 +633,14 @@ function login()
 
 				setDisplay("div_login", false);
 				setDisplay("div_content", true);
+
+				if (getCookie("easyconfig_status_wan") === "1") {
+					setDisplay("div_status_wan", true);
+				}
+				if (getCookie("easyconfig_status_modem") === "1") {
+					setDisplay("div_status_modem", true);
+				}
+
 				showconfig();
 				showstatus();
 			} else {
@@ -1118,10 +1150,12 @@ function showmodemsection() {
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
 		setDisplay("menu_ussdsms", config.services.ussdsms);
 		setDisplay("div_status_modem", true);
+		setCookie("easyconfig_status_modem", "1");
 		showmodem();
 	} else {
 		setDisplay("menu_ussdsms", false);
 		setDisplay("div_status_modem", false);
+		setCookie("easyconfig_status_modem", "0");
 	}
 }
 
