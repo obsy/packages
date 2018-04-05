@@ -367,6 +367,27 @@ function enableWan(proto) {
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode"];
+
+		removeOptions('wan_modem_mode');
+		var t;
+		if (proto == '3g') {
+			t = {"":"Wg ustawień modemu","umts":"Wybór automatyczny 3G/2G","umts_only":"Tylko 3G (HSPA/UMTS)","gprs_only":"Tylko 2G (EDGE/GSM)"};
+		}
+		if (proto == 'qmi') {
+			t = {"":"Wg ustawień modemu","all":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
+		}
+		if (proto == 'ncm') {
+			t = {"":"Wg ustawień modemu","auto":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
+		}
+		e = document.getElementById('wan_modem_mode');
+		for (key in t) {
+			if (t.hasOwnProperty(key)) {
+				var opt = document.createElement('option');
+				opt.value = key;
+				opt.innerHTML = t[key];
+				e.appendChild(opt);
+			}
+		}
 	}
 
 	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode"];
@@ -664,6 +685,7 @@ function showcallback(data) {
 	setValue('wan_apn', config.wan_apn);
 	setValue('wan_device', config.wan_device);
 	setValue('wan_pincode', config.wan_pincode);
+	setValue('wan_modem_mode', config.wan_modem_mode);
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
@@ -673,30 +695,6 @@ function showcallback(data) {
 		}
 	}
 	enableWan(getValue("wan_proto"));
-
-	if ((config.wan_proto == '3g') || (config.wan_proto == 'qmi') || (config.wan_proto == 'ncm')) {
-		removeOptions('wan_modem_mode');
-		e = document.getElementById('wan_modem_mode');
-		var t;
-		if (config.wan_proto == '3g') {
-			t = {"":"Wg ustawień modemu","umts":"Wybór automatyczny 3G/2G","umts_only":"Tylko 3G (HSPA/UMTS)","gprs_only":"Tylko 2G (EDGE/GSM)"};
-		}
-		if (config.wan_proto == 'qmi') {
-			t = {"":"Wg ustawień modemu","all":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
-		}
-		if (config.wan_proto == 'ncm') {
-			t = {"":"Wg ustawień modemu","auto":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
-		}
-		for (key in t) {
-			if (t.hasOwnProperty(key)) {
-				var opt = document.createElement('option');
-				opt.value = key;
-				opt.innerHTML = t[key];
-				e.appendChild(opt);
-			}
-		}
-		setValue('wan_modem_mode', config.wan_modem_mode);
-	}
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
