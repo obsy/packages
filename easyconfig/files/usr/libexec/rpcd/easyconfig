@@ -224,12 +224,11 @@ for R in $RADIOS; do
 	echo '"'$R'":{'
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
-	T=$(uci show wireless | awk -F. '/device=/{print $2}')
+	T=$(uci show wireless | awk -F. '/device=.*'$R'/{print $2}')
 	if [ -n "$T" ]; then
 		for WLAN_SEC in $T; do
 			[ "x$(uci -q get wireless.$WLAN_SEC.network)" = "xlan" ] || continue
 			[ "x$(uci -q get wireless.$WLAN_SEC.mode)" = "xap" ] || continue
-			[ "x$(uci -q get wireless.$WLAN_SEC.device)" = "x$R" ] || continue
 			WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
 			WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
 			WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
