@@ -64,7 +64,7 @@ if [ -z "$FORCE_PLMN" ]; then
 fi
 
 # CREG
-eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%04X\";CID_HEX=\"%04X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE1=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
+eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE1=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
 	0*) REG="0";;
 	1*) REG="1";;
