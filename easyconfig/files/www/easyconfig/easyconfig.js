@@ -1557,7 +1557,6 @@ function saveclientname() {
 	var cmd = [];
 	cmd.push('uci -q del easyconfig.m' + nmac);
 	cmd.push('uci set easyconfig.m' + nmac + '=mac');
-	cmd.push('uci set easyconfig.m' + nmac + '.mac=\\\"' + mac + '\\\"');
 	cmd.push('uci set easyconfig.m' + nmac + '.name=\\\"' + name +'\\\"');
 	cmd.push('uci commit easyconfig');
 

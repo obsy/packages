@@ -374,12 +374,8 @@ for M in $WLAN_MAC; do
 	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"%s\",\"name\":\"%s\",", $2, $3, $4, $4}' /tmp/dhcp.leases)
 	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
 
-	NMAC=$(echo $MAC | sed 's/://g')
-	T1=$(uci -q get easyconfig.m$NMAC.mac)
-	if [ "x$T1" = "x$MAC" ]; then
-		T1=$(uci -q get easyconfig.m$NMAC.name)
-		[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
-	fi
+	T1=$(uci -q get easyconfig.m${MAC//:/}.name)
+	[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
 
 	T2=$(echo $M | cut -f5 -d";")
 	if [ $TIMEOK -eq 1 ]; then
@@ -396,11 +392,13 @@ echo '"logs":['
 T=$(logread -e "DHCPACK(" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}')
 T=$(printf "%s\n%s" "$T" "$(logread -e "AP-STA-DISCONNECTED" | awk '{printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}')")
 
-MACS=$(uci show easyconfig | awk -F\' '/.mac=/{print $2}')
+MACS=$(uci show easyconfig | awk -F[=m] '/=mac/{print $2}')
 for MAC in $MACS; do
-	NMAC=$(echo $MAC | sed 's/://g')
-	NAME=$(uci -q get easyconfig.m$NMAC.name)
-	[ -n "$NAME" ] && T=$(echo "$T" | sed "s/,\"mac\":\"$MAC\",\"name\":\".*\",\"event\"/,\"mac\":\"\",\"name\":\"$NAME\",\"event\"/g")
+	NAME=$(uci -q get easyconfig.m${MAC}.name)
+	if [ -n "$NAME" ]; then
+		TMAC=${MAC:0:2}:${MAC:2:2}:${MAC:4:2}:${MAC:6:2}:${MAC:8:2}:${MAC:10:2}
+		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"name\":\".*\",\"event\"/,\"mac\":\"\",\"name\":\"$NAME\",\"event\"/g")
+	fi
 done
 
 echo "${T%?}"
@@ -615,8 +613,7 @@ show_queries() {
 			MAC=$(awk '/'$IP'/{print $4}' /proc/net/arp)
 		fi
 		if [ -n "$MAC" ]; then
-			NMAC=$(echo $MAC | sed 's/://g')
-			NAME2=$(uci -q get easyconfig.m$NMAC.name)
+			NAME2=$(uci -q get easyconfig.m${MAC//:/}.name)
 			if [ -n "$NAME2" ]; then
 				NAME="$NAME2"
 			else
