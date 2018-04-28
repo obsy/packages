@@ -65,10 +65,6 @@ for i in $IFACES; do
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
-GUI_VERSION="-devel-"
-VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
-MODEL=$(cat /tmp/sysinfo/model)
-
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
@@ -81,6 +77,44 @@ echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
+echo '}'
+}
+
+##############################################################################
+
+show_system()
+{
+
+GUI_VERSION="-devel-"
+VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
+MODEL=$(cat /tmp/sysinfo/model)
+
+VENDOR="-"
+PRODUCT="-"
+REVISION="-"
+IMEI="-"
+ICCID="-"
+if [ -e /tmp/modem ]; then
+	DEVICE=$(cat /tmp/modem)
+	O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
+	T=$(echo "$O" | awk -F[:] '/CGMI:/{print $2}')
+	[ -n "$T" ] && VENDOR="$T"
+	T=$(echo "$O" | awk -F[:] '/CGMM:/{print $2}')
+	[ -n "$T" ] && PRODUCT="$T"
+	T=$(echo "$O" | awk -F[:] '/CGMR:/{print $2}')
+	[ -n "$T" ] && REVISION="$T"
+	T=$(echo "$O" | awk -F[:] '/CGSN:/{print $2}')
+	[ -n "$T" ] && IMEI="$T"
+	T=$(echo "$O" | awk -F[:] '/CCID:/{print $2}')
+	[ -n "$T" ] && ICCID="$T"
+fi
+
+echo '{"modem":{'
+echo '"vendor":"'$VENDOR'",'
+echo '"product":"'$PRODUCT'",'
+echo '"revision":"'$REVISION'",'
+echo '"imei":"'$IMEI'",'
+echo '"iccid":"'$ICCID'"},'
 echo '"version":"'$VERSION'",'
 echo '"gui_version":"'$GUI_VERSION'",'
 echo '"model":"'$MODEL'"'
@@ -898,6 +932,7 @@ case "$1" in
 		echo '{'
 		echo '"status":{},'
 		echo '"config":{},'
+		echo '"system":{},'
 		echo '"watchdog":{},'
 		echo '"clients":{},'
 		echo '"traffic":{},'
@@ -919,6 +954,9 @@ case "$1" in
 				;;
 			config)
 				show_config
+				;;
+			system)
+				show_system
 				;;
 			watchdog)
 				show_watchdog

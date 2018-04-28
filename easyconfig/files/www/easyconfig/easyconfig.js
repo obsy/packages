@@ -639,6 +639,7 @@ function login()
 				}
 				if (getCookie("easyconfig_status_modem") === "1") {
 					setDisplay("div_status_modem", true);
+					setDisplay("div_system_modem", true);
 				}
 
 				showconfig();
@@ -1072,9 +1073,19 @@ function showstatus() {
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('wan_ipaddr_status', data.wan_ipaddr);
+	});
+}
+
+function showsystem() {
+	ubus_call('"easyconfig", "system", { }', function(data) {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
+		setValue('modem_vendor', data.modem.vendor);
+		setValue('modem_model', data.modem.product);
+		setValue('modem_revision', data.modem.revision);
+		setValue('modem_imei', data.modem.imei);
+		setValue('modem_iccid', data.modem.iccid);
 	});
 }
 
@@ -1150,11 +1161,13 @@ function showmodemsection() {
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
 		setDisplay("menu_ussdsms", config.services.ussdsms);
 		setDisplay("div_status_modem", true);
+		setDisplay("div_system_modem", true);
 		setCookie("easyconfig_status_modem", "1");
 		showmodem();
 	} else {
 		setDisplay("menu_ussdsms", false);
 		setDisplay("div_status_modem", false);
+		setDisplay("div_system_modem", false);
 		setCookie("easyconfig_status_modem", "0");
 	}
 }
@@ -2133,6 +2146,10 @@ function btn_pages(page) {
 	if (page == 'status') {
 		showstatus();
 		showmodemsection();
+	}
+
+	if (page == 'system') {
+		showsystem();
 	}
 
 	if (page == 'watchdog') {
