@@ -1469,8 +1469,11 @@ function wlanclientscallback(sortby) {
 		for(var idx=0; idx<sorted.length; idx++){
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
 			html += '<hr><div class="row">';
-			html += '<div class="col-xs-9"><a href="#" class="click" onclick="clientnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="wlanclientblock(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">blokuj</a></div>';
+			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
+			html += '<div class="col-xs-3 text-right">';
+			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a> | ';
+			html += '<a href="#" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokada</a>';
+			html += '</div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1513,59 +1516,66 @@ function clientslogscallback() {
 	div.innerHTML = html;
 }
 
-function wlanclientblock(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
-	setValue('block_host_mac', mac);
-
+function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
+	setValue('hostinfo_mac', mac);
 	var key = mac.substring(0,8).toUpperCase();
 	if (key in manuf) {
-		setValue('block_host_vendor', manuf[key]);
+		setValue('hostinfo_vendor', manuf[key]);
 	} else {
-		setValue('block_host_vendor', "");
+		setValue('hostinfo_vendor', "");
 	}
-
-	setValue('block_host_realname', realname);
-	setValue('block_host_tx', tx);
-	setValue('block_host_rx', rx);
-	setValue('block_host_signal', signal + ' dBm');
-	setValue('block_host_connected', formatTime(connected, false));
-	setValue('block_host_connected_since', connected_since == '-'?'':' (od ' + connected_since + ')');
-	setValue('block_host_band', band==2?'2.4GHz':'5GHz');
-	setValue('block_mac', mac);
-	setValue('block_name', name);
-	setDisplay("div_block", true);
-	setValue("block_text", 'Zablokować dostęp do internetu dla "' + name + '"?')
+	setValue('hostinfo_name', name);
+	setValue('hostinfo_realname', realname);
+	setValue('hostinfo_tx', tx);
+	setValue('hostinfo_rx', rx);
+	setValue('hostinfo_signal', signal + ' dBm');
+	setValue('hostinfo_band', band==2?'2.4GHz':'5GHz');
+	setValue('hostinfo_connected', formatTime(connected, false));
+	setValue('hostinfo_connected_since', connected_since == '-'?'':' (od ' + connected_since + ')');
+	setDisplay("div_hostinfo", true);
 }
 
-function cancelblock() {
-	setDisplay("div_block", false);
+function hostblock(mac, name) {
+	setValue('hostblock_mac', mac);
+	setValue('hostblock_name', name);
+	setDisplay("div_hostblock", true);
+	setValue("hostblock_text", 'Zablokować dostęp do internetu dla "' + name + '"?')
 }
 
-function okblock() {
-	cancelblock();
-	var mac = getValue('block_mac');
-	var name = getValue('block_name');
+function cancelhostblock() {
+	setDisplay("div_hostblock", false);
+}
+
+function okhostblock() {
+	cancelhostblock();
+	var mac = getValue('hostblock_mac');
+	var name = getValue('hostblock_name');
 	ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
 		showMsg('"' + name + '" stracił dostęp do internetu');
 	});
 }
 
-function clientnameedit(mac, name) {
-	setDisplay("div_clientname", true);
-	setValue('clientname_mac', mac);
-	setValue('clientname_name', name);
-	document.getElementById('clientname_name').focus();
+function hostnameedit(mac, name) {
+	setDisplay("div_hostname", true);
+	setValue('hostname_mac', mac);
+	setValue('hostname_name', name);
+	document.getElementById('hostname_name').focus();
 }
 
-function cancelclientname() {
-	setDisplay("div_clientname", false);
+function okhostinfo() {
+	setDisplay("div_hostinfo", false);
 }
 
-function saveclientname() {
-	cancelclientname();
+function cancelhostname() {
+	setDisplay("div_hostname", false);
+}
 
-	var mac = getValue('clientname_mac');
+function savehostname() {
+	cancelhostname();
+
+	var mac = getValue('hostname_mac');
 	var nmac = mac.replace(/:/g,'');
-	var name = getValue('clientname_name');
+	var name = getValue('hostname_name');
 
 	var cmd = [];
 	cmd.push('uci -q del easyconfig.m' + nmac);
