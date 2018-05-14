@@ -13,6 +13,10 @@ hr() {
 	fi
 }
 
+printLine() {
+echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+}
+
 MACH=""
 [ -e /tmp/sysinfo/model ] && MACH=$(cat /tmp/sysinfo/model)
 [ -z "$MACH" ] && MACH=$(awk -F: '/Hardware/ {print $2}' /proc/cpuinfo)
@@ -48,26 +52,21 @@ MEM=$(echo "total: "$(hr $total_mem)", free: "$(hr $free_mem)", used: "$(( (tota
 LAN=$(uci -q get network.lan.ipaddr)
 [ -e /tmp/dhcp.leases ] && LAN="$LAN, leases: "$(awk 'END {print NR}' /tmp/dhcp.leases)
 
-PROTO=$(uci -q get network.wan.proto)
-case $PROTO in
-qmi|ncm)
-	SEC=wan_4
-	;;
-*)
-	SEC=wan
-	;;
-esac
-WAN=$(ubus call network.interface status '{"interface":"'$SEC'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
-[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$SEC.ipaddr)
-[ -n "$WAN" ] && WAN="$WAN, proto: "$PROTO
-
 printf " | %-"$LINE"s |\n" "Machine: $MACH"
 printf " | %-"$LINE"s |\n" "Uptime: $U"
 printf " | %-"$LINE"s |\n" "Load: $L"
 printf " | %-"$LINE"s |\n" "Flash: $RFS"
 printf " | %-"$LINE"s |\n" "Memory: $MEM"
-printf " | %-"$LINE"s |\n" "WAN: $WAN"
 printf " | %-"$LINE"s |\n" "LAN: $LAN"
+
+WANLIST=$(ubus list | grep -e "\..*wan.*" | cut -d. -f3)
+for i in $WANLIST; do
+	PROTO=$(uci -q get network.$i.proto)
+	WAN=$(ubus call network.interface status '{"interface":"'$i'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
+	[ -z "$WAN" ] && WAN=$(uci -q -P /var/state get network.$i.ipaddr)
+	[ -n "$WAN" ] && WAN="$WAN, proto: "$PROTO
+	printf " | %-"$LINE"s |\n" "$(echo $i | tr [a-z] [A-Z]): $WAN"
+done
 
 IFACES=$(uci -q show wireless | grep "device='radio" | cut -f2 -d. | sort)
 for i in $IFACES; do
@@ -86,7 +85,12 @@ for i in $IFACES; do
 	fi
 done
 
-echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+printLine
+
+if [ "$(opkg list_installed | grep "mwan3")" != "" ]; then
+	printf " | %-"$LINE"s |\n" "MWAN3:  Current policy: $(mwan3 policies | head -n 3 | tail -n 1) $(mwan3 policies | head -n 4 | tail -n 1)"
+	printLine
+fi
 
 ADDON=""
 for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
@@ -98,7 +102,7 @@ for i in $(ls /etc/sysinfo.d/* 2>/dev/null); do
 done
 
 if [ -n "$ADDON" ]; then
-	echo " "$(for i in $(seq 2 $LINE1); do printf "-"; done)
+	printLine
 fi
 
 exit 0
