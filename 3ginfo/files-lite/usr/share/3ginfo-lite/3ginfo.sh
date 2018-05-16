@@ -27,7 +27,7 @@ if [ "x$DEVICE" = "x" ]; then
 fi
 
 if [ "x$DEVICE" = "x" ]; then
-	echo "{}"
+	echo '{"error":"Device not found"}'
 	exit 0
 fi
 
