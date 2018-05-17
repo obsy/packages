@@ -547,7 +547,7 @@ show_ussd() {
 		[ "x$T" = "x1" ] && OPT="$OPT -r"
 		[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh > /dev/null 2>&1
 		DEVICE=$(cat /tmp/modem)
-		T=$(sms_tool -d $DEVICE $OPT ussd "$code")
+		[ -n "$DEVICE" ] && T=$(sms_tool -d $DEVICE $OPT ussd "$code") || T=""
 	fi
 
 	json_init
