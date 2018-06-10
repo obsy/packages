@@ -965,15 +965,9 @@ show_pptp()
 
 show_geolocation()
 {
-	IP=$(wget -q -T 3 -O - http://ipecho.net/plain)
-	if [ -z "$IP" ]; then
-		echo "{\"status\": -1}"
-		exit 0
-	fi
-
-	T=$(wget -q -T 3 -O - http://ip-api.com/json/$IP)
-	if [ -z "$IP" ]; then
-		echo "{\"status\": -1}"
+	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,countryCode,region,regionName,city,isp,status)
+	if [ -z "$T" ]; then
+		echo "{\"status\":\"fail\"}"
 		exit 0
 	fi
 
