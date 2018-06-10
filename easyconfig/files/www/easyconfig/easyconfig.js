@@ -2141,7 +2141,7 @@ function upgrade_step3() {
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", { }', function(data) {
 
-		setValue("pptp_up", data.up?"Uruchomiony":"Brak połączenia");
+		setValue("pptp_up", (data.up=="true")?"Uruchomiony":"Brak połączenia");
 		setValue("pptp_ip", data.ip?data.ip:"-");
 
 		setValue("pptp_enabled", data.enabled);
@@ -2154,19 +2154,20 @@ function showpptp() {
 function savepptp() {
 	var cmd = [];
 
+	cmd.push('uci set network.vpn_pptp=interface');
+	cmd.push('uci set network.vpn_pptp.proto=pptp');
 	cmd.push('uci set network.vpn_pptp.server=\\\"' + getValue("pptp_server") + '\\\"');
 	cmd.push('uci set network.vpn_pptp.username=\\\"' + getValue("pptp_username") + '\\\"');
 	cmd.push('uci set network.vpn_pptp.password=\\\"' + getValue("pptp_password") + '\\\"');
+	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
+	cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
 	if (getValue("pptp_enabled")) {
 		cmd.push('uci set network.vpn_pptp.auto=1');
-		cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
 		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
 		cmd.push('uci commit');
 		cmd.push('ifup vpn_pptp');
 	} else {
 		cmd.push('uci set network.vpn_pptp.auto=0');
-		cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
-		cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
 		cmd.push('uci commit');
 		cmd.push('ifdown vpn_pptp');
 	}

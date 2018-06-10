@@ -937,8 +937,8 @@ show_pptp()
 {
 
 	T=$(ifstatus vpn_pptp 2>/dev/null)
-	UP=$(echo "$T" | jsonfilter -e "@.up")
-	IP=$(echo "$T" | jsonfilter -e "@['ipv4-address'][0].address")
+	UP=$(echo "$T" | jsonfilter -q -e "@.up")
+	IP=$(echo "$T" | jsonfilter -q -e "@['ipv4-address'][0].address")
 
 	VPNENABLED=$(uci -q get network.vpn_pptp.auto)
 	[ "x$VPNENABLED" = "x1" ] && VPNENABLED=1 || VPNENABLED=0
@@ -946,7 +946,7 @@ show_pptp()
 	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
 	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
 
-	echo "{\"up\":$UP,\"ip\":\"$IP\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
+	echo "{\"up\":\"$UP\",\"ip\":\"$IP\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
 	exit 0
 }
 
