@@ -963,6 +963,26 @@ show_pptp()
 
 ##############################################################################
 
+show_geolocation()
+{
+	IP=$(wget -q -T 3 -O - http://ipecho.net/plain)
+	if [ -z "$IP" ]; then
+		echo "{\"status\": -1}"
+		exit 0
+	fi
+
+	T=$(wget -q -T 3 -O - http://ip-api.com/json/$IP)
+	if [ -z "$IP" ]; then
+		echo "{\"status\": -1}"
+		exit 0
+	fi
+
+	echo $T
+	exit 0
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -981,7 +1001,8 @@ case "$1" in
 		echo '"pincode":{"proto":"string","device":"string","pincode":"string"},'
 		echo '"reboot":{},'
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
-		echo '"pptp":{}'
+		echo '"pptp":{},'
+		echo '"geolocation":{}'
 		echo '}'
 	;;
 	call)
@@ -1033,6 +1054,9 @@ case "$1" in
 				;;
 			pptp)
 				show_pptp
+				;;
+			geolocation)
+				show_geolocation
 				;;
 		esac
 	;;

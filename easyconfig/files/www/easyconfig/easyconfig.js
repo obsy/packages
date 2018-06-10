@@ -1075,7 +1075,7 @@ function showstatus() {
 		setValue('wan_uptime', formatTime(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
-		setValue('wan_ipaddr_status', data.wan_ipaddr);
+		setValue('wan_ipaddr_status', (data.wan_ipaddr == '-')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
 	});
 }
 
@@ -2141,8 +2141,9 @@ function upgrade_step3() {
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", { }', function(data) {
 
-		setValue("pptp_up", (data.up=="true")?"Uruchomiony":"Brak połączenia");
-		setValue("pptp_ip", data.ip?data.ip:"-");
+		setValue("pptp_up", (data.up == "true")?"Uruchomiony":"Brak połączenia");
+		setValue('pptp_ip', (data.ip == '')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.ip + '</a>');
+
 		setValue('pptp_uptime', formatTime(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '-'?'':' (od ' + data.uptime_since + ')');
 
@@ -2184,7 +2185,29 @@ function uppptp() {
 
 function downpptp() {
 	ubus_call('"network.interface", "down", {"interface":"vpn_pptp"}', function(data) {
+		ubus_call('"network.interface", "up", {"interface":"wan"}', function(data) {
+		});
 	});
+}
+
+/*****************************************************************************/
+
+function showgeolocation() {
+	ubus_call('"easyconfig", "geolocation", { }', function(data) {
+		if (data.status == "success") {
+			setValue("geolocation_isp", data.isp?data.isp:"-");
+			setValue("geolocation_city", data.city?data.city:"-");
+			setValue("geolocation_region", ((data.regionName?data.regionName:"-") + " / " + (data.region?data.region:"-")));
+			setValue("geolocation_country", ((data.country?data.country:"-") + " / " + (data.countryCode?data.countryCode:"-")));
+			setDisplay("div_geolocation", true);
+		} else {
+			showMsg("Błąd odczytu lokalizacji", true);
+		}
+	});
+}
+
+function okgeolocation() {
+	setDisplay("div_geolocation", false);
 }
 
 /*****************************************************************************/
