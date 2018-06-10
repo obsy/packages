@@ -601,7 +601,7 @@ function ubus_call_noerror(param, callback) {
 
 function execute(cmd, callback) {
 	cmd.unshift('#!/bin/sh');
-//	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit 0');
 	cmd.push('');
 
@@ -1191,7 +1191,6 @@ function btn_system_reboot() {
 
 function showwatchdog() {
 	setDisplay("watchdog_enabled_info", (config.wan_proto == "none"));
-	setDisplay("div_watchdog_minavgmax", false)
 
 	ubus_call('"easyconfig", "watchdog", { }', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
@@ -1201,8 +1200,13 @@ function showwatchdog() {
 		setValue("watchdog_delay", data.watchdog_delay);
 		setValue("watchdog_action", data.watchdog_action);
 		if (data.watchdog_minavgmax != "") {
-			setDisplay("div_watchdog_minavgmax", true)
-			setValue("watchdog_minavgmax", data.watchdog_minavgmax);
+			setValue("watchdog_min", data.watchdog_minavgmax.split("/")[0] + " ms");
+			setValue("watchdog_avg", data.watchdog_minavgmax.split("/")[1] + " ms");
+			setValue("watchdog_max", data.watchdog_minavgmax.split("/")[2] + " ms");
+		} else {
+			setValue("watchdog_min", "-");
+			setValue("watchdog_avg", "-");
+			setValue("watchdog_max", "-");
 		}
 	});
 }

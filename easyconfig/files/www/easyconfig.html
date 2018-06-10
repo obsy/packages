@@ -661,10 +661,30 @@
 		<strong>UWAGA!</strong> Połączenie z internetem jest wyłączone. <a href="#" class="click" onclick="btn_pages('settings');">Kliknij tutaj aby ustawić połączenie &rarr;</a>
 	</div>
 
-	<div class="alert alert-info" id="div_watchdog_minavgmax" style="display:none;">
-		Wynik z ostatniego sprawdzenia: <strong><span id="watchdog_minavgmax"></span></strong> (min/avg/max)
+	<div class="row">
+		<label class="col-xs-6 text-right">Wynik ostatniego sprawdzenia</label>
+		<div class="col-xs-6"><p>&nbsp;</p></div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">minimum</label>
+		<div class="col-xs-6">
+		<p id="watchdog_min">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">średnia</label>
+		<div class="col-xs-6">
+		<p id="watchdog_avg">0</p>
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">maksimum</label>
+		<div class="col-xs-6">
+		<p id="watchdog_max">0</p>
+		</div>
 	</div>
 
+	<h3 class="section"></h3>
 	<form class="form-horizontal">
 		<div class="form-group" id="div_watchdog_enabled">
 			<label for="watchdog_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
@@ -1016,22 +1036,22 @@
 	<h3 class="section">VPN pptp</h3>
 
 	<div class="row">
-		<label class="col-xs-4 col-sm-3 text-right">Status</label>
-		<div class="col-xs-8 col-sm-9">
+		<label class="col-xs-6 text-right">Status</label>
+		<div class="col-xs-6">
 		<p id="pptp_up">-</p>
 		</div>
 	</div>
 
 	<div class="row">
-		<label class="col-xs-4 col-sm-3 text-right">Adres IP</label>
-		<div class="col-xs-8 col-sm-9">
+		<label class="col-xs-6 text-right">Adres IP</label>
+		<div class="col-xs-6">
 		<p id="pptp_ip">-</p>
 		</div>
 	</div>
 
 	<div class="row">
-		<label class="col-xs-4 col-sm-3 text-right">Czas połączenia</label>
-		<div class="col-xs-8 col-sm-9">
+		<label class="col-xs-6 text-right">Czas połączenia</label>
+		<div class="col-xs-6">
 		<p><span id="pptp_uptime">-</span><span class="visible-xs oneline"></span><small><span id="pptp_uptime_since">&nbsp;</span></small></p>
 		</div>
 	</div>
