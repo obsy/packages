@@ -2143,6 +2143,8 @@ function showpptp() {
 
 		setValue("pptp_up", (data.up=="true")?"Uruchomiony":"Brak połączenia");
 		setValue("pptp_ip", data.ip?data.ip:"-");
+		setValue('pptp_uptime', formatTime(data.uptime, false));
+		setValue('pptp_uptime_since', data.uptime_since == '-'?'':' (od ' + data.uptime_since + ')');
 
 		setValue("pptp_enabled", data.enabled);
 		setValue("pptp_server", data.server);
