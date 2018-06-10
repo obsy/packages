@@ -601,7 +601,7 @@ function ubus_call_noerror(param, callback) {
 
 function execute(cmd, callback) {
 	cmd.unshift('#!/bin/sh');
-	cmd.push('rm -- \\\"$0\\\"');
+//	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit 0');
 	cmd.push('');
 
@@ -787,6 +787,9 @@ function showcallback(data) {
 	setDisplay("div_stat", (config.services.statistics.enabled != -1));
 	if (config.services.statistics.enabled != -1)
 		setValue('stat_enabled', (config.services.statistics.enabled == 1));
+
+	// pptp
+	setDisplay('menu_pptp', config.services.pptp);
 
 	showmodemsection();
 }
@@ -2135,6 +2138,54 @@ function upgrade_step3() {
 
 /*****************************************************************************/
 
+function showpptp() {
+	ubus_call('"easyconfig", "pptp", { }', function(data) {
+
+		setValue("pptp_up", data.up?"Uruchomiony":"Brak połączenia");
+		setValue("pptp_ip", data.ip?data.ip:"-");
+
+		setValue("pptp_enabled", data.enabled);
+		setValue("pptp_server", data.server);
+		setValue("pptp_username", data.username);
+		setValue("pptp_password", data.password);
+	});
+}
+
+function savepptp() {
+	var cmd = [];
+
+	cmd.push('uci set network.vpn_pptp.server=\\\"' + getValue("pptp_server") + '\\\"');
+	cmd.push('uci set network.vpn_pptp.username=\\\"' + getValue("pptp_username") + '\\\"');
+	cmd.push('uci set network.vpn_pptp.password=\\\"' + getValue("pptp_password") + '\\\"');
+	if (getValue("pptp_enabled")) {
+		cmd.push('uci set network.vpn_pptp.auto=1');
+		cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
+		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
+		cmd.push('uci commit');
+		cmd.push('ifup vpn_pptp');
+	} else {
+		cmd.push('uci set network.vpn_pptp.auto=0');
+		cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
+		cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
+		cmd.push('uci commit');
+		cmd.push('ifdown vpn_pptp');
+	}
+	execute(cmd, function(){ showpptp(); });
+
+}
+
+function uppptp() {
+	ubus_call('"network.interface", "up", {"interface":"vpn_pptp"}', function(data) {
+	});
+}
+
+function downpptp() {
+	ubus_call('"network.interface", "down", {"interface":"vpn_pptp"}', function(data) {
+	});
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }
@@ -2154,6 +2205,7 @@ function btn_pages(page) {
 	setDisplay("div_queries", (page == 'queries'));
 	setDisplay("div_traffic", (page == 'traffic'));
 	setDisplay("div_ussdsms", (page == 'ussdsms'));
+	setDisplay("div_pptp", (page == 'pptp'));
 
 	if (page == 'status') {
 		showstatus();
@@ -2186,5 +2238,9 @@ function btn_pages(page) {
 
 	if (page == 'ussdsms') {
 		readsms();
+	}
+
+	if (page == 'pptp') {
+		showpptp();
 	}
 }

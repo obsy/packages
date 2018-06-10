@@ -335,6 +335,12 @@ else
 	echo '"ussdsms":false,'
 fi
 
+if [ -e /etc/ppp/options.pptp ]; then
+	echo '"pptp":true,'
+else
+	echo '"pptp":false,'
+fi
+
 echo '}'
 
 echo '}'
@@ -927,6 +933,25 @@ upgrade()
 
 ##############################################################################
 
+show_pptp()
+{
+
+	T=$(ifstatus vpn_pptp 2>/dev/null)
+	UP=$(echo "$T" | jsonfilter -e "@.up")
+	IP=$(echo "$T" | jsonfilter -e "@['ipv4-address'][0].address")
+
+	VPNENABLED=$(uci -q get network.vpn_pptp.auto)
+	[ "x$VPNENABLED" = "x1" ] && VPNENABLED=1 || VPNENABLED=0
+	VPNSERVER=$(uci -q get network.vpn_pptp.server)
+	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
+	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
+
+	echo "{\"up\":$UP,\"ip\":\"$IP\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
+	exit 0
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -944,7 +969,8 @@ case "$1" in
 		echo '"detect_wan":{},'
 		echo '"pincode":{"proto":"string","device":"string","pincode":"string"},'
 		echo '"reboot":{},'
-		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"}'
+		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
+		echo '"pptp":{}'
 		echo '}'
 	;;
 	call)
@@ -993,6 +1019,9 @@ case "$1" in
 				;;
 			upgrade)
 				upgrade
+				;;
+			pptp)
+				show_pptp
 				;;
 		esac
 	;;
