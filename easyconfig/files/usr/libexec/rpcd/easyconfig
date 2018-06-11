@@ -965,7 +965,7 @@ show_pptp()
 
 show_geolocation()
 {
-	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,countryCode,region,regionName,city,isp,status)
+	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,regionName,city,isp,status,query)
 	if [ -z "$T" ]; then
 		echo "{\"status\":\"fail\"}"
 		exit 0

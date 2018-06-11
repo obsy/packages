@@ -2199,10 +2199,11 @@ function downpptp() {
 function showgeolocation() {
 	ubus_call('"easyconfig", "geolocation", { }', function(data) {
 		if (data.status == "success") {
+			setValue("geolocation_ip", data.isp?data.query:"-");
 			setValue("geolocation_isp", data.isp?data.isp:"-");
 			setValue("geolocation_city", data.city?data.city:"-");
-			setValue("geolocation_region", ((data.regionName?data.regionName:"-") + " / " + (data.region?data.region:"-")));
-			setValue("geolocation_country", ((data.country?data.country:"-") + " / " + (data.countryCode?data.countryCode:"-")));
+			setValue("geolocation_region", data.regionName?data.regionName:"-");
+			setValue("geolocation_country", data.country?data.country:"-");
 			setDisplay("div_geolocation", true);
 		} else {
 			showMsg("Błąd odczytu lokalizacji", true);
