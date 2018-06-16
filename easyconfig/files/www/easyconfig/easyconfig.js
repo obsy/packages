@@ -1073,7 +1073,7 @@ function saveconfig() {
 
 function showstatistics() {
 	var w = window.open('http://dl.eko.one.pl/cgi-bin/router.cgi?token=' + config.services.statistics.token, '_blank');
-	win.focus();
+	w.focus();
 }
 
 /*****************************************************************************/
