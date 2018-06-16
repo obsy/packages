@@ -309,16 +309,6 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_wan_wanport">
-			<label for="wan_wanport" class="col-xs-4 col-sm-3 control-label">Port WAN</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wan_wanport" class="form-control">
-			<option value='none'>Nieużywany</option>
-			<option value='bridge'>Połączony z LAN</option>
-			</select>
-			</div>
-		</div>
-
 		<p>&nbsp;</p>
 		<div class="form-group" id="div_firewall_dmz">
 			<label for="firewall_dmz" class="col-xs-4 col-sm-3 control-label">Adres IP w DMZ</label>
@@ -364,6 +354,16 @@
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="dhcp_logqueries" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wan_wanport">
+			<label for="wan_wanport" class="col-xs-4 col-sm-3 control-label">Użyj portu WAN jako sieć lokalną</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="wan_wanport" type="checkbox">
 				<div class="slider round"></div>
 			</label>
 			</div>

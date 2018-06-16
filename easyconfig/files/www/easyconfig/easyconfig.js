@@ -725,7 +725,7 @@ function showcallback(data) {
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
-	setValue('wan_wanport', config.wan_wanport);
+	setValue('wan_wanport', (config.wan_wanport == 'bridge'));
 	if (config.wan_proto=="dhcp") {
 		if (config.wan_ifname == config.wan_ifname_hilink) {
 			setValue('wan_proto', "dhcp_hilink");
@@ -861,9 +861,9 @@ function saveconfig() {
 	cmd.push('uci set network.wan.proto='+wan_type);
 	config.wan_proto=wan_type;
 
-	if (use_wanport && config.wan_ifname_default !== '') {
+	if (config.wan_ifname_default !== '') {
 		cmd.push('T=$(uci -q get network.lan.ifname | sed \'s|' + config.wan_ifname_default + '||\' | xargs)');
-		if (getValue('wan_wanport') == 'bridge') {
+		if (use_wanport && getValue('wan_wanport')) {
 			cmd.push('uci set network.lan.ifname=\\\"$T ' + config.wan_ifname_default + '\\\"');
 		} else {
 			cmd.push('uci set network.lan.ifname=\\\"$T\\\"');
