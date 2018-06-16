@@ -412,8 +412,11 @@ function enableWan(proto) {
 			}
 		}
 	}
+	if (proto != "static" && proto != "dhcp" && config.wan_ifname_default !== "") {
+		fields.push("wan_wanport");
+	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode","wan_wanport"];
 	for(var idx=0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -722,6 +725,7 @@ function showcallback(data) {
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
+	setValue('wan_wanport', config.wan_wanport);
 	if (config.wan_proto=="dhcp") {
 		if (config.wan_ifname == config.wan_ifname_hilink) {
 			setValue('wan_proto', "dhcp_hilink");
@@ -813,13 +817,14 @@ function saveconfig() {
 	cmd.push('uci -q del network.wan.modes');
 	cmd.push('uci -q del network.wan.mode');
 
-	use_dns = getValue('wan_dns');
+	var use_dns = getValue('wan_dns');
+	var use_wanport = true;
 
-	wan_type=getValue('wan_proto');
-	if (wan_type=='none') {
+	wan_type = getValue('wan_proto');
+	if (wan_type == 'none') {
 		use_dns = 'none';
 	}
-	if (wan_type=='static') {
+	if (wan_type == 'static') {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
 		if (checkField('wan_netmask', validateMask)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
@@ -829,30 +834,41 @@ function saveconfig() {
 		cmd.push('uci set network.wan.netmask='+getValue('wan_netmask'));
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
 		use_dns = 'custom';
+		use_wanport = false;
 	}
-	if (wan_type=='3g' || wan_type=='qmi' || wan_type=='ncm') {
+	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
 		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
 		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
 		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
 	}
-	if (wan_type=='3g') {
+	if (wan_type == '3g') {
 		cmd.push('uci set network.wan.service=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
-	if (wan_type=='qmi') {
+	if (wan_type == 'qmi') {
 		cmd.push('uci set network.wan.modes=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
-	if (wan_type=='ncm') {
+	if (wan_type == 'ncm') {
 		cmd.push('uci set network.wan.mode=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
-	if (wan_type=='dhcp') {
+	if (wan_type == 'dhcp') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
+		use_wanport = false;
 	}
-	if (wan_type=='dhcp_hilink') {
+	if (wan_type == 'dhcp_hilink') {
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_hilink);
 		wan_type='dhcp';
 	}
 	cmd.push('uci set network.wan.proto='+wan_type);
 	config.wan_proto=wan_type;
+
+	if (use_wanport && config.wan_ifname_default !== '') {
+		cmd.push('T=$(uci -q get network.lan.ifname | sed \'s|' + config.wan_ifname_default + '||\' | xargs)');
+		if (getValue('wan_wanport') == 'bridge') {
+			cmd.push('uci set network.lan.ifname=\\\"$T ' + config.wan_ifname_default + '\\\"');
+		} else {
+			cmd.push('uci set network.lan.ifname=\\\"$T\\\"');
+		}
+	}
 
 	if (wan_type == 'none') {
 		cmd.push('uci -q del firewall.dmz');
@@ -1052,7 +1068,6 @@ function saveconfig() {
 	}
 
 //console.log(cmd);
-
 	execute(cmd, function(){ cleanField('password1'); cleanField('password2'); showconfig(); });
 }
 

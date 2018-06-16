@@ -202,6 +202,13 @@ if [ "x$WAN_PROTO" = "xncm" ]; then
 	WAN_MODEM_MODE=$(uci -q get network.wan.mode)
 fi
 
+WAN_WANPORT="none";
+case "$(uci -q get network.lan.ifname)" in
+	*$WAN_IFNAME_DEFAULT*)
+	WAN_WANPORT="bridge"
+	;;
+esac
+
 echo '{'
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
@@ -219,6 +226,7 @@ echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
 echo '"wan_dashboard_url":"'$WAN_DASHBOARD_URL'",'
 echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
+echo '"wan_wanport":"'$WAN_WANPORT'",'
 
 echo '"wan_protos":["none"'
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then
