@@ -368,6 +368,7 @@ else
 	W_ENABLED="true"
 	if [ -e /tmp/easyconfig_watchdog ]; then
 		W_MAM=$(busybox awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
+		W_RUNDATE=$(busybox ls -e /tmp/easyconfig_watchdog | awk '{printf "%s-%02d-%02d %s\n", $10, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$7)+2)/3, $8, $9}')
 	fi
 fi
 
@@ -388,7 +389,8 @@ echo '"watchdog_period_count": "'$W_PERIOD_CNT'",'
 echo '"watchdog_delay": "'$W_DELAY'",'
 echo '"watchdog_dest": "'$W_DEST'",'
 echo '"watchdog_action": "'$W_ACTION'",'
-echo '"watchdog_minavgmax": "'$W_MAM'"'
+echo '"watchdog_minavgmax": "'$W_MAM'",'
+echo '"watchdog_rundate": "'$W_RUNDATE'"'
 echo '}'
 }
 

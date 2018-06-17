@@ -1218,10 +1218,12 @@ function showwatchdog() {
 			setValue("watchdog_min", data.watchdog_minavgmax.split("/")[0] + " ms");
 			setValue("watchdog_avg", data.watchdog_minavgmax.split("/")[1] + " ms");
 			setValue("watchdog_max", data.watchdog_minavgmax.split("/")[2] + " ms");
+			setValue("watchdog_rundate", data.watchdog_rundate);
 		} else {
 			setValue("watchdog_min", "-");
 			setValue("watchdog_avg", "-");
 			setValue("watchdog_max", "-");
+			setValue("watchdog_rundate", "-");
 		}
 	});
 }
