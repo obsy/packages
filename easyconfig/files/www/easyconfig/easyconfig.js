@@ -795,6 +795,9 @@ function showcallback(data) {
 	// pptp
 	setDisplay('menu_pptp', config.services.pptp);
 
+	// adblock
+	setDisplay('menu_adblock', config.services.adblock);
+
 	showmodemsection();
 }
 
@@ -2234,6 +2237,58 @@ function okgeolocation() {
 
 /*****************************************************************************/
 
+var adblock_lists;
+
+function showadblock() {
+	ubus_call('"easyconfig", "adblock", { }', function(data) {
+		setValue("adblock_domains", data.domains);
+		setValue("adblock_enabled", data.enabled);
+		setValue("adblock_forcedns", data.forcedns);
+
+		adblock_lists = data.lists;
+
+		var div = document.getElementById('div_adblock_lists');
+		var html = "";
+		if (adblock_lists.length > 0) {
+			html += '<h3 class="section">Źródła</h3>';
+		}
+		for (var i in adblock_lists) {
+			html += '<div class="form-group" id="div_adblock_' + adblock_lists[i].section + '">';
+			html += '<label for="adblock_' + adblock_lists[i].section + '" class="col-xs-4 col-sm-3 control-label">' + adblock_lists[i].section + '</label>';
+			html += '<div class="col-xs-8 col-sm-9">';
+			html += '<label class="switch">';
+			html += '<input id="adblock_' + adblock_lists[i].section + '" type="checkbox">';
+			html += '<div class="slider round"></div>';
+			html += '</label>';
+			html += '<span class="hidden-xs control-label labelleft">' + adblock_lists[i].desc + '</span>';
+			html += '<div class="visible-xs">' + adblock_lists[i].desc + '</div>';
+			html += '</div>';
+			html += '</div>';
+		}
+		div.innerHTML = html;
+		setDisplay('div_adblock_lists', true);
+		for (var i in adblock_lists) {
+			setValue("adblock_" + adblock_lists[i].section, adblock_lists[i].enabled);
+		}
+
+	});
+}
+
+function saveadblock() {
+	var cmd = [];
+
+	cmd.push('uci set adblock.global.adb_enabled=' + (getValue("adblock_enabled")?'1':'0'));
+	cmd.push('uci set adblock.extra.adb_forcedns=' + (getValue("adblock_forcedns")?'1':'0'));
+	for (var i in adblock_lists) {
+		cmd.push('uci set adblock.' + adblock_lists[i].section + '.enabled=' + (getValue("adblock_" + adblock_lists[i].section)?'1':'0'));
+	}
+	cmd.push('uci commit adblock');
+	cmd.push('/etc/init.d/adblock restart');
+	execute(cmd, function(){ showadblock(); });
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = "250px";
 }
@@ -2254,6 +2309,7 @@ function btn_pages(page) {
 	setDisplay("div_traffic", (page == 'traffic'));
 	setDisplay("div_ussdsms", (page == 'ussdsms'));
 	setDisplay("div_pptp", (page == 'pptp'));
+	setDisplay("div_adblock", (page == 'adblock'));
 
 	if (page == 'status') {
 		showstatus();
@@ -2290,5 +2346,9 @@ function btn_pages(page) {
 
 	if (page == 'pptp') {
 		showpptp();
+	}
+
+	if (page == 'adblock') {
+		showadblock();
 	}
 }

@@ -3,6 +3,12 @@ label {
   text-align: right;
 }
 
+.labelleft {
+  margin-left: 15px;
+  text-align: left !important;
+  position:absolute;
+}
+
 .switch {
   position: relative;
   display: inline-block;

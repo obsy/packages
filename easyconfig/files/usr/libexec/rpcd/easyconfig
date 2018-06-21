@@ -349,6 +349,12 @@ else
 	echo '"pptp":false,'
 fi
 
+if [ -e /etc/config/adblock ]; then
+	echo '"adblock":true,'
+else
+	echo '"adblock":false,'
+fi
+
 echo '}'
 
 echo '}'
@@ -987,6 +993,55 @@ show_geolocation()
 
 ##############################################################################
 
+adblock_source()
+{
+	config_get enabled $1 enabled
+	config_get adb_src_desc $1 adb_src_desc
+	json_add_object
+	json_add_string "section" "$1"
+	json_add_boolean "enabled" $enabled
+	json_add_string "desc" "$adb_src_desc"
+	json_close_object
+}
+
+show_adblock()
+{
+	if [ ! -e /etc/config/adblock ]; then
+		echo "{\"enabled\":-1}"
+		exit 0
+	fi
+
+	ENABLED=$(uci -q get adblock.global.adb_enabled)
+	FORCEDNS=$(uci -q get adblock.extra.adb_forcedns)
+
+	rtfile="$(uci -q get adblock.extra.adb_rtfile)"
+	rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
+	if [ -s "$rtfile" ]; then
+		json_load "$(cat "${rtfile}" 2>/dev/null)"
+		json_select data
+		json_get_var DOMAINS overall_domains
+	else
+		DOMAINS="-"
+	fi
+
+	json_init
+	json_add_boolean "enabled" $ENABLED
+	json_add_boolean "forcedns" $FORCEDNS
+	json_add_string "domains" "$DOMAINS"
+	json_add_array lists
+
+	. /lib/functions.sh
+	config_load adblock
+	config_foreach adblock_source source
+
+	json_close_array
+	json_dump
+	exit 0
+
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -1006,7 +1061,8 @@ case "$1" in
 		echo '"reboot":{},'
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
 		echo '"pptp":{},'
-		echo '"geolocation":{}'
+		echo '"geolocation":{},'
+		echo '"adblock":{}'
 		echo '}'
 	;;
 	call)
@@ -1061,6 +1117,9 @@ case "$1" in
 				;;
 			geolocation)
 				show_geolocation
+				;;
+			adblock)
+				show_adblock
 				;;
 		esac
 	;;

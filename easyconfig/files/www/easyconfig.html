@@ -41,6 +41,9 @@
 	<div id="menu_pptp" style="display:none;">
 		<a href="#" onclick="btn_pages('pptp');">VPN pptp</a>
 	</div>
+	<div id="menu_adblock" style="display:none;">
+		<a href="#" onclick="btn_pages('adblock');">Blokada domen</a>
+	</div>
 </div>
 
 
@@ -1111,6 +1114,48 @@
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-primary" onclick="savepptp();" value="Zapisz zmiany" />
+		</div>
+	</form>
+	</div>
+
+	<div id="div_adblock" style="display:none;">
+
+	<h3 class="section">Blokada domen</h3>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Liczba blokowanych domen</label>
+		<div class="col-xs-6">
+		<p id="adblock_domains">-</p>
+		</div>
+	</div>
+
+	<h3 class="section"></h3>
+	<form class="form-horizontal">
+		<div class="form-group" id="div_adblock_enabled">
+			<label for="adblock_enabled" class="col-xs-4 col-sm-3 control-label">Włączona</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="adblock_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_adblock_forcedns">
+			<label for="adblock_forcedns" class="col-xs-4 col-sm-3 control-label">Przechwytywanie zapytań DNS</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="adblock_forcedns" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div id="div_adblock_lists" style="display:none;"></div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-primary" onclick="saveadblock();" value="Zapisz zmiany" />
 		</div>
 	</form>
 	</div>
