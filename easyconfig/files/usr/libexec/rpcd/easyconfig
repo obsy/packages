@@ -1024,6 +1024,7 @@ show_adblock()
 		json_load "$(cat "${rtfile}" 2>/dev/null)"
 		json_select data
 		json_get_var DOMAINS overall_domains
+		DOMAINS=${DOMAINS%% *}
 	else
 		DOMAINS="-"
 	fi
