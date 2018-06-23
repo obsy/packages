@@ -8,10 +8,16 @@
 
 . /usr/share/libubox/jshn.sh
 
+if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+	TIMEISVALID="true"
+else
+	TIMEISVALID="false"
+fi
+
 show_status()
 {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
-if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+if $TIMEISVALID; then
 	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T))")
 	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
 else
@@ -37,7 +43,7 @@ fi
 [ -z "$WAN_IPADDR" ] && WAN_IPADDR="-"
 
 if [ -n "$WAN_UPTIME" ]; then
-	if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+	if $TIMEISVALID; then
 		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
 	else
 		WAN_UPTIME_SINCE="-"
@@ -70,7 +76,7 @@ echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
 echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
-echo '"wlan_clients":"'$WLAN_CLIENTS'",'
+echo '"wlan_clients":'$WLAN_CLIENTS','
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
@@ -131,7 +137,7 @@ WAN_IPADDR=$(uci -q -P /var/state get network.wan.ipaddr)
 WAN_NETMASK=$(uci -q -P /var/state get network.wan.netmask)
 WAN_GATEWAY=$(uci -q -P /var/state get network.wan.gateway)
 WAN_DNS=$(uci -q -P /var/state get network.wan.dns)
-WAN_DNS_DHCP=false
+WAN_DNS_DHCP="false"
 WAN_APN=$(uci -q get network.wan.apn)
 [ -z "$WAN_APN" ] && WAN_APN="internet"
 WAN_DEVICE=$(uci -q get network.wan.device)
@@ -154,7 +160,7 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	network_get_ipaddr WAN_IPADDR wan
 	if [ -z "$WAN_DNS" ]; then
 		network_get_dnsserver WAN_DNS wan
-		WAN_DNS_DHCP=true
+		WAN_DNS_DHCP="true"
 	fi
 	network_get_subnet WAN_NETMASK wan
 	WAN_NETMASK=${WAN_NETMASK##*/}
@@ -173,11 +179,7 @@ fi
 
 LAN_IPADDR=$(uci -q get network.lan.ipaddr)
 LAN_DHCP=$(uci -q get dhcp.lan.ignore)
-if [ "x$LAN_DHCP" = "x1" ]; then
-	LAN_DHCP_ENABLED=0
-else
-	LAN_DHCP_ENABLED=1
-fi
+[ "x$LAN_DHCP" = "x1" ] && LAN_DHCP_ENABLED="false" || LAN_DHCP_ENABLED="true"
 
 WAN_DASHBOARD_URL=""
 if [ -n "$WAN_IFNAME_HILINK" ]; then
@@ -259,7 +261,7 @@ done
 echo "$O"'],'
 
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
-echo '"lan_dhcp_enabled":"'$LAN_DHCP_ENABLED'",'
+echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
@@ -277,7 +279,7 @@ for R in $RADIOS; do
 			WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
 			[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
 			WLAN_ISOLATE1=$(uci -q get wireless.$WLAN_SEC.isolate)
-			[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE=1 || WLAN_ISOLATE=0
+			[ "x$WLAN_ISOLATE1" = "x1" ] && WLAN_ISOLATE="true" || WLAN_ISOLATE="false"
 			break
 		done
 		if [ "x$WLAN_SSID" = "x" ]; then
@@ -292,7 +294,7 @@ for R in $RADIOS; do
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$WLAN_KEY'",'
-	echo '"wlan_isolate":"'$WLAN_ISOLATE'",'
+	echo '"wlan_isolate":'$WLAN_ISOLATE','
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	echo '"wlan_channels":{'
 	O=""
@@ -316,7 +318,8 @@ T=$(uci -q get firewall.adblock_dns)
 echo '"lan_forcedns":'$T','
 
 T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
-echo '"dhcp_logqueries":"'$T'",'
+[ "x$T" = "x1" ] && T="true" || T="false"
+echo '"dhcp_logqueries":'$T','
 
 echo '"services":{'
 
@@ -418,12 +421,6 @@ for R in $RADIOS; do
 	fi
 done
 
-if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
-	TIMEOK=1
-else
-	TIMEOK=0
-fi
-
 echo '{"clients":['
 for M in $WLAN_MAC; do
 	MAC=$(echo $M | cut -f1 -d";")
@@ -434,7 +431,7 @@ for M in $WLAN_MAC; do
 	[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
 
 	T2=$(echo $M | cut -f5 -d";")
-	if [ $TIMEOK -eq 1 ]; then
+	if $TIMEISVALID; then
 		T2_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T2))")
 	else
 		T2_SINCE="-"
@@ -530,7 +527,9 @@ show_modem()
 		fi
 
 		case "x$registration" in
-			"xnot_registered") registration="0";;
+			"xnot_registered")
+				registration="0"
+				;;
 			"xregistered")
 				registration="1"
 				[ "x$roaming" = "x1" ] && registration="5"
@@ -539,8 +538,12 @@ show_modem()
 				registration="2"
 				plmn_description="-"
 				;;
-			"xregistering_denied") registration="3";;
-			*) registration="4";;
+			"xregistering_denied")
+				registration="3"
+				;;
+			*)
+				registration="4"
+				;;
 		esac
 
 		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$plmn_description\",\"mode\":\"$MODE\",\"registration\":\"$registration\""
@@ -952,28 +955,30 @@ upgrade()
 show_pptp()
 {
 	T=$(ifstatus vpn_pptp 2>/dev/null)
-	UP=$(echo "$T" | jsonfilter -q -e "@.up")
+
 	IP=$(echo "$T" | jsonfilter -q -e "@['ipv4-address'][0].address")
 
+	UP=$(echo "$T" | jsonfilter -q -e "@.up")
 	if [ "x$UP" = "xtrue" ]; then
 		UPTIME=$(echo "$T" | jsonfilter -q -e "@.uptime")
-		if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+		if $TIMEISVALID; then
 			UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $UPTIME))")
 		else
 			UPTIME_SINCE="-"
 		fi
 	else
+		UP="false"
 		UPTIME="-"
 		UPTIME_SINCE="-"
 	fi
 
 	VPNENABLED=$(uci -q get network.vpn_pptp.auto)
-	[ "x$VPNENABLED" = "x1" ] && VPNENABLED=1 || VPNENABLED=0
+	[ "x$VPNENABLED" = "x1" ] && VPNENABLED="true" || VPNENABLED="false"
 	VPNSERVER=$(uci -q get network.vpn_pptp.server)
 	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
 	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
 
-	echo "{\"up\":\"$UP\",\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
+	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
 	exit 0
 }
 
@@ -983,11 +988,10 @@ show_geolocation()
 {
 	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,regionName,city,isp,status,query)
 	if [ -z "$T" ]; then
-		echo "{\"status\":\"fail\"}"
-		exit 0
+		echo '{"status":"fail"}'
+	else
+		echo $T
 	fi
-
-	echo $T
 	exit 0
 }
 
@@ -1007,7 +1011,7 @@ adblock_source()
 show_adblock()
 {
 	if [ ! -e /etc/config/adblock ]; then
-		echo "{\"enabled\":-1}"
+		echo '{"enabled":false}'
 		exit 0
 	fi
 

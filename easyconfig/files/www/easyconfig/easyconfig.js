@@ -735,10 +735,10 @@ function showcallback(data) {
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
-	setValue('lan_dhcp_enabled', (config.lan_dhcp_enabled == 1));
+	setValue('lan_dhcp_enabled', config.lan_dhcp_enabled);
 	setValue('lan_forcedns', config.lan_forcedns);
-	setValue('dhcp_logqueries', (config.dhcp_logqueries == 1));
-	setDisplay("menu_queries", (config.dhcp_logqueries == 1));
+	setValue('dhcp_logqueries', config.dhcp_logqueries);
+	setDisplay("menu_queries", config.dhcp_logqueries);
 
 	// wlan
 	var radios=[];
@@ -770,7 +770,7 @@ function showcallback(data) {
 		setValue('wlan_encryption' + radios[i], config["radio" + radios[i]].wlan_encryption);
 		setValue('wlan_key' + radios[i], config["radio" + radios[i]].wlan_key);
 		enableWlanEncryption(config["radio" + radios[i]].wlan_encryption, radios[i])
-		setValue('wlan_isolate' + radios[i], config["radio" + radios[i]].wlan_isolate==1);
+		setValue('wlan_isolate' + radios[i], config["radio" + radios[i]].wlan_isolate);
 		setDisplay("div_radio" + radios[i], true);
 	}
 
@@ -1011,12 +1011,12 @@ function saveconfig() {
 		}
 
 		if (getValue("wlan_isolate"+radios[i])) {
-			if (config["radio"+radios[i]].wlan_isolate !== "1") {
+			if (config["radio"+radios[i]].wlan_isolate === false) {
 				wlan_restart_required=true;
 				cmd.push('uci set wireless.'+config["radio"+radios[i]].wlan_section+'.isolate=1');
 			}
 		} else {
-			if (config["radio"+radios[i]].wlan_isolate === "1") {
+			if (config["radio"+radios[i]].wlan_isolate) {
 				wlan_restart_required=true;
 				cmd.push('uci -q del wireless.'+config["radio"+radios[i]].wlan_section+'.isolate');
 			}
@@ -2165,7 +2165,7 @@ function upgrade_step3() {
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", { }', function(data) {
 
-		setValue("pptp_up", (data.up == "true")?"Uruchomiony":"Brak połączenia");
+		setValue("pptp_up", data.up?"Uruchomiony":"Brak połączenia");
 		setValue('pptp_ip', (data.ip == '')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.ip + '</a>');
 
 		setValue('pptp_uptime', formatTime(data.uptime, false));
