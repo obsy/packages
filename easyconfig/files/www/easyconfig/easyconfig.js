@@ -1554,7 +1554,13 @@ function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_sinc
 		setValue('hostinfo_vendor', "");
 	}
 	setValue('hostinfo_name', name);
-	setValue('hostinfo_realname', realname);
+	if (realname == '') {
+		setValue('hostinfo_realname', '-');
+	} else if (realname == '*') {
+		setValue('hostinfo_realname', '-');
+	} else {
+		setValue('hostinfo_realname', realname);
+	}
 	setValue('hostinfo_tx', tx);
 	setValue('hostinfo_rx', rx);
 	setValue('hostinfo_signal', signal + ' dBm');
