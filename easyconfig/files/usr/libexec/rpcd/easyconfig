@@ -346,13 +346,13 @@ else
 	echo '"ussdsms":false,'
 fi
 
-if [ -e /etc/ppp/options.pptp ]; then
+if [ -f /usr/lib/pppd/*/pptp.so ]; then
 	echo '"pptp":true,'
 else
 	echo '"pptp":false,'
 fi
 
-if [ -e /etc/config/adblock ]; then
+if [ -e /etc/init.d/adblock ]; then
 	echo '"adblock":true,'
 else
 	echo '"adblock":false,'
