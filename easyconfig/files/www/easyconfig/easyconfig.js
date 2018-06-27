@@ -2291,6 +2291,20 @@ function showadblock() {
 			setValue("adblock_" + adblock_lists[i].section, adblock_lists[i].enabled);
 		}
 
+		div = document.getElementById('div_adblock_list_blacklist');
+		html = "";
+		var blacklist = data.blacklist;
+		if (blacklist.length > 0) {
+			html = '<hr>';
+			for (var idx=0; idx<blacklist.length; idx++) {
+				html += '<div class="row">';
+				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
+				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');">usuń</a></div>';
+				html += '</div>';
+			}
+			html += "<hr><p>Liczba domen na czarnej liście: " + blacklist.length + "</p>";
+		}
+		div.innerHTML = html;
 	});
 }
 
@@ -2342,6 +2356,28 @@ function blacklistdomain() {
 			}
 		}
 	});
+}
+
+function removefromblacklist(domain) {
+	setValue("removefromblacklist_domain", domain);
+	setValue("removefromblacklist_text", "Usunąć domenę \"" + domain + "\" z czarnej listy?");
+	setDisplay("div_removefromblacklist", true);
+}
+
+function cancelremovefromblacklist() {
+	setDisplay("div_removefromblacklist", false);
+}
+
+function okremovefromblacklist() {
+	var domain = getValue("removefromblacklist_domain");
+	cancelremovefromblacklist();
+
+	var cmd = [];
+	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
+	cmd.push('[ -z \\\"$F\\\" ] && exit 0');
+	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
+	cmd.push('/etc/init.d/adblock restart');
+	execute(cmd, function(){ showadblock(); });
 }
 
 /*****************************************************************************/

@@ -1040,6 +1040,16 @@ show_adblock()
 	config_foreach adblock_source source
 
 	json_close_array
+	json_add_array blacklist
+
+	F=$(uci -q get adblock.blacklist.adb_src)
+	if [ -s "$F" ]; then
+		while read line; do
+			json_add_string "" "$line"
+		done < $F
+	fi
+
+	json_close_array
 	json_dump
 	exit 0
 

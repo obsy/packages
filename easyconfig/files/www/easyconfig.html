@@ -1155,6 +1155,7 @@
 
 		<h3 class="section"></h3>
 		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="showadblock();" value="Odśwież" />
 			<input type="button" class="btn btn-primary" onclick="saveadblock();" value="Zapisz zmiany" />
 		</div>
 	</form>
@@ -1173,6 +1174,7 @@
 			<input type="button" class="btn btn-default" onclick="checkdomain();" value="Sprawdź" />
 		</div>
 	</form>
+	<div id="div_adblock_list_blacklist"></div>
 	</div>
 
 
@@ -1395,6 +1397,19 @@
 	</div>
 </div>
 
+<div id="div_removefromblacklist" class="modal">
+	<div class="row modal-content text-center">
+		<div class="text-center space">
+			<span id="removefromblacklist_text"></span>
+			<input id="removefromblacklist_domain" type="hidden">
+		</div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelremovefromblacklist();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="okremovefromblacklist();" value="OK" />
+		</div>
+	</div>
+</div>
 
 <div class="text-center">&nbsp;</div>
 
