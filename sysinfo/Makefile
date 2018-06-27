@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sysinfo
-PKG_VERSION:=20180225
+PKG_VERSION:=20180627
 
 include $(INCLUDE_DIR)/package.mk
 
