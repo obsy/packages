@@ -1158,6 +1158,21 @@
 			<input type="button" class="btn btn-primary" onclick="saveadblock();" value="Zapisz zmiany" />
 		</div>
 	</form>
+
+	<h3 class="section">Czarna lista</h3>
+	<form class="form-horizontal">
+		<div class="form-group" id="div_adblock_domain">
+			<label for="adblock_domain" class="col-xs-4 col-sm-3 control-label">Domena</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="adblock_domain" type="text" class="form-control" onkeyup="proofreadDomain(this)">
+			</div>
+		</div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="blacklistdomain();" value="Dodaj" />
+			<input type="button" class="btn btn-default" onclick="checkdomain();" value="Sprawdź" />
+		</div>
+	</form>
 	</div>
 
 

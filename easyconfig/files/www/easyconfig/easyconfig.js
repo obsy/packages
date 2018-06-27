@@ -31,6 +31,10 @@ function proofreadHost(input) {
 	proofreadText(input, validateHost, 0);
 }
 
+function proofreadDomain(input) {
+	proofreadText(input, validateDomain, 0);
+}
+
 function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
@@ -81,6 +85,17 @@ function validateHost(name) {
 	if (name == "") {
 		errorCode = 1;
 	} else if (name.match(/[^a-zA-Z0-9.]/) !== null) {
+		errorCode = 2;
+	}
+	return errorCode;
+}
+
+function validateDomain(name) {
+	var errorCode = 0;
+
+	if (name == "") {
+		errorCode = 1;
+	} else if (name.match(/[^a-zA-Z0-9.\-]/) !== null) {
 		errorCode = 2;
 	}
 	return errorCode;
@@ -2205,7 +2220,6 @@ function savepptp() {
 		cmd.push('ifdown vpn_pptp');
 	}
 	execute(cmd, function(){ showpptp(); });
-
 }
 
 function uppptp() {
@@ -2291,6 +2305,43 @@ function saveadblock() {
 	cmd.push('uci commit adblock');
 	cmd.push('/etc/init.d/adblock restart');
 	execute(cmd, function(){ showadblock(); });
+}
+
+function checkdomain() {
+	if (!getValue('adblock_enabled')) {
+		showMsg("Blokada domen jest wyłączona. Nie można sprawdzić domeny");
+		return
+	}
+
+	if (checkField('adblock_domain', validateDomain)) {return;}
+
+	ubus_call('"file", "exec", {"command":"/etc/init.d/adblock","params":["query","' + getValue('adblock_domain') + '"]}', function(data) {
+		showMsg((data.stdout).replace(/\n/g,'<br>'));
+	});
+}
+
+function blacklistdomain() {
+	if (checkField('adblock_domain', validateDomain)) {return;}
+
+	var domain = getValue('adblock_domain');
+
+	var cmd = [];
+	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
+	cmd.push('[ -z \\\"$F\\\" ] && exit 0');
+	cmd.push('mkdir -p $(dirname $F)');
+	cmd.push('echo \\\"' + domain + '\\\" >> $F');
+	cmd.push('/etc/init.d/adblock restart');
+	execute(cmd, function(){
+		setValue('adblock_domain', '');
+		for (var i in adblock_lists) {
+			if (adblock_lists[i].section == 'blacklist') {
+				if (!adblock_lists[i].enabled) {
+					showMsg("Źródło 'blacklist' jest wyłączone. Włącz je, aby uwzględnić dodaną domenę.", true);
+					break;
+				}
+			}
+		}
+	});
 }
 
 /*****************************************************************************/
