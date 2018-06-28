@@ -2283,6 +2283,14 @@ function showadblock() {
 			html += '<span class="hidden-xs control-label labelleft">' + adblock_lists[i].desc + '</span>';
 			html += '<div class="visible-xs">' + adblock_lists[i].desc + '</div>';
 			html += '</div>';
+			if (adblock_lists[i].section == 'blacklist') {
+				if (!adblock_lists[i].enabled) {
+					if ((data.blacklist).length > 0) {
+						html += '<label class="col-xs-4 col-sm-3 control-label">&nbsp;</label>';
+						html += '<div class="col-xs-8 col-sm-9 alert alert-warning" style="margin-bottom:-5px !important;">UWAGA: lista jest wyłączona, ręcznie dodane domeny nie będą blokowane</div>';
+					}
+				}
+			}
 			html += '</div>';
 		}
 		div.innerHTML = html;
@@ -2302,8 +2310,8 @@ function showadblock() {
 				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');">usuń</a></div>';
 				html += '</div>';
 			}
-			html += "<hr><p>Liczba domen na czarnej liście: " + blacklist.length + "</p>";
 		}
+		html += "<hr><p>Liczba domen na czarnej liście: " + blacklist.length + "</p>";
 		div.innerHTML = html;
 	});
 }
@@ -2347,14 +2355,7 @@ function blacklistdomain() {
 	cmd.push('/etc/init.d/adblock restart');
 	execute(cmd, function(){
 		setValue('adblock_domain', '');
-		for (var i in adblock_lists) {
-			if (adblock_lists[i].section == 'blacklist') {
-				if (!adblock_lists[i].enabled) {
-					showMsg("Źródło 'blacklist' jest wyłączone. Włącz je, aby uwzględnić dodaną domenę.", true);
-					break;
-				}
-			}
-		}
+		showadblock();
 	});
 }
 
