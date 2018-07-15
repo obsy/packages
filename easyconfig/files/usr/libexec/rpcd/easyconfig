@@ -660,7 +660,7 @@ EOF
 
 show_queries() {
 	echo '{"result":['
-	T=$(logread -e "query\[A\]" | awk '$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13}')
+	T=$(logread -e "query\[A\]" | awk '$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"nxdomain\":false,\"host\":\"%s\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13}')
 	IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)".*/\1/g' | sort | uniq)
 
 	for IP in $IPS; do
@@ -682,6 +682,11 @@ show_queries() {
 				T=$(echo "$T" | sed "s/\"host\":\"$IP\"/\"host\":\"$NAME\"/g")
 			fi
 		fi
+	done
+
+	NXDOMAINS=$(logread -e "NXDOMAIN" | awk '{a[$11]++} END {for (b in a) {print b}}')
+	for D in $NXDOMAINS; do
+		T=$(echo "$T" | sed "s/\"query\":\"$D\",\"nxdomain\":false/\"query\":\"$D\",\"nxdomain\":true/g")
 	done
 
 	echo "$T"

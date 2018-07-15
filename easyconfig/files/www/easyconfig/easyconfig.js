@@ -1662,7 +1662,7 @@ function queriescallback(sortby, order) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
-			html += '<div class="col-xs-12 col-sm-4">' + sorted[idx].query + '</div>';
+			html += '<div class="col-xs-12 col-sm-4' + (sorted[idx].nxdomain?' text-muted" title="brak domeny':'') + '">' + sorted[idx].query + '</div>';
 			html += '</div>';
 		}
 	} else {
