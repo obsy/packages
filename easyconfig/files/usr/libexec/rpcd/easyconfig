@@ -592,7 +592,12 @@ show_sms() {
 
 	[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh > /dev/null 2>&1
 	DEVICE=$(cat /tmp/modem)
+	if [ -z "$DEVICE" ]; then
+		echo '{"response":"Device not found"}'
+		exit 0
+	fi
 
+	[ "x$action" = "x" ] && action="read"
 	if [ "x$action" = "xread" ]; then
 		STORAGE=""
 		T=$(uci -q get easyconfig.sms.storage)
