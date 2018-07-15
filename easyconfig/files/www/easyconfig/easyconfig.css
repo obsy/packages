@@ -286,4 +286,7 @@ h3 {
   .hidden-vxs {
     display: none;
   }
+  input[type=button] {
+    margin-top: 5px;
+  }
 }
