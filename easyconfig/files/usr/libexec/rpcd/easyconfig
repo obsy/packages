@@ -377,7 +377,8 @@ else
 	W_ENABLED="true"
 	if [ -e /tmp/easyconfig_watchdog ]; then
 		W_MAM=$(busybox awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
-		W_RUNDATE=$(busybox ls -e /tmp/easyconfig_watchdog | awk '{printf "%s-%02d-%02d %s\n", $10, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$7)+2)/3, $8, $9}')
+		W_RUNDATE=$(busybox ls -e /tmp/easyconfig_watchdog 2>/dev/null | awk '{printf "%s-%02d-%02d %s\n", $10, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$7)+2)/3, $8, $9}')
+		[ -z "$W_RUNDATE" ] && W_RUNDATE=$(ls --full-time /tmp/easyconfig_watchdog 2>/dev/null | awk '{printf "%s %s\n", $6, $7}')
 	fi
 fi
 
