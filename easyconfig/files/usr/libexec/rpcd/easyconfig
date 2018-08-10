@@ -782,9 +782,9 @@ detect_wan()
 	fi
 
 # modem usb ncm
-	ifdown wan
 	T=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$T" ] ; then
+		ifdown wan
 		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm*)
 
 		for D in $DEVICES; do
@@ -805,9 +805,9 @@ detect_wan()
 	fi
 
 # modem usb, generic
-	ifdown wan
 	T=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
 	if [ -n "$T" ] ; then
+		ifdown wan
 
 		for D in $T; do
 			O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
