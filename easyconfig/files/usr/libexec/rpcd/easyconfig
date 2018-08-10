@@ -264,6 +264,11 @@ echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+echo '"wlan_devices":['
+for R in $RADIOS; do
+	echo '"'$R'",'
+done
+echo "],"
 for R in $RADIOS; do
 	echo '"'$R'":{'
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
