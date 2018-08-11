@@ -1320,29 +1320,20 @@ function showsitesurvey() {
 	ubus_call('"easyconfig", "wifiscan", {}', function(data) {
 		var arr = data.result;
 
+		var wlan_devices = config.wlan_devices;
+
 		var ts = Date.now()/1000;
 		var l = arr.length;
-		for (var idx1=0; idx1 < l; idx1++) {
+		for (var idx1 = 0; idx1 < l; idx1++) {
 			arr[idx1].timestamp = parseInt(ts).toString();
 
 			if (arr[idx1].channel == "?") {
-				if (config.radio0) {
-					obj = config.radio0.wlan_channels;
+				for (var i = 0; i < wlan_devices.length; i++) {
+					obj = config[wlan_devices[i]].wlan_channels;
 					for(var propt in obj) {
 						if (obj[propt][0] == arr[idx1].freq) {
 							arr[idx1].channel = propt;
 							break;
-						}
-					}
-				}
-				if (arr[idx1].channel == "?") {
-					if (config.radio1) {
-						obj = config.radio1.wlan_channels;
-						for(var propt in obj) {
-							if (obj[propt][0] == arr[idx1].freq) {
-								arr[idx1].channel = propt;
-								break;
-							}
 						}
 					}
 				}
@@ -1366,7 +1357,7 @@ function showsitesurvey() {
 		} else {
 			wifiscanresults = arr;
 		}
-		sitesurveycallback("ssid");
+		sitesurveycallback('ssid');
 	});
 }
 
@@ -1383,17 +1374,18 @@ function sitesurveycallback(sortby) {
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></a>';
 		html += '<div></div>';
 
+		var wlan_devices = config.wlan_devices;
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
 		var rogueap = false;
-		for(var idx=0; idx<sorted.length; idx++){
+		for(var idx = 0; idx < sorted.length; idx++){
 
 			rogueap = false;
-			if (config.radio0) {
-				if (config.radio0.wlan_ssid === sorted[idx].ssid) { rogueap = true; }
-			}
-			if (config.radio1) {
-				if (config.radio1.wlan_ssid === sorted[idx].ssid) { rogueap = true; }
+			for (var i = 0; i < wlan_devices.length; i++) {
+				if (config[wlan_devices[i]].wlan_ssid === sorted[idx].ssid) {
+					rogueap = true;
+					break;
+				}
 			}
 
 			html += '<hr><div class="row">';
@@ -1411,21 +1403,16 @@ function sitesurveycallback(sortby) {
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
 			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
 			html += (sorted[idx].encryption?'<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>':'');
-			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=""?", " + sorted[idx].mode2:"");
+			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=''?', ' + sorted[idx].mode2:'');
 			html += '</div></div>';
 		}
-		html += "<hr><p>Liczba sieci bezprzewodowych: " + sorted.length + "</p>";
+		html += '<hr><p>Liczba sieci bezprzewodowych: ' + sorted.length + '</p>';
 
 		html += '<hr><h3 class="section">Wykorzystanie kanałów</h3>';
 
 		var channels = [];
-		if (config.radio0) {
-			for (var ch in config.radio0.wlan_channels) {
-				channels[ch] = 0;
-			}
-		}
-		if (config.radio1) {
-			for (var ch in config.radio1.wlan_channels) {
+		for (var i = 0; i < wlan_devices.length; i++) {
+			for (var ch in config[wlan_devices[i]].wlan_channels) {
 				channels[ch] = 0;
 			}
 		}
@@ -1453,13 +1440,13 @@ function sitesurveycallback(sortby) {
 		}
 		for (var ch in channels) {
 			var percent = parseInt(channels[ch] * 100 / sorted.length) + '%';
-			document.getElementById("channel" + ch + "bar").style.width = percent;
-			setValue("channel" + ch + "percent", percent == "0%"?" ":(percent + ", " + channels[ch] + " z " + sorted.length));
+			document.getElementById('channel' + ch + 'bar').style.width = percent;
+			setValue('channel' + ch + 'percent', percent == '0%'?' ':(percent + ', ' + channels[ch] + ' z ' + sorted.length));
 		}
-		var all=["ssid","mac","signal","freq","timestamp"];
-		for(var idx=0; idx<all.length; idx++){
-			var e = document.getElementById('sitesurvey_sortby_'+all[idx]);
-			e.style.fontWeight = (sortby==all[idx])?700:400;
+		var all=['ssid','mac', 'signal', 'freq', 'timestamp'];
+		for(var idx = 0; idx < all.length; idx++){
+			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
+			e.style.fontWeight = (sortby == all[idx])?700:400;
 		}
 	}
 }
