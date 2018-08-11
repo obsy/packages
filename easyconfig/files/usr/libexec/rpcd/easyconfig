@@ -642,7 +642,7 @@ show_sms() {
 				else
 					printf "\\n"
 				fi
-				printf "%s" "$line"
+				printf "%s" "${line//\"/\\\"}"
 			;;
 			esac
 		done <<EOF
