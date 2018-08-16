@@ -607,53 +607,7 @@ show_sms() {
 		STORAGE=""
 		T=$(uci -q get easyconfig.sms.storage)
 		[ "x$T" = "x" ] || STORAGE="-s $T"
-		T=$(sms_tool -d $DEVICE $STORAGE -f "%Y-%m-%d %H:%M:%S" recv)
-
-		echo '{"msg":['
-
-		first="1"
-		key="0"
-		while read -r line; do
-			case "$line" in
-			*"MSG: "*)
-				if [ "$first" = "0" ]; then
-					echo '"},'
-				fi
-				echo '{'
-				echo '"index":"'${line:5}'",'
-				first="0"
-				key="1"
-			;;
-			*"From: "*)
-				echo '"sender":"'${line:6}'",'
-			;;
-			*"Date/Time: "*)
-				echo '"timestamp":"'${line:11}'",'
-			;;
-			*"SMS segment "*)
-				echo "$line" | sed 's/SMS segment\s\(.*\)\sof\s\(.*\)/"part":"\1",\"total\":"\2",/'
-			;;
-			*"Reference number"*)
-			;;
-			*)
-				if [ "$key" = "1" ]; then
-					printf "%s" '"content":"'
-					key="0"
-				else
-					printf "\\n"
-				fi
-				printf "%s" "${line//\"/\\\"}"
-			;;
-			esac
-		done <<EOF
-$T
-EOF
-		if [ "$first" = "0" ]; then
-			echo '"}'
-		fi
-
-		echo ']}'
-
+		sms_tool -d $DEVICE $STORAGE -j -f "%Y-%m-%d %H:%M:%S" recv
 	fi
 
 	if [ "x$action" = "xsend" ]; then
