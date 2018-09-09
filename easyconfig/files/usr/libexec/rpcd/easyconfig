@@ -947,8 +947,22 @@ show_pptp()
 	VPNSERVER=$(uci -q get network.vpn_pptp.server)
 	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
 	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
+	VPNLED=$(uci -q get system.vpn_pptp.sysfs)
+	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\",\"led\":\"$VPNLED\","
 
-	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\"}"
+	SYSTEM=$(uci show system)
+	T=$(ls -1 /sys/class/leds/)
+	O=""
+	echo '"leds":['
+	for LED in $T; do
+		if ! echo "$SYSTEM" | grep -q "$LED" || [ "x$LED" = "x$VPNLED" ]; then
+			[ -n "$O" ] && O="$O,"
+			O="$O"'"'$LED'"'
+		fi
+	done
+	echo "$O"']'
+
+	echo "}"
 	exit 0
 }
 

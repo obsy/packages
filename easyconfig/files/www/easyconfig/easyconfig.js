@@ -2180,6 +2180,24 @@ function showpptp() {
 		setValue("pptp_server", data.server);
 		setValue("pptp_username", data.username);
 		setValue("pptp_password", data.password);
+
+		removeOptions('pptp_led');
+		e = document.getElementById('pptp_led');
+
+		var opt = document.createElement('option');
+		opt.value = "";
+		opt.innerHTML = "żadna";
+		e.appendChild(opt);
+
+		var arr = data.leds;
+		for(var idx=0; idx<arr.length; idx++){
+			var opt = document.createElement('option');
+			opt.value = arr[idx];
+			opt.innerHTML = arr[idx];
+			e.appendChild(opt);
+		}
+
+		setValue("pptp_led", data.led);
 	});
 }
 
@@ -2193,6 +2211,18 @@ function savepptp() {
 	cmd.push('uci set network.vpn_pptp.password=\\\"' + getValue("pptp_password") + '\\\"');
 	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
 	cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
+
+	var led = getValue("pptp_led");
+	if (led != "") {
+		cmd.push('uci set system.vpn_pptp=led');
+		cmd.push('uci set system.vpn_pptp.sysfs=\\\"' + led + '\\\"');
+		cmd.push('uci set system.vpn_pptp.trigger=\\\"netdev\\\"');
+		cmd.push('uci set system.vpn_pptp.dev=\\\"pptp-vpn_pptp\\\"');
+		cmd.push('uci set system.vpn_pptp.mode=\\\"link\\\"');
+	} else {
+		cmd.push('uci -q del system.vpn_pptp');
+	}
+
 	if (getValue("pptp_enabled")) {
 		cmd.push('uci set network.vpn_pptp.auto=1');
 		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
