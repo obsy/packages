@@ -448,7 +448,7 @@ done
 echo '],'
 
 echo '"logs":['
-T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz | awk '
+T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
 /DHCPACK\(/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}
 /AP-STA-DISCONNECTED/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}
 ')
