@@ -1106,6 +1106,7 @@ function showstatus() {
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', data.wan_up_cnt);
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '-')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
+		setDisplay('div_pptp_up_status', data.pptp_up);
 	});
 }
 

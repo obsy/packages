@@ -71,6 +71,8 @@ for i in $IFACES; do
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
+PPTP_UP=$(ifstatus vpn_pptp 2>/dev/null | jsonfilter -q -e "@.up")
+
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
@@ -83,6 +85,7 @@ echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
+echo '"pptp_up":'${PPTP_UP:-false}','
 echo '}'
 }
 
