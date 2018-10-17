@@ -20,10 +20,6 @@ opengt
  let $r="+CREG"
  gosub readatcmd
 
- let $c="AT+CGREG=2;+CGREG?^m"
- let $r="+CGREG"
- gosub readatcmd
-
  exit 0
 
 :readatcmd
