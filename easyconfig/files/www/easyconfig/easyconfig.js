@@ -1189,6 +1189,15 @@ function showmodem() {
 		} else {
 			setDisplay('div_status_modem_addon', false);
 		}
+
+		if (data.cid_dec && data.operator_mcc == 260) {
+			var div = document.getElementById('div_status_modem_addon');
+			var html = div.innerHTML;
+			html += '<div class="row"><label class="col-xs-6 text-right">&nbsp;</label><div class="col-xs-6"><a href="http://www.btsearch.pl/szukaj.php?search=' + data.cid_dec + '&siec=-1&mode=std" class="click" target="_blank">sprawdź lokalizację stacji bazowej &rarr;</a></div></div>';
+			div.innerHTML = html;
+			setDisplay('div_status_modem_addon', true);
+		}
+
 	});
 }
 
