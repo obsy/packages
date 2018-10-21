@@ -1191,11 +1191,10 @@ function showmodem() {
 		}
 
 		if (data.cid_dec && data.operator_mcc == 260) {
-			var div = document.getElementById('div_status_modem_addon');
-			var html = div.innerHTML;
-			html += '<div class="row"><label class="col-xs-6 text-right">&nbsp;</label><div class="col-xs-6"><a href="http://www.btsearch.pl/szukaj.php?search=' + data.cid_dec + '&siec=-1&mode=std" class="click" target="_blank">sprawdź lokalizację stacji bazowej &rarr;</a></div></div>';
-			div.innerHTML = html;
-			setDisplay('div_status_modem_addon', true);
+			document.getElementById("modem_btsearch").setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
+			setDisplay('div_modem_btsearch', true);
+		} else {
+			setDisplay('div_modem_btsearch', false);
 		}
 
 	});
