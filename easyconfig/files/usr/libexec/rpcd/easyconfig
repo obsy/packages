@@ -53,8 +53,22 @@ else
 	WAN_UPTIME="-"
 fi
 
-F=/tmp/easyconfig_wan_cnt
-[ -e $F ] && WAN_UP_CNT=$(cat $F) || WAN_UP_CNT="-"
+F=/tmp/easyconfig_wan_up
+if [ -e $F ]; then
+	WAN_UP_CNT=$(cat $F | wc -l)
+	for i in $(tail -n 10 $F); do
+		SINCE=$((SYSTEM_UPTIME - i))
+		WAN_UP_SINCE="$WAN_UP_SINCE{\"$SINCE\":"
+		if $TIMEISVALID; then
+			WAN_UP_SINCE="$WAN_UP_SINCE\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - $SINCE))")"\"},"
+		else
+			WAN_UP_SINCE="$WAN_UP_SINCE\"\"},"
+		fi
+	done
+else
+	WAN_UP_CNT="-"
+	WAN_UP_SINCE=""
+fi
 
 if [ -n "$IFNAME" ]; then
 	WAN_RX=$(awk '/^[ ]*'$IFNAME':/{print $2}' /proc/net/dev)
@@ -84,6 +98,7 @@ echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
+echo '"wan_up_since":['$WAN_UP_SINCE'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"pptp_up":'${PPTP_UP:-false}','
 echo '}'

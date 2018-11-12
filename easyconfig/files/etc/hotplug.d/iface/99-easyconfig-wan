@@ -3,10 +3,6 @@
 [ $ACTION = "ifup" ] || exit 0
 [ $INTERFACE = "wan" ] || exit 0
 
-FILE=/tmp/easyconfig_wan_cnt
-[ -e $FILE ] || echo 0 > $FILE
-T=$(cat $FILE)
-T=$((T+1))
-echo $T > $FILE
+awk '{printf "%d\n", $1}' /proc/uptime >> /tmp/easyconfig_wan_up
 
 exit 0

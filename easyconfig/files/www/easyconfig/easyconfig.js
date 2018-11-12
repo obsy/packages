@@ -1093,6 +1093,24 @@ function showstatistics() {
 
 /*****************************************************************************/
 
+function showwanup(data) {
+	var html = 'Wznowienia połączenia z internetem:';
+	arr = JSON.parse((data).replace(/\$/g,'"'));
+	if (arr.length > 9)
+		html += '<small>ostatnie 10</small>';
+	html += '<br><p class="text-left">';
+	for (var propt in arr) {
+		for (var k in arr[propt]) {
+			if (arr[propt][k] == '') {
+				html += formatTime(k, true) + ' temu<br>';
+			} else {
+				html += arr[propt][k] + ' (' + formatTime(k, true) + ' temu)<br>';
+			}
+		}
+	}
+	showMsg('</p>' + html);
+}
+
 function showstatus() {
 	ubus_call('"easyconfig", "status", { }', function(data) {
 		setValue('system_uptime', formatTime(data.system_uptime, false));
@@ -1104,7 +1122,7 @@ function showstatus() {
 		setValue('wan_tx', data.wan_tx == '-'?'-':bytesToSize(data.wan_tx));
 		setValue('wan_uptime', formatTime(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
-		setValue('wan_up_cnt', data.wan_up_cnt);
+		setValue('wan_up_cnt', (data.wan_up_cnt == '-')?'-':'<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '-')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
 		setDisplay('div_pptp_up_status', data.pptp_up);
 	});
