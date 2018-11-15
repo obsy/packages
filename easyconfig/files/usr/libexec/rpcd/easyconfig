@@ -223,11 +223,13 @@ if [ "x$WAN_PROTO" = "xncm" ]; then
 fi
 
 WAN_WANPORT="none";
-case "$(uci -q get network.lan.ifname)" in
-	*$WAN_IFNAME_DEFAULT*)
-	WAN_WANPORT="bridge"
-	;;
-esac
+if [ -n "$WAN_IFNAME_DEFAULT" ]; then
+	case "$(uci -q get network.lan.ifname)" in
+		*$WAN_IFNAME_DEFAULT*)
+		WAN_WANPORT="bridge"
+		;;
+	esac
+fi
 
 echo '{'
 echo '"system_hostname":"'$HOSTNAME'",'
