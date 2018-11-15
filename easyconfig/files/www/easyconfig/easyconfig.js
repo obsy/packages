@@ -1098,7 +1098,7 @@ function showwanup(data) {
 	arr = JSON.parse((data).replace(/\$/g,'"'));
 	if (arr.length > 9)
 		html += '<small>ostatnie 10</small>';
-	html += '<br><p class="text-left">';
+	html += '<br><p>';
 	for (var propt in arr) {
 		for (var k in arr[propt]) {
 			if (arr[propt][k] == '') {
@@ -1108,7 +1108,7 @@ function showwanup(data) {
 			}
 		}
 	}
-	showMsg('</p>' + html);
+	showMsg(html + '</p>');
 }
 
 function showstatus() {
