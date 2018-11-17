@@ -1094,11 +1094,11 @@ function showstatistics() {
 /*****************************************************************************/
 
 function showwanup(data) {
-	var html = 'Wznowienia połączenia z internetem:';
+	var html = 'Wznowienia połączenia z internetem';
 	arr = JSON.parse((data).replace(/\$/g,'"'));
 	if (arr.length > 9)
-		html += '<small>ostatnie 10</small>';
-	html += '<br><p>';
+		html += '<br>(ostatnie 10)';
+	html += '<hr>';
 	for (var propt in arr) {
 		for (var k in arr[propt]) {
 			if (arr[propt][k] == '') {
@@ -1108,7 +1108,7 @@ function showwanup(data) {
 			}
 		}
 	}
-	showMsg(html + '</p>');
+	showMsg(html);
 }
 
 function showstatus() {
