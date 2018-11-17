@@ -1503,7 +1503,7 @@ function showwlanclients() {
 
 function wlanclientscallback(sortby) {
 	var div = document.getElementById('div_wlanclients_content');
-	var html = "";
+	var html = '';
 	if (wlanclients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
@@ -1527,19 +1527,19 @@ function wlanclientscallback(sortby) {
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3 text-right">';
 			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a> | ';
-			html += '<a href="#" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\');">blokada</a>';
+			html += '<a href="#" id="m' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
 			html += '</div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
-		html += "<hr><p>Liczba klientów: " + sorted.length + "</p>";
+		html += '<hr><p>Liczba klientów: ' + sorted.length + '</p>';
 	} else {
-		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>'
+		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>';
 	}
 	div.innerHTML = html;
 
 	if (wlanclients.length > 0) {
-		var all=["name","tx","rx","percent"];
+		var all=['name', 'tx', 'rx', 'percent'];
 		for(var idx=0; idx<all.length; idx++){
 			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
 			e.style.fontWeight = (sortby==all[idx])?700:400;
@@ -1596,11 +1596,13 @@ function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_sinc
 	setDisplay("div_hostinfo", true);
 }
 
-function hostblock(mac, name) {
+function hostblock(mac, name, action) {
 	setValue('hostblock_mac', mac);
 	setValue('hostblock_name', name);
-	setDisplay("div_hostblock", true);
-	setValue("hostblock_text", 'Zablokować dostęp do internetu dla "' + name + '"?')
+	setValue('hostblock_action', action);
+	setValue('btn_okhostblock', action == 0?"Zablokuj":"Odblokuj");
+	setValue('hostblock_text', (action == 0?'Zablokować':'Odblokować') + ' dostęp do internetu dla "' + name + '"?')
+	setDisplay('div_hostblock', true);
 }
 
 function cancelhostblock() {
@@ -1610,9 +1612,30 @@ function cancelhostblock() {
 function okhostblock() {
 	cancelhostblock();
 	var mac = getValue('hostblock_mac');
+	var nmac = mac.replace(/:/g,'');
 	var name = getValue('hostblock_name');
-	ubus_call('"file", "exec", {"command":"iptables","params":["-I","FORWARD","-p","tcp","-m","mac","--mac-source","' + mac + '","-j","REJECT"]}', function(data) {
-		showMsg('"' + name + '" stracił dostęp do internetu');
+	var action = getValue('hostblock_action');
+
+	var cmd = [];
+	cmd.push('uci -q del firewall.m' + nmac);
+	if (action == 0) {
+		cmd.push('uci set firewall.m' + nmac + '=rule');
+		cmd.push('uci set firewall.m' + nmac + '.src=lan');
+		cmd.push('uci set firewall.m' + nmac + '.dest=wan');
+		cmd.push('uci set firewall.m' + nmac + '.src_mac=' + mac);
+		cmd.push('uci set firewall.m' + nmac + '.target=REJECT');
+		cmd.push('uci set firewall.m' + nmac + '.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.m' + nmac + '.name=\\\"' + name + '\\\"');
+	}
+	cmd.push('uci commit firewall');
+	cmd.push('fw3 restart');
+	cmd.push('sleep 1');
+
+	execute(cmd, function() {
+		var e = document.getElementById('m' + nmac);
+		e.innerHTML = (action == 0?'odblokuj':'blokada');
+		e.setAttribute('onClick', 'hostblock("' + mac + '","' + name + '",' + (action == 0?'1':'0') + ');');
+		showMsg('"' + name + '" ' + (action == 0?'stracił':'uzyskał') + ' dostęp do internetu');
 	});
 }
 
