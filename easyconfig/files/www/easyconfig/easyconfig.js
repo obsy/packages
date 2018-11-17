@@ -367,7 +367,7 @@ function detectwan(pin) {
 				msg += '<div class="col-xs-6 text-left">Modem USB (Hilink lub RNDIS)</div>';
 			}
 			if (data.proto == "3g" || data.proto == "qmi" || data.proto == "ncm") {
-				msg += '<div class="col-xs-6 text-left">Modem USB '
+				msg += '<div class="col-xs-6 text-left">Modem USB ';
 				if (data.proto == "qmi") { msg += '(QMI)'; }
 				if (data.proto == "ncm") { msg += '(NCM)'; }
 				if (data.proto == "3g")  { msg += '(RAS)'; }
@@ -1457,7 +1457,7 @@ function sitesurveycallback(sortby) {
 		}
 
 	} else {
-		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>'
+		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>';
 	}
 	div.innerHTML = html;
 
@@ -1566,7 +1566,7 @@ function clientslogscallback() {
 			html += '</div>';
 		}
 	} else {
-		html += '<div class="alert alert-warning">Brak historii połączeń</div>'
+		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
 	div.innerHTML = html;
 }
@@ -1700,7 +1700,7 @@ function queriescallback(sortby, order) {
 			html += '</div>';
 		}
 	} else {
-		html += '<div class="alert alert-warning">Brak zapytań DNS</div>'
+		html += '<div class="alert alert-warning">Brak zapytań DNS</div>';
 	}
 	div.innerHTML = html;
 
