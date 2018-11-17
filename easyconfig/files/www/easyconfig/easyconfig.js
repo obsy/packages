@@ -2049,7 +2049,7 @@ function readsms() {
 			}
 			html += "<hr><p>Liczba wiadomości: " + arr.length + "</p>";
 		} else {
-			html += '<br><div class="alert alert-warning">Brak wiadomości</div>'
+			html += '<br><div class="alert alert-warning">Brak wiadomości</div>';
 		}
 
 		div.innerHTML = html;
