@@ -1628,7 +1628,7 @@ function okhostblock() {
 		cmd.push('uci set firewall.m' + nmac + '.name=\\\"' + name + '\\\"');
 	}
 	cmd.push('uci commit firewall');
-	cmd.push('fw3 restart');
+	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('sleep 1');
 
 	execute(cmd, function() {
