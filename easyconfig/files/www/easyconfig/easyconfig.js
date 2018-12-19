@@ -1422,8 +1422,7 @@ function sitesurveycallback(sortby) {
 
 			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
 			if (key in manuf) {html += manuf[key] + '<br>';}
-
-			html += 'widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';
+			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
 			if (rogueap) {html += '<br><span style="color:red;">Wrogi AP</span>';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
