@@ -1294,6 +1294,43 @@
 	</div>
 </div>
 
+<div id="div_hostqos" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">
+			Limit szybkości dla "<span id="hostqos_header"></span>"
+		</div>
+
+		<div class="row">
+		<form>
+		<div class="form-group">
+			<label for="hostqos_upload" class="col-xs-4 col-sm-3 control-label">Wysyłanie do</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="hostqos_upload" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
+			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="hostqos_download" class="col-xs-4 col-sm-3 control-label">Pobieranie do</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="hostqos_download" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
+			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
+			</div>
+		</div>
+		</form>
+		</div>
+		<input id="hostqos_mac" type="hidden">
+		<input id="hostqos_name" type="hidden">
+		<input id="hostqos_ip" type="hidden">
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelhostqos();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="removehostqos();" value="Usuń limity" />
+			<input type="button" class="btn btn-primary" onclick="savehostqos();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
 <div id="div_removetraffic" class="modal">
 	<div class="row modal-content text-center">
 		<div class="text-center space">

@@ -929,7 +929,7 @@ function saveconfig() {
 
 	// lan
 	if (checkField('lan_ipaddr', validateIP)) {return;}
-	cmd.push('uci set network.lan.ipaddr='+getValue('lan_ipaddr'));
+	cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
 
 	if (getValue("lan_dhcp_enabled")) {
 		cmd.push('uci -q del dhcp.lan.ignore');
@@ -1527,7 +1527,10 @@ function wlanclientscallback(sortby) {
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3 text-right">';
 			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a> | ';
-			html += '<a href="#" id="m' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
+			html += '<a href="#" id="bm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
+			if (config.services.nftqos) {
+				html += ' | <a href="#" id="qm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
+			}
 			html += '</div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
@@ -1632,7 +1635,7 @@ function okhostblock() {
 	cmd.push('sleep 1');
 
 	execute(cmd, function() {
-		var e = document.getElementById('m' + nmac);
+		var e = document.getElementById('bm' + nmac);
 		e.innerHTML = (action == 0?'odblokuj':'blokada');
 		e.setAttribute('onClick', 'hostblock("' + mac + '","' + name + '",' + (action == 0?'1':'0') + ');');
 		showMsg('"' + name + '" ' + (action == 0?'stracił':'uzyskał') + ' dostęp do internetu');
@@ -1640,9 +1643,9 @@ function okhostblock() {
 }
 
 function hostnameedit(mac, name) {
-	setDisplay("div_hostname", true);
 	setValue('hostname_mac', mac);
 	setValue('hostname_name', name);
+	setDisplay("div_hostname", true);
 	document.getElementById('hostname_name').focus();
 }
 
@@ -1668,6 +1671,90 @@ function savehostname() {
 	cmd.push('uci commit easyconfig');
 
 	execute(cmd, showwlanclients);
+}
+
+function hostqos(mac, name, ip, bwup, bwdown) {
+	setValue('hostqos_mac', mac);
+	setValue('hostqos_name', name);
+	setValue('hostqos_header', name);
+	setValue('hostqos_ip', ip);
+	// KB/s to Mb/s
+	setValue('hostqos_upload', parseInt(bwup * 8 / 1024));
+	setValue('hostqos_download', parseInt(bwdown * 8 / 1024));
+
+	setDisplay('div_hostqos', true);
+	document.getElementById('hostqos_upload').focus();
+}
+
+function removehostqos() {
+	setDisplay('div_hostqos', false);
+
+	var cmd = [];
+
+	var mac = getValue('hostqos_mac');
+	var nmac = mac.replace(/:/g,'');
+	cmd.push('uci -q del nft-qos.m' + nmac + 'up');
+	cmd.push('uci -q del nft-qos.m' + nmac + 'down');
+	cmd.push('uci commit nft-qos');
+	cmd.push('/etc/init.d/nft-qos restart');
+
+	execute(cmd, showwlanclients);
+}
+
+function savehostqos() {
+	setDisplay('div_hostqos', false);
+
+	var cmd = [];
+
+	var bwup = getValue('hostqos_upload');
+	if (validateNumericRange(bwup, 0, 999) != 0) {
+		showMsg('Błąd w polu ' + getLabelText('hostqos_upload'), true);
+		return;
+	}
+
+	var bwdown = getValue('hostqos_download');
+	if (validateNumericRange(bwdown, 0, 999) != 0) {
+		showMsg('Błąd w polu ' + getLabelText('hostqos_download'), true);
+		return;
+	}
+
+	var mac = getValue('hostqos_mac');
+	var nmac = mac.replace(/:/g,'');
+	var name = getValue('hostqos_name');
+	var ip = getValue('hostqos_ip');
+
+	if (bwup == 0) {
+		cmd.push('uci -q del nft-qos.m' + nmac + 'up');
+	} else {
+		cmd.push('uci set nft-qos.m' + nmac + 'up=upload');
+		cmd.push('uci set nft-qos.m' + nmac + 'up.hostname=\\\"' + name + '\\\"');
+		cmd.push('uci set nft-qos.m' + nmac + 'up.unit=kbytes');
+		cmd.push('uci set nft-qos.m' + nmac + 'up.ipaddr=' + ip);
+		// Mb/s to KB/s
+		cmd.push('uci set nft-qos.m' + nmac + 'up.rate=' + parseInt(bwup * 1024 / 8));
+	}
+
+	if (bwdown == 0) {
+		cmd.push('uci -q del nft-qos.m' + nmac + 'down');
+	} else {
+		cmd.push('uci set nft-qos.m' + nmac + 'down=download');
+		cmd.push('uci set nft-qos.m' + nmac + 'down.hostname=\\\"' + name + '\\\"');
+		cmd.push('uci set nft-qos.m' + nmac + 'down.unit=kbytes');
+		cmd.push('uci set nft-qos.m' + nmac + 'down.ipaddr=' + ip);
+		// Mb/s to KB/s
+		cmd.push('uci set nft-qos.m' + nmac + 'down.rate=' + parseInt(bwdown * 1024 / 8));
+	}
+
+	cmd.push('uci set nft-qos.default.limit_enable=1');
+	cmd.push('uci set nft-qos.default.limit_type=static');
+	cmd.push('uci commit nft-qos');
+	cmd.push('/etc/init.d/nft-qos restart');
+
+	execute(cmd, showwlanclients);
+}
+
+function cancelhostqos() {
+	setDisplay('div_hostqos', false);
 }
 
 /*****************************************************************************/
