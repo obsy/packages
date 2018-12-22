@@ -1522,6 +1522,7 @@ function wlanclientscallback(sortby) {
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
 			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
+			name = (sorted[idx].name!="*"?sorted[idx].name:sorted[idx].mac);
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3 text-right">';
