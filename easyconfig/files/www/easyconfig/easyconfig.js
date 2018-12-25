@@ -1530,12 +1530,13 @@ function wlanclientscallback(sortby) {
 			html += '<div class="dropdown">';
 			html += '<button class="click dropdown-button">akcje</button>';
 			html += '<div class="dropdown-list">';
-			html += '<a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">zmiana nazwy</a>';
 			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a>';
+			html += '<a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">zmiana nazwy</a>';
 			html += '<a href="#" id="bm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
 			if (config.services.nftqos) {
 				html += '<a href="#" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
 			}
+			html += '<a href="#" class="click" onclick="hostip(\'' + sorted[idx].mac + '\',\'' + sorted[idx].staticdhcp + '\');">statyczny adres IP</a>';
 			html += '</div>';
 			html += '</div>';
 
@@ -1681,11 +1682,77 @@ function savehostname() {
 	execute(cmd, showwlanclients);
 }
 
+function hostip(mac, staticdhcp) {
+	setValue('hostip_mac', mac);
+	setValue('hostip_ip', staticdhcp);
+	var e = document.getElementById('hostip_ip');
+	proofreadText(e, validateIP, 0);
+
+	if (staticdhcp == "") {
+		setValue('hostip_help', 'brak statycznego adresu IP');
+	} else {
+		setValue('hostip_help', 'obecny statyczny adres IP: ' + staticdhcp);
+	}
+	setDisplay("div_hostip", true);
+	e.focus();
+}
+
+function cancelhostip() {
+	setDisplay("div_hostip", false);
+}
+
+function removehostip() {
+	cancelhostip();
+
+	var mac = getValue('hostip_mac');
+	var nmac = mac.replace(/:/g,'');
+
+	var cmd = [];
+	cmd.push('uci -q del dhcp.m' + nmac);
+	cmd.push('uci commit dhcp');
+	cmd.push('/etc/init.d/dnsmasq reload');
+
+	if (config.services.nftqos) {
+		cmd.push('uci -q del nft-qos.m' + nmac + 'up');
+		cmd.push('uci -q del nft-qos.m' + nmac + 'down');
+		cmd.push('uci commit nft-qos');
+		cmd.push('/etc/init.d/nft-qos restart');
+	}
+
+	execute(cmd, showwlanclients);
+}
+
+function savehostip() {
+	cancelhostip();
+
+	if (checkField('hostip_ip', validateIP)) {return;}
+
+	var mac = getValue('hostip_mac');
+	var nmac = mac.replace(/:/g,'');
+	var ip = getValue('hostip_ip');
+
+	var cmd = [];
+	cmd.push('uci set dhcp.m' + nmac + '=host');
+	cmd.push('uci set dhcp.m' + nmac + '.mac=' + mac);
+	cmd.push('uci set dhcp.m' + nmac + '.ip=' + ip);
+	cmd.push('uci commit dhcp');
+	cmd.push('/etc/init.d/dnsmasq reload');
+
+	if (config.services.nftqos) {
+		cmd.push('uci -q set nft-qos.m' + nmac + 'up.ipaddr=' + ip);
+		cmd.push('uci -q set nft-qos.m' + nmac + 'down.ipaddr=' + ip);
+		cmd.push('uci commit nft-qos');
+		cmd.push('/etc/init.d/nft-qos restart');
+	}
+console.log(cmd);
+	execute(cmd, showwlanclients);
+}
+
 function hostqos(mac, name, ip, bwup, bwdown) {
 	setValue('hostqos_mac', mac);
-	setValue('hostqos_name', name);
 	setValue('hostqos_header', name);
 	setValue('hostqos_ip', ip);
+
 	// KB/s to Mb/s
 	setValue('hostqos_upload', parseInt(bwup * 8 / 1024));
 	setValue('hostqos_download', parseInt(bwdown * 8 / 1024));
@@ -1728,14 +1795,12 @@ function savehostqos() {
 
 	var mac = getValue('hostqos_mac');
 	var nmac = mac.replace(/:/g,'');
-	var name = getValue('hostqos_name');
 	var ip = getValue('hostqos_ip');
 
 	if (bwup == 0) {
 		cmd.push('uci -q del nft-qos.m' + nmac + 'up');
 	} else {
 		cmd.push('uci set nft-qos.m' + nmac + 'up=upload');
-		cmd.push('uci set nft-qos.m' + nmac + 'up.hostname=\\\"' + name + '\\\"');
 		cmd.push('uci set nft-qos.m' + nmac + 'up.unit=kbytes');
 		cmd.push('uci set nft-qos.m' + nmac + 'up.ipaddr=' + ip);
 		// Mb/s to KB/s
@@ -1746,7 +1811,6 @@ function savehostqos() {
 		cmd.push('uci -q del nft-qos.m' + nmac + 'down');
 	} else {
 		cmd.push('uci set nft-qos.m' + nmac + 'down=download');
-		cmd.push('uci set nft-qos.m' + nmac + 'down.hostname=\\\"' + name + '\\\"');
 		cmd.push('uci set nft-qos.m' + nmac + 'down.unit=kbytes');
 		cmd.push('uci set nft-qos.m' + nmac + 'down.ipaddr=' + ip);
 		// Mb/s to KB/s
@@ -1757,6 +1821,14 @@ function savehostqos() {
 	cmd.push('uci set nft-qos.default.limit_type=static');
 	cmd.push('uci commit nft-qos');
 	cmd.push('/etc/init.d/nft-qos restart');
+
+	if (bwup > 0 || bwdown > 0) {
+		cmd.push('uci set dhcp.m' + nmac + '=host');
+		cmd.push('uci set dhcp.m' + nmac + '.mac=' + mac);
+		cmd.push('uci set dhcp.m' + nmac + '.ip=' + ip);
+		cmd.push('uci commit dhcp');
+		cmd.push('/etc/init.d/dnsmasq reload');
+	}
 
 	execute(cmd, showwlanclients);
 }

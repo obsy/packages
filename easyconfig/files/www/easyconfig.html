@@ -1221,6 +1221,21 @@
 	</div>
 </div>
 
+<div id="div_hostip" class="modal">
+	<div class="row modal-content">
+		<label for="hostip_ip">Statyczny adres IP</label>
+		<input id="hostip_mac" type="hidden">
+		<input id="hostip_ip" type="text" class="form-control space" onkeyup="proofreadIp(this)">
+		<em><small class="form-text text-muted"><span id="hostip_help"></span></small></em>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelhostip();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="removehostip();" value="Usuń" />
+			<input type="button" class="btn btn-primary" onclick="savehostip();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
 <div id="div_hostinfo" class="modal">
 	<div class="row modal-content text-center">
 		<div class="row">
@@ -1319,7 +1334,6 @@
 		</form>
 		</div>
 		<input id="hostqos_mac" type="hidden">
-		<input id="hostqos_name" type="hidden">
 		<input id="hostqos_ip" type="hidden">
 
 		<h3 class="section"></h3>

@@ -476,7 +476,9 @@ for M in $WLAN_MAC; do
 	T4DOWN=$(uci -q get nft-qos.m${MAC//:/}down.rate)
 	QOS='"bwup":'${T4UP:-0}',"bwdown":'${T4DOWN:-0}
 
-	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")',"signal":'$(echo $M | cut -f4 -d";")',"connected":'$T2',"connected_since":"'$T2_SINCE'","band":'$(echo $M | cut -f6 -d";")',"block":'$BLOCK',"qos":{'$QOS'}},'
+	STATICDHCP=$(uci -q get dhcp.m${MAC//:/}.ip)
+
+	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")',"signal":'$(echo $M | cut -f4 -d";")',"connected":'$T2',"connected_since":"'$T2_SINCE'","band":'$(echo $M | cut -f6 -d";")',"block":'$BLOCK',"qos":{'$QOS'},"staticdhcp":"'$STATICDHCP'"},'
 done
 echo '],'
 
