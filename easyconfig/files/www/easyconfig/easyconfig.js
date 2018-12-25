@@ -1536,7 +1536,7 @@ function wlanclientscallback(sortby) {
 			if (config.services.nftqos) {
 				html += '<a href="#" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
 			}
-			html += '<a href="#" class="click" onclick="hostip(\'' + sorted[idx].mac + '\',\'' + sorted[idx].staticdhcp + '\');">statyczny adres IP</a>';
+			html += '<a href="#" class="click" onclick="hostip(\'' + sorted[idx].mac + '\',\'' + sorted[idx].ip + '\',\'' + sorted[idx].staticdhcp + '\');">statyczny adres IP</a>';
 			html += '</div>';
 			html += '</div>';
 
@@ -1682,9 +1682,9 @@ function savehostname() {
 	execute(cmd, showwlanclients);
 }
 
-function hostip(mac, staticdhcp) {
+function hostip(mac, ip, staticdhcp) {
 	setValue('hostip_mac', mac);
-	setValue('hostip_ip', staticdhcp);
+	setValue('hostip_ip', (staticdhcp == ""?ip:staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
 
