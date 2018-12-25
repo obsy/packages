@@ -1526,11 +1526,19 @@ function wlanclientscallback(sortby) {
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3 text-right">';
-			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a> | ';
+
+			html += '<div class="dropdown">';
+			html += '<button class="click dropdown-button">akcje</button>';
+			html += '<div class="dropdown-list">';
+			html += '<a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">zmiana nazwy</a>';
+			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a>';
 			html += '<a href="#" id="bm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
 			if (config.services.nftqos) {
-				html += ' | <a href="#" id="qm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
+				html += '<a href="#" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
 			}
+			html += '</div>';
+			html += '</div>';
+
 			html += '</div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
