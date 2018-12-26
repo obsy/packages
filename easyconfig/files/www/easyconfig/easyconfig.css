@@ -173,7 +173,7 @@ h3 {
 }
 
 .btn .icon-bar+.icon-bar {
- margin-top: 4px;
+  margin-top: 4px;
 }
 
 .btn .icon-bar {
@@ -282,7 +282,7 @@ h3 {
   clear: both;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 527px) {
   .hidden-vxs {
     display: none;
   }
@@ -318,4 +318,8 @@ h3 {
 
 .dropdown:hover .dropdown-list {
   display: block;
+}
+
+.mmarginbottom {
+  margin-bottom: 0px;
 }

@@ -1687,12 +1687,15 @@ function hostip(mac, ip, staticdhcp) {
 	setValue('hostip_ip', (staticdhcp == ""?ip:staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
+	setValue('hostip_disconnect', false);
 
+	var msg;
 	if (staticdhcp == "") {
-		setValue('hostip_help', 'brak statycznego adresu IP');
+		msg = '- brak statycznego adresu IP';
 	} else {
-		setValue('hostip_help', 'obecny statyczny adres IP: ' + staticdhcp);
+		msg = '- obecny statyczny adres IP: ' + staticdhcp;
 	}
+	setValue('hostip_help', msg + '<br>- rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP');
 	setDisplay("div_hostip", true);
 	e.focus();
 }
@@ -1744,7 +1747,20 @@ function savehostip() {
 		cmd.push('uci commit nft-qos');
 		cmd.push('/etc/init.d/nft-qos restart');
 	}
-console.log(cmd);
+
+	if (getValue('hostip_disconnect')) {
+		cmd.push('MAC=\\\"' + mac + '\\\"');
+		cmd.push('T=$(ubus list hostapd.*)');
+		cmd.push('for T1 in $T; do');
+		cmd.push('	T2=$(ubus call $T1 get_clients | grep $MAC)');
+		cmd.push('	if [ -n \\\"$T2\\\" ]; then');
+		cmd.push('		ubus call $T1 del_client \\\"{\'addr\':\'$MAC\',\'reason\':5,\'deauth\':false,\'ban_time\':0}\\\"');
+		cmd.push('		rm -- \\\"$0\\\"');
+		cmd.push('		exit 0');
+		cmd.push('	fi');
+		cmd.push('done');
+	}
+
 	execute(cmd, showwlanclients);
 }
 
