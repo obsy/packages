@@ -457,6 +457,7 @@ echo '{"clients":['
 for M in $WLAN_MAC; do
 	MAC=$(echo $M | cut -f1 -d";")
 	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"%s\",\"name\":\"%s\",", $2, $3, $4, $4}' /tmp/dhcp.leases)
+	[ -z "$T" ] && T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"\",\"name\":\"\",", $4, $1}' /proc/net/arp)
 	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
 
 	T1=$(uci -q get easyconfig.m${MAC//:/}.name)
