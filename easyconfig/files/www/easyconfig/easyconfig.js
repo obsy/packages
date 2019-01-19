@@ -1881,7 +1881,15 @@ function queriescallback(sortby, order) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
-			html += '<div class="col-xs-12 col-sm-4' + (sorted[idx].nxdomain?' text-muted" title="brak domeny':'') + '">' + sorted[idx].query + '</div>';
+			if (sorted[idx].nxdomain) {
+				html += '<div class="col-xs-12 col-sm-4 text-muted" title="brak domeny">' + sorted[idx].query + '</div>';
+			} else {
+				if (config.services.adblock) {
+					html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriesmenu(\'' + sorted[idx].query + '\');">' + sorted[idx].query + '</a></div>';
+				} else {
+					html += '<div class="col-xs-12 col-sm-4">' + sorted[idx].query + '</div>';
+				}
+			}
 			html += '</div>';
 		}
 	} else {
@@ -1896,6 +1904,18 @@ function queriescallback(sortby, order) {
 			e.style.fontWeight = (sortby==all[idx])?700:400;
 		}
 	}
+}
+
+function queriesmenu(domain) {
+	var html = domain + "<hr>";
+	html += '<p><a href="#" class="click" onclick="closeMsg();gotoadblock(\'' + domain + '\');">przenieś do blokady domen</a></p>';
+	showMsg(html);
+}
+
+function gotoadblock(domain) {
+	setValue('adblock_domain', domain);
+	btn_pages('adblock');
+	document.getElementById('adblock_domain').focus();
 }
 
 /*****************************************************************************/
