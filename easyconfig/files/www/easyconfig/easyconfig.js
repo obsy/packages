@@ -1521,26 +1521,11 @@ function wlanclientscallback(sortby) {
 		}
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
-			var name = (sorted[idx].name!=""?sorted[idx].name:sorted[idx].mac);
-			name = (sorted[idx].name!="*"?sorted[idx].name:sorted[idx].mac);
+			var name = (sorted[idx].name != '' ? sorted[idx].name : sorted[idx].mac);
+			name = (sorted[idx].name != '*' ? sorted[idx].name : sorted[idx].mac);
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
-			html += '<div class="col-xs-3 text-right">';
-
-			html += '<div class="dropdown">';
-			html += '<button class="click dropdown-button">akcje</button>';
-			html += '<div class="dropdown-list">';
-			html += '<a href="#" class="click" onclick="hostinfo(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].real_name + '\',\'' + bytesToSize(sorted[idx].tx) + '\',\'' + bytesToSize(sorted[idx].rx) + '\',\'' + sorted[idx].signal + '\',\'' + sorted[idx].connected + '\',\'' + sorted[idx].connected_since + '\',\'' + sorted[idx].band + '\');">informacje</a>';
-			html += '<a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">zmiana nazwy</a>';
-			html += '<a href="#" id="bm' + (sorted[idx].mac).replace(/:/g,'') + '" class="click" onclick="hostblock(\'' + sorted[idx].mac + '\',\'' + name + '\',' + sorted[idx].block + ');">' + (sorted[idx].block == 0?"blokada":"odblokuj") + '</a>';
-			if (config.services.nftqos) {
-				html += '<a href="#" class="click" onclick="hostqos(\'' + sorted[idx].mac + '\',\'' + name + '\',\'' + sorted[idx].ip + '\',' + sorted[idx].qos.bwup + ',' + sorted[idx].qos.bwdown + ');">limity</a>';
-			}
-			html += '<a href="#" class="click" onclick="hostip(\'' + sorted[idx].mac + '\',\'' + sorted[idx].ip + '\',\'' + sorted[idx].staticdhcp + '\');">statyczny adres IP</a>';
-			html += '</div>';
-			html += '</div>';
-
-			html += '</div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');">akcje</a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1581,6 +1566,23 @@ function clientslogscallback() {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
 	div.innerHTML = html;
+}
+
+function hostmenu(data) {
+	var host = JSON.parse((data).replace(/\$/g,'"'));
+	var name = (host.name != '' ? host.name : host.mac);
+	name = (host.name != '*' ? host.name : host.mac);
+
+	var html = name + '<hr>';
+
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\',\'' + name + '\',\'' + host.real_name + '\',\'' + bytesToSize(host.tx) + '\',\'' + bytesToSize(host.rx) + '\',\'' + host.signal + '\',\'' + host.connected + '\',\'' + host.connected_since + '\',\'' + host.band + '\');">informacje</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + name + '\');">zmiana nazwy</a>';
+	html += '<p><a href="#" id="bm' + (host.mac).replace(/:/g,'') + '" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ');">' + (host.block == 0?"blokada":"odblokuj") + '</a></p>';
+	if (config.services.nftqos) {
+		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
+	}
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
+	showMsg(html);
 }
 
 function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
