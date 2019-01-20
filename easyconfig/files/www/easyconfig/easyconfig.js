@@ -2598,7 +2598,7 @@ function showadblock() {
 				html += '</div>';
 			}
 		}
-		html += "<hr><p>Liczba domen na czarnej liście: " + blacklist.length + "</p>";
+		html += "<hr><p>Liczba domen: " + blacklist.length + "</p>";
 		div.innerHTML = html;
 	});
 }
@@ -2648,7 +2648,7 @@ function blacklistdomain() {
 
 function removefromblacklist(domain) {
 	setValue("removefromblacklist_domain", domain);
-	setValue("removefromblacklist_text", "Usunąć domenę \"" + domain + "\" z czarnej listy?");
+	setValue("removefromblacklist_text", "Usunąć domenę \"" + domain + "\" z listy?");
 	setDisplay("div_removefromblacklist", true);
 }
 
