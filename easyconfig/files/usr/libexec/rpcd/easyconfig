@@ -292,6 +292,7 @@ echo "],"
 for R in $RADIOS; do
 	echo '"'$R'":{'
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
+	WLAN_TXPOWER=$(uci -q get wireless.$R.txpower)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
 	T=$(uci show wireless | awk -F. '/device=.*'$R'/{print $2}')
 	if [ -n "$T" ]; then
@@ -315,6 +316,7 @@ for R in $RADIOS; do
 		WLAN_DISABLED=1
 	fi
 	echo '"wlan_disabled":"'$WLAN_DISABLED'",'
+	echo '"wlan_txpower":"'$WLAN_TXPOWER'",'
 	echo '"wlan_ssid":"'$WLAN_SSID'",'
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'

@@ -684,15 +684,15 @@ function showcallback(data) {
 
 	// wan
 	var wan = [];
-	wan['none'] = "Brak";
-	wan['dhcp'] = "Port WAN (DHCP)";
-	wan['static'] = "Port WAN (Statyczny IP)";
-	wan['3g'] = "Modem USB (RAS)";
-	wan['qmi'] = "Modem USB (QMI)";
-	wan['ncm'] = "Modem USB (NCM)";
-	wan['dhcp_hilink'] = "Modem USB (HiLink lub RNDIS)";
+	wan['none'] = 'Brak';
+	wan['dhcp'] = 'Port WAN (DHCP)';
+	wan['static'] = 'Port WAN (Statyczny IP)';
+	wan['3g'] = 'Modem USB (RAS)';
+	wan['qmi'] = 'Modem USB (QMI)';
+	wan['ncm'] = 'Modem USB (NCM)';
+	wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
 	wan['-'] = " ";
-	wan['detect'] = "Wykryj...";
+	wan['detect'] = 'Wykryj...';
 
 	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
@@ -726,7 +726,7 @@ function showcallback(data) {
 		var opt = document.createElement('option');
 		opt.value = (sorteddns[idx].ip).sort();
 		opt.innerHTML = sorteddns[idx].name;
-		opt.setAttribute("data-url", sorteddns[idx].url);
+		opt.setAttribute('data-url', sorteddns[idx].url);
 		e.appendChild(opt);
 	}
 
@@ -741,19 +741,19 @@ function showcallback(data) {
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
 	setValue('wan_wanport', (config.wan_wanport == 'bridge'));
-	if (config.wan_proto=="dhcp") {
+	if (config.wan_proto == 'dhcp') {
 		if (config.wan_ifname == config.wan_ifname_hilink) {
-			setValue('wan_proto', "dhcp_hilink");
+			setValue('wan_proto', 'dhcp_hilink');
 		}
 	}
-	enableWan(getValue("wan_proto"));
+	enableWan(getValue('wan_proto'));
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
 	setValue('lan_dhcp_enabled', config.lan_dhcp_enabled);
 	setValue('lan_forcedns', config.lan_forcedns);
 	setValue('dhcp_logqueries', config.dhcp_logqueries);
-	setDisplay("menu_queries", config.dhcp_logqueries);
+	setDisplay('menu_queries', config.dhcp_logqueries);
 
 	// wlan
 	var radios = config.wlan_devices;
@@ -766,7 +766,7 @@ function showcallback(data) {
 		for(var propt in obj){
 			var opt = document.createElement('option');
 			opt.value = propt;
-			opt.innerHTML = propt + " (" + obj[propt][1] + " dBm)" + (obj[propt][2]?" DFS":"");
+			opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
 			select.appendChild(opt);
 			if (propt < 36) {is_radio2=true};
 			if (propt >= 36) {is_radio5=true};
@@ -776,8 +776,21 @@ function showcallback(data) {
 		if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5GHz');}
 		if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5GHz');}
 
-		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != "1"));
+		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != '1'));
 		setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
+		var txpower;
+		if (config[radios[i]].wlan_txpower == '') {
+			txpower = 100;
+		} else {
+			var maxtxpower = config[radios[i]].wlan_channels[config[radios[i]].wlan_channel][1];
+			var curtxpower = config[radios[i]].wlan_txpower * 100 / maxtxpower;
+			txpower = 20;
+			if (curtxpower > 20) { txpower = 40; }
+			if (curtxpower > 40) { txpower = 60; }
+			if (curtxpower > 60) { txpower = 80; }
+			if (curtxpower > 80) { txpower = 100; }
+		}
+		setValue('wlan_txpower' + i, txpower);
 		setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
 		setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
 		setValue('wlan_key' + i, config[radios[i]].wlan_key);
@@ -800,7 +813,7 @@ function showcallback(data) {
 	setValue('firewall_dmz', config.firewall_dmz);
 
 	// stat
-	setDisplay("div_stat", (config.services.statistics.enabled != -1));
+	setDisplay('div_stat', (config.services.statistics.enabled != -1));
 	if (config.services.statistics.enabled != -1)
 		setValue('stat_enabled', (config.services.statistics.enabled == 1));
 
@@ -995,6 +1008,13 @@ function saveconfig() {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
 			cmd.push('uci set wireless.' + radios[i] + '.hwmode=11'+((wlan_channel < 36)?'g':'a'));
+		}
+		txpower = getValue('wlan_txpower' + i);
+		var maxtxpower = config[radios[i]].wlan_channels[wlan_channel][1];
+		var curtxpower = Math.round(txpower * maxtxpower / 100);
+		if (config[radios[i]].wlan_txpower != curtxpower) {
+			wlan_restart_required = true;
+			cmd.push('uci set wireless.' + radios[i] + '.txpower=' + curtxpower);
 		}
 		wlan_ssid = getValue('wlan_ssid' + i);
 		if (config[radios[i]].wlan_ssid != wlan_ssid) {
