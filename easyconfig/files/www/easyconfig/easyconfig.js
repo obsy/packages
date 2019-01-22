@@ -1603,6 +1603,11 @@ function hostmenu(data) {
 	showMsg(html);
 }
 
+function calculatedistance(frequency, signal) {
+	var dist = Math.pow(10.0, (27.55 - (20 * Math.log10(frequency)) + Math.abs(signal)) / 20.0);
+	return dist.toFixed(0);
+}
+
 function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
 	setValue('hostinfo_mac', mac);
 	var key = mac.substring(0,8).toUpperCase();
@@ -1621,10 +1626,28 @@ function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_sinc
 	}
 	setValue('hostinfo_tx', tx);
 	setValue('hostinfo_rx', rx);
-	setValue('hostinfo_signal', signal + ' dBm');
-	setValue('hostinfo_band', band==2?'2.4GHz':'5GHz');
+
+	var freq = -1;
+	var radios = config.wlan_devices;
+	for (var i = 0; i < radios.length; i++) {
+		var channel = config[radios[i]].wlan_channel;
+		var t = (channel >= 36) ? 5 : 2;
+		if (band == t) {
+			if (config[radios[i]].wlan_channels[channel]) {
+				freq = config[radios[i]].wlan_channels[channel][0];
+				break;
+			}
+		}
+	}
+	if (freq == -1) {
+		setValue('hostinfo_signal', signal + ' dBm');
+	} else {
+		setValue('hostinfo_signal', signal + ' dBm (~' + calculatedistance(freq, signal) + 'm)');
+	}
+
+	setValue('hostinfo_band', band == 2 ? '2.4GHz' : '5GHz');
 	setValue('hostinfo_connected', formatTime(connected, false));
-	setValue('hostinfo_connected_since', connected_since == '-'?'':' (od ' + connected_since + ')');
+	setValue('hostinfo_connected_since', connected_since == '-' ? '' : ' (od ' + connected_since + ')');
 	setDisplay("div_hostinfo", true);
 }
 
