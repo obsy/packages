@@ -1702,11 +1702,11 @@ function hostnameedit(mac, name) {
 }
 
 function okhostinfo() {
-	setDisplay("div_hostinfo", false);
+	setDisplay('div_hostinfo', false);
 }
 
 function cancelhostname() {
-	setDisplay("div_hostname", false);
+	setDisplay('div_hostname', false);
 }
 
 function savehostname() {
@@ -1727,19 +1727,15 @@ function savehostname() {
 
 function hostip(mac, ip, staticdhcp) {
 	setValue('hostip_mac', mac);
-	setValue('hostip_ip', (staticdhcp == ""?ip:staticdhcp));
+	setValue('hostip_ip', (staticdhcp == '' ? ip : staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
 	setValue('hostip_disconnect', false);
 
-	var msg;
-	if (staticdhcp == "") {
-		msg = '- brak statycznego adresu IP';
-	} else {
-		msg = '- obecny statyczny adres IP: ' + staticdhcp;
-	}
-	setValue('hostip_help', msg + '<br>- rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP');
-	setDisplay("div_hostip", true);
+	var msg = '- rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP<br>';
+	msg += '- obecny statyczny adres IP: ' + (staticdhcp == '' ? 'brak' : staticdhcp);
+	setValue('hostip_help', msg);
+	setDisplay('div_hostip', true);
 	e.focus();
 }
 
