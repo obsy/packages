@@ -2340,6 +2340,36 @@ function proofreadSMSText(input) {
 	proofreadText(input, validateSMSText, 0);
 }
 
+function readussdshortcuts() {
+	ubus_call('"easyconfig", "ussdshortcuts", {}', function(data) {
+		var arr = data.shortcuts;
+		if (arr.length > 0) {
+			setElementEnabled('ussd_shortcuts', true, false);
+			removeOptions('ussd_shortcuts');
+			var select = document.getElementById('ussd_shortcuts');
+			var opt = document.createElement('option');
+			opt.value = 'own';
+			opt.innerHTML = 'wybierz kod USSD';
+			select.appendChild(opt);
+			for(var propt in arr) {
+				for(var propt1 in arr[propt]) {
+					var opt = document.createElement('option');
+					opt.value = propt1;
+					opt.innerHTML = arr[propt][propt1];
+					select.appendChild(opt);
+				}
+			}
+		} else {
+			setElementEnabled('ussd_shortcuts', false, false);
+		}
+	});
+}
+
+function selectussd(code) {
+	if (code == 'own') { return; }
+	setValue('ussd_code', getValue('ussd_shortcuts'));
+}
+
 /*****************************************************************************/
 
 function upgrade_step1() {
@@ -2742,6 +2772,7 @@ function btn_pages(page) {
 
 	if (page == 'ussdsms') {
 		readsms();
+		readussdshortcuts();
 	}
 
 	if (page == 'pptp') {
