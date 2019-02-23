@@ -1732,9 +1732,7 @@ function hostip(mac, ip, staticdhcp) {
 	proofreadText(e, validateIP, 0);
 	setValue('hostip_disconnect', false);
 
-	var msg = '- rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP<br>';
-	msg += '- obecny statyczny adres IP: ' + (staticdhcp == '' ? 'brak' : staticdhcp);
-	setValue('hostip_help', msg);
+	setValue('hostip_ipaddr', (staticdhcp == '' ? 'brak' : staticdhcp));
 	setDisplay('div_hostip', true);
 	e.focus();
 }
