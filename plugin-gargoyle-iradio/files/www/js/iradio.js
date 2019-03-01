@@ -21,8 +21,8 @@ var iradio=new Object(); //part of i18n
 function createPlayButton()
 {
 	var playButton = createInput("button");
-	playButton.value = iradio.Play;
-	playButton.className="default_button";
+	playButton.textContent = iradio.Play;
+	playButton.className="btn btn-default";
 	playButton.onclick = playRadio;
 	return playButton;
 }
@@ -59,8 +59,8 @@ function playRadio()
 function createRemoveButton()
 {
 	var removeButton = createInput("button");
-	removeButton.value = iradio.Delete;
-	removeButton.className="default_button";
+	removeButton.textContent = iradio.Delete;
+	removeButton.className="btn btn-default btn-remove";
 	removeButton.onclick = removeRadio;
 	return removeButton;
 }

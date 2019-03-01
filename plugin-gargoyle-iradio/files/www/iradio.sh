@@ -12,35 +12,50 @@
 <script>
 
 </script>
-<form>
 
-	<fieldset id="iradio_options">
-		<legend class="sectionheader"><%~ iradio.Radio %></legend>
-
-		<div id="iradio_table_container" style="margin-left:5px;" ></div>
-		<div class="indent">
-			<span class="leftcolumn"><input type="button" class="default_button" id="stop_music_button" value="<%~ StopMusic %>" onclick="stopMusic()" /></span>
-		</div>
-		<div class="indent">
-			<div>
-				<label class="narrowleftcolumn" for="add_source_name"><%~ Anam %>:</label>
-				<input type="text" class="widerightcolumn" id="add_source_name" style="width:325px;"/>
+<h1 class="page-header"><%~ iradio.Radio %></h1>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row form-group">
+					<div id="iradio_table_container" style="margin-left:5px;" ></div>
+				</div>
 			</div>
-			<div>
-				<label class="narrowleftcolumn" for="add_source_url"><%~ Aurl %>:</label>
-				<input type="text" class="widerightcolumn" id="add_source_url" style="width:325px;"/>
-			</div>
-
-			<span class="leftcolumn"><input type="button" class="default_button" id="add_source_button" value="<%~ ASrc %>" onclick="addSource()" /></span>
-
 		</div>
-	</fieldset>
+	</div>
 
-</form>
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row form-group">
+					<span class="col-xs-12"><button class="btn btn-default" id="stop_music_button" onclick="stopMusic()" /><%~ StopMusic %></button></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row form-group">
+					<label class="col-xs-5" for="add_source_name"><%~ Anam %>:</label>
+					<span class="col-xs-7"><input type="text" id="add_source_name" class="form-control" /></span>
+				</div>
+
+				<div class="row form-group">
+					<label class="col-xs-5" for="add_source_url"><%~ Aurl %>:</label>
+					<span class="col-xs-7"><input type="text" id="add_source_url" class="form-control" /></span>
+				</div>
+
+				<button id="add_source_button" class="btn btn-default btn-add" onclick="addSource()"><%~ ASrc %></button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <script>
 	resetData();
-
 </script>
 
 <%
