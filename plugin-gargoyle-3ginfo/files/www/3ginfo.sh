@@ -36,7 +36,7 @@
 						. /lib/functions/network.sh
 						network_get_gateway GATEWAY wan
 						if [ -n "$GATEWAY" ]; then
-							echo "<option value='$GATEWAY'>HiLink</option>"
+							echo "<option value='$GATEWAY'>HiLink/RNDIS</option>"
 						fi
 					fi
 				fi
