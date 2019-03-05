@@ -32,7 +32,7 @@ function resetData()
 				if (arr[0].match(/^STATUS/))	{ setChildText("status",	arr[1], arr[1] == ' ONLINE '?'green':'red'); }
 				if (arr[0].match(/^BCHARGE/))	{ setChildText("bcharge",	arr[1].replace(/Percent/, upsS.Percent)); }
 				if (arr[0].match(/^LINEV/))	{ setChildText("linev",		arr[1].replace(/Volts/, upsS.Volts)); }
-				if (arr[0].match(/^LOADPCT/))	{ setChildText("loadpct",	arr[1].replace(/Percent Load Capacity/, upsS.Percent)); }
+				if (arr[0].match(/^LOADPCT/))	{ setChildText("loadpct",	arr[1].replace(/Percent Load Capacity/, upsS.Percent).replace(/Percent/, upsS.Percent)); }
 				if (arr[0].match(/^TIMELEFT/))	{ setChildText("timeleft",	arr[1].replace(/Minutes/, UI.minutes)); }
 			}
 
