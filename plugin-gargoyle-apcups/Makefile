@@ -73,7 +73,7 @@ endef
 define Package/plugin-gargoyle-apcups/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	[ -n "$$$$(which uglifyjs)" ] && uglifyjs -nc ./files/www/js/ups.js > $(1)/www/js/ups.js || true
+	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/ups.js > $(1)/www/js/ups.js || true
 endef
 
 $(eval $(call BuildPackage,plugin-gargoyle-apcups))

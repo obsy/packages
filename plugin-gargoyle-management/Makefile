@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_management
 PKG_VERSION:=20140402
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -33,7 +33,7 @@ endef
 define Package/plugin-gargoyle-management/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	[ -n "$$$$(which uglifyjs)" ] && uglifyjs -nc ./files/www/hooks/login/091-management.js > $(1)/www/hooks/login/091-management.js || true
+	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/hooks/login/091-management.js > $(1)/www/hooks/login/091-management.js || true
 endef
 
 $(eval $(call BuildPackage,plugin-gargoyle-management))
