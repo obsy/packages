@@ -45,7 +45,7 @@ else
 fi
 
 # COPS numeric
-COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
+COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}' | head -1)
 if [ "x$COPS_NUM" = "x" ]; then
 	COPS_NUM="-"
 	COPS_MCC="-"
