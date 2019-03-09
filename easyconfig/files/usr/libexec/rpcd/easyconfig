@@ -1007,7 +1007,7 @@ show_pptp()
 	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\",\"led\":\"$VPNLED\","
 
 	SYSTEM=$(uci show system)
-	T=$(ls -1 /sys/class/leds/)
+	T=$(ls -1 /sys/class/leds/ | grep ".*:.*:.*")
 	O=""
 	echo '"leds":['
 	for LED in $T; do
