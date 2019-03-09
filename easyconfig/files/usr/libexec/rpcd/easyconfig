@@ -121,15 +121,15 @@ ICCID="-"
 if [ -e /tmp/modem ]; then
 	DEVICE=$(cat /tmp/modem)
 	O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
-	T=$(echo "$O" | awk -F[:] '/CGMI:/{print $2}')
+	T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");print $0}')
 	[ -n "$T" ] && VENDOR="$T"
-	T=$(echo "$O" | awk -F[:] '/CGMM:/{print $2}')
+	T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");print $0}')
 	[ -n "$T" ] && PRODUCT="$T"
-	T=$(echo "$O" | awk -F[:] '/CGMR:/{print $2}')
+	T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");print $0}')
 	[ -n "$T" ] && REVISION="$T"
-	T=$(echo "$O" | awk -F[:] '/CGSN:/{print $2}')
+	T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");print $0}')
 	[ -n "$T" ] && IMEI="$T"
-	T=$(echo "$O" | awk -F[:] '/CCID:/{print $2}')
+	T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");print $0}')
 	[ -n "$T" ] && ICCID="$T"
 fi
 
