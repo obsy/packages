@@ -635,8 +635,8 @@ function execute(cmd, callback) {
 
 function login()
 {
-	var system_user = getValue("system_login");
-	var system_pass = getValue("system_password");
+	var system_user = getValue('system_login');
+	var system_pass = getValue('system_password');
 
 	ubus('"session", "login", { "username": "' + system_user + '", "password": "' + system_pass + '" }', function(data) {
 		if (data.error) {
@@ -649,25 +649,26 @@ function login()
 				expires = setTimeout(function(){ location.reload(); }, data.result[1].expires * 1000);
 				timeout = data.result[1].timeout;
 
-				setDisplay("div_login", false);
-				setDisplay("div_content", true);
+				setDisplay('div_login', false);
+				setDisplay('div_content', true);
+				setDisplay('div_security', (system_pass == '12345678'));
 
-				if (getCookie("easyconfig_status_wan") === "1") {
-					setDisplay("div_status_wan", true);
+				if (getCookie('easyconfig_status_wan') === '1') {
+					setDisplay('div_status_wan', true);
 				}
-				if (getCookie("easyconfig_status_modem") === "1") {
-					setDisplay("div_status_modem", true);
-					setDisplay("div_system_modem", true);
+				if (getCookie('easyconfig_status_modem') === '1') {
+					setDisplay('div_status_modem', true);
+					setDisplay('div_system_modem', true);
 				}
 
 				showconfig();
 				showstatus();
 			} else {
-				showMsg("Błąd logowania!", true);
+				showMsg('Błąd logowania!', true);
 			}
 		}
 	}, function(status) {
-		showMsg("Błąd logowania!", true);
+		showMsg('Błąd logowania!', true);
 	});
 }
 
@@ -1103,7 +1104,12 @@ function saveconfig() {
 	}
 
 //console.log(cmd);
-	execute(cmd, function(){ cleanField('password1'); cleanField('password2'); showconfig(); });
+	execute(cmd, function(){
+		cleanField('password1');
+		cleanField('password2');
+		setDisplay('div_security', (pass1 == '12345678'));
+		showconfig();
+	});
 }
 
 function showstatistics() {
