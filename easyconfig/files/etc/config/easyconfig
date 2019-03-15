@@ -18,8 +18,8 @@ config service sms
 	option storage ''
 
 config service ussd
-	option raw_input '0'
-	option raw_output '0'
+	option raw_input '1'
+	option raw_output '1'
 
 config service modem
 	option force_qmi '0'
