@@ -758,7 +758,7 @@ function showcallback(data) {
 
 	// wlan
 	var radios = config.wlan_devices;
-	for (var i = 0; i < radios.length; i++) {
+	for (var i = 0; i < radios.length && i < 2; i++) {
 		var is_radio2 = false;
 		var is_radio5 = false;
 		removeOptions('wlan_channel' + i);
