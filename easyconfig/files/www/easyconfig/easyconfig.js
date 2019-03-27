@@ -757,8 +757,8 @@ function showcallback(data) {
 	setDisplay('menu_queries', config.dhcp_logqueries);
 
 	// wlan
-	var radios = config.wlan_devices;
-	for (var i = 0; i < radios.length && i < 2; i++) {
+	var radios = (config.wlan_devices).slice(0,2);
+	for (var i = 0; i < radios.length; i++) {
 		var is_radio2 = false;
 		var is_radio5 = false;
 		removeOptions('wlan_channel' + i);
@@ -974,8 +974,7 @@ function saveconfig() {
 	// wlan
 	var wlan_restart_required=false;
 
-	var radios = config.wlan_devices;
-
+	var radios = (config.wlan_devices).slice(0,2);
 	for (var i = 0; i < radios.length; i++) {
 		var section = config[radios[i]].wlan_section;
 
