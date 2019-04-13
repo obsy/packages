@@ -1356,7 +1356,7 @@ function formatTime(s, showsec) {
 	    m = Math.floor(s/60)%60,
 	    s = s % 60;
 	var time = d>0?d+'d ':'';
-	if (time != "") {time += h+'h '} else {time = h>0?h+'h ':''}
+	if (time != "") {time += h+'g '} else {time = h>0?h+'g ':''}
 	if (time != "") {time += m+'m '} else {time = m>0?m+'m ':''}
 	if (showsec) {
 		time += s+'s';
