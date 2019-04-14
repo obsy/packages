@@ -730,8 +730,8 @@ show_wifiscan() {
 			if($0 ~ /secondary channel offset: above/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40+"}
 			if($0 ~ /secondary channel offset: below/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40-"}
 			if($0 ~ /VHT operation:/) {wifi_mode1[MAC] = "ac"; wifi_mode2[MAC] = "VHT20"}
-			if($0 ~ /center freq segment 1:/) {if($6>0){wifi_mode2[MAC] = "VHT40"}}
-			if($0 ~ /channel width: 1 (80 MHz)/) {wifi_mode2[MAC] = "VHT80"}
+			if($0 ~ /center freq segment 1:/) {if($6>0 && wifi_mode2[MAC] != "VHT80" && $6 != wifi_chan[MAC]){wifi_mode2[MAC] = "VHT40"}}
+			if($0 ~ /channel width: 1 \(80 MHz\)/) {wifi_mode2[MAC] = "VHT80"}
 			if($0 ~ /Group cipher: CCMP/) {wifi_enc[MAC] = "WPA"}
 			if($0 ~ /Group cipher: TKIP/) {wifi_enc[MAC] = "WPA"}
 			if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA Personal"}
