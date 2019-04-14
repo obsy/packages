@@ -458,12 +458,12 @@ done
 echo '{"clients":['
 for M in $WLAN_MAC; do
 	MAC=$(echo $M | cut -f1 -d";")
-	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"%s\",\"name\":\"%s\",", $2, $3, $4, $4}' /tmp/dhcp.leases)
-	[ -z "$T" ] && T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"real_name\":\"\",\"name\":\"\",", $4, $1}' /proc/net/arp)
+	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"dhcpname\":\"%s\",\"username\":\"\",", $2, $3, $4}' /tmp/dhcp.leases)
+	[ -z "$T" ] && T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"dhcpname\":\"\",\"username\":\"\",", $4, $1}' /proc/net/arp)
 	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
 
 	T1=$(uci -q get easyconfig.m${MAC//:/}.name)
-	[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"name\":\".*\",|\"name\":\"$T1\",|g")
+	[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"username\":\".*\",|\"username\":\"$T1\",|g")
 
 	T2=$(echo $M | cut -f5 -d";")
 	if $TIMEISVALID; then

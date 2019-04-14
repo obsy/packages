@@ -1546,8 +1546,8 @@ function wlanclientscallback(sortby) {
 		}
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
-			var name = (sorted[idx].name != '' ? sorted[idx].name : sorted[idx].mac);
-			name = (sorted[idx].name != '*' ? sorted[idx].name : sorted[idx].mac);
+			if (sorted[idx].dhcpname == '*') { sorted[idx].dhcpname = ''; }
+			var name = (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname : sorted[idx].mac ));
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
 			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');">akcje</a></div>';
@@ -1590,12 +1590,10 @@ function clientslogscallback() {
 
 function hostmenu(data) {
 	var host = JSON.parse((data).replace(/\$/g,'"'));
-	var name = (host.name != '' ? host.name : host.mac);
-	name = (host.name != '*' ? host.name : host.mac);
-
+	var name = (host.username != '' ? host.username : (host.dhcpname != '' ? host.dhcpname : host.mac ));
 	var html = name + '<hr>';
 
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\',\'' + name + '\',\'' + host.real_name + '\',\'' + bytesToSize(host.tx) + '\',\'' + bytesToSize(host.rx) + '\',\'' + host.signal + '\',\'' + host.connected + '\',\'' + host.connected_since + '\',\'' + host.band + '\');">informacje</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + name + '\');">zmiana nazwy</a>';
 	html += '<p><a href="#" id="bm' + (host.mac).replace(/:/g,'') + '" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ');">' + (host.block == 0?"blokada":"odblokuj") + '</a></p>';
 	if (config.services.nftqos) {
@@ -1610,31 +1608,26 @@ function calculatedistance(frequency, signal) {
 	return dist.toFixed(0);
 }
 
-function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_since, band) {
-	setValue('hostinfo_mac', mac);
-	var key = mac.substring(0,8).toUpperCase();
+function hostinfo(data) {
+	var host = JSON.parse((data).replace(/\$/g,'"'));
+	setValue('hostinfo_mac', host.mac);
+	var key = (host.mac).substring(0,8).toUpperCase();
 	if (key in manuf) {
 		setValue('hostinfo_vendor', manuf[key]);
 	} else {
-		setValue('hostinfo_vendor', "");
+		setValue('hostinfo_vendor', '');
 	}
-	setValue('hostinfo_name', name);
-	if (realname == '') {
-		setValue('hostinfo_realname', '-');
-	} else if (realname == '*') {
-		setValue('hostinfo_realname', '-');
-	} else {
-		setValue('hostinfo_realname', realname);
-	}
-	setValue('hostinfo_tx', tx);
-	setValue('hostinfo_rx', rx);
+	setValue('hostinfo_username', (host.username == '' ? '-' : host.username));
+	setValue('hostinfo_dhcpname', (host.dhcpname == '' ? '-' : host.dhcpname));
+	setValue('hostinfo_tx', bytesToSize(host.tx));
+	setValue('hostinfo_rx', bytesToSize(host.rx));
 
 	var freq = -1;
 	var radios = config.wlan_devices;
 	for (var i = 0; i < radios.length; i++) {
 		var channel = config[radios[i]].wlan_channel;
 		var t = (channel >= 36) ? 5 : 2;
-		if (band == t) {
+		if (host.band == t) {
 			if (config[radios[i]].wlan_channels[channel]) {
 				freq = config[radios[i]].wlan_channels[channel][0];
 				break;
@@ -1642,15 +1635,15 @@ function hostinfo(mac, name, realname, tx, rx, signal, connected, connected_sinc
 		}
 	}
 	if (freq == -1) {
-		setValue('hostinfo_signal', signal + ' dBm');
+		setValue('hostinfo_signal', host.signal + ' dBm');
 	} else {
-		setValue('hostinfo_signal', signal + ' dBm (~' + calculatedistance(freq, signal) + 'm)');
+		setValue('hostinfo_signal', host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + 'm)');
 	}
 
-	setValue('hostinfo_band', band == 2 ? '2.4GHz' : '5GHz');
-	setValue('hostinfo_connected', formatTime(connected, false));
-	setValue('hostinfo_connected_since', connected_since == '-' ? '' : ' (od ' + connected_since + ')');
-	setDisplay("div_hostinfo", true);
+	setValue('hostinfo_band', host.band == 2 ? '2.4GHz' : '5GHz');
+	setValue('hostinfo_connected', formatTime(host.connected, false));
+	setValue('hostinfo_connected_since', host.connected_since == '-' ? '' : ' (od ' + host.connected_since + ')');
+	setDisplay('div_hostinfo', true);
 }
 
 function hostblock(mac, name, action) {
