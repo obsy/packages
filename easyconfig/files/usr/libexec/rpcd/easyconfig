@@ -2,7 +2,7 @@
 
 ##############################################################################
 
-# (c) 2016-2018 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2019 Cezary Jackiewicz <cezary@eko.one.pl>
 
 ##############################################################################
 
@@ -487,8 +487,9 @@ echo '],'
 
 echo '"logs":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
-/DHCPACK\(/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"%s\",\"event\":\"login\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11}
-/AP-STA-DISCONNECTED/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"name\":\"\",\"event\":\"logout\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}
+/DHCPACK\(/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"username\":\"%s\",\"dhcpname\":\"\",\"event\":\"login\",\"wlan\":%s},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10, $11, (WIFI[$10]==1)?"true":"false"}
+/AP-STA-DISCONNECTED/ {WIFI[$10]=0;printf "{\"time\":\"%s-%02d-%02d %s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"\",\"event\":\"logout\",\"wlan\":true},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $10}
+/AP-STA-CONNECTED/ {WIFI[$10]=1}
 ')
 
 MACS=$(uci show easyconfig | awk -F[=m] '/=mac/{print $2}')
@@ -496,7 +497,7 @@ for MAC in $MACS; do
 	NAME=$(uci -q get easyconfig.m${MAC}.name)
 	if [ -n "$NAME" ]; then
 		TMAC=${MAC:0:2}:${MAC:2:2}:${MAC:4:2}:${MAC:6:2}:${MAC:8:2}:${MAC:10:2}
-		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"name\":\".*\",\"event\"/,\"mac\":\"\",\"name\":\"$NAME\",\"event\"/g")
+		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"username\":\".*\",\"dhcpname\"/,\"mac\":\"$TMAC\",\"username\":\"$NAME\",\"dhcpname\"/g")
 	fi
 done
 

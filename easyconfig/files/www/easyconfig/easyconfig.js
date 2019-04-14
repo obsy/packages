@@ -1571,18 +1571,15 @@ function wlanclientscallback(sortby) {
 
 function clientslogscallback() {
 	var div = document.getElementById('div_clientslogs_content');
-	var html = "";
+	var html = '';
 	if (clientslogs.length > 0) {
 		var sorted = sortJSON(clientslogs, 'time', '321');
 		for(var idx=0; idx<sorted.length; idx++){
+			if (sorted[idx].wlan == false) { continue; }
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-6 col-sm-3">' + (sorted[idx].event == 'login' ? 'połączenie' : 'rozłączenie') + '</div>';
-			if (sorted[idx].mac == '') {
-				html += '<div class="col-xs-12 col-sm-6">' + sorted[idx].name + '</div>';
-			} else {
-				html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].name != "" ? sorted[idx].name + ' / ' + sorted[idx].mac : sorted[idx].mac) + '</div>';
-			}
+			html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname + ' / ' + sorted[idx].mac : sorted[idx].mac)) + '</div>';
 			html += '</div>';
 		}
 	} else {

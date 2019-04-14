@@ -4,7 +4,7 @@ LOGS=/tmp/easyconfig_wlanlogs.txt
 T=$(mktemp)
 
 logread -e "DHCPACK(" >> $T
-logread -e "AP-STA-DISCONNECTED" >> $T
+logread -e "AP-STA-" >> $T
 if [ -s "$T" ]; then
 	touch $LOGS.gz
 	zcat $LOGS.gz >> $T 2>/dev/null
