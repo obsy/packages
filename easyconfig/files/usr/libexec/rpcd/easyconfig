@@ -732,6 +732,7 @@ show_wifiscan() {
 			if($0 ~ /VHT operation:/) {wifi_mode1[MAC] = "ac"; wifi_mode2[MAC] = "VHT20"}
 			if($0 ~ /center freq segment 1:/) {if($6>0 && wifi_mode2[MAC] != "VHT80" && $6 != wifi_chan[MAC]){wifi_mode2[MAC] = "VHT40"}}
 			if($0 ~ /channel width: 1 \(80 MHz\)/) {wifi_mode2[MAC] = "VHT80"}
+			if($1 == "capability:") {t=$3; gsub(/\(/,"", t);gsub(/\)/,"", t); if(and(t,16)==16){wifi_enc[MAC] = "WEP"}}
 			if($0 ~ /Group cipher: CCMP/) {wifi_enc[MAC] = "WPA"}
 			if($0 ~ /Group cipher: TKIP/) {wifi_enc[MAC] = "WPA"}
 			if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA Personal"}
