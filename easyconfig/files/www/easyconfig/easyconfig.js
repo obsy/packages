@@ -1487,8 +1487,66 @@ function sitesurveycallback(sortby) {
 
 	if (wifiscanresults.length > 0) {
 		for(var idx = 0; idx < sorted.length; idx++){
-			if (sorted[idx].channel != '?') {channels[sorted[idx].channel]++;}
+			if (sorted[idx].channel != '?') {
+				if (sorted[idx].channel < 36) {
+					if (sorted[idx].mode1 == 'g') {
+						if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+						if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
+						channels[sorted[idx].channel]++;
+						if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
+						if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+					}
+					if (sorted[idx].mode1 == 'n') {
+						if ((sorted[idx].mode2 == 'HT20') || (sorted[idx].mode2 == 'VHT20')) {
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
+							channels[sorted[idx].channel]++;
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+						}
+						if (sorted[idx].mode2 == 'HT40-') {
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -6])) { channels[parseInt(sorted[idx].channel) -6]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -5])) { channels[parseInt(sorted[idx].channel) -5]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -4])) { channels[parseInt(sorted[idx].channel) -4]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -3])) { channels[parseInt(sorted[idx].channel) -3]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
+							channels[sorted[idx].channel]++;
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+						}
+						if (sorted[idx].mode2 == 'HT40+') {
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
+							channels[sorted[idx].channel]++;
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +3])) { channels[parseInt(sorted[idx].channel) +3]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +4])) { channels[parseInt(sorted[idx].channel) +4]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +5])) { channels[parseInt(sorted[idx].channel) +5]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +6])) { channels[parseInt(sorted[idx].channel) +6]++; }
+						}
+					}
+				} else {
+					if (sorted[idx].mode1 == 'ac') {
+						if (sorted[idx].mode2 == 'VHT20') {
+							channels[sorted[idx].channel]++;
+						}
+						if (sorted[idx].mode2 == 'VHT40') {
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
+						}
+						if (sorted[idx].mode2 == 'VHT80') {
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -6])) { channels[parseInt(sorted[idx].vhtch1) -6]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +6])) { channels[parseInt(sorted[idx].vhtch1) +6]++; }
+						}
+					}
+				}
+			}
 		}
+
 		for (var ch in channels) {
 			var percent = parseInt(channels[ch] * 100 / sorted.length) + '%';
 			document.getElementById('channel' + ch + 'bar').style.width = percent;
