@@ -1413,6 +1413,7 @@ function showsitesurvey() {
 	});
 }
 
+
 function sitesurveycallback(sortby) {
 	var div = document.getElementById('div_sitesurvey_content');
 	var html = "";
@@ -1440,9 +1441,11 @@ function sitesurveycallback(sortby) {
 				}
 			}
 
+			var ssid_new = (sorted[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, m => decodeURIComponent(m.replace(/\\x/g, '%')));
+
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-6">';
-			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + sorted[idx].ssid + '</h4>';
+			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + ssid_new + '</h4>';
 			html += sorted[idx].mac + '<br>';
 
 			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
