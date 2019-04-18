@@ -450,38 +450,40 @@ for R in $RADIOS; do
 		T1=$(echo "$T" | jsonfilter -e @.*.config.channel)
 		[ $T1 -gt 14 ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "%s;%d;%d;%d;%d;%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "{\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done
 	fi
 done
 
 echo '{"clients":['
 for M in $WLAN_MAC; do
-	MAC=$(echo $M | cut -f1 -d";")
-	T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"dhcpname\":\"%s\",\"username\":\"\",", $2, $3, $4}' /tmp/dhcp.leases)
-	[ -z "$T" ] && T=$(awk '/'$MAC'/{printf "{\"mac\":\"%s\",\"ip\":\"%s\",\"dhcpname\":\"\",\"username\":\"\",", $4, $1}' /proc/net/arp)
-	[ -z "$T" ] && T='{"mac":"'$MAC'","ip":"","real_name":"","name":"",'
+	T=${M%\",\"tx*}
+	MAC=${T##*\"}
+	IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
+	[ -z "$IP" ] && IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1}' /proc/net/arp)
+	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
 
-	T1=$(uci -q get easyconfig.m${MAC//:/}.name)
-	[ -n "$T1" ] && T=$(echo "$T" | sed "s|\"username\":\".*\",|\"username\":\"$T1\",|g")
+	T=$(uci -q get easyconfig.m${MAC//:/}.name)
+	[ -n "$T" ] && USERNAME=',"username":"'$T'"' || USERNAME=',"username":""'
 
-	T2=$(echo $M | cut -f5 -d";")
+	T=${M%\",\"ba*}
+	CONNECTED=${T##*\"}
 	if $TIMEISVALID; then
-		T2_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T2))")
+		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $CONNECTED))")'"'
 	else
-		T2_SINCE="-"
+		CONNECTED_SINCE=',"connected_since":"-"'
 	fi
 
-	T3=$(uci -q get firewall.m${MAC//:/})
-	[ -n "$T3" ] && BLOCK=1 || BLOCK=0
+	T=$(uci -q get firewall.m${MAC//:/})
+	[ -n "$T" ] && BLOCK=',"block":1' || BLOCK=',"block":0'
 
-	T4UP=$(uci -q get nft-qos.m${MAC//:/}up.rate)
-	T4DOWN=$(uci -q get nft-qos.m${MAC//:/}down.rate)
-	QOS='"bwup":'${T4UP:-0}',"bwdown":'${T4DOWN:-0}
+	TUP=$(uci -q get nft-qos.m${MAC//:/}up.rate)
+	TDOWN=$(uci -q get nft-qos.m${MAC//:/}down.rate)
+	QOS=',"qos":{"bwup":'${TUP:-0}',"bwdown":'${TDOWN:-0}'}'
 
-	STATICDHCP=$(uci -q get dhcp.m${MAC//:/}.ip)
+	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${MAC//:/}.ip)'"'
 
-	echo "$T"'"rx":'$(echo $M | cut -f2 -d";")',"tx":'$(echo $M | cut -f3 -d";")',"signal":'$(echo $M | cut -f4 -d";")',"connected":'$T2',"connected_since":"'$T2_SINCE'","band":'$(echo $M | cut -f6 -d";")',"block":'$BLOCK',"qos":{'$QOS'},"staticdhcp":"'$STATICDHCP'"},'
+	echo "${M}${IP}${USERNAME}${CONNECTED_SINCE}${BLOCK}${QOS}${STATICDHCP}},"
 done
 echo '],'
 
