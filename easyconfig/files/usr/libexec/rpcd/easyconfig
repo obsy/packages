@@ -466,8 +466,8 @@ for M in $WLAN_MAC; do
 	T=$(uci -q get easyconfig.m${MAC//:/}.name)
 	[ -n "$T" ] && USERNAME=',"username":"'$T'"' || USERNAME=',"username":""'
 
-	T=${M%\",\"ba*}
-	CONNECTED=${T##*\"}
+	T=${M%,\"ba*}
+	CONNECTED=${T##*:}
 	if $TIMEISVALID; then
 		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $CONNECTED))")'"'
 	else
