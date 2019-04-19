@@ -679,7 +679,7 @@ function login()
 /*****************************************************************************/
 
 function showconfig() {
-	ubus_call('"easyconfig", "config", { }', showcallback);
+	ubus_call('"easyconfig", "config", {}', showcallback);
 }
 
 function showcallback(data) {
@@ -1141,7 +1141,7 @@ function showwanup(data) {
 }
 
 function showstatus() {
-	ubus_call('"easyconfig", "status", { }', function(data) {
+	ubus_call('"easyconfig", "status", {}', function(data) {
 		setValue('system_uptime', formatTime(data.system_uptime, false));
 		setValue('system_uptime_since', data.system_uptime_since == '-'?'':' (od ' + data.system_uptime_since + ')');
 		setValue('system_load', data.system_load);
@@ -1158,7 +1158,7 @@ function showstatus() {
 }
 
 function showsystem() {
-	ubus_call('"easyconfig", "system", { }', function(data) {
+	ubus_call('"easyconfig", "system", {}', function(data) {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
@@ -1171,7 +1171,7 @@ function showsystem() {
 }
 
 function showmodem() {
-	ubus_call('"easyconfig", "modem", { }', function(data) {
+	ubus_call('"easyconfig", "modem", {}', function(data) {
 		if (data.error)
 			return;
 
@@ -1278,7 +1278,7 @@ function btn_system_reboot() {
 function showwatchdog() {
 	setDisplay("watchdog_enabled_info", (config.wan_proto == "none"));
 
-	ubus_call('"easyconfig", "watchdog", { }', function(data) {
+	ubus_call('"easyconfig", "watchdog", {}', function(data) {
 		setValue("watchdog_enabled", data.watchdog_enabled);
 		setValue("watchdog_dest", data.watchdog_dest);
 		setValue("watchdog_period", data.watchdog_period);
@@ -1582,7 +1582,7 @@ var wlanclients;
 var clientslogs;
 
 function showwlanclients() {
-	ubus_call('"easyconfig", "clients", { }', function(data) {
+	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
 		wlanclientscallback("name");
 		clientslogs = data.logs;
@@ -2069,7 +2069,7 @@ function formatDate(d) {
 
 function showtraffic() {
 
-	ubus_call('"easyconfig", "traffic", { }', function(data) {
+	ubus_call('"easyconfig", "traffic", {}', function(data) {
 		setValue("traffic_enabled", data.traffic_enabled);
 		setValue("traffic_period", data.traffic_period);
 		setValue("traffic_cycle", data.traffic_cycle);
@@ -2546,7 +2546,7 @@ function upgrade_step3() {
 /*****************************************************************************/
 
 function showpptp() {
-	ubus_call('"easyconfig", "pptp", { }', function(data) {
+	ubus_call('"easyconfig", "pptp", {}', function(data) {
 
 		setValue("pptp_up", data.up?"Uruchomiony":"Brak połączenia");
 		setValue('pptp_ip', (data.ip == '')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.ip + '</a>');
@@ -2630,7 +2630,7 @@ function downpptp() {
 /*****************************************************************************/
 
 function showgeolocation() {
-	ubus_call('"easyconfig", "geolocation", { }', function(data) {
+	ubus_call('"easyconfig", "geolocation", {}', function(data) {
 		if (data.status == 'success') {
 			setValue('geolocation_ip', data.query?data.query:'-');
 			setValue('geolocation_isp', data.isp?data.isp:'-');
@@ -2653,7 +2653,7 @@ function okgeolocation() {
 var adblock_lists;
 
 function showadblock() {
-	ubus_call('"easyconfig", "adblock", { }', function(data) {
+	ubus_call('"easyconfig", "adblock", {}', function(data) {
 		setValue("adblock_domains", data.domains);
 		setValue("adblock_enabled", data.enabled);
 		setValue("adblock_forcedns", data.forcedns);
