@@ -2609,7 +2609,8 @@ function savepptp() {
 		cmd.push('uci commit');
 		cmd.push('ifdown vpn_pptp');
 	}
-	execute(cmd, function(){ showpptp(); });
+
+	execute(cmd, showpptp);
 }
 
 function uppptp() {
@@ -2716,7 +2717,8 @@ function saveadblock() {
 	}
 	cmd.push('uci commit adblock');
 	cmd.push('/etc/init.d/adblock restart');
-	execute(cmd, function(){ showadblock(); });
+
+	execute(cmd, showadblock);
 }
 
 function checkdomain() {
@@ -2743,6 +2745,7 @@ function blacklistdomain() {
 	cmd.push('mkdir -p $(dirname $F)');
 	cmd.push('echo \\\"' + domain + '\\\" >> $F');
 	cmd.push('/etc/init.d/adblock restart');
+
 	execute(cmd, function(){
 		setValue('adblock_domain', '');
 		showadblock();
@@ -2768,7 +2771,8 @@ function okremovefromblacklist() {
 	cmd.push('[ -z \\\"$F\\\" ] && exit 0');
 	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
 	cmd.push('/etc/init.d/adblock restart');
-	execute(cmd, function(){ showadblock(); });
+
+	execute(cmd, showadblock);
 }
 
 /*****************************************************************************/
