@@ -1664,7 +1664,7 @@ function hostmenu(data) {
 	if (config.services.nftqos) {
 		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
 	}
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
 	showMsg(html);
 }
 
@@ -1783,8 +1783,9 @@ function savehostname() {
 	execute(cmd, showwlanclients);
 }
 
-function hostip(mac, ip, staticdhcp) {
+function hostip(mac, name, ip, staticdhcp) {
 	setValue('hostip_mac', mac);
+	setValue('hostip_name', name);
 	setValue('hostip_ip', (staticdhcp == '' ? ip : staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
@@ -1861,7 +1862,7 @@ function savehostip() {
 
 function hostqos(mac, name, ip, bwup, bwdown) {
 	setValue('hostqos_mac', mac);
-	setValue('hostqos_header', name);
+	setValue('hostqos_name', name);
 	setValue('hostqos_ip', ip);
 
 	// KB/s to Mb/s
