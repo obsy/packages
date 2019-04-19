@@ -1352,16 +1352,23 @@
 
 <div id="div_hostblock" class="modal">
 	<div class="row modal-content text-center">
+		<input id="hostblock_mac" type="hidden">
+		<input id="hostblock_name" type="hidden">
 		<div class="text-center space">
-			<span id="hostblock_text"></span>
-			<input id="hostblock_mac" type="hidden">
-			<input id="hostblock_name" type="hidden">
-			<input id="hostblock_action" type="hidden">
+			Blokada dostępu do internetu dla "<span id="hostblock_text"></span>"
 		</div>
+		<label class="rb">Brak
+			<input id="hostblock_none" type="radio" name="hostblock_rb">
+			<span class="checkmark"></span>
+		</label>
+		<label class="rb">Stała
+			<input id="hostblock_permanent" type="radio" name="hostblock_rb">
+			<span class="checkmark"></span>
+		</label>
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelhostblock();" value="Anuluj" />
-			<input type="button" id="btn_okhostblock" class="btn btn-primary" onclick="okhostblock();" value="?" />
+			<input type="button" class="btn btn-primary" onclick="okhostblock();" value="Ustaw" />
 		</div>
 	</div>
 </div>

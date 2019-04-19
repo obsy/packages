@@ -248,6 +248,8 @@ function setValue(element, value) {
 		e.innerHTML = value;
 	} else if (e.type === 'checkbox') {
 		e.checked = value;
+	} else if (e.type === 'radio') {
+		e.checked = value;
 	} else {
 		e.value = value;
 	}
@@ -258,6 +260,8 @@ function getValue(element) {
 	if (e.tagName == "SELECT") {
 		return e.options[e.selectedIndex].value;
 	} else if (e.type === 'checkbox') {
+		return e.checked;
+	} else if (e.type === 'radio') {
 		return e.checked;
 	} else {
 		var val=e.value;
@@ -1656,7 +1660,7 @@ function hostmenu(data) {
 
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + name + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" id="bm' + (host.mac).replace(/:/g,'') + '" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ');">' + (host.block == 0?"blokada":"odblokuj") + '</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ');">blokada</a></p>';
 	if (config.services.nftqos) {
 		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
 	}
@@ -1710,14 +1714,15 @@ function hostinfo(data) {
 function hostblock(mac, name, action) {
 	setValue('hostblock_mac', mac);
 	setValue('hostblock_name', name);
-	setValue('hostblock_action', action);
-	setValue('btn_okhostblock', action == 0?"Zablokuj":"Odblokuj");
-	setValue('hostblock_text', (action == 0?'Zablokować':'Odblokować') + ' dostęp do internetu dla "' + name + '"?')
+	if (action == 0) { setValue('hostblock_none', true); }
+	if (action == 1) { setValue('hostblock_permanent', true); }
+	setValue('hostblock_text', name);
+
 	setDisplay('div_hostblock', true);
 }
 
 function cancelhostblock() {
-	setDisplay("div_hostblock", false);
+	setDisplay('div_hostblock', false);
 }
 
 function okhostblock() {
@@ -1725,11 +1730,14 @@ function okhostblock() {
 	var mac = getValue('hostblock_mac');
 	var nmac = mac.replace(/:/g,'');
 	var name = getValue('hostblock_name');
-	var action = getValue('hostblock_action');
+	var action;
+
+	if (getValue('hostblock_none')) { action = 0;}
+	if (getValue('hostblock_permanent')) { action = 1;}
 
 	var cmd = [];
 	cmd.push('uci -q del firewall.m' + nmac);
-	if (action == 0) {
+	if (action == 1) {
 		cmd.push('uci set firewall.m' + nmac + '=rule');
 		cmd.push('uci set firewall.m' + nmac + '.src=lan');
 		cmd.push('uci set firewall.m' + nmac + '.dest=wan');
@@ -1741,19 +1749,13 @@ function okhostblock() {
 	cmd.push('uci commit firewall');
 	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('sleep 1');
-
-	execute(cmd, function() {
-		var e = document.getElementById('bm' + nmac);
-		e.innerHTML = (action == 0?'odblokuj':'blokada');
-		e.setAttribute('onClick', 'hostblock("' + mac + '","' + name + '",' + (action == 0?'1':'0') + ');');
-		showMsg('"' + name + '" ' + (action == 0?'stracił':'uzyskał') + ' dostęp do internetu');
-	});
+	execute(cmd, showwlanclients);
 }
 
 function hostnameedit(mac, name) {
 	setValue('hostname_mac', mac);
 	setValue('hostname_name', name);
-	setDisplay("div_hostname", true);
+	setDisplay('div_hostname', true);
 	document.getElementById('hostname_name').focus();
 }
 

@@ -300,3 +300,64 @@ h3 {
 .mmarginbottom {
   margin-bottom: 0px;
 }
+
+.rb {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-align: left;
+}
+
+.rb input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.rb:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+.rb input:checked ~ .checkmark {
+  background-color: #337ab7;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.rb input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.rb .checkmark:after {
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+.borders div{
+  border-right:1px solid #999;
+  border-bottom:1px solid #999;
+}
