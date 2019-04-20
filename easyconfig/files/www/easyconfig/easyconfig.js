@@ -1649,7 +1649,8 @@ function clientslogscallback() {
 			html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname + ' / ' + sorted[idx].mac : sorted[idx].mac)) + '</div>';
 			html += '</div>';
 		}
-	} else {
+	}
+	if (html == '') {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
 	div.innerHTML = html;
