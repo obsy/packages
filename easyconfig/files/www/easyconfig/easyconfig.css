@@ -357,7 +357,11 @@ h3 {
   background: white;
 }
 
-.borders div{
-  border-right:1px solid #999;
-  border-bottom:1px solid #999;
+.table {
+  border: 1px solid #ccc;
+}
+
+.table td {
+  width: 10%;
+  border: 1px solid #ccc;
 }

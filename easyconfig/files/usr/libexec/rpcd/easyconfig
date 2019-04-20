@@ -474,8 +474,11 @@ for M in $WLAN_MAC; do
 		CONNECTED_SINCE=',"connected_since":"-"'
 	fi
 
+	BLOCK=',"block":0,"blockdata":""'
 	T=$(uci -q get firewall.m${MAC//:/})
-	[ -n "$T" ] && BLOCK=',"block":1' || BLOCK=',"block":0'
+	[ -n "$T" ] && BLOCK=',"block":1,"blockdata":""'
+	T=$(easyconfig_firewall_helper.sh get $MAC)
+	[ "x$T" = "x000000000000000000000000000000000000000000000000" ] || BLOCK=',"block":2,"blockdata":"'$T'"'
 
 	TUP=$(uci -q get nft-qos.m${MAC//:/}up.rate)
 	TDOWN=$(uci -q get nft-qos.m${MAC//:/}down.rate)

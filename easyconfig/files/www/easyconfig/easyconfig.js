@@ -259,6 +259,8 @@ function getValue(element) {
 	var e = document.getElementById(element);
 	if (e.tagName == "SELECT") {
 		return e.options[e.selectedIndex].value;
+	} else if (e.tagName == "SPAN") {
+		return e.innerHTML;
 	} else if (e.type === 'checkbox') {
 		return e.checked;
 	} else if (e.type === 'radio') {
@@ -1660,7 +1662,7 @@ function hostmenu(data) {
 
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + name + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ');">blokada</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ',\'' + host.blockdata + '\');">blokada</a></p>';
 	if (config.services.nftqos) {
 		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
 	}
@@ -1711,12 +1713,46 @@ function hostinfo(data) {
 	setDisplay('div_hostinfo', true);
 }
 
-function hostblock(mac, name, action) {
+function hostblock(mac, name, action, blockdata) {
 	setValue('hostblock_mac', mac);
 	setValue('hostblock_name', name);
+
+	var html='<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td>';
+	for (var i = 0; i < 24; i++) {
+		html += '<tr><td>' + i + '-' + (i + 1) + '</td>';
+		for (var j = 0; j < 7; j++) {
+			html += '<td id="t' + i + j + '"></td>';
+		}
+		html += '</tr>';
+	}
+	html += '</table>';
+
+	document.getElementById('div_hostblock_scheduler').innerHTML = html;
+	for (var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('t' + i + j).addEventListener('click', hostblock_toggle);
+		}
+	}
+	var bc = '#337ab7';
+	document.getElementById('hostblock_off').style.backgroundColor = bc;
+
 	if (action == 0) { setValue('hostblock_none', true); }
 	if (action == 1) { setValue('hostblock_permanent', true); }
-	setValue('hostblock_text', name);
+	if (action == 2) {
+		setValue('hostblock_temporary', true);
+		var code = [64,32,16,8,4,2,1]
+		var hours = blockdata.match(/.{1,2}/g);
+		if (hours.length == 24) {
+			for (var i = 0; i < 24; i++) {
+				var t = parseInt(hours[i], 16);
+				for (var j = 0; j < 7; j++) {
+					if ((t & code[j]) == code[j]) {
+						document.getElementById('t' + i + j).style.backgroundColor = bc;
+					}
+				}
+			}
+		}
+	}
 
 	setDisplay('div_hostblock', true);
 }
@@ -1732,11 +1768,15 @@ function okhostblock() {
 	var name = getValue('hostblock_name');
 	var action;
 
-	if (getValue('hostblock_none')) { action = 0;}
-	if (getValue('hostblock_permanent')) { action = 1;}
+	if (getValue('hostblock_none')) { action = 0; }
+	if (getValue('hostblock_permanent')) { action = 1; }
+	if (getValue('hostblock_temporary')) { action = 2; }
 
 	var cmd = [];
 	cmd.push('uci -q del firewall.m' + nmac);
+	for (var i = 0; i < 24; i++) {
+		cmd.push('uci -q del firewall.m' + nmac + '_' + i);
+	}
 	if (action == 1) {
 		cmd.push('uci set firewall.m' + nmac + '=rule');
 		cmd.push('uci set firewall.m' + nmac + '.src=lan');
@@ -1746,10 +1786,47 @@ function okhostblock() {
 		cmd.push('uci set firewall.m' + nmac + '.proto=\\\"tcp udp\\\"');
 		cmd.push('uci set firewall.m' + nmac + '.name=\\\"' + name + '\\\"');
 	}
+	if (action == 2) {
+		var bc = document.getElementById('hostblock_off').style.backgroundColor;
+		var code = [64,32,16,8,4,2,1]
+		var hex = '';
+		for (var i = 0; i < 24; i++) {
+			var sum = 0;
+			for (var j = 0; j < 7; j++) {
+				if (document.getElementById('t' + i + j).style.backgroundColor == bc) {
+					sum += code[j];
+				}
+			}
+			hex += ("0"+(Number(sum).toString(16))).slice(-2).toUpperCase();
+		}
+		cmd.push('easyconfig_firewall_helper.sh set ' + mac + ' ' + hex);
+	}
 	cmd.push('uci commit firewall');
 	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('sleep 1');
+
 	execute(cmd, showwlanclients);
+}
+
+function hostblock_toggle(evt) {
+	var e = evt.target;
+	e.style.backgroundColor = (e.style.backgroundColor == document.getElementById('hostblock_off').style.backgroundColor) ? '#fff' : '#337ab7';
+}
+
+function hostblock_checkall() {
+	for(var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('t' + i + j).style.backgroundColor = '#337ab7';
+		}
+	}
+}
+
+function hostblock_uncheckall() {
+	for(var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('t' + i + j).style.backgroundColor = '#fff';
+		}
+	}
 }
 
 function hostnameedit(mac, name) {

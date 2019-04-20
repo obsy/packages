@@ -1356,9 +1356,8 @@
 <div id="div_hostblock" class="modal">
 	<div class="row modal-content text-center">
 		<input id="hostblock_mac" type="hidden">
-		<input id="hostblock_name" type="hidden">
 		<div class="text-center space">
-			Blokada dostępu do internetu dla "<span id="hostblock_text"></span>"
+			Blokada dostępu do internetu dla "<span id="hostblock_name"></span>"
 		</div>
 		<label class="rb">Brak
 			<input id="hostblock_none" type="radio" name="hostblock_rb">
@@ -1368,6 +1367,20 @@
 			<input id="hostblock_permanent" type="radio" name="hostblock_rb">
 			<span class="checkmark"></span>
 		</label>
+		<label class="rb">Czasowa
+			<input id="hostblock_temporary" type="radio" name="hostblock_rb">
+			<span class="checkmark"></span>
+		</label>
+		<div id="div_hostblock_scheduler" class="space"></div>
+		<div class="col-xs-12">
+			<div class="row space">
+				<div id="hostblock_off" class="col-xs-1">&nbsp;</div><div class="col-xs-9 text-left">blokada dostępu</div>
+			</div>
+		</div>
+		<div class="row space">
+			<div class="col-xs-6"><a href="#" class="click" onclick="hostblock_checkall();">zaznacz wszystko</a></div>
+			<div class="col-xs-6"><a href="#" class="click" onclick="hostblock_uncheckall();">odznacz wszystko</a></div>
+		</div>
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelhostblock();" value="Anuluj" />
