@@ -2833,17 +2833,16 @@ function blacklistdomain() {
 }
 
 function removefromblacklist(domain) {
-	setValue("removefromblacklist_domain", domain);
-	setValue("removefromblacklist_text", "Usunąć domenę \"" + domain + "\" z listy?");
-	setDisplay("div_removefromblacklist", true);
+	setValue('removefromblacklist_domain', domain);
+	setDisplay('div_removefromblacklist', true);
 }
 
 function cancelremovefromblacklist() {
-	setDisplay("div_removefromblacklist", false);
+	setDisplay('div_removefromblacklist', false);
 }
 
 function okremovefromblacklist() {
-	var domain = getValue("removefromblacklist_domain");
+	var domain = getValue('removefromblacklist_domain');
 	cancelremovefromblacklist();
 
 	var cmd = [];
