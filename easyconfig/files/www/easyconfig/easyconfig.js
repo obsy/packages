@@ -1225,15 +1225,14 @@ function showmodem() {
 		}
 
 		if (data.addon) {
-			var div = document.getElementById('div_status_modem_addon');
-			var html = "";
+			var html = '';
 			for (var i in data.addon) {
 				for (var j in data.addon[i]) {
 					html += '<div class="row"><label class="col-xs-6 text-right">' + j + '</label>';
 					html += '<div class="col-xs-6"><p>' + data.addon[i][j] + '</p></div></div>';
 				}
 			}
-			div.innerHTML = html;
+			setValue('div_status_modem_addon', html);
 			setDisplay('div_status_modem_addon', true);
 		} else {
 			setDisplay('div_status_modem_addon', false);
@@ -1250,18 +1249,18 @@ function showmodem() {
 }
 
 function showmodemsection() {
-	var wan_type = getValue("wan_proto");
+	var wan_type = getValue('wan_proto');
 	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
-		setDisplay("menu_ussdsms", config.services.ussdsms);
-		setDisplay("div_status_modem", true);
-		setDisplay("div_system_modem", true);
-		setCookie("easyconfig_status_modem", "1");
+		setDisplay('menu_ussdsms', config.services.ussdsms);
+		setDisplay('div_status_modem', true);
+		setDisplay('div_system_modem', true);
+		setCookie('easyconfig_status_modem', '1');
 		showmodem();
 	} else {
-		setDisplay("menu_ussdsms", false);
-		setDisplay("div_status_modem", false);
-		setDisplay("div_system_modem", false);
-		setCookie("easyconfig_status_modem", "0");
+		setDisplay('menu_ussdsms', false);
+		setDisplay('div_status_modem', false);
+		setDisplay('div_system_modem', false);
+		setCookie('easyconfig_status_modem', '0');
 	}
 }
 
@@ -1421,8 +1420,7 @@ function showsitesurvey() {
 
 
 function sitesurveycallback(sortby) {
-	var div = document.getElementById('div_sitesurvey_content');
-	var html = "";
+	var html = '';
 	if (wifiscanresults.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
@@ -1492,7 +1490,7 @@ function sitesurveycallback(sortby) {
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>';
 	}
-	div.innerHTML = html;
+	setValue('div_sitesurvey_content', html);
 
 	if (wifiscanresults.length > 0) {
 		for(var idx = 0; idx < sorted.length; idx++){
@@ -1561,10 +1559,10 @@ function sitesurveycallback(sortby) {
 			document.getElementById('channel' + ch + 'bar').style.width = percent;
 			setValue('channel' + ch + 'percent', percent == '0%'?' ':(percent + ', ' + channels[ch] + ' z ' + sorted.length));
 		}
-		var all=['ssid','mac', 'signal', 'freq', 'timestamp'];
+		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
 		for(var idx = 0; idx < all.length; idx++){
 			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
-			e.style.fontWeight = (sortby == all[idx])?700:400;
+			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
 }
@@ -1591,7 +1589,6 @@ function showwlanclients() {
 }
 
 function wlanclientscallback(sortby) {
-	var div = document.getElementById('div_wlanclients_content');
 	var html = '';
 	if (wlanclients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
@@ -1623,7 +1620,7 @@ function wlanclientscallback(sortby) {
 	} else {
 		html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>';
 	}
-	div.innerHTML = html;
+	setValue('div_wlanclients_content', html);
 
 	if (wlanclients.length > 0) {
 		var all = ['displayname', 'tx', 'rx', 'percent'];
@@ -1635,7 +1632,6 @@ function wlanclientscallback(sortby) {
 }
 
 function clientslogscallback(logs) {
-	var div = document.getElementById('div_clientslogs_content');
 	var html = '';
 	if (logs.length > 0) {
 		var sorted = sortJSON(logs, 'id', '321');
@@ -1649,7 +1645,7 @@ function clientslogscallback(logs) {
 	} else {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
-	div.innerHTML = html;
+	setValue('div_clientslogs_content', html);
 }
 
 function hostmenu(data) {
@@ -1713,7 +1709,7 @@ function hostblock(mac, name, action, blockdata) {
 	setValue('hostblock_mac', mac);
 	setValue('hostblock_name', name);
 
-	var html='<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td>';
+	var html = '<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td>';
 	for (var i = 0; i < 24; i++) {
 		html += '<tr><td>' + i + '-' + (i + 1) + '</td>';
 		for (var j = 0; j < 7; j++) {
@@ -1723,7 +1719,7 @@ function hostblock(mac, name, action, blockdata) {
 	}
 	html += '</table>';
 
-	document.getElementById('div_hostblock_scheduler').innerHTML = html;
+	setValue('div_hostblock_scheduler', html);
 	for (var i = 0; i < 24; i++) {
 		for (var j = 0; j < 7; j++) {
 			document.getElementById('t' + i + j).addEventListener('click', hostblock_toggle);
@@ -1793,7 +1789,7 @@ function okhostblock() {
 					sum += code[j];
 				}
 			}
-			hex += ("0"+(Number(sum).toString(16))).slice(-2).toUpperCase();
+			hex += ('0' + (Number(sum).toString(16))).slice(-2).toUpperCase();
 		}
 		cmd.push('easyconfig_firewall_helper.sh set ' + mac + ' ' + hex);
 	}
@@ -2034,8 +2030,7 @@ function showqueries() {
 var queries;
 
 function queriescallback(sortby, order) {
-	var div = document.getElementById('div_queries_content');
-	var html = "";
+	var html = '';
 	if (queries.length > 0) {
 		html += '<div class="row">';
 		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
@@ -2062,19 +2057,19 @@ function queriescallback(sortby, order) {
 	} else {
 		html += '<div class="alert alert-warning">Brak zapytań DNS</div>';
 	}
-	div.innerHTML = html;
+	setValue('div_queries_content', html);
 
 	if (queries.length > 0) {
-		var all=["time","query","host"];
+		var all=['time', 'query', 'host'];
 		for(var idx=0; idx<all.length; idx++){
-			var e = document.getElementById('queries_sortby_'+all[idx]);
-			e.style.fontWeight = (sortby==all[idx])?700:400;
+			var e = document.getElementById('queries_sortby_' + all[idx]);
+			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
 }
 
 function queriesmenu(domain) {
-	var html = domain + "<hr>";
+	var html = domain + '<hr>';
 	html += '<p><a href="#" class="click" onclick="closeMsg();gotoadblock(\'' + domain + '\');">przenieś do blokady domen</a></p>';
 	showMsg(html);
 }
@@ -2317,7 +2312,7 @@ function savetraffic() {
 
 	cmd.push('uci set easyconfig.traffic.period='+getValue("traffic_period"));
 	cmd.push('uci set easyconfig.traffic.cycle='+getValue("traffic_cycle"));
-	cmd.push('uci set easyconfig.traffic.warning_enabled='+(getValue("traffic_warning_enabled")?"1":"0"));
+	cmd.push('uci set easyconfig.traffic.warning_enabled='+(getValue("traffic_warning_enabled")?'1':'0'));
 	cmd.push('uci set easyconfig.traffic.warning_value='+getValue("traffic_warning_value"));
 	cmd.push('uci set easyconfig.traffic.warning_cycle='+getValue("traffic_warning_cycle"));
 	cmd.push('uci set easyconfig.traffic.warning_unit='+getValue("traffic_warning_unit"));
@@ -2402,13 +2397,11 @@ function sendsms() {
 
 function readsms() {
 	ubus_call('"easyconfig", "sms", {"action":"read","arg1":"","arg2":""}', function(data) {
-		var div = document.getElementById('div_sms_content');
-		var html = "";
-
+		var html = '';
 		var arr = data.msg;
 		if (arr.length > 0) {
 			var sorted = sortJSON(arr, 'timestamp', '123');
-			for (var idx=0; idx<sorted.length; idx++) {
+			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-10">Od: ' + sorted[idx].sender + ', odebrano: ' + sorted[idx].timestamp;
 				if (sorted[idx].part) {
@@ -2419,31 +2412,30 @@ function readsms() {
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';
 			}
-			html += "<hr><p>Liczba wiadomości: " + arr.length + "</p>";
+			html += '<hr><p>Liczba wiadomości: ' + arr.length + '</p>';
 		} else {
 			html += '<br><div class="alert alert-warning">Brak wiadomości</div>';
 		}
-
-		div.innerHTML = html;
+		setValue('div_sms_content', html);
 	});
 }
 
 function removesms(index, sender, timestamp) {
-	setValue("sms_index", index);
-	setValue("removesms_text", "Usunąć wiadomość od \"" + sender + "\" otrzymaną " + timestamp + "?");
-	setDisplay("div_removesms", true);
+	setValue('sms_index', index);
+	setValue('removesms_text', 'Usunąć wiadomość od "' + sender + '" otrzymaną ' + timestamp + '?');
+	setDisplay('div_removesms', true);
 }
 
 function cancelremovesms() {
-	setDisplay("div_removesms", false);
+	setDisplay('div_removesms', false);
 }
 
 function okremovesms() {
-	var index = getValue("sms_index");
+	var index = getValue('sms_index');
 	cancelremovesms();
 	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
 		if ((data.response).match(/Deleted message/) == null)
-			showMsg("Wystąpił problem z usunięciem wiadomości")
+			showMsg('Wystąpił problem z usunięciem wiadomości')
 		else {
 			readsms();
 		}
@@ -2462,7 +2454,7 @@ function validateSMSText(msg) {
 		errorCode = 2;
 	}
 
-	setValue("sms_len", len);
+	setValue('sms_len', len);
 	return errorCode;
 }
 
@@ -2622,23 +2614,23 @@ function upgrade_step3() {
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", {}', function(data) {
 
-		setValue("pptp_up", data.up?"Uruchomiony":"Brak połączenia");
+		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
 		setValue('pptp_ip', (data.ip == '')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.ip + '</a>');
 
 		setValue('pptp_uptime', formatTime(data.uptime, false));
-		setValue('pptp_uptime_since', data.uptime_since == '-'?'':' (od ' + data.uptime_since + ')');
+		setValue('pptp_uptime_since', data.uptime_since == '-' ? '' : ' (od ' + data.uptime_since + ')');
 
-		setValue("pptp_enabled", data.enabled);
-		setValue("pptp_server", data.server);
-		setValue("pptp_username", data.username);
-		setValue("pptp_password", data.password);
+		setValue('pptp_enabled', data.enabled);
+		setValue('pptp_server', data.server);
+		setValue('pptp_username', data.username);
+		setValue('pptp_password', data.password);
 
 		removeOptions('pptp_led');
 		e = document.getElementById('pptp_led');
 
 		var opt = document.createElement('option');
-		opt.value = "";
-		opt.innerHTML = "żadna";
+		opt.value = '';
+		opt.innerHTML = 'żadna';
 		e.appendChild(opt);
 
 		var arr = data.leds;
@@ -2649,7 +2641,7 @@ function showpptp() {
 			e.appendChild(opt);
 		}
 
-		setValue("pptp_led", data.led);
+		setValue('pptp_led', data.led);
 	});
 }
 
@@ -2675,7 +2667,7 @@ function savepptp() {
 		cmd.push('uci -q del system.vpn_pptp');
 	}
 
-	if (getValue("pptp_enabled")) {
+	if (getValue('pptp_enabled')) {
 		cmd.push('uci set network.vpn_pptp.auto=1');
 		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
 		cmd.push('uci commit');
@@ -2706,11 +2698,11 @@ function downpptp() {
 function showgeolocation() {
 	ubus_call('"easyconfig", "geolocation", {}', function(data) {
 		if (data.status == 'success') {
-			setValue('geolocation_ip', data.query?data.query:'-');
-			setValue('geolocation_isp', data.isp?data.isp:'-');
-			setValue('geolocation_city', data.city?data.city:'-');
-			setValue('geolocation_region', data.regionName?data.regionName:'-');
-			setValue('geolocation_country', data.country?data.country:'-');
+			setValue('geolocation_ip', data.query ? data.query : '-');
+			setValue('geolocation_isp', data.isp ? data.isp : '-');
+			setValue('geolocation_city', data.city ? data.city : '-');
+			setValue('geolocation_region', data.regionName ? data.regionName : '-');
+			setValue('geolocation_country', data.country ? data.country : '-');
 			setDisplay('div_geolocation', true);
 		} else {
 			showMsg('Błąd odczytu lokalizacji', true);
@@ -2719,7 +2711,7 @@ function showgeolocation() {
 }
 
 function okgeolocation() {
-	setDisplay("div_geolocation", false);
+	setDisplay('div_geolocation', false);
 }
 
 /*****************************************************************************/
@@ -2728,14 +2720,12 @@ var adblock_lists;
 
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
-		setValue("adblock_domains", data.domains);
-		setValue("adblock_enabled", data.enabled);
-		setValue("adblock_forcedns", data.forcedns);
+		setValue('adblock_domains', data.domains);
+		setValue('adblock_enabled', data.enabled);
+		setValue('adblock_forcedns', data.forcedns);
 
 		adblock_lists = data.lists;
-
-		var div = document.getElementById('div_adblock_lists');
-		var html = "";
+		var html = '';
 		if (adblock_lists.length > 0) {
 			html += '<h3 class="section">Źródła</h3>';
 		}
@@ -2760,26 +2750,25 @@ function showadblock() {
 			}
 			html += '</div>';
 		}
-		div.innerHTML = html;
+		setValue('div_adblock_lists', html);
 		setDisplay('div_adblock_lists', true);
 		for (var i in adblock_lists) {
-			setValue("adblock_" + adblock_lists[i].section, adblock_lists[i].enabled);
+			setValue('adblock_' + adblock_lists[i].section, adblock_lists[i].enabled);
 		}
 
-		div = document.getElementById('div_adblock_list_blacklist');
-		html = "";
+		html = '';
 		var blacklist = data.blacklist;
 		if (blacklist.length > 0) {
 			html = '<hr>';
-			for (var idx=0; idx<blacklist.length; idx++) {
+			for (var idx = 0; idx < blacklist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
 				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');">usuń</a></div>';
 				html += '</div>';
 			}
 		}
-		html += "<hr><p>Liczba domen: " + blacklist.length + "</p>";
-		div.innerHTML = html;
+		html += '<hr><p>Liczba domen: ' + blacklist.length + '</p>';
+		setValue('div_adblock_list_blacklist', html);
 	});
 }
 
@@ -2853,11 +2842,11 @@ function okremovefromblacklist() {
 /*****************************************************************************/
 
 function opennav() {
-	document.getElementById("menu").style.width = "250px";
+	document.getElementById("menu").style.width = '250px';
 }
 
 function closenav() {
-	document.getElementById("menu").style.width = "0";
+	document.getElementById("menu").style.width = '0';
 }
 
 function btn_pages(page) {
