@@ -1585,7 +1585,7 @@ var wlanclients;
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
-		wlanclientscallback("name");
+		wlanclientscallback('displayname');
 		clientslogscallback(data.logs);
 	});
 }
@@ -1596,25 +1596,25 @@ function wlanclientscallback(sortby) {
 	if (wlanclients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
-		html += '<a href="#" class="click" onclick="wlanclientscallback(\'name\');"><span id="wlanclients_sortby_name"> nazwie </span></a>|';
+		html += '<a href="#" class="click" onclick="wlanclientscallback(\'displayname\');"><span id="wlanclients_sortby_displayname"> nazwie </span></a>|';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></a>|';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></a>|';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></a>';
 		html += '<div></div>';
 
 		var total = 0;
-		for(var idx=0; idx<wlanclients.length; idx++){
+		for(var idx = 0; idx < wlanclients.length; idx++){
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
-		for(var idx=0; idx<wlanclients.length; idx++){
+		for(var idx = 0; idx < wlanclients.length; idx++){
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
+			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
+			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
 		}
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].dhcpname == '*') { sorted[idx].dhcpname = ''; }
-			var name = (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname : sorted[idx].mac ));
 			html += '<hr><div class="row">';
-			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + name + '\');">' + name + '</a></div>';
+			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + sorted[idx].displayname + '\');">' + sorted[idx].displayname + '</a></div>';
 			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');">akcje</a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
@@ -1626,10 +1626,10 @@ function wlanclientscallback(sortby) {
 	div.innerHTML = html;
 
 	if (wlanclients.length > 0) {
-		var all=['name', 'tx', 'rx', 'percent'];
-		for(var idx=0; idx<all.length; idx++){
-			var e = document.getElementById('wlanclients_sortby_'+all[idx]);
-			e.style.fontWeight = (sortby==all[idx])?700:400;
+		var all = ['displayname', 'tx', 'rx', 'percent'];
+		for(var idx = 0; idx < all.length; idx++){
+			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
+			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
 }
@@ -1638,7 +1638,7 @@ function clientslogscallback(logs) {
 	var div = document.getElementById('div_clientslogs_content');
 	var html = '';
 	if (logs.length > 0) {
-		var sorted = sortJSON(logs, 'time', '321');
+		var sorted = sortJSON(logs, 'id', '321');
 		for(var idx = 0; idx < sorted.length; idx++){
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + sorted[idx].time + '</div>';
@@ -1654,16 +1654,15 @@ function clientslogscallback(logs) {
 
 function hostmenu(data) {
 	var host = JSON.parse((data).replace(/\$/g,'"'));
-	var name = (host.username != '' ? host.username : (host.dhcpname != '' ? host.dhcpname : host.mac ));
-	var html = name + '<hr>';
+	var html = host.displayname + '<hr>';
 
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + name + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + name + '\',' + host.block + ',\'' + host.blockdata + '\');">blokada</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + host.displayname + '\');">zmiana nazwy</a>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + host.displayname + '\',' + host.block + ',\'' + host.blockdata + '\');">blokada</a></p>';
 	if (config.services.nftqos) {
-		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
+		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + host.displayname + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
 	}
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + name + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + host.displayname + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
 	showMsg(html);
 }
 
