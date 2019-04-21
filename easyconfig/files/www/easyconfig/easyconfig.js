@@ -1581,14 +1581,12 @@ function bytesToSize(bytes) {
 };
 
 var wlanclients;
-var clientslogs;
 
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
 		wlanclientscallback("name");
-		clientslogs = data.logs;
-		clientslogscallback();
+		clientslogscallback(data.logs);
 	});
 }
 
@@ -1636,21 +1634,19 @@ function wlanclientscallback(sortby) {
 	}
 }
 
-function clientslogscallback() {
+function clientslogscallback(logs) {
 	var div = document.getElementById('div_clientslogs_content');
 	var html = '';
-	if (clientslogs.length > 0) {
-		var sorted = sortJSON(clientslogs, 'time', '321');
-		for(var idx=0; idx<sorted.length; idx++){
-			if (sorted[idx].wlan == false) { continue; }
+	if (logs.length > 0) {
+		var sorted = sortJSON(logs, 'time', '321');
+		for(var idx = 0; idx < sorted.length; idx++){
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-6 col-sm-3">' + (sorted[idx].event == 'login' ? 'połączenie' : 'rozłączenie') + '</div>';
+			html += '<div class="col-xs-6 col-sm-3">' + (sorted[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
 			html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname + ' / ' + sorted[idx].mac : sorted[idx].mac)) + '</div>';
 			html += '</div>';
 		}
-	}
-	if (html == '') {
+	} else {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
 	div.innerHTML = html;
