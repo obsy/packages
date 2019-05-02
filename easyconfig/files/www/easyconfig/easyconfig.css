@@ -359,6 +359,8 @@ h3 {
 
 .table {
   border: 1px solid #ccc;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .table td {
