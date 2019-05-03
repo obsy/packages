@@ -1636,9 +1636,13 @@ function clientslogscallback(logs) {
 	if (logs.length > 0) {
 		var sorted = sortJSON(logs, 'id', '321');
 		for(var idx = 0; idx < sorted.length; idx++){
+			var title = '';
+			if (sorted[idx].desc !== '') {
+				title = 'Pasmo ' + (sorted[idx].desc.band == 2 ? '2.4GHz' : '5GHz') + ', SSID: ' + sorted[idx].desc.ssid;
+			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-6 col-sm-3">' + (sorted[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
+			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (sorted[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
 			html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname + ' / ' + sorted[idx].mac : sorted[idx].mac)) + '</div>';
 			html += '</div>';
 		}

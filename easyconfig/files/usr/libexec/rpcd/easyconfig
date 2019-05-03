@@ -492,11 +492,11 @@ echo '],'
 
 echo '"logs":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk 'BEGIN {idx=0} {idx++}
-/AP-STA-CONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=idx; EVENT[idx]="connect"}
+/AP-STA-CONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=idx; EVENT[idx]="connect"; DESC[idx]=$8}
 /DHCPACK\(/ {if(WIFI[$10]!=0){DHCP[WIFI[$10]]=$11; NAME[$10]=$11}}
-/AP-STA-DISCONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=0; EVENT[idx]="disconnect"; DHCP[idx]=NAME[$10]; NAME[$10]=""}
+/AP-STA-DISCONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=0; EVENT[idx]="disconnect"; DHCP[idx]=NAME[$10]; NAME[$10]=""; DESC[idx]=$8}
 END { for (T in EVENT) {
-		printf "{\"id\":%d,\"time\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\"},\n", T, TIME[T], MAC[T], DHCP[T], EVENT[T]
+		printf "{\"id\":%d,\"time\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\",\"desc\":\"%s\"},\n", T, TIME[T], MAC[T], DHCP[T], EVENT[T], DESC[T]
 	}
 }')
 
@@ -507,6 +507,20 @@ for MAC in $MACS; do
 		TMAC=${MAC:0:2}:${MAC:2:2}:${MAC:4:2}:${MAC:6:2}:${MAC:8:2}:${MAC:10:2}
 		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"username\":\".*\",\"dhcpname\"/,\"mac\":\"$TMAC\",\"username\":\"$NAME\",\"dhcpname\"/g")
 	fi
+done
+
+BANDS=$(iw dev 2>/dev/null | awk '{if($0 ~ /Interface /) {INTERFACE = $2; ssid[INTERFACE] = ""; band[INTERFACE] = "?"}
+if($1 == "ssid") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); ssid[INTERFACE]=t}
+if($1 == "channel") {if($2 < 36){band[INTERFACE] = "2"}else{band[INTERFACE] = "5"}}
+} END { for (t in ssid) {
+    printf "{\"interface\":\"%s:\",\"ssid\":\"%s\",\"band\":\"%s\"},\n", t, ssid[t], band[t]
+}
+}')
+for B in $BANDS; do
+	INTERFACE=$(echo $B | jsonfilter -q -e @.interface)
+	SSID=$(echo $B | jsonfilter -q -e @.ssid)
+	BAND=$(echo $B | jsonfilter -q -e @.band)
+	T=$(echo "$T" | sed "s/,\"desc\":\"$INTERFACE\"/,\"desc\":{\"band\":$BAND,\"ssid\":\"$SSID\"}/g")
 done
 
 echo "${T%?}"
