@@ -1183,12 +1183,14 @@ function sendmodemat() {
 		document.getElementById('modemat_cmd').focus();
 		return;
 	}
+	atcmd = (atcmd).replace(/\$/,'\\\\\$');
+	atcmd = (atcmd).replace(/\^/,'\\\\\^');
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
 	cmd.push('MODEM=$(cat /tmp/modem)');
 	cmd.push('ATLOCK=\\\"flock -x /tmp/at_cmd_lock\\\"');
-	cmd.push('$ATLOCK chat -t 3 -e ABORT \\\"ERROR\\\" \'\' \\\"' + atcmd + '\\\" OK- >> $MODEM < $MODEM');
+	cmd.push('$ATLOCK chat -t 3 -e ABORT \\\"ERROR\\\" \'\' \\\"' + atcmd + '\\\" OK >> $MODEM < $MODEM');
 	cmd.push('RET=$?');
 	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit $RET');
