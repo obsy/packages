@@ -619,6 +619,12 @@
 			<p id="modem_iccid">-</p>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">&nbsp;</label>
+			<div class="col-xs-6">
+			<a href="#" class="click" onclick="modemat();">polecenia AT</a>
+			</div>
+		</div>
 	</div>
 
 	<h3 class="section">System</h3>
@@ -1556,6 +1562,19 @@
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelremovefromblacklist();" value="Anuluj" />
 			<input type="button" class="btn btn-primary" onclick="okremovefromblacklist();" value="Usuń" />
+		</div>
+	</div>
+</div>
+
+<div id="div_modemat" class="modal">
+	<div class="row modal-content">
+		<label>Polecenie AT</label>
+		<input id="modemat_cmd" type="text" class="form-control" value="AT">
+		<div class="text-left"><code><pre><span id="modemat_output"></span></pre></code></div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="closemodemat();" value="Zamknij" />
+			<input type="button" class="btn btn-default" onclick="sendmodemat()" value="Wyślij" />
 		</div>
 	</div>
 </div>

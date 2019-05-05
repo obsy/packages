@@ -1172,6 +1172,47 @@ function showsystem() {
 	});
 }
 
+function modemat() {
+	setDisplay('div_modemat', true);
+	document.getElementById('modemat_cmd').focus();
+}
+
+function sendmodemat() {
+	var atcmd = getValue('modemat_cmd');
+	if (atcmd == '') {
+		document.getElementById('modemat_cmd').focus();
+		return;
+	}
+
+	var cmd = [];
+	cmd.push('#!/bin/sh');
+	cmd.push('MODEM=$(cat /tmp/modem)');
+	cmd.push('ATLOCK=\\\"flock -x /tmp/at_cmd_lock\\\"');
+	cmd.push('$ATLOCK chat -t 3 -e ABORT \\\"ERROR\\\" \'\' \\\"' + atcmd + '\\\" OK- >> $MODEM < $MODEM');
+	cmd.push('RET=$?');
+	cmd.push('rm -- \\\"$0\\\"');
+	cmd.push('exit $RET');
+	cmd.push('');
+	var filename = '/tmp/' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9);
+	ubus_call('"file", "write", {"path":"' + filename + '","data":"' + cmd.join('\n') + '"}', function(data) {
+		ubus_call('"file", "exec", {"command":"sh", "params":["' + filename + '"]}', function(data1) {
+			if (!data1.stderr) {
+				if (data1.code == 3) {
+					data1.stderr = 'Przekroczono czas oczekiwania na odpowiedź z modemu';
+				} else {
+					data1.stderr = 'Brak odpowiedzi z modemu';
+				}
+			}
+			setValue('modemat_output' , (data1.stderr).replace(/\n/g,'<br>'));
+			document.getElementById('modemat_cmd').focus();
+		});
+	});
+}
+
+function closemodemat() {
+	setDisplay('div_modemat', false);
+}
+
 function showmodem() {
 	ubus_call('"easyconfig", "modem", {}', function(data) {
 		if (data.error)
