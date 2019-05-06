@@ -444,23 +444,25 @@ function enableWan(proto) {
 	for(var idx=0; idx < fields.length; idx++) {
 		setElementEnabled(fields[idx], true, false);
 	}
-	if (proto != "static" && proto != "none") {
+	if (proto != 'static' && proto != 'none') {
 		var t = ([config.wan_dns1,config.wan_dns2]).sort().filter(function (val) {return val;}).join(',');
 
-		if (t == "" || config.wan_dns_dhcp) {
-			setValue("wan_dns", "isp");
+		if (config.wan_dns_source == 'stubby') {
+			setValue('wan_dns', 'stubby');
+		} else if (t == '' || config.wan_dns_source == 'dhcp') {
+			setValue('wan_dns', 'isp');
 		} else {
-			setValue("wan_dns", "custom");
-			for(var idx=0; idx<dns.length; idx++){
+			setValue('wan_dns', 'custom');
+			for(var idx = 0; idx < dns.length; idx++){
 				var ip = (dns[idx].ip).sort();
 				if (ip == t) {
-					setValue("wan_dns", t);
+					setValue('wan_dns', t);
 					break;
 				}
 			}
 		}
-		setElementEnabled("wan_dns", true, false);
-		enableDns(getValue("wan_dns"));
+		setElementEnabled('wan_dns', true, false);
+		enableDns(getValue('wan_dns'));
 	}
 
 	setElementEnabled("firewall_dmz", (proto != "none"), false);
@@ -728,8 +730,11 @@ function showcallback(data) {
 	var sorteddns = [];
 	sorteddns = sortJSON(dns, 'name', '123');
 	sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
+	if (config.services.stubby) {
+		sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
+	}
 	e = document.getElementById('wan_dns');
-	for(var idx=0; idx<sorteddns.length; idx++){
+	for(var idx = 0; idx < sorteddns.length; idx++){
 		var opt = document.createElement('option');
 		opt.value = (sorteddns[idx].ip).sort();
 		opt.innerHTML = sorteddns[idx].name;
@@ -911,8 +916,21 @@ function saveconfig() {
 
 	// dns
 	if (use_dns != 'none') {
+		cmd.push('uci -q del dhcp.@dnsmasq[0].noresolv');
+		cmd.push('uci -q del dhcp.@dnsmasq[0].proxydnssec');
+		cmd.push('uci -q del dhcp.@dnsmasq[0].server');
 		var t = '';
-		if (use_dns == 'custom') {
+		if (use_dns == 'stubby') {
+			t = '';
+			cmd.push('IP=$(uci -q -d, get stubby.global.listen_address | awk -F, \'{for(i=1;i<=NF;i++)if($i~/.*\\\\..*\\\\..*\\\\..*@/){print $i; break}}\')');
+			cmd.push('if [ -n \\\"$IP\\\" ]; then');
+			cmd.push(' uci add_list dhcp.@dnsmasq[0].server=\\\"$IP\\\"');
+			cmd.push(' /etc/init.d/stubby enable');
+			cmd.push(' /etc/init.d/stubby start');
+			cmd.push(' uci set dhcp.@dnsmasq[0].noresolv=1');
+			cmd.push(' uci set dhcp.@dnsmasq[0].proxydnssec=1');
+			cmd.push('fi');
+		} else if (use_dns == 'custom') {
 			if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
 			if (checkFieldAllowEmpty('wan_dns2', validateIP)) {return;}
 			t = [getValue('wan_dns1'), getValue('wan_dns2')].filter(function (val) {return val;}).join(' ');

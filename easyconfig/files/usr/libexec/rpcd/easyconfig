@@ -155,7 +155,7 @@ WAN_IPADDR=$(uci -q -P /var/state get network.wan.ipaddr)
 WAN_NETMASK=$(uci -q -P /var/state get network.wan.netmask)
 WAN_GATEWAY=$(uci -q -P /var/state get network.wan.gateway)
 WAN_DNS=$(uci -q -P /var/state get network.wan.dns)
-WAN_DNS_DHCP="false"
+WAN_DNS_SOURCE="config"
 WAN_APN=$(uci -q get network.wan.apn)
 [ -z "$WAN_APN" ] && WAN_APN="internet"
 WAN_DEVICE=$(uci -q get network.wan.device)
@@ -178,7 +178,7 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	network_get_ipaddr WAN_IPADDR wan
 	if [ -z "$WAN_DNS" ]; then
 		network_get_dnsserver WAN_DNS wan
-		WAN_DNS_DHCP="true"
+		WAN_DNS_SOURCE="dhcp"
 	fi
 	network_get_subnet WAN_NETMASK wan
 	WAN_NETMASK=${WAN_NETMASK##*/}
@@ -193,6 +193,17 @@ if echo "$WAN_DNS" | grep -q " "; then
 else
 	WAN_DNS1=$WAN_DNS
 	WAN_DNS2=""
+fi
+
+if [ -e /etc/init.d/stubby ]; then
+	STUBBY="true"
+	T=$(uci -q get stubby.global.listen_address)
+	T1=$(uci -q get dhcp.@dnsmasq[0].server)
+	if [ -n "$T1" ]; then
+		echo "$T" | grep -q "$T" && WAN_DNS_SOURCE="stubby"
+	fi
+else
+	STUBBY="false"
 fi
 
 LAN_IPADDR=$(uci -q get network.lan.ipaddr)
@@ -239,7 +250,7 @@ echo '"wan_netmask":"'$WAN_NETMASK'",'
 echo '"wan_gateway":"'$WAN_GATEWAY'",'
 echo '"wan_dns1":"'$WAN_DNS1'",'
 echo '"wan_dns2":"'$WAN_DNS2'",'
-echo '"wan_dns_dhcp":'$WAN_DNS_DHCP','
+echo '"wan_dns_source":"'$WAN_DNS_SOURCE'",'
 echo '"wan_apn":"'$WAN_APN'",'
 echo '"wan_device":"'$WAN_DEVICE'",'
 echo '"wan_pincode":"'$WAN_PINCODE'",'
@@ -390,6 +401,8 @@ if [ -e /etc/init.d/nft-qos ]; then
 else
 	echo '"nftqos":false,'
 fi
+
+echo '"stubby":'$STUBBY','
 
 echo '}'
 
