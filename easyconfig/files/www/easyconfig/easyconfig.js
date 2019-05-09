@@ -1945,7 +1945,7 @@ function removehostip() {
 	var cmd = [];
 	cmd.push('uci -q del dhcp.m' + nmac);
 	cmd.push('uci commit dhcp');
-	cmd.push('/etc/init.d/dnsmasq reload');
+	cmd.push('/etc/init.d/dnsmasq restart');
 
 	if (config.services.nftqos) {
 		cmd.push('uci -q del nft-qos.m' + nmac + 'up');
@@ -1971,7 +1971,7 @@ function savehostip() {
 	cmd.push('uci set dhcp.m' + nmac + '.mac=' + mac);
 	cmd.push('uci set dhcp.m' + nmac + '.ip=' + ip);
 	cmd.push('uci commit dhcp');
-	cmd.push('/etc/init.d/dnsmasq reload');
+	cmd.push('/etc/init.d/dnsmasq restart');
 
 	if (config.services.nftqos) {
 		cmd.push('uci -q set nft-qos.m' + nmac + 'up.ipaddr=' + ip);
@@ -2075,7 +2075,7 @@ function savehostqos() {
 		cmd.push('uci set dhcp.m' + nmac + '.mac=' + mac);
 		cmd.push('uci set dhcp.m' + nmac + '.ip=' + ip);
 		cmd.push('uci commit dhcp');
-		cmd.push('/etc/init.d/dnsmasq reload');
+		cmd.push('/etc/init.d/dnsmasq restart');
 	}
 
 	execute(cmd, showwlanclients);
