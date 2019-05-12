@@ -44,6 +44,7 @@
 	<div id="menu_adblock" style="display:none;">
 		<a href="#" onclick="btn_pages('adblock');">Blokada domen</a>
 	</div>
+	<a href="#" onclick="btn_pages('nightmode');">Tryb nocny</a>
 </div>
 
 
@@ -1246,6 +1247,37 @@
 	<div id="div_adblock_list_blacklist"></div>
 	</div>
 
+	<div id="div_nightmode" style="display:none;">
+
+	<h3 class="section">Wi-Fi</h3>
+	<div class="row space">
+		<label class="col-xs-6 text-right">Włącz Wi-Fi</label>
+		<div class="col-xs-6">
+		<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_on();" value="Włącz" />
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Wyłącz Wi-Fi</label>
+		<div class="col-xs-6">
+		<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_off();" value="Wyłącz" />
+		</div>
+	</div>
+
+	<h3 class="section">Diody LED</h3>
+	<div class="row space">
+		<label class="col-xs-6 text-right">Włącz LED</label>
+		<div class="col-xs-6">
+		<input type="button" class="btn btn-default" onclick="btn_nightmode_led_on();" value="Włącz" />
+		</div>
+	</div>
+	<div class="row">
+		<label class="col-xs-6 text-right">Wyłącz LED</label>
+		<div class="col-xs-6">
+		<input type="button" class="btn btn-default" onclick="btn_nightmode_led_off();" value="Wyłącz" />
+		</div>
+	</div>
+
+	</div>
 
 </div>
 

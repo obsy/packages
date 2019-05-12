@@ -2908,6 +2908,41 @@ function okremovefromblacklist() {
 
 /*****************************************************************************/
 
+function btn_nightmoder_wifi_on() {
+	var cmd = ['wifi up'];
+
+	execute(cmd, function() {});
+}
+
+function btn_nightmode_wifi_off() {
+	var cmd = ['wifi down'];
+
+	execute(cmd, function() {});
+}
+
+function btn_nightmode_led_on() {
+	var cmd = [];
+	cmd.push('rm /tmp/led_off 2>/dev/null');
+	cmd.push('/etc/init.d/led start');
+	cmd.push('. /etc/diag.sh');
+	cmd.push('set_state done');
+
+	execute(cmd, function() {});
+}
+
+function btn_nightmode_led_off() {
+	var cmd = [];
+	cmd.push('for i in /sys/class/leds/*:*:*; do');
+	cmd.push('echo none > $i/trigger');
+	cmd.push('echo 0 > $i/brightness');
+	cmd.push('done');
+	cmd.push('touch /tmp/led_off');
+
+	execute(cmd, function() {});
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = '250px';
 }
@@ -2929,6 +2964,7 @@ function btn_pages(page) {
 	setDisplay("div_ussdsms", (page == 'ussdsms'));
 	setDisplay("div_pptp", (page == 'pptp'));
 	setDisplay("div_adblock", (page == 'adblock'));
+	setDisplay("div_nightmode", (page == 'nightmode'));
 
 	if (page == 'status') {
 		showstatus();
