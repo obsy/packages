@@ -64,6 +64,10 @@ function proofreadNumeric(input) {
 	proofreadText(input, function(text){return validateNumeric(text)}, 0);
 }
 
+function proofreadFloat(input) {
+	proofreadText(input, function(text){return validateFloat(text)}, 0);
+}
+
 function proofreadussd(input) {
 	proofreadText(input, validateussd, 0);
 }
@@ -166,6 +170,17 @@ function validateNumericRange(num, min, max) {
 
 function validateNumeric(num) {
 	return num.match(/^[\d]+$/) == null ? 1 : 0;
+}
+
+function validateFloat(num) {
+	var floatRegex = /^-?\d+(?:[.]\d*?)?$/;
+	if (!floatRegex.test(num))
+		return 1;
+
+	var val = parseFloat(num);
+	if (isNaN(val))
+		return 1;
+	return 0;
 }
 
 function validateussd(name) {
@@ -834,6 +849,9 @@ function showcallback(data) {
 
 	// adblock
 	setDisplay('menu_adblock', config.services.adblock);
+
+	// nightmode / sunwait
+	setDisplay('div_nightmode_led_auto', config.services.sunwait);
 
 	showmodemsection();
 }
@@ -2908,6 +2926,43 @@ function okremovefromblacklist() {
 
 /*****************************************************************************/
 
+function shownightmode() {
+	ubus_call('"easyconfig", "nightmode", {}', function(data) {
+		setValue('nightmode_led_auto_enabled', data.enabled);
+		setValue('nightmode_led_auto_latitude', data.latitude);
+		setValue('nightmode_led_auto_longitude', data.longitude);
+		if (data.sunrise) {
+			setValue('nightmode_led_auto_msg1', 'Wschód słońca: ' + data.sunrise + ', zachód: ' + data.sunset);
+			setValue('nightmode_led_auto_msg2', 'Wschód słońca: ' + data.sunrise + ', zachód: ' + data.sunset);
+		} else {
+			setValue('nightmode_led_auto_msg1', '');
+			setValue('nightmode_led_auto_msg2', '');
+		}
+	})
+}
+
+function savenightmode() {
+	if (checkField('nightmode_led_auto_latitude', validateFloat)) {return;}
+	if (checkField('nightmode_led_auto_longitude', validateFloat)) {return;}
+
+	var cmd = [];
+	cmd.push('uci set easyconfig.global=easyconfig');
+	cmd.push('uci set easyconfig.global.latitude=\\\"' + getValue("nightmode_led_auto_latitude") + '\\\"');
+	cmd.push('uci set easyconfig.global.longitude=\\\"' + getValue("nightmode_led_auto_longitude") + '\\\"');
+	cmd.push('uci commit');
+	cmd.push('touch /etc/crontabs/root');
+	cmd.push('sed -i \\\"/easyconfig_nightmode/d\\\" /etc/crontabs/root');
+	if (getValue("nightmode_led_auto_enabled")) {
+		cmd.push('echo \\\"1 0 * * * /usr/bin/easyconfig_nightmode.sh\\\" >> /etc/crontabs/root');
+		cmd.push('/usr/bin/easyconfig_nightmode.sh >/dev/null 2>&1');
+	} else {
+		cmd.push('killall sunwait >/dev/null 2>&1');
+	}
+	cmd.push('/etc/init.d/cron restart');
+
+	execute(cmd, shownightmode);
+}
+
 function btn_nightmoder_wifi_on() {
 	var cmd = ['wifi up'];
 
@@ -2939,6 +2994,17 @@ function btn_nightmode_led_off() {
 	cmd.push('touch /tmp/led_off');
 
 	execute(cmd, function() {});
+}
+
+function btn_nightmode_getlocation() {
+	ubus_call('"easyconfig", "geolocation", {}', function(data) {
+		if (data.status == 'success') {
+			setValue('nightmode_led_auto_latitude', data.lat ? data.lat : '');
+			setValue('nightmode_led_auto_longitude', data.lon ? data.lon : '');
+		} else {
+			showMsg('Błąd odczytu lokalizacji', true);
+		}
+	});
 }
 
 /*****************************************************************************/
@@ -3006,5 +3072,9 @@ function btn_pages(page) {
 
 	if (page == 'adblock') {
 		showadblock();
+	}
+
+	if (page == 'nightmode') {
+		shownightmode();
 	}
 }

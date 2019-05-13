@@ -1,0 +1,13 @@
+#!/bin/sh
+
+TIMEVALIDFILE="/var/state/dnsmasqsec"
+
+[ "$ACTION" = stratum ] || exit 0
+
+[ -f "$TIMEVALIDFILE" ] || {
+	T=""
+	[ -e /etc/crontabs/root ] && T=$(grep easyconfig_nightmode /etc/crontabs/root)
+	[ -n "$T" ] && /usr/bin/easyconfig_nightmode.sh
+}
+
+exit 0

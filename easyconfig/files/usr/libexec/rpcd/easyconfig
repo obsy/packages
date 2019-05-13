@@ -404,6 +404,12 @@ fi
 
 echo '"stubby":'$STUBBY','
 
+if [ -e /usr/bin/sunwait ]; then
+	echo '"sunwait":true,'
+else
+	echo '"sunwait":false,'
+fi
+
 echo '}'
 
 echo '}'
@@ -1064,7 +1070,7 @@ show_pptp()
 
 show_geolocation()
 {
-	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,regionName,city,isp,status,query)
+	T=$(wget -q -T 3 -O - http://ip-api.com/json/?fields=country,regionName,city,isp,status,query,lat,lon)
 	if [ -z "$T" ]; then
 		echo '{"status":"fail"}'
 	else
@@ -1135,6 +1141,41 @@ show_adblock()
 
 ##############################################################################
 
+show_nightmode()
+{
+	echo '{'
+	[ -e /etc/crontabs/root ] && T=$(grep easyconfig_nightmode /etc/crontabs/root)
+	if [ -n "$T" ]; then
+		echo '"enabled": true,'
+	else
+		echo '"enabled": false,'
+	fi
+	LAT=$(uci -q get easyconfig.global.latitude)
+	LON=$(uci -q get easyconfig.global.longitude)
+	echo '"latitude":"'$LAT'",'
+	echo '"longitude":"'$LON'",'
+	SUNRISE=""
+	SUNSET=""
+	if [ -n "$LAT" -a -n "$LON" ]; then
+		T=$(echo ${LAT:0:1})
+		[ "x$T" = "x-" ] && LAT=${LAT:0:1}"S" || LAT="${LAT}N"
+		T=$(echo ${LON:0:1})
+		[ "x$T" = "x-" ] && LON=${LON:0:1}"W" || LON="${LON}.E"
+		if [ -e /usr/bin/sunwait ]; then
+			T=$(sunwait -p $LAT $LON)
+			SUNRISE=$(echo "$T" | awk '/Sun rises/{print $3}')
+			SUNSET=$(echo "$T" | awk '/Sun rises/{print $6}')
+			SUNRISE=${SUNRISE:0:2}:${SUNRISE:2:2}
+			SUNSET=${SUNSET:0:2}:${SUNSET:2:2}
+		fi
+	fi
+	echo '"sunrise":"'$SUNRISE'",'
+	echo '"sunset":"'$SUNSET'"'
+	echo '}'
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -1156,7 +1197,8 @@ case "$1" in
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
 		echo '"pptp":{},'
 		echo '"geolocation":{},'
-		echo '"adblock":{}'
+		echo '"adblock":{},'
+		echo '"nightmode":{}'
 		echo '}'
 	;;
 	call)
@@ -1217,6 +1259,9 @@ case "$1" in
 				;;
 			adblock)
 				show_adblock
+				;;
+			nightmode)
+				show_nightmode
 				;;
 		esac
 	;;

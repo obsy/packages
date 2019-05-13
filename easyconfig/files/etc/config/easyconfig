@@ -1,3 +1,4 @@
+config easyconfig global
 
 config service traffic
 	option period '10'
