@@ -1,0 +1,63 @@
+
+main.c,479
+int get_location(12,129
+#define MODE_USAGE 65,1352
+#define MODE_SUN 67,1377
+#define MODE_CIVIL 68,1401
+#define MODE_NAUT 69,1425
+#define MODE_ASTR 70,1449
+#define MODE_PRINT 71,1473
+#define MODE_MASK 73,1498
+#define EVENT_RISE 75,1523
+#define EVENT_SET 76,1549
+#define EVENT_MASK 78,1576
+typedef struct _map _map80,1603
+} map;map84,1666
+map options[86,1674
+print_usage(103,2169
+char* timezone_name;116,2749
+long int timezone_offset;117,2770
+int main(119,2798
+
+print.c,77
+char* months[7,79
+int print_situation 11,188
+int print_everything(46,1022
+
+sunriset.c,203
+int __sunriset__(25,436
+double __daylen__(113,4527
+void sunpos(178,7476
+void sun_RA_dec(210,8894
+#define INV360 241,9918
+double revolution(243,9953
+double rev180(251,10187
+double GMST0(286,12187
+
+sunriset.h,994
+extern char* timezone_name;1,0
+extern long int timezone_offset;2,28
+#define TMOD(TMOD4,62
+#define DAYSOFF(DAYSOFF5,114
+#define HOURS(HOURS7,171
+#define MINUTES(MINUTES8,206
+#define ABS(ABS10,251
+#define days_since_2000_Jan_0(days_since_2000_Jan_015,427
+ #define PI 21,605
+#define RADEG 24,654
+#define DEGRAD 25,687
+#define sind(sind29,767
+#define cosd(cosd30,800
+#define tand(tand31,833
+#define atand(atand33,867
+#define asind(asind34,903
+#define acosd(acosd35,939
+#define atan2d(atan2d36,975
+#define day_length(day_length48,1609
+#define day_civil_twilight_length(day_civil_twilight_length54,1945
+#define day_nautical_twilight_length(day_nautical_twilight_length60,2290
+#define day_astronomical_twilight_length(day_astronomical_twilight_length66,2648
+#define sun_rise_set(sun_rise_set74,3069
+#define civil_twilight(civil_twilight80,3429
+#define nautical_twilight(nautical_twilight86,3787
+#define astronomical_twilight(astronomical_twilight92,4158
