@@ -2932,11 +2932,9 @@ function shownightmode() {
 		setValue('nightmode_led_auto_latitude', data.latitude);
 		setValue('nightmode_led_auto_longitude', data.longitude);
 		if (data.sunrise) {
-			setValue('nightmode_led_auto_msg1', 'Wschód słońca: ' + data.sunrise + ', zachód: ' + data.sunset);
-			setValue('nightmode_led_auto_msg2', 'Wschód słońca: ' + data.sunrise + ', zachód: ' + data.sunset);
+			setValue('nightmode_led_auto_note', 'wschód słońca: ' + data.sunrise + ', zachód: ' + data.sunset);
 		} else {
-			setValue('nightmode_led_auto_msg1', '');
-			setValue('nightmode_led_auto_msg2', '');
+			setValue('nightmode_led_auto_note', '');
 		}
 	})
 }
