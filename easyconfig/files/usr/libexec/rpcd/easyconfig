@@ -821,6 +821,10 @@ detect_wan()
 				DEVICE=$D
 				break
 			fi
+			if cat $F | grep -q '"Not supported"\|"Invalid QMI command"'; then
+				DEVICE=$D
+				break
+			fi
 		done
 
 		if [ -n "$DEVICE" ]; then
