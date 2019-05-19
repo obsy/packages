@@ -381,18 +381,11 @@ function detectwan(pin) {
 			msg += '<div class="row space"><div class="col-xs-12 text-center">Proponowane ustawienia<hr></div></div>';
 			msg += '<div class="row space">';
 			msg += '<div class="col-xs-6 text-right">Typ połączenia</div>';
-			if (data.proto == "dhcp") {
-				msg += '<div class="col-xs-6 text-left">Port WAN (DHCP)</div>';
+			if (data.proto == 'dhcp' || data.proto == 'dhcp_hilink') {
+				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 			}
-			if (data.proto == "dhcp_hilink") {
-				msg += '<div class="col-xs-6 text-left">Modem USB (Hilink lub RNDIS)</div>';
-			}
-			if (data.proto == "3g" || data.proto == "qmi" || data.proto == "ncm") {
-				msg += '<div class="col-xs-6 text-left">Modem USB ';
-				if (data.proto == "qmi") { msg += '(QMI)'; }
-				if (data.proto == "ncm") { msg += '(NCM)'; }
-				if (data.proto == "3g")  { msg += '(RAS)'; }
-				msg += '</div>';
+			if (data.proto == '3g' || data.proto == 'qmi' || data.proto == 'ncm') {
+				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 				msg += '</div>';
 				msg += '<div class="row space">';
 				msg += '<div class="col-xs-6 text-right">Urządzenie</div>';
@@ -701,23 +694,23 @@ function showconfig() {
 	ubus_call('"easyconfig", "config", {}', showcallback);
 }
 
+var wan = [];
+wan['none'] = 'Brak';
+wan['dhcp'] = 'Port WAN (DHCP)';
+wan['static'] = 'Port WAN (Statyczny IP)';
+wan['3g'] = 'Modem USB (RAS)';
+wan['qmi'] = 'Modem USB (QMI)';
+wan['ncm'] = 'Modem USB (NCM)';
+wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
+wan['-'] = " ";
+wan['detect'] = 'Wykryj...';
+
 function showcallback(data) {
 	config = data;
 
 //console.log(config);
 
 	// wan
-	var wan = [];
-	wan['none'] = 'Brak';
-	wan['dhcp'] = 'Port WAN (DHCP)';
-	wan['static'] = 'Port WAN (Statyczny IP)';
-	wan['3g'] = 'Modem USB (RAS)';
-	wan['qmi'] = 'Modem USB (QMI)';
-	wan['ncm'] = 'Modem USB (NCM)';
-	wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
-	wan['-'] = " ";
-	wan['detect'] = 'Wykryj...';
-
 	removeOptions('wan_proto');
 	var e = document.getElementById('wan_proto');
 	var arr = config.wan_protos;
