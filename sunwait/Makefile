@@ -9,15 +9,14 @@ PKG_BUILD_PARALLEL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sunwait
-	SUBMENU:=Utilities
 	SECTION:=utils
 	CATEGORY:=Utilities
-	TITLE:=Calculate sunrise and sunset, as well as civil, nautical, and astronomical twilights
+	TITLE:=Calculate sunrise and sunset
 	URL:=https://github.com/probonopd/sunwait
 endef
 
 define Package/sunwait/description
-	Calculate sunrise and sunset, as well as civil, nautical, and astronomical twilights. 
+	Calculate sunrise and sunset, as well as civil, nautical, and astronomical twilights.
 	Has features that make it useful for home automation tasks.
 endef
 
@@ -26,12 +25,9 @@ define Build/Prepare
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
 
-define Build/Configure
-endef
-
 define Package/sunwait/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sunwait $(1)/usr/bin/sunwait
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sunwait $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,sunwait))
