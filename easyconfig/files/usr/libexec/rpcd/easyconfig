@@ -421,36 +421,31 @@ show_watchdog()
 {
 echo '{'
 [ -e /etc/crontabs/root ] && WAT=$(grep easyconfig_watchdog /etc/crontabs/root)
+W_ENABLED="false"
+W_MAM=""
+W_RUNDATE=""
 
-if [ -z "$WAT" ]; then
-	W_ENABLED="false"
-	W_MAM=""
-else
+if [ -n "$WAT" ]; then
 	W_ENABLED="true"
 	if [ -e /tmp/easyconfig_watchdog ]; then
-		W_MAM=$(busybox awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
+		W_MAM=$(awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
 		W_RUNDATE=$(busybox ls -e /tmp/easyconfig_watchdog 2>/dev/null | awk '{printf "%s-%02d-%02d %s\n", $10, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$7)+2)/3, $8, $9}')
 		[ -z "$W_RUNDATE" ] && W_RUNDATE=$(ls --full-time /tmp/easyconfig_watchdog 2>/dev/null | awk '{printf "%s %s\n", $6, $7}')
 	fi
 fi
 
 W_PERIOD=$(uci -q get easyconfig.watchdog.period)
-[ -z "$W_PERIOD" ] && W_PERIOD="3"
 W_PERIOD_CNT=$(uci -q get easyconfig.watchdog.period_count)
-[ -z "$W_PERIOD_CNT" ] && W_PERIOD_CNT="1"
 W_DELAY=$(uci -q get easyconfig.watchdog.delay)
-[ -z "$W_DELAY" ] && W_DELAY="3"
 W_DEST=$(uci -q get easyconfig.watchdog.dest)
-[ -z "$W_DEST" ] && W_DEST="google.com"
 W_ACTION=$(uci -q get easyconfig.watchdog.action)
-[ -z "$W_ACTION" ] && W_ACTION="wan"
 
 echo '"watchdog_enabled": '$W_ENABLED','
-echo '"watchdog_period": "'$W_PERIOD'",'
-echo '"watchdog_period_count": "'$W_PERIOD_CNT'",'
-echo '"watchdog_delay": "'$W_DELAY'",'
-echo '"watchdog_dest": "'$W_DEST'",'
-echo '"watchdog_action": "'$W_ACTION'",'
+echo '"watchdog_period": "'${W_PERIOD:-3}'",'
+echo '"watchdog_period_count": "'${W_PERIOD_CNT:-1}'",'
+echo '"watchdog_delay": "'${W_DELAY:-3}'",'
+echo '"watchdog_dest": "'${W_DEST:-google.com}'",'
+echo '"watchdog_action": "'${W_ACTION:-wan}'",'
 echo '"watchdog_minavgmax": "'$W_MAM'",'
 echo '"watchdog_rundate": "'$W_RUNDATE'"'
 echo '}'

@@ -1349,68 +1349,63 @@ function btn_system_reboot() {
 /*****************************************************************************/
 
 function showwatchdog() {
-	setDisplay("watchdog_enabled_info", (config.wan_proto == "none"));
+	setDisplay('watchdog_enabled_info', (config.wan_proto == 'none'));
 
 	ubus_call('"easyconfig", "watchdog", {}', function(data) {
-		setValue("watchdog_enabled", data.watchdog_enabled);
-		setValue("watchdog_dest", data.watchdog_dest);
-		setValue("watchdog_period", data.watchdog_period);
-		setValue("watchdog_period_count", data.watchdog_period_count);
-		setValue("watchdog_delay", data.watchdog_delay);
-		setValue("watchdog_action", data.watchdog_action);
-		if (data.watchdog_minavgmax != "") {
-			setValue("watchdog_min", data.watchdog_minavgmax.split("/")[0] + " ms");
-			setValue("watchdog_avg", data.watchdog_minavgmax.split("/")[1] + " ms");
-			setValue("watchdog_max", data.watchdog_minavgmax.split("/")[2] + " ms");
-			setValue("watchdog_rundate", data.watchdog_rundate);
+		setValue('watchdog_enabled', data.watchdog_enabled);
+		setValue('watchdog_dest', data.watchdog_dest);
+		setValue('watchdog_period', data.watchdog_period);
+		setValue('watchdog_period_count', data.watchdog_period_count);
+		setValue('watchdog_delay', data.watchdog_delay);
+		setValue('watchdog_action', data.watchdog_action);
+		if (data.watchdog_minavgmax != '') {
+			setValue('watchdog_min', data.watchdog_minavgmax.split("/")[0] + ' ms');
+			setValue('watchdog_avg', data.watchdog_minavgmax.split("/")[1] + ' ms');
+			setValue('watchdog_max', data.watchdog_minavgmax.split("/")[2] + ' ms');
+			setValue('watchdog_rundate', data.watchdog_rundate);
 		} else {
-			setValue("watchdog_min", "-");
-			setValue("watchdog_avg", "-");
-			setValue("watchdog_max", "-");
-			setValue("watchdog_rundate", "-");
+			setValue('watchdog_min', '-');
+			setValue('watchdog_avg', '-');
+			setValue('watchdog_max', '-');
+			setValue('watchdog_rundate', '-');
 		}
 	});
 }
 
 function savewatchdog() {
-	var watchdog_enabled = getValue("watchdog_enabled");
+	var watchdog_enabled = getValue('watchdog_enabled');
 	if (checkField('watchdog_dest', validateHost)) {return;}
-	var watchdog_dest = getValue("watchdog_dest");
-	var watchdog_period = getValue("watchdog_period");
-	if (validateNumericRange(watchdog_period,1,59) != 0) {
-		showMsg("Błąd w polu " + getLabelText("watchdog_period"), true);
+	var watchdog_dest = getValue('watchdog_dest');
+	var watchdog_period = getValue('watchdog_period');
+	if (validateNumericRange(watchdog_period, 1, 59) != 0) {
+		showMsg('Błąd w polu ' + getLabelText('watchdog_period'), true);
 		return;
 	}
-	var watchdog_period_count = getValue("watchdog_period_count");
-	if (validateNumericRange(watchdog_period_count,1,59) != 0) {
-		showMsg("Błąd w polu " + getLabelText("watchdog_period_count"), true);
+	var watchdog_period_count = getValue('watchdog_period_count');
+	if (validateNumericRange(watchdog_period_count, 1, 59) != 0) {
+		showMsg('Błąd w polu ' + getLabelText('watchdog_period_count'), true);
 		return;
 	}
-	var watchdog_delay = getValue("watchdog_delay");
-	if (validateNumericRange(watchdog_delay,1,59) != 0) {
-		showMsg("Błąd w polu " + getLabelText("watchdog_delay"), true);
+	var watchdog_delay = getValue('watchdog_delay');
+	if (validateNumericRange(watchdog_delay, 1, 59) != 0) {
+		showMsg('Błąd w polu ' + getLabelText('watchdog_delay'), true);
 		return;
 	}
-	var watchdog_action = getValue("watchdog_action");
+	var watchdog_action = getValue('watchdog_action');
 
 	var cmd = [];
-	cmd.push('F=$(mktemp)');
 	cmd.push('touch /etc/crontabs/root');
-	cmd.push('grep -v easyconfig_watchdog /etc/crontabs/root > $F');
-
+	cmd.push('sed -i \\\"/easyconfig_watchdog/d\\\" /etc/crontabs/root');
 	if (watchdog_enabled) {
-		cmd.push('echo \\\"*/' + watchdog_period + ' * * * * /usr/bin/easyconfig_watchdog.sh ' + (watchdog_delay * 60) + ' 3 ' + watchdog_dest + ' ' + watchdog_period_count + ' ' + watchdog_action + '\\\" >> $F');
+		cmd.push('echo \\\"*/' + watchdog_period + ' * * * * /usr/bin/easyconfig_watchdog.sh ' + (watchdog_delay * 60) + ' 3 ' + watchdog_dest + ' ' + watchdog_period_count + ' ' + watchdog_action + '\\\" >> /etc/crontabs/root');
 	}
-
-	cmd.push('mv $F /etc/crontabs/root');
-	cmd.push('rm -f $F');
 	cmd.push('/etc/init.d/cron restart');
-
-	cmd.push('uci set easyconfig.watchdog.period='+watchdog_period);
-	cmd.push('uci set easyconfig.watchdog.period_count='+watchdog_period_count);
-	cmd.push('uci set easyconfig.watchdog.delay='+watchdog_delay);
-	cmd.push('uci set easyconfig.watchdog.dest='+watchdog_dest);
-	cmd.push('uci set easyconfig.watchdog.action='+watchdog_action);
+	cmd.push('uci set easyconfig.watchdog=service');
+	cmd.push('uci set easyconfig.watchdog.period=' + watchdog_period);
+	cmd.push('uci set easyconfig.watchdog.period_count=' + watchdog_period_count);
+	cmd.push('uci set easyconfig.watchdog.delay=' + watchdog_delay);
+	cmd.push('uci set easyconfig.watchdog.dest=' + watchdog_dest);
+	cmd.push('uci set easyconfig.watchdog.action=' + watchdog_action);
 	cmd.push('uci commit easyconfig');
 
 	execute(cmd, showwatchdog);
