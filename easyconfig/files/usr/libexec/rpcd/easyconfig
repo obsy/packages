@@ -560,25 +560,18 @@ else
 fi
 
 T_PERIOD=$(uci -q get easyconfig.traffic.period)
-[ -z "$T_PERIOD" ] && T_PERIOD=10
 T_CYCLE=$(uci -q get easyconfig.traffic.cycle)
-[ -z "$T_CYCLE" ] && T_CYCLE=1
-
 T_WARNING_ENABLED=$(uci -q get easyconfig.traffic.warning_enabled)
-[ -z "$T_WARNING_ENABLED" ] && T_WARNING_ENABLED="0"
 T_WARNING_VALUE=$(uci -q get easyconfig.traffic.warning_value)
-[ -z "$T_WARNING_VALUE" ] && T_WARNING_VALUE="0"
 T_WARNING_UNIT=$(uci -q get easyconfig.traffic.warning_unit)
-[ -z "$T_WARNING_UNIT" ] && T_WARNING_UNIT="g"
 T_WARNING_CYCLE=$(uci -q get easyconfig.traffic.warning_cycle)
-[ -z "$T_WARNING_CYCLE" ] && T_WARNING_CYCLE="p"
 
-echo '"traffic_period": "'$T_PERIOD'",'
-echo '"traffic_cycle": "'$T_CYCLE'",'
-echo '"traffic_warning_enabled": "'$T_WARNING_ENABLED'",'
-echo '"traffic_warning_value": "'$T_WARNING_VALUE'",'
-echo '"traffic_warning_unit": "'$T_WARNING_UNIT'",'
-echo '"traffic_warning_cycle": "'$T_WARNING_CYCLE'"'
+echo '"traffic_period": "'${T_PERIOD:-10}'",'
+echo '"traffic_cycle": "'${T_CYCLE:-1}'",'
+echo '"traffic_warning_enabled": "'${T_WARNING_ENABLED:-0}'",'
+echo '"traffic_warning_value": "'${T_WARNING_VALUE:-0}'",'
+echo '"traffic_warning_unit": "'${T_WARNING_UNIT:-g}'",'
+echo '"traffic_warning_cycle": "'${T_WARNING_CYCLE:-p}'"'
 echo '}'
 }
 
