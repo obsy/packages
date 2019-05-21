@@ -2378,17 +2378,17 @@ function savetraffic() {
 	var cmd = [];
 	cmd.push('touch /etc/crontabs/root');
 	cmd.push('sed -i \\\"/easyconfig_traffic/d\\\" /etc/crontabs/root');
-	if (getValue("traffic_enabled")) {
+	if (getValue('traffic_enabled')) {
 		cmd.push('echo \\\"*/1 * * * * /usr/bin/easyconfig_traffic.sh\\\" >> /etc/crontabs/root');
 	}
 	cmd.push('/etc/init.d/cron restart');
-
-	cmd.push('uci set easyconfig.traffic.period='+getValue("traffic_period"));
-	cmd.push('uci set easyconfig.traffic.cycle='+getValue("traffic_cycle"));
-	cmd.push('uci set easyconfig.traffic.warning_enabled='+(getValue("traffic_warning_enabled")?'1':'0'));
-	cmd.push('uci set easyconfig.traffic.warning_value='+getValue("traffic_warning_value"));
-	cmd.push('uci set easyconfig.traffic.warning_cycle='+getValue("traffic_warning_cycle"));
-	cmd.push('uci set easyconfig.traffic.warning_unit='+getValue("traffic_warning_unit"));
+	cms.push('uci set easyconfig.traffic=service');
+	cmd.push('uci set easyconfig.traffic.period=' + getValue('traffic_period'));
+	cmd.push('uci set easyconfig.traffic.cycle=' + getValue('traffic_cycle'));
+	cmd.push('uci set easyconfig.traffic.warning_enabled=' + (getValue('traffic_warning_enabled') ? '1' : '0'));
+	cmd.push('uci set easyconfig.traffic.warning_value=' + getValue('traffic_warning_value'));
+	cmd.push('uci set easyconfig.traffic.warning_cycle=' + getValue('traffic_warning_cycle'));
+	cmd.push('uci set easyconfig.traffic.warning_unit=' + getValue('traffic_warning_unit'));
 	cmd.push('uci commit easyconfig');
 
 	execute(cmd, showtraffic);
