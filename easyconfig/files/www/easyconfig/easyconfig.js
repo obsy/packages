@@ -1514,15 +1514,15 @@ function sitesurveycallback(sortby) {
 
 			var ssid_new = (sorted[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, m => decodeURIComponent(m.replace(/\\x/g, '%')));
 
-			html += '<hr><div class="row">';
+			html += '<hr><div class="row' + (rogueap ? ' text-danger' : '') +  '">';
 			html += '<div class="col-xs-6">';
-			html += '<h4' + (rogueap?' style="color:red;"':'') + '>' + ssid_new + '</h4>';
+			html += '<h4>' + ssid_new + '</h4>';
 			html += sorted[idx].mac + '<br>';
 
 			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
 			if (key in manuf) {html += manuf[key] + '<br>';}
 			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
-			if (rogueap) {html += '<br><span style="color:red;">Wrogi AP</span>';}
+			if (rogueap) {html += '<br>Wrogi AP';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
