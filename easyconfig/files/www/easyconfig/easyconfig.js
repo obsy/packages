@@ -1782,7 +1782,7 @@ function hostblock(mac, name, action, blockdata) {
 
 	var days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
-	var html = '<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td>';
+	var html = '<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td></tr>';
 	for (var i = 0; i < 24; i++) {
 		html += '<tr><td>' + i + '-' + (i + 1) + '</td>';
 		for (var j = 0; j < 7; j++) {
