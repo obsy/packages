@@ -2664,6 +2664,7 @@ function showpptp() {
 		setValue('pptp_uptime_since', data.uptime_since == '-' ? '' : ' (od ' + data.uptime_since + ')');
 
 		setValue('pptp_enabled', data.enabled);
+		setValue('pptp_mppe', data.mppe);
 		setValue('pptp_server', data.server);
 		setValue('pptp_username', data.username);
 		setValue('pptp_password', data.password);
@@ -2708,6 +2709,11 @@ function savepptp() {
 		cmd.push('uci set system.vpn_pptp.mode=\\\"link\\\"');
 	} else {
 		cmd.push('uci -q del system.vpn_pptp');
+	}
+	if (getValue('pptp_mppe')) {
+		cmd.push('sed -i \'s/^#mppe/mppe/g\' /etc/ppp/options.pptp');
+	} else {
+		cmd.push('sed -i \'s/^mppe/#mppe/g\' /etc/ppp/options.pptp');
 	}
 
 	if (getValue('pptp_enabled')) {

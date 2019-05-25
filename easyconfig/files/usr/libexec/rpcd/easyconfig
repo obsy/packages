@@ -1035,12 +1035,13 @@ show_pptp()
 	fi
 
 	VPNENABLED=$(uci -q get network.vpn_pptp.auto)
-	[ "x$VPNENABLED" = "x1" ] && VPNENABLED="true" || VPNENABLED="false"
+	[ "x$VPNENABLED" = "x0" ] && VPNENABLED="false" || VPNENABLED="true"
 	VPNSERVER=$(uci -q get network.vpn_pptp.server)
 	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
 	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
 	VPNLED=$(uci -q get system.vpn_pptp.sysfs)
-	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\",\"led\":\"$VPNLED\","
+	VPNMPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
+	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\",\"mppe\":$VPNMPPE,\"led\":\"$VPNLED\","
 
 	SYSTEM=$(uci show system)
 	T=$(ls -1 /sys/class/leds/ | grep ".*:.*:.*")
