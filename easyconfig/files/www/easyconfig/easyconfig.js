@@ -23,16 +23,8 @@ function getCookie(cname) {
 
 /*****************************************************************************/
 
-function proofreadHostname(input) {
-	proofreadText(input, validateHostname, 0);
-}
-
 function proofreadHost(input) {
 	proofreadText(input, validateHost, 0);
-}
-
-function proofreadDomain(input) {
-	proofreadText(input, validateDomain, 0);
 }
 
 function proofreadIp(input) {
@@ -72,29 +64,7 @@ function proofreadussd(input) {
 	proofreadText(input, validateussd, 0);
 }
 
-function validateHostname(name) {
-	var errorCode = 0;
-
-	if (name == "") {
-		errorCode = 1;
-	} else if (name.match(/[^a-zA-Z0-9\-]/) !== null) {
-		errorCode = 2;
-	}
-	return errorCode;
-}
-
 function validateHost(name) {
-	var errorCode = 0;
-
-	if (name == "") {
-		errorCode = 1;
-	} else if (name.match(/[^a-zA-Z0-9.]/) !== null) {
-		errorCode = 2;
-	}
-	return errorCode;
-}
-
-function validateDomain(name) {
 	var errorCode = 0;
 
 	if (name == "") {
@@ -2865,7 +2835,7 @@ function checkdomain() {
 		return
 	}
 
-	if (checkField('adblock_domain', validateDomain)) {return;}
+	if (checkField('adblock_domain', validateHost)) {return;}
 
 	ubus_call('"file", "exec", {"command":"/etc/init.d/adblock","params":["query","' + getValue('adblock_domain') + '"]}', function(data) {
 		showMsg((data.stdout).replace(/\n/g,'<br>'));
@@ -2873,7 +2843,7 @@ function checkdomain() {
 }
 
 function blacklistdomain() {
-	if (checkField('adblock_domain', validateDomain)) {return;}
+	if (checkField('adblock_domain', validateHost)) {return;}
 
 	var domain = getValue('adblock_domain');
 
