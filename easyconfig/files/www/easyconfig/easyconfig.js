@@ -2720,10 +2720,12 @@ function savepptp() {
 		cmd.push('uci set network.vpn_pptp.auto=1');
 		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
 		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
 		cmd.push('ifup vpn_pptp');
 	} else {
 		cmd.push('uci set network.vpn_pptp.auto=0');
 		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
 		cmd.push('ifdown vpn_pptp');
 	}
 
