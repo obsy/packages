@@ -459,7 +459,7 @@ WLAN_MAC=""
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
-	IFNAME=$(echo "$T" | awk -F\" '/ifname/ {print $4}')
+	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[*].ifname')
 	if [ -n "$IFNAME" ]; then
 		T1=$(echo "$T" | jsonfilter -e @.*.config.channel)
 		[ $T1 -gt 14 ] && BAND=5 || BAND=2
