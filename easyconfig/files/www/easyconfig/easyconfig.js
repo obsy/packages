@@ -898,7 +898,6 @@ function saveconfig() {
 	// dns
 	if (use_dns != 'none') {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].noresolv');
-		cmd.push('uci -q del dhcp.@dnsmasq[0].proxydnssec');
 		cmd.push('uci -q del dhcp.@dnsmasq[0].server');
 		var t = '';
 		if (use_dns == 'stubby') {
@@ -909,7 +908,6 @@ function saveconfig() {
 			cmd.push(' /etc/init.d/stubby enable');
 			cmd.push(' /etc/init.d/stubby start');
 			cmd.push(' uci set dhcp.@dnsmasq[0].noresolv=1');
-			cmd.push(' uci set dhcp.@dnsmasq[0].proxydnssec=1');
 			cmd.push('fi');
 		} else if (use_dns == 'custom') {
 			if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
