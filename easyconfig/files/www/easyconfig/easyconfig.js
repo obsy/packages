@@ -1067,7 +1067,7 @@ function saveconfig() {
 
 	// system
 	system_hostname=getValue('system_hostname');
-	if (checkField('system_hostname', validateHostname)) {return;}
+	if (checkField('system_hostname', validateHost)) {return;}
 
 	cmd.push('uci set system.@system[0].hostname=\\\"'+system_hostname+'\\\"');
 	setValue('system_hostname_label', system_hostname);
