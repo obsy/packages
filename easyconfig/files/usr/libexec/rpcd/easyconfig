@@ -1032,6 +1032,7 @@ show_pptp()
 	VPNENABLED=$(uci -q get network.vpn_pptp.auto)
 	[ "x$VPNENABLED" = "x0" ] && VPNENABLED="false" || VPNENABLED="true"
 	VPNSERVER=$(uci -q get network.vpn_pptp.server)
+	[ "x$VPNSERVER" = "x" ] && VPNENABLED="false"
 	VPNUSERNAME=$(uci -q get network.vpn_pptp.username)
 	VPNPASSWORD=$(uci -q get network.vpn_pptp.password)
 	VPNLED=$(uci -q get system.vpn_pptp.sysfs)
