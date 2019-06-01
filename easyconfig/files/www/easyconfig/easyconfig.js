@@ -1088,6 +1088,7 @@ function saveconfig() {
 
 	// commit & restart services
 	cmd.push('uci commit');
+	cmd.push('reload_config');
 	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('ifup wan');
 	if (wlan_restart_required) {
