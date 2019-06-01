@@ -1153,7 +1153,7 @@ function showstatus() {
 		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', (data.wan_up_cnt == '-')?'-':'<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '-')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
-		setDisplay('div_pptp_up_status', data.pptp_up);
+		setDisplay('div_vpn_up_status', data.vpn_up);
 	});
 }
 
@@ -2655,13 +2655,10 @@ function upgrade_step3() {
 
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", {}', function(data) {
-
 		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
-		setValue('pptp_ip', (data.ip == '')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.ip + '</a>');
-
+		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
 		setValue('pptp_uptime', formatTime(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '-' ? '' : ' (od ' + data.uptime_since + ')');
-
 		setValue('pptp_enabled', data.enabled);
 		setValue('pptp_mppe', data.mppe);
 		setValue('pptp_server', data.server);
@@ -2670,14 +2667,12 @@ function showpptp() {
 
 		removeOptions('pptp_led');
 		e = document.getElementById('pptp_led');
-
 		var opt = document.createElement('option');
 		opt.value = '';
 		opt.innerHTML = 'żadna';
 		e.appendChild(opt);
-
 		var arr = data.leds;
-		for(var idx=0; idx<arr.length; idx++){
+		for(var idx = 0; idx < arr.length; idx++) {
 			var opt = document.createElement('option');
 			opt.value = arr[idx];
 			opt.innerHTML = arr[idx];
@@ -2691,23 +2686,24 @@ function showpptp() {
 function savepptp() {
 	var cmd = [];
 
-	cmd.push('uci set network.vpn_pptp=interface');
-	cmd.push('uci set network.vpn_pptp.proto=pptp');
-	cmd.push('uci set network.vpn_pptp.server=\\\"' + getValue("pptp_server") + '\\\"');
-	cmd.push('uci set network.vpn_pptp.username=\\\"' + getValue("pptp_username") + '\\\"');
-	cmd.push('uci set network.vpn_pptp.password=\\\"' + getValue("pptp_password") + '\\\"');
+	cmd.push('uci set network.vpn=interface');
+	cmd.push('uci set network.vpn.proto=pptp');
+	cmd.push('uci set network.vpn.server=\\\"' + getValue("pptp_server") + '\\\"');
+	cmd.push('uci set network.vpn.username=\\\"' + getValue("pptp_username") + '\\\"');
+	cmd.push('uci set network.vpn.password=\\\"' + getValue("pptp_password") + '\\\"');
 	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
-	cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
+	cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn\\\"');
 
 	var led = getValue("pptp_led");
-	if (led != "") {
-		cmd.push('uci set system.vpn_pptp=led');
-		cmd.push('uci set system.vpn_pptp.sysfs=\\\"' + led + '\\\"');
-		cmd.push('uci set system.vpn_pptp.trigger=\\\"netdev\\\"');
-		cmd.push('uci set system.vpn_pptp.dev=\\\"pptp-vpn_pptp\\\"');
-		cmd.push('uci set system.vpn_pptp.mode=\\\"link\\\"');
+	if (led != '') {
+		cmd.push('uci set system.led_vpn=led');
+		cmd.push('uci set system.led_vpn.name=VPN');
+		cmd.push('uci set system.led_vpn.sysfs=\\\"' + led + '\\\"');
+		cmd.push('uci set system.led_vpn.trigger=\\\"netdev\\\"');
+		cmd.push('uci set system.led_vpn.dev=\\\"pptp-vpn\\\"');
+		cmd.push('uci set system.led_vpn.mode=\\\"link\\\"');
 	} else {
-		cmd.push('uci -q del system.vpn_pptp');
+		cmd.push('uci -q del system.led_vpn');
 	}
 	if (getValue('pptp_mppe')) {
 		cmd.push('sed -i \'s/^#mppe/mppe/g\' /etc/ppp/options.pptp');
@@ -2716,28 +2712,28 @@ function savepptp() {
 	}
 
 	if (getValue('pptp_enabled')) {
-		cmd.push('uci set network.vpn_pptp.auto=1');
-		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn_pptp\\\"');
+		cmd.push('uci set network.vpn.auto=1');
+		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn\\\"');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
-		cmd.push('ifup vpn_pptp');
+		cmd.push('ifup vpn');
 	} else {
-		cmd.push('uci set network.vpn_pptp.auto=0');
+		cmd.push('uci set network.vpn.auto=0');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
-		cmd.push('ifdown vpn_pptp');
+		cmd.push('ifdown vpn');
 	}
 
 	execute(cmd, showpptp);
 }
 
 function uppptp() {
-	ubus_call('"network.interface", "up", {"interface":"vpn_pptp"}', function(data) {
+	ubus_call('"network.interface", "up", {"interface":"vpn"}', function(data) {
 	});
 }
 
 function downpptp() {
-	ubus_call('"network.interface", "down", {"interface":"vpn_pptp"}', function(data) {
+	ubus_call('"network.interface", "down", {"interface":"vpn"}', function(data) {
 		ubus_call('"network.interface", "up", {"interface":"wan"}', function(data) {
 		});
 	});
