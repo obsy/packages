@@ -954,16 +954,16 @@ function saveconfig() {
 		cmd.push('uci set dhcp.lan.ignore=1');
 	}
 
-	if (getValue("lan_forcedns")) {
-		cmd.push('uci set firewall.adblock_dns=redirect');
-		cmd.push('uci set firewall.adblock_dns.name=\\\"Adblock DNS\\\"');
-		cmd.push('uci set firewall.adblock_dns.src=lan');
-		cmd.push('uci set firewall.adblock_dns.proto=\\\"tcp udp\\\"');
-		cmd.push('uci set firewall.adblock_dns.src_dport=53');
-		cmd.push('uci set firewall.adblock_dns.dest_port=53');
-		cmd.push('uci set firewall.adblock_dns.target=DNAT');
+	if (getValue('lan_forcedns')) {
+		cmd.push('uci set firewall.adblock_dns_53=redirect');
+		cmd.push('uci set firewall.adblock_dns_53.name=\\\"Adblock DNS, port 53\\\"');
+		cmd.push('uci set firewall.adblock_dns_53.src=lan');
+		cmd.push('uci set firewall.adblock_dns_53.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.adblock_dns_53.src_dport=53');
+		cmd.push('uci set firewall.adblock_dns_53.dest_port=53');
+		cmd.push('uci set firewall.adblock_dns_53.target=DNAT');
 	} else {
-		cmd.push('uci -q del firewall.adblock_dns');
+		cmd.push('uci -q del firewall.adblock_dns_53');
 	}
 
 	if (getValue("dhcp_logqueries")) {
