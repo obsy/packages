@@ -3,8 +3,7 @@
 LOGS=/tmp/easyconfig_wlanlogs.txt
 T=$(mktemp)
 
-logread -e "DHCPACK(" >> $T
-logread -e "AP-STA-.*CONNECTED" >> $T
+logread -e "AP-STA-.*CONNECTED\|DHCPACK(" >> $T
 if [ -s "$T" ]; then
 	touch $LOGS.gz
 	zcat $LOGS.gz >> $T 2>/dev/null

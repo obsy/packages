@@ -505,10 +505,10 @@ done
 echo '],'
 
 echo '"logs":['
-T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk 'BEGIN {idx=0} {idx++}
-/AP-STA-CONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=idx; EVENT[idx]="connect"; DESC[idx]=$8}
+T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
+/AP-STA-CONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$10; WIFI[$10]=NR; EVENT[NR]="connect"; DESC[NR]=$8}
 /DHCPACK\(/ {if(WIFI[$10]!=0){DHCP[WIFI[$10]]=$11; NAME[$10]=$11}}
-/AP-STA-DISCONNECTED/ {TIME[idx]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[idx]=$10; WIFI[$10]=0; EVENT[idx]="disconnect"; DHCP[idx]=NAME[$10]; NAME[$10]=""; DESC[idx]=$8}
+/AP-STA-DISCONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$10; WIFI[$10]=0; EVENT[NR]="disconnect"; DHCP[NR]=NAME[$10]; NAME[$10]=""; DESC[NR]=$8}
 END { for (T in EVENT) {
 		printf "{\"id\":%d,\"time\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\",\"desc\":\"%s\"},\n", T, TIME[T], MAC[T], DHCP[T], EVENT[T], DESC[T]
 	}
@@ -707,8 +707,8 @@ show_sms() {
 show_queries() {
 	echo '{"result":['
 
-	T=$(logread -e "query\[A\]\|NXDOMAIN" | awk 'BEGIN {idx=0} {idx++}
-$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", idx, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
+	T=$(logread -e "query\[A\]\|NXDOMAIN" | awk '
+$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", NR, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
 $13 ~ /NXDOMAIN/ {NXDOMAIN[$9]="true"}
 END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 ')
