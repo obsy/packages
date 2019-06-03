@@ -706,8 +706,13 @@ show_sms() {
 
 show_queries() {
 	echo '{"result":['
-	T=$(logread -e "query\[A\]" | awk '$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {printf "{\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"nxdomain\":false,\"host\":\"%s\"},\n", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13}')
-	IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)".*/\1/g' | sort | uniq)
+
+	T=$(logread -e "query\[A\]\|NXDOMAIN" | awk 'BEGIN {idx=0} {idx++}
+$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", idx, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
+$13 ~ /NXDOMAIN/ {NXDOMAIN[$9]="true"}
+END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
+')
+	IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)",.*/\1/g' | sort | uniq)
 
 	for IP in $IPS; do
 		MAC=$(awk '/'$IP'/{print $2}' /tmp/dhcp.leases)
@@ -728,11 +733,6 @@ show_queries() {
 				T=$(echo "$T" | sed "s/\"host\":\"$IP\"/\"host\":\"$NAME\"/g")
 			fi
 		fi
-	done
-
-	NXDOMAINS=$(logread -e "NXDOMAIN" | awk '{a[$11]++} END {for (b in a) {print b}}')
-	for D in $NXDOMAINS; do
-		T=$(echo "$T" | sed "s/\"query\":\"$D\",\"nxdomain\":false/\"query\":\"$D\",\"nxdomain\":true/g")
 	done
 
 	echo "$T"

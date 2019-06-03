@@ -966,12 +966,12 @@ function saveconfig() {
 		cmd.push('uci -q del firewall.adblock_dns_53');
 	}
 
-	if (getValue("dhcp_logqueries")) {
+	if (getValue('dhcp_logqueries')) {
 		cmd.push('uci set dhcp.@dnsmasq[0].logqueries=1');
-		setDisplay("menu_queries", true);
+		setDisplay('menu_queries', true);
 	} else {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].logqueries');
-		setDisplay("menu_queries", false);
+		setDisplay('menu_queries', false);
 	}
 
 	// wlan
@@ -2065,7 +2065,7 @@ function cancelhostqos() {
 function showqueries() {
 	ubus_call('"easyconfig", "queries", {}', function(data) {
 		queries = data.result;
-		queriescallback("time", "321");
+		queriescallback('id', '321');
 	});
 }
 
@@ -2080,8 +2080,8 @@ function queriescallback(sortby, order) {
 		html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
 		html += '</div><hr>';
 
-		var sorted = sortJSON(queries, sortby, (order?order:'123'));
-		for(var idx=0; idx<sorted.length; idx++){
+		var sorted = sortJSON(queries, sortby, (order ? order : '123'));
+		for (var idx = 0; idx < sorted.length; idx++) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
@@ -2102,8 +2102,8 @@ function queriescallback(sortby, order) {
 	setValue('div_queries_content', html);
 
 	if (queries.length > 0) {
-		var all=['time', 'query', 'host'];
-		for(var idx=0; idx<all.length; idx++){
+		var all = ['time', 'query', 'host'];
+		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('queries_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
