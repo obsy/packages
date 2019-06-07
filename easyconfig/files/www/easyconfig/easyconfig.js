@@ -256,6 +256,10 @@ function getValue(element) {
 	}
 }
 
+function getValueRaw(element) {
+	return document.getElementById(element).value;
+}
+
 function setDisplay(element, show) {
 	document.getElementById(element).style.display = (show?"block":"none");
 }
@@ -1176,13 +1180,14 @@ function modemat() {
 }
 
 function sendmodemat() {
-	var atcmd = getValue('modemat_cmd');
+	var atcmd = getValueRaw('modemat_cmd');
 	if (atcmd == '') {
 		document.getElementById('modemat_cmd').focus();
 		return;
 	}
-	atcmd = (atcmd).replace(/\$/,'\\\\\$');
-	atcmd = (atcmd).replace(/\^/,'\\\\\^');
+	atcmd = atcmd.replace(new RegExp(/\$/, 'g'), '\\\\\$');
+	atcmd = atcmd.replace(new RegExp(/\^/, 'g'), '\\\\\^');
+	atcmd = atcmd.replace(new RegExp(/"/, 'g'), '\\\\\\\"');
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
