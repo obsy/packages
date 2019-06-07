@@ -1185,9 +1185,9 @@ function sendmodemat() {
 		document.getElementById('modemat_cmd').focus();
 		return;
 	}
-	atcmd = atcmd.replace(new RegExp(/\$/, 'g'), '\\\\\$');
-	atcmd = atcmd.replace(new RegExp(/\^/, 'g'), '\\\\\^');
-	atcmd = atcmd.replace(new RegExp(/"/, 'g'), '\\\\\\\"');
+	atcmd = atcmd.replace(/\$/g, '\\\\\$');
+	atcmd = atcmd.replace(/\^/g, '\\\\\^');
+	atcmd = atcmd.replace(/"/g, '\\\\\\\"');
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
