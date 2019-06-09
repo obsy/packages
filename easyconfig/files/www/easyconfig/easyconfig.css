@@ -367,3 +367,7 @@ h3 {
   width: 10%;
   border: 1px solid #ccc;
 }
+
+.iconwithtext {
+  margin-right: 10px;
+}

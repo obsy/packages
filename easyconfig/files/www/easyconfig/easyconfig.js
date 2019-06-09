@@ -1653,7 +1653,7 @@ function wlanclientscallback(sortby) {
 		for(var idx=0; idx<sorted.length; idx++){
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + sorted[idx].displayname + '\');">' + sorted[idx].displayname + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');">akcje</a></div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');"><i data-feather="more-vertical"></i></a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1670,6 +1670,7 @@ function wlanclientscallback(sortby) {
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
+      showicon();
 }
 
 function clientslogscallback(logs) {
@@ -2455,7 +2456,7 @@ function readsms() {
 					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
 				}
 				html += '</div>';
-				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');">usuń</a></div>';
+				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></a></div>';
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';
 			}
@@ -2464,6 +2465,7 @@ function readsms() {
 			html += '<br><div class="alert alert-warning">Brak wiadomości</div>';
 		}
 		setValue('div_sms_content', html);
+		showicon();
 	});
 }
 
@@ -2814,12 +2816,13 @@ function showadblock() {
 			for (var idx = 0; idx < blacklist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');">usuń</a></div>';
+				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
 				html += '</div>';
 			}
 		}
 		html += '<hr><p>Liczba domen: ' + blacklist.length + '</p>';
 		setValue('div_adblock_list_blacklist', html);
+		showicon();
 	});
 }
 
@@ -3042,3 +3045,9 @@ function btn_pages(page) {
 		shownightmode();
 	}
 }
+
+function showicon() {
+	feather.replace({'width':18, 'height':18});
+}
+
+window.onload  = showicon;

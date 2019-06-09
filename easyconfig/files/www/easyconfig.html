@@ -16,35 +16,34 @@
 	<script src="/easyconfig/easyconfig.js?v=1"></script>
 	<script src="/easyconfig/manuf.js?v=1"></script>
 	<script src="/easyconfig/dns.js?v=1"></script>
+	<script src="/easyconfig/feather.min.js?v=1"></script>
 </head>
 <body>
 
 <div id="menu" class="sidenav">
 	<a href="#" class="closebtn" onclick="closenav();">&times;</a>
-	<hr>
-	<a href="#" onclick="btn_pages('status');">Status</a>
-	<a href="#" onclick="btn_pages('settings');">Ustawienia</a>
-	<a href="#" onclick="btn_pages('system');">System</a>
-	<hr>
-	<a href="#" onclick="btn_pages('watchdog');">Monitor połączenia</a>
+	<a href="#" onclick="btn_pages('status');"><i data-feather="bar-chart-2" class="iconwithtext"></i>Status</a>
+	<a href="#" onclick="btn_pages('settings');"><i data-feather="settings" class="iconwithtext"></i>Ustawienia</a>
+	<a href="#" onclick="btn_pages('system');"><i data-feather="server" class="iconwithtext"></i>System</a>
+	<a href="#" onclick="btn_pages('watchdog');"><i data-feather="activity" class="iconwithtext"></i>Monitor połączenia</a>
 	<div id="menu_wlan">
-		<a href="#" onclick="btn_pages('sitesurvey');">Sieci Wi-Fi</a>
-		<a href="#" onclick="btn_pages('wlanclients');">Klienci</a>
+		<a href="#" onclick="btn_pages('sitesurvey');"><i data-feather="wifi" class="iconwithtext"></i>Sieci Wi-Fi</a>
+		<a href="#" onclick="btn_pages('wlanclients');"><i data-feather="users" class="iconwithtext"></i>Klienci</a>
 	</div>
 	<div id="menu_queries" style="display:none;">
-		<a href="#" onclick="btn_pages('queries');">Zapytania DNS</a>
+		<a href="#" onclick="btn_pages('queries');"><i data-feather="search" class="iconwithtext"></i>Zapytania DNS</a>
 	</div>
-	<a href="#" onclick="btn_pages('traffic');">Transfer</a>
+	<a href="#" onclick="btn_pages('traffic');"><i data-feather="repeat" class="iconwithtext"></i>Transfer</a>
 	<div id="menu_ussdsms" style="display:none;">
-		<a href="#" onclick="btn_pages('ussdsms');">USSD / SMS</a>
+		<a href="#" onclick="btn_pages('ussdsms');"><i data-feather="mail" class="iconwithtext"></i>USSD / SMS</a>
 	</div>
 	<div id="menu_pptp" style="display:none;">
-		<a href="#" onclick="btn_pages('pptp');">VPN pptp</a>
+		<a href="#" onclick="btn_pages('pptp');"><i data-feather="shield" class="iconwithtext"></i>VPN pptp</a>
 	</div>
 	<div id="menu_adblock" style="display:none;">
-		<a href="#" onclick="btn_pages('adblock');">Blokada domen</a>
+		<a href="#" onclick="btn_pages('adblock');"><i data-feather="globe" class="iconwithtext"></i>Blokada domen</a>
 	</div>
-	<a href="#" onclick="btn_pages('nightmode');">Tryb nocny</a>
+	<a href="#" onclick="btn_pages('nightmode');"><i data-feather="moon" class="iconwithtext"></i>Tryb nocny</a>
 </div>
 
 
