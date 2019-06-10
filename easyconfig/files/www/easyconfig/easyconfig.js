@@ -1486,7 +1486,7 @@ function sitesurveycallback(sortby) {
 				}
 			}
 
-			var ssid_new = (sorted[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, m => decodeURIComponent(m.replace(/\\x/g, '%')));
+			var ssid_new = (sorted[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
 
 			html += '<hr><div class="row' + (rogueap ? ' text-danger' : '') +  '">';
 			html += '<div class="col-xs-6">';
