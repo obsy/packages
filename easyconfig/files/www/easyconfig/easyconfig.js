@@ -2357,7 +2357,7 @@ function savetraffic() {
 		cmd.push('echo \\\"*/1 * * * * /usr/bin/easyconfig_traffic.sh\\\" >> /etc/crontabs/root');
 	}
 	cmd.push('/etc/init.d/cron restart');
-	cms.push('uci set easyconfig.traffic=service');
+	cmd.push('uci set easyconfig.traffic=service');
 	cmd.push('uci set easyconfig.traffic.period=' + getValue('traffic_period'));
 	cmd.push('uci set easyconfig.traffic.cycle=' + getValue('traffic_cycle'));
 	cmd.push('uci set easyconfig.traffic.warning_enabled=' + (getValue('traffic_warning_enabled') ? '1' : '0'));
