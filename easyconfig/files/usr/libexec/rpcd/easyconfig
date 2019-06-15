@@ -464,7 +464,7 @@ for R in $RADIOS; do
 		T1=$(echo "$T" | jsonfilter -e @.*.config.channel)
 		[ $T1 -gt 14 ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "{\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "{\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done
 	fi
 done
