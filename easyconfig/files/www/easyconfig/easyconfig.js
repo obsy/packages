@@ -1700,7 +1700,7 @@ function hostmenu(data) {
 
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
 	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + host.displayname + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + host.displayname + '\',' + host.block + ',\'' + host.blockdata + '\');">blokada</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + host.displayname + '\',' + host.block + ',\'' + host.blockdata + '\');">blokady</a></p>';
 	if (config.services.nftqos) {
 		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + host.displayname + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
 	}
