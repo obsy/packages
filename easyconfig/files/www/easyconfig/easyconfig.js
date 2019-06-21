@@ -194,6 +194,10 @@ function checkFieldAllowEmpty(element, proofFunction) {
 	return false;
 }
 
+function createRowForModal(key, value) {
+	return '<div class="row"><label class="col-xs-5 col-sm-6 text-right">' + key + '</label><div class="col-xs-7 col-sm-6 text-left"><p>' + value + '</p></div></div>';
+}
+
 /*****************************************************************************/
 
 var modal;
@@ -1716,18 +1720,19 @@ function calculatedistance(frequency, signal) {
 }
 
 function hostinfo(data) {
+	var html = '';
+	var vendor = '';
 	var host = JSON.parse((data).replace(/\$/g,'"'));
-	setValue('hostinfo_mac', host.mac);
+
 	var key = (host.mac).substring(0,8).toUpperCase();
 	if (key in manuf) {
-		setValue('hostinfo_vendor', manuf[key]);
-	} else {
-		setValue('hostinfo_vendor', '');
+		vendor = manuf[key];
 	}
-	setValue('hostinfo_username', (host.username == '' ? '-' : host.username));
-	setValue('hostinfo_dhcpname', (host.dhcpname == '' ? '-' : host.dhcpname));
-	setValue('hostinfo_tx', bytesToSize(host.tx));
-	setValue('hostinfo_rx', bytesToSize(host.rx));
+	html += createRowForModal('MAC', '<span>' + host.mac + '</span><br><small><span>' + vendor + '</span></small>');
+	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
+	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
+	html += createRowForModal('Wysłano', bytesToSize(host.tx));
+	html += createRowForModal('Pobrano', bytesToSize(host.rx));
 
 	var freq = -1;
 	var radios = config.wlan_devices;
@@ -1742,15 +1747,14 @@ function hostinfo(data) {
 		}
 	}
 	if (freq == -1) {
-		setValue('hostinfo_signal', host.signal + ' dBm');
+		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm'));
 	} else {
-		setValue('hostinfo_signal', host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + 'm)');
+		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + 'm)'));
 	}
 
-	setValue('hostinfo_band', host.band == 2 ? '2.4GHz' : '5GHz');
-	setValue('hostinfo_connected', formatTime(host.connected, false));
-	setValue('hostinfo_connected_since', host.connected_since == '-' ? '' : ' (od ' + host.connected_since + ')');
-	setDisplay('div_hostinfo', true);
+	html += createRowForModal('Pasmo', (host.band == 2 ? '2.4GHz' : '5GHz'));
+	html += createRowForModal('Połączony', '<span>' + formatTime(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '-' ? '' : ' (od ' + host.connected_since + ')') + '</span></small>');
+	showMsg(html, false);
 }
 
 function hostblock(mac, name, action, blockdata) {
@@ -1876,10 +1880,6 @@ function hostnameedit(mac, name) {
 	setValue('hostname_name', name);
 	setDisplay('div_hostname', true);
 	document.getElementById('hostname_name').focus();
-}
-
-function okhostinfo() {
-	setDisplay('div_hostinfo', false);
 }
 
 function cancelhostname() {
@@ -2392,15 +2392,12 @@ function okremovetraffic() {
 }
 
 function showtrafficdetails(period, total, tx, rx) {
-	setValue("trafficdetails_period", period);
-	setValue("trafficdetails_total", bytesToSize(total));
-	setValue("trafficdetails_tx", bytesToSize(tx));
-	setValue("trafficdetails_rx", bytesToSize(rx));
-	setDisplay("div_trafficdetails", true);
-}
-
-function oktrafficdetails() {
-	setDisplay("div_trafficdetails", false);
+	var html = '';
+	html += '<div class="row"><div class="col-xs-12 text-center"><p>' + period +'</p></div></div>';
+	html += createRowForModal('Łącznie', bytesToSize(total));
+	html += createRowForModal('Wysłano', bytesToSize(tx));
+	html += createRowForModal('Pobrano', bytesToSize(rx));
+	showMsg(html, false);
 }
 
 /*****************************************************************************/
@@ -2753,20 +2750,17 @@ function downpptp() {
 function showgeolocation() {
 	ubus_call('"easyconfig", "geolocation", {}', function(data) {
 		if (data.status == 'success') {
-			setValue('geolocation_ip', data.query ? data.query : '-');
-			setValue('geolocation_isp', data.isp ? data.isp : '-');
-			setValue('geolocation_city', data.city ? data.city : '-');
-			setValue('geolocation_region', data.regionName ? data.regionName : '-');
-			setValue('geolocation_country', data.country ? data.country : '-');
-			setDisplay('div_geolocation', true);
+			var html = '';
+			html += createRowForModal('Twoje IP', (data.query ? data.query : '-'));
+			html += createRowForModal('ISP', (data.isp ? data.isp : '-'));
+			html += createRowForModal('Miasto', (data.city ? data.city : '-'));
+			html += createRowForModal('Region', (data.regionName ? data.regionName : '-'));
+			html += createRowForModal('Kraj', (data.country ? data.country : '-'));
+			showMsg(html, false);
 		} else {
 			showMsg('Błąd odczytu lokalizacji', true);
 		}
 	});
-}
-
-function okgeolocation() {
-	setDisplay('div_geolocation', false);
 }
 
 /*****************************************************************************/
