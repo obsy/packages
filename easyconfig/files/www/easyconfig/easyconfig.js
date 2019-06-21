@@ -655,10 +655,12 @@ function login()
 				showstatus();
 			} else {
 				showMsg('Błąd logowania!', true);
+				setTimeout(function(){ closeMsg(); }, 3000);
 			}
 		}
 	}, function(status) {
 		showMsg('Błąd logowania!', true);
+		setTimeout(function(){ closeMsg(); }, 3000);
 	});
 }
 
