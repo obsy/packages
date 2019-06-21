@@ -1330,9 +1330,18 @@
 
 <div id="div_hostname" class="modal">
 	<div class="row modal-content">
-		<label>Nazwa</label>
+
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="hostname_name" class="hidden-xs col-sm-3 control-label">Nazwa</label>
+			<label for="hostname_name" class="visible-xs col-xs-12 control-label text-left">Nazwa</label>
+			<div class="col-xs-12 col-sm-9">
+			<input id="hostname_name" type="text" class="form-control space">
+			</div>
+		</div>
+		</form>
 		<input id="hostname_mac" type="hidden">
-		<input id="hostname_name" type="text" class="form-control space">
+
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelhostname();" value="Anuluj" />
@@ -1346,13 +1355,16 @@
 		<div class="text-center space">
 			<span id="hostip_name"></span>
 		</div>
-		<label for="hostip_ip">Statyczny adres IP</label>
-		<input id="hostip_mac" type="hidden">
-		<div class="space">
+
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="hostip_ip" class="hidden-xs col-sm-3 control-label">Statyczny adres IP</label>
+			<label for="hostip_ip" class="visible-xs col-xs-12 control-label text-left">Statyczny adres IP</label>
+			<div class="col-xs-12 col-sm-9">
 			<input id="hostip_ip" type="text" class="form-control space" onkeyup="proofreadIp(this)">
 			<em><small class="form-text text-muted">obecny statyczny adres IP: <span id="hostip_ipaddr"></span></small></em>
+			</div>
 		</div>
-		<form class="form-horizontal">
 		<div class="form-group mmarginbottom">
 			<label for="hostip_disconnect" class="col-xs-4 col-sm-3 control-label">Rozłącz klienta</label>
 			<div class="col-xs-8 col-sm-9">
@@ -1362,8 +1374,14 @@
 			</label>
 			</div>
 		</div>
-		<em><small class="form-text text-muted">rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP</small></em>
+		<div class="form-group">
+			<div class="col-xs-12 col-sm-9 col-sm-offset-3">
+			<em><small class="form-text text-muted">rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP</small></em>
+			</div>
+		</div>
 		</form>
+		<input id="hostip_mac" type="hidden">
+
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelhostip();" value="Anuluj" />
@@ -1474,15 +1492,17 @@
 
 		<form class="form-horizontal">
 		<div class="form-group">
-			<label for="hostqos_upload" class="col-xs-4 col-sm-3 control-label">Wysyłanie do</label>
-			<div class="col-xs-8 col-sm-9">
+			<label for="hostqos_upload" class="hidden-xs col-sm-3 control-label">Wysyłanie do</label>
+			<label for="hostqos_upload" class="visible-xs col-xs-12 control-label text-left">Wysyłanie do</label>
+			<div class="col-xs-12 col-sm-9">
 			<input id="hostqos_upload" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
 			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="hostqos_download" class="col-xs-4 col-sm-3 control-label">Pobieranie do</label>
-			<div class="col-xs-8 col-sm-9">
+			<label for="hostqos_download" class="hidden-xs col-sm-3 control-label">Pobieranie do</label>
+			<label for="hostqos_download" class="visible-xs col-xs-12 control-label text-left">Pobieranie do</label>
+			<div class="col-xs-12 col-sm-9">
 			<input id="hostqos_download" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
 			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
 			</div>
