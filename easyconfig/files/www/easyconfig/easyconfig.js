@@ -1137,9 +1137,9 @@ function showwanup(data) {
 	for (var propt in arr) {
 		for (var k in arr[propt]) {
 			if (arr[propt][k] == '') {
-				html += formatTime(k, true) + ' temu<br>';
+				html += '<div class="row"><div class="col-xs-12">' + formatTime(k, true) + ' temu</div></div>';
 			} else {
-				html += arr[propt][k] + ' (' + formatTime(k, true) + ' temu)<br>';
+				html += '<div class="row"><div class="col-xs-6 text-right">' + arr[propt][k] + '</div><div class="col-xs-6 text-left">'  + formatTime(k, true) + ' temu</div></div>';
 			}
 		}
 	}
