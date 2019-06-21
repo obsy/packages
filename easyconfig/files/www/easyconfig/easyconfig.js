@@ -1878,6 +1878,7 @@ function hostblock_uncheckall() {
 function hostnameedit(mac, name) {
 	setValue('hostname_mac', mac);
 	setValue('hostname_name', name);
+	setValue('hostname_name1', name);
 	setDisplay('div_hostname', true);
 	document.getElementById('hostname_name').focus();
 }

@@ -1330,11 +1330,14 @@
 
 <div id="div_hostname" class="modal">
 	<div class="row modal-content">
+		<div class="text-center space">
+			Zmiana nazwy dla "<span id="hostname_name1"></span>"
+		</div>
 
 		<form class="form-horizontal">
 		<div class="form-group">
-			<label for="hostname_name" class="hidden-xs col-sm-3 control-label">Nazwa</label>
-			<label for="hostname_name" class="visible-xs col-xs-12 control-label text-left">Nazwa</label>
+			<label for="hostname_name" class="hidden-xs col-sm-3 control-label">Nowa nazwa</label>
+			<label for="hostname_name" class="visible-xs col-xs-12 control-label text-left">Nowa nazwa</label>
 			<div class="col-xs-12 col-sm-9">
 			<input id="hostname_name" type="text" class="form-control space">
 			</div>
@@ -1353,7 +1356,7 @@
 <div id="div_hostip" class="modal">
 	<div class="row modal-content">
 		<div class="text-center space">
-			<span id="hostip_name"></span>
+			Statyczny adres IP dla "<span id="hostip_name"></span>"
 		</div>
 
 		<form class="form-horizontal">
@@ -1397,6 +1400,7 @@
 		<div class="text-center space">
 			Blokada dostępu do internetu dla "<span id="hostblock_name"></span>"
 		</div>
+
 		<label class="rb">Brak
 			<input id="hostblock_none" type="radio" name="hostblock_rb">
 			<span class="checkmark"></span>
@@ -1419,6 +1423,7 @@
 			<div class="col-xs-6"><a href="#" class="click" onclick="hostblock_checkall();">zaznacz wszystko</a></div>
 			<div class="col-xs-6"><a href="#" class="click" onclick="hostblock_uncheckall();">odznacz wszystko</a></div>
 		</div>
+
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="cancelhostblock();" value="Anuluj" />
