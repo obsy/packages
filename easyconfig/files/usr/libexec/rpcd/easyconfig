@@ -108,7 +108,6 @@ echo '}'
 
 show_system()
 {
-
 GUI_VERSION="-devel-"
 VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
 MODEL=$(cat /tmp/sysinfo/model)
@@ -358,6 +357,26 @@ echo '"lan_forcedns":'$T','
 T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
 [ "x$T" = "x1" ] && T="true" || T="false"
 echo '"dhcp_logqueries":'$T','
+
+BUTTON_NAME=""
+BUTTON=""
+ACTION="none"
+case $(cat /tmp/sysinfo/board_name) in
+	"cellc,rtl30vw"|\
+	"dlink,dwr-921-c1")
+		BUTTON_NAME="WPS"
+		BUTTON="wps"
+		;;
+esac
+if [ -n "$BUTTON" ]; then
+	if grep -q rfkill /etc/rc.button/$BUTTON; then
+		ACTION="wifi"
+	fi
+	if grep -q "ifup vpn" /etc/rc.button/$BUTTON; then
+		ACTION="vpn"
+	fi
+fi
+echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
 
 echo '"services":{'
 

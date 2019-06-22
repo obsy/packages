@@ -1,8 +1,0 @@
-#!/bin/sh
-
-[ $ACTION = "ifup" ] || exit 0
-[ $INTERFACE = "wan" ] || exit 0
-
-awk '{printf "%d\n", $1}' /proc/uptime >> /tmp/easyconfig_wan_up
-
-exit 0

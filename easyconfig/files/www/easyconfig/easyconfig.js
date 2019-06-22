@@ -826,6 +826,31 @@ function showcallback(data) {
 	// nightmode / sunwait
 	setDisplay('div_nightmode_led_auto', config.services.sunwait);
 
+	// button
+	if (config.button.code != '') {
+		removeOptions('system_button');
+		select = document.getElementById('system_button');
+		var opt = document.createElement('option');
+		opt.value = 'none';
+		opt.innerHTML = 'Brak akcji';
+		select.appendChild(opt);
+		if (is_radio2 || is_radio5) {
+			var opt = document.createElement('option');
+			opt.value = 'wifi';
+			opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
+			select.appendChild(opt);
+		}
+		if (config.services.pptp) {
+			var opt = document.createElement('option');
+			opt.value = 'vpn';
+			opt.innerHTML = 'Włącz/wyłącz VPN';
+			select.appendChild(opt);
+		}
+		setValue('system_button_name', config.button.name);
+		setValue('system_button', config.button.action);
+	}
+	setDisplay('div_button', config.button.code != '')
+
 	showmodemsection();
 }
 
@@ -1083,15 +1108,42 @@ function saveconfig() {
 
 	// stat
 	if (config.services.statistics.enabled != -1) {
-		if (getValue("stat_enabled")) {
-			if (config.services.statistics.enabled !== "1") {
+		if (getValue('stat_enabled')) {
+			if (config.services.statistics.enabled !== '1') {
 				cmd.push('uci set system.@system[0].stat=1');
 				cmd.push('/sbin/stat-cron.sh');
 			}
 		} else {
-			if (config.services.statistics.enabled == "1") {
+			if (config.services.statistics.enabled == '1') {
 				cmd.push('uci set system.@system[0].stat=0');
 				cmd.push('/sbin/stat-cron.sh');
+			}
+		}
+	}
+
+	if (config.button.code != '') {
+		button = getValue('system_button');
+		if (config.button.code != button) {
+			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
+			if (button == 'wifi') {
+				cmd.push('[ -e /rom/etc/rc.button/rfkill ] && ln -s /rom/etc/rc.button/rfkill /etc/rc.button/' + config.button.code);
+			}
+			if (button == 'vpn') {
+				cmd.push('F=$(mktemp)');
+				cmd.push('cat <<EOF > $F');
+				cmd.push('#!/bin/sh');
+				cmd.push('[ \\\"\\\\${ACTION}\\\" = \\\"released\\\" ] || exit 0');
+				cmd.push('T=\\\\$(ifstatus vpn 2>/dev/null | jsonfilter -q -e @.up)');
+				cmd.push('if [ \\\"x\\\\$T\\\" = \\\"xfalse\\\" ]; then')
+				cmd.push(' ifup vpn');
+				cmd.push('else');
+				cmd.push(' ifdown vpn');
+				cmd.push(' ifup wan');
+				cmd.push('fi');
+				cmd.push('exit 0');
+				cmd.push('EOF');
+				cmd.push('chmod 755 $F');
+				cmd.push('mv $F /etc/rc.button/' + config.button.code);
 			}
 		}
 	}
