@@ -2861,7 +2861,8 @@ function selectVpn(data, copydatafromprofile) {
 }
 
 function removepptp() {
-	setValue('removevpnprofile', getValue('pptp_name'));
+	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
+	setValue('removevpnprofile', profile.name);
 	setDisplay('div_removevpnprofile', true);
 }
 
@@ -2873,7 +2874,8 @@ function okremovevpnprofile() {
 	cancelremovevpnprofile();
 
 	var cmd = [];
-	var section = 'v' + (getValue('pptp_name').toLowerCase().replace(/[^a-z0-9_]/g, ''));
+	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
+	var section = 'v' + ((profile.name).toLowerCase().replace(/[^a-z0-9_]/g, ''));
 	cmd.push('uci -q del easyconfig.' + section);
 	cmd.push('uci -q del network.vpn');
 	cmd.push('uci commit');
