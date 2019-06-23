@@ -2877,7 +2877,7 @@ function okremovevpnprofile() {
 	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
 	var section = 'v' + ((profile.name).toLowerCase().replace(/[^a-z0-9_]/g, ''));
 	cmd.push('uci -q del easyconfig.' + section);
-	cmd.push('uci -q del network.vpn');
+	cmd.push('[ \\\"x$(uci -q get network.vpn.name)\\\" = \\\"x' + profile.name + '\\\" ] && uci -q del network.vpn');
 	cmd.push('uci commit');
 
 	execute(cmd, showpptp);
