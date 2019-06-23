@@ -38,7 +38,7 @@
 		<a href="#" onclick="btn_pages('ussdsms');"><i data-feather="mail" class="iconwithtext"></i>USSD / SMS</a>
 	</div>
 	<div id="menu_pptp" style="display:none;">
-		<a href="#" onclick="btn_pages('pptp');"><i data-feather="shield" class="iconwithtext"></i>VPN pptp</a>
+		<a href="#" onclick="btn_pages('pptp');"><i data-feather="shield" class="iconwithtext"></i>VPN</a>
 	</div>
 	<div id="menu_adblock" style="display:none;">
 		<a href="#" onclick="btn_pages('adblock');"><i data-feather="globe" class="iconwithtext"></i>Blokada domen</a>
@@ -1109,7 +1109,7 @@
 
 	<div id="div_pptp" style="display:none;">
 
-	<h3 class="section">VPN pptp</h3>
+	<h3 class="section">VPN (klient pptp)</h3>
 
 	<div class="row">
 		<label class="col-xs-6 text-right">Status</label>
@@ -1134,28 +1134,42 @@
 
 	<h3 class="section"></h3>
 	<div class="text-center">
-		<input type="button" class="btn btn-default" onclick="uppptp();" value="Połącz" />
-		<input type="button" class="btn btn-default" onclick="downpptp();" value="Rozłącz" />
+		<input type="button" id="btn_uppptp" class="btn btn-default" onclick="uppptp();" value="Połącz" />
+		<input type="button" id="btn_downpptp" class="btn btn-default" onclick="downpptp();" value="Rozłącz" />
 		<input type="button" class="btn btn-default" onclick="showpptp();" value="Odśwież" />
 	</div>
 
 	<h3 class="section"></h3>
 	<form class="form-horizontal">
-		<div class="form-group" id="div_pptp_enabled">
-			<label for="pptp_enabled" class="col-xs-4 col-sm-3 control-label">Aktywny po uruchomieniu systemu</label>
+		<div class="form-group" id="div_pptp_led">
+			<label for="pptp_led" class="col-xs-4 col-sm-3 control-label">LED wskazująca połączenie</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="pptp_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
+			<select id="pptp_led" class="form-control">
+			</select>
+			</div>
+		</div>
+		<hr>
+
+		<div class="form-group" id="div_pptp_profile">
+			<label for="pptp_profile" class="col-xs-4 col-sm-3 control-label">Wybrany profil</label>
+			<div class="col-xs-8 col-sm-9">
+			<select id="pptp_profile" class="form-control" onchange="selectVpn(this.value, true)">
+			</select>
 			</div>
 		</div>
 
-		<div class="form-group" id="div_pptp_mppe">
-			<label for="pptp_mppe" class="col-xs-4 col-sm-3 control-label">Szyfrowanie Point-to-Point (MPPE)</label>
+		<div class="form-group" id="div_pptp_name">
+			<label for="pptp_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="pptp_name" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_pptp_auto">
+			<label for="pptp_auto" class="col-xs-4 col-sm-3 control-label">Aktywny po uruchomieniu systemu</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
-				<input id="pptp_mppe" type="checkbox">
+				<input id="pptp_auto" type="checkbox">
 				<div class="slider round"></div>
 			</label>
 			</div>
@@ -1182,16 +1196,19 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_pptp_led">
-			<label for="pptp_led" class="col-xs-4 col-sm-3 control-label">LED wskazująca połączenie</label>
+		<div class="form-group" id="div_pptp_mppe">
+			<label for="pptp_mppe" class="col-xs-4 col-sm-3 control-label">Szyfrowanie Point-to-Point (MPPE)</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="pptp_led" class="form-control">
-			</select>
+			<label class="switch">
+				<input id="pptp_mppe" type="checkbox">
+				<div class="slider round"></div>
+			</label>
 			</div>
 		</div>
 
 		<h3 class="section"></h3>
 		<div class="text-center">
+			<input type="button" id="btn_removepptp" class="btn btn-default" onclick="removepptp();" value="Usuń profil" />
 			<input type="button" class="btn btn-primary" onclick="savepptp();" value="Zapisz zmiany" />
 		</div>
 	</form>
@@ -1551,6 +1568,19 @@
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="closemodemat();" value="Zamknij" />
 			<input type="button" class="btn btn-default" onclick="sendmodemat()" value="Wyślij" />
+		</div>
+	</div>
+</div>
+
+<div id="div_removevpnprofile" class="modal">
+	<div class="row modal-content text-center">
+		<div class="text-center space">
+			Usunąć profil "<span id="removevpnprofile"></span>"?
+		</div>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelremovevpnprofile();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="okremovevpnprofile();" value="Usuń" />
 		</div>
 	</div>
 </div>

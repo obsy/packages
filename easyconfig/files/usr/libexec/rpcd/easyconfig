@@ -1040,25 +1040,38 @@ show_pptp()
 		if $TIMEISVALID; then
 			UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $UPTIME))")
 		else
-			UPTIME_SINCE="-"
+			UPTIME_SINCE=""
 		fi
 	else
 		UP="false"
-		UPTIME="-"
-		UPTIME_SINCE="-"
+		UPTIME=""
+		UPTIME_SINCE=""
 	fi
 
-	VPNENABLED="false"
+	PROTO=$(uci -q get network.vpn.proto)
 	if [ "x$(uci -q get network.vpn)" = "xinterface" ]; then
-		VPNENABLED=$(uci -q get network.vpn.auto)
-		[ "x$VPNENABLED" = "x0" ] && VPNENABLED="false" || VPNENABLED="true"
-		VPNSERVER=$(uci -q get network.vpn.server)
-		VPNUSERNAME=$(uci -q get network.vpn.username)
-		VPNPASSWORD=$(uci -q get network.vpn.password)
+		NAME=$(uci -q get network.vpn.name)
+		AUTO=$(uci -q get network.vpn.auto)
+		SERVER=$(uci -q get network.vpn.server)
+		USERNAME=$(uci -q get network.vpn.username)
+		PASSWORD=$(uci -q get network.vpn.password)
 	fi
 	VPNLED=$(uci -q get system.led_vpn.sysfs)
-	VPNMPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
-	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"enabled\":$VPNENABLED,\"server\":\"$VPNSERVER\",\"username\":\"$VPNUSERNAME\",\"password\":\"$VPNPASSWORD\",\"mppe\":$VPNMPPE,\"led\":\"$VPNLED\","
+	MPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
+	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\"$NAME\",\"auto\":\"$AUTO\",\"server\":\"$SERVER\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\",\"mppe\":$MPPE,\"led\":\"$VPNLED\","
+
+	echo '"profiles":['
+	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
+	for i in $T; do
+		echo '{"proto":"'$(uci -q get easyconfig.$i.proto)'",'
+		echo '"name":"'$(uci -q get easyconfig.$i.name)'",'
+		echo '"auto":"'$(uci -q get easyconfig.$i.auto)'",'
+		echo '"server":"'$(uci -q get easyconfig.$i.server)'",'
+		echo '"username":"'$(uci -q get easyconfig.$i.username)'",'
+		echo '"password":"'$(uci -q get easyconfig.$i.password)'",'
+		echo '"mppe":"'$(uci -q get easyconfig.$i.mppe)'"},'
+	done
+	echo '],'
 
 	SYSTEM=$(uci show system)
 	T=$(ls -1 /sys/class/leds/ | grep ".*:.*:.*")

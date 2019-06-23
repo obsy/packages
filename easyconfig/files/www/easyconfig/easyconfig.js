@@ -1454,18 +1454,19 @@ function sortJSON(data, key, way) {
 }
 
 function formatTime(s, showsec) {
-	if (s === "-") {return s;}
+	if (s === '-') {return '-';}
+	if (s === '') {return '-';}
 	var d = Math.floor(s/86400),
 	    h = Math.floor(s/3600) % 24,
 	    m = Math.floor(s/60)%60,
 	    s = s % 60;
-	var time = d>0?d+'d ':'';
-	if (time != "") {time += h+'g '} else {time = h>0?h+'g ':''}
-	if (time != "") {time += m+'m '} else {time = m>0?m+'m ':''}
+	var time = d > 0 ? d + 'd ' : '';
+	if (time != '') {time += h + 'g '} else {time = h > 0 ? h + 'g ' : ''}
+	if (time != '') {time += m + 'm '} else {time = m > 0 ? m + 'm ' : ''}
 	if (showsec) {
-		time += s+'s';
+		time += s + 's';
 	} else {
-		if (time == "") {time += m+'m'};
+		if (time == '') {time += m + 'm'};
 	}
 	return time;
 }
@@ -2717,27 +2718,50 @@ function showpptp() {
 		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
 		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
 		setValue('pptp_uptime', formatTime(data.uptime, false));
-		setValue('pptp_uptime_since', data.uptime_since == '-' ? '' : ' (od ' + data.uptime_since + ')');
-		setValue('pptp_enabled', data.enabled);
-		setValue('pptp_mppe', data.mppe);
+		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + data.uptime_since + ')');
+		setValue('pptp_auto', data.auto == '' ? true : false);
+		setValue('pptp_name', data.name);
 		setValue('pptp_server', data.server);
 		setValue('pptp_username', data.username);
 		setValue('pptp_password', data.password);
+		setValue('pptp_mppe', data.mppe);
+
+		document.getElementById('btn_uppptp').disabled = (data.proto == '' || data.server == '');
+		document.getElementById('btn_downpptp').disabled = (data.proto == '' || data.server == '');
+
+		removeOptions('pptp_profile');
+		e = document.getElementById('pptp_profile');
+		var opt = document.createElement('option');
+		opt.value = '';
+		opt.innerHTML = 'brak';
+		e.appendChild(opt);
+		var arr = sortJSON(data.profiles, 'name', '123');
+		var selected = '';
+		for(var idx = 0; idx < arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = (JSON.stringify(arr[idx])).replace(/\"/g,"$")
+			opt.innerHTML = arr[idx].name;
+			e.appendChild(opt);
+			if (arr[idx].name == data.name) {
+				selected = opt.value;
+			}
+		}
+		setValue('pptp_profile', selected);
+		selectVpn(selected, false);
 
 		removeOptions('pptp_led');
 		e = document.getElementById('pptp_led');
-		var opt = document.createElement('option');
+		opt = document.createElement('option');
 		opt.value = '';
-		opt.innerHTML = 'żadna';
+		opt.innerHTML = 'brak';
 		e.appendChild(opt);
-		var arr = data.leds;
+		arr = data.leds;
 		for(var idx = 0; idx < arr.length; idx++) {
 			var opt = document.createElement('option');
 			opt.value = arr[idx];
 			opt.innerHTML = arr[idx];
 			e.appendChild(opt);
 		}
-
 		setValue('pptp_led', data.led);
 	});
 }
@@ -2745,34 +2769,55 @@ function showpptp() {
 function savepptp() {
 	var cmd = [];
 
+	var pptp_name = getValue('pptp_name');
+	if (pptp_name == '') {
+		showMsg('Błąd w polu ' + getLabelText('pptp_name'), true);
+		return;
+	}
+	if (checkField('pptp_server', validateHost)) {return;}
+
 	cmd.push('uci set network.vpn=interface');
 	cmd.push('uci set network.vpn.proto=pptp');
-	cmd.push('uci set network.vpn.server=\\\"' + getValue("pptp_server") + '\\\"');
-	cmd.push('uci set network.vpn.username=\\\"' + getValue("pptp_username") + '\\\"');
-	cmd.push('uci set network.vpn.password=\\\"' + getValue("pptp_password") + '\\\"');
-	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
-	cmd.push('uci del_list firewall.$ZONE.network=\\\"vpn\\\"');
-
-	var led = getValue("pptp_led");
-	if (led != '') {
-		cmd.push('uci set system.led_vpn=led');
-		cmd.push('uci set system.led_vpn.name=VPN');
-		cmd.push('uci set system.led_vpn.sysfs=\\\"' + led + '\\\"');
-		cmd.push('uci set system.led_vpn.trigger=\\\"netdev\\\"');
-		cmd.push('uci set system.led_vpn.dev=\\\"pptp-vpn\\\"');
-		cmd.push('uci set system.led_vpn.mode=\\\"link\\\"');
-	} else {
-		cmd.push('uci -q del system.led_vpn');
-	}
+	cmd.push('uci set network.vpn.name=\\\"' + getValue('pptp_name') + '\\\"');
+	cmd.push('uci set network.vpn.server=\\\"' + getValue('pptp_server') + '\\\"');
+	cmd.push('uci set network.vpn.username=\\\"' + getValue('pptp_username') + '\\\"');
+	cmd.push('uci set network.vpn.password=\\\"' + getValue('pptp_password') + '\\\"');
 	if (getValue('pptp_mppe')) {
 		cmd.push('sed -i \'s/^#mppe/mppe/g\' /etc/ppp/options.pptp');
 	} else {
 		cmd.push('sed -i \'s/^mppe/#mppe/g\' /etc/ppp/options.pptp');
 	}
+	var led = getValue('pptp_led');
+	if (led != '') {
+		cmd.push('uci set system.led_vpn=led');
+		cmd.push('uci set system.led_vpn.name=VPN');
+		cmd.push('uci set system.led_vpn.sysfs=\\\"' + led + '\\\"');
+		cmd.push('uci set system.led_vpn.trigger=netdev');
+		cmd.push('uci set system.led_vpn.dev=pptp-vpn');
+		cmd.push('uci set system.led_vpn.mode=link');
+	} else {
+		cmd.push('uci -q del system.led_vpn');
+	}
+	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
+	cmd.push('uci del_list firewall.$ZONE.network=vpn');
 
-	if (getValue('pptp_enabled')) {
+	// profile
+	if (getValue('pptp_name') != '') {
+		var section = 'v' + (getValue('pptp_name').toLowerCase().replace(/[^a-z0-9_]/g, ''));
+		cmd.push('uci -q del easyconfig.' + section);
+		cmd.push('uci set easyconfig.' + section + '=vpn');
+		cmd.push('uci set easyconfig.' + section + '.proto=pptp');
+		cmd.push('uci set easyconfig.' + section + '.name=\\\"' + getValue('pptp_name') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.server=\\\"' + getValue('pptp_server') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.username=\\\"' + getValue('pptp_username') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.password=\\\"' + getValue('pptp_password') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.mppe=' + (getValue('pptp_mppe') ? '1' : '0'));
+		cmd.push('uci set easyconfig.' + section + '.auto=' + (getValue('pptp_auto') ? '1' : '0'));
+	}
+
+	if (getValue('pptp_auto')) {
 		cmd.push('uci set network.vpn.auto=1');
-		cmd.push('uci add_list firewall.$ZONE.network=\\\"vpn\\\"');
+		cmd.push('uci add_list firewall.$ZONE.network=vpn');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
 		cmd.push('ifup vpn');
@@ -2796,6 +2841,44 @@ function downpptp() {
 		ubus_call('"network.interface", "up", {"interface":"wan"}', function(data) {
 		});
 	});
+}
+
+function selectVpn(data, copydatafromprofile) {
+	if (data == '') {
+		document.getElementById('btn_removepptp').disabled = true;
+	} else {
+		document.getElementById('btn_removepptp').disabled = false;
+		if (copydatafromprofile) {
+			var profile = JSON.parse((data).replace(/\$/g,'"'));
+			setValue('pptp_auto', profile.auto == '' ? true : false);
+			setValue('pptp_name', profile.name);
+			setValue('pptp_server', profile.server);
+			setValue('pptp_username', profile.username);
+			setValue('pptp_password', profile.password);
+			setValue('pptp_mppe', profile.mppe == '' ? true : false);
+		}
+	}
+}
+
+function removepptp() {
+	setValue('removevpnprofile', getValue('pptp_name'));
+	setDisplay('div_removevpnprofile', true);
+}
+
+function cancelremovevpnprofile() {
+	setDisplay('div_removevpnprofile', false);
+}
+
+function okremovevpnprofile() {
+	cancelremovevpnprofile();
+
+	var cmd = [];
+	var section = 'v' + (getValue('pptp_name').toLowerCase().replace(/[^a-z0-9_]/g, ''));
+	cmd.push('uci -q del easyconfig.' + section);
+	cmd.push('uci -q del network.vpn');
+	cmd.push('uci commit');
+
+	execute(cmd, showpptp);
 }
 
 /*****************************************************************************/
