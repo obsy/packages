@@ -2855,7 +2855,7 @@ function selectVpn(data, copydatafromprofile) {
 			setValue('pptp_server', profile.server);
 			setValue('pptp_username', profile.username);
 			setValue('pptp_password', profile.password);
-			setValue('pptp_mppe', profile.mppe == '' ? true : false);
+			setValue('pptp_mppe', profile.mppe == '1' ? true : false);
 		}
 	}
 }
