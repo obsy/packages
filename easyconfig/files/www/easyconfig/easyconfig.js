@@ -293,14 +293,8 @@ function enableDns(value) {
 	setElementEnabled("wan_dns_url", (url!=""), false);
 }
 
-function canceldetectwan() {
-	setDisplay('div_detectwan', false);
-}
-
 function okdetectwan() {
-	canceldetectwan();
-
-	var data = JSON.parse(document.getElementById('detectwan_data').value);
+	var data = JSON.parse(getValueRaw('dialog_val'));
 
 	var cmd = [];
 	cmd.push('uci -q del network.wan');
@@ -343,7 +337,7 @@ function okdetectwan_pin() {
 function detectwan(pin) {
 	ubus_call('"easyconfig", "detect_wan", {}', function(data) {
 		if (data.action) {
-			if (data.action == "pinrequired") {
+			if (data.action == 'pinrequired') {
 				setValue('detectwan_proto', data.proto);
 				setValue('detectwan_device', data.device);
 				setDisplay('div_detectwan_pin', true);
@@ -351,8 +345,8 @@ function detectwan(pin) {
 			}
 		} else {
 			data.pincode = pin;
-			if (data.proto == "none") {
-				showMsg("Nie wykryto żadnego dostępnego połączenia z internetem");
+			if (data.proto == 'none') {
+				showMsg('Nie wykryto żadnego dostępnego połączenia z internetem');
 				return;
 			}
 			msg = '';
@@ -375,9 +369,8 @@ function detectwan(pin) {
 			}
 			msg += '</div>';
 			msg += '<div class="row"><div class="col-xs-12 text-center"><hr>Zapisać zmiany?</div></div>';
-			setValue('detectwan_data', JSON.stringify(data));
-			setValue('detectwan_txt', msg);
-			setDisplay('div_detectwan', true);
+			setValue('dialog_val', JSON.stringify(data));
+			showDialog(msg, 'Nie', 'Tak', okdetectwan);
 		}
 	});
 }
@@ -477,36 +470,47 @@ function setElementEnabled(element, show, disabled) {
 	} else {
 		e.disabled = true;
 	}
-	setDisplay("div_" + element, show);
+	setDisplay('div_' + element, show);
 }
 
 function showMsg(msg, error) {
 	closeMsg();
 
-	if (!msg || 0 === msg.length) {msg = "Proszę czekać...";}
+	if (!msg || 0 === msg.length) { msg = 'Proszę czekać...'; }
 	var e = document.getElementById('msgtxt');
 	e.innerHTML = msg;
 
 	if (error) {
-		e.style.color = "red";
-		addClasses(e, ["has-error"]);
+		e.style.color = 'red';
+		addClasses(e, ['has-error']);
 	} else {
-		e.style.color = "#555";
-		removeClasses(e, ["has-error"]);
+		e.style.color = '#555';
+		removeClasses(e, ['has-error']);
 	}
 
 	modal = document.getElementById('div_msg');
-	modal.style.display = "block";
+	modal.style.display = 'block';
 
 	window.onclick = function(event) {
 		if (event.target == modal) {
-			modal.style.display = "none";
+			modal.style.display = 'none';
 		}
 	}
 }
 
 function closeMsg() {
-	if (modal) {modal.style.display = "none";}
+	if (modal) { modal.style.display = 'none'; }
+}
+
+function showDialog(msg, default_value, primary_value, primary_callback) {
+	setValue('dialog_msg', msg);
+	var e = document.getElementById('dialog_btn_default');
+	e.value = default_value;
+	e.onclick = function(){ setDisplay('div_dialog', false); };
+	e = document.getElementById('dialog_btn_primary');
+	e.value = primary_value;
+	e.onclick = function(){ setDisplay('div_dialog', false); primary_callback(); };
+	setDisplay('div_dialog', true);
 }
 
 var config;
@@ -2426,16 +2430,10 @@ function savetraffic() {
 }
 
 function removetraffic() {
-	setDisplay("div_removetraffic", true);
-}
-
-function cancelremovetraffic() {
-	setDisplay("div_removetraffic", false);
+	showDialog('Usunąć dane o transferze?', 'Anuluj', 'Usuń', okremovetraffic);
 }
 
 function okremovetraffic() {
-	cancelremovetraffic();
-
 	var cmd = [];
 	cmd.push('rm /usr/lib/easyconfig/easyconfig_traffic.txt.gz');
 	cmd.push('touch /usr/lib/easyconfig/easyconfig_traffic.txt');
@@ -2523,18 +2521,13 @@ function readsms() {
 }
 
 function removesms(index, sender, timestamp) {
-	setValue('sms_index', index);
-	setValue('removesms_text', 'Usunąć wiadomość od "' + sender + '" otrzymaną ' + timestamp + '?');
-	setDisplay('div_removesms', true);
-}
-
-function cancelremovesms() {
-	setDisplay('div_removesms', false);
+	setValue('dialog_val', index);
+	showDialog('Usunąć wiadomość od "' + sender + '" otrzymaną ' + timestamp + '?', 'Anuluj', 'Usuń', okremovesms);
 }
 
 function okremovesms() {
-	var index = getValue('sms_index');
-	cancelremovesms();
+	var index = getValue('dialog_val');
+
 	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
 		if ((data.response).match(/Deleted message/) == null)
 			showMsg('Wystąpił problem z usunięciem wiadomości')
@@ -2862,17 +2855,10 @@ function selectVpn(data, copydatafromprofile) {
 
 function removepptp() {
 	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
-	setValue('removevpnprofile', profile.name);
-	setDisplay('div_removevpnprofile', true);
-}
-
-function cancelremovevpnprofile() {
-	setDisplay('div_removevpnprofile', false);
+	showDialog('Usunąć profil "' + profile.name + '"?', 'Anuluj', 'Usuń', okremovevpnprofile);
 }
 
 function okremovevpnprofile() {
-	cancelremovevpnprofile();
-
 	var cmd = [];
 	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
 	var section = 'v' + ((profile.name).toLowerCase().replace(/[^a-z0-9_]/g, ''));
@@ -3006,17 +2992,12 @@ function blacklistdomain() {
 }
 
 function removefromblacklist(domain) {
-	setValue('removefromblacklist_domain', domain);
-	setDisplay('div_removefromblacklist', true);
-}
-
-function cancelremovefromblacklist() {
-	setDisplay('div_removefromblacklist', false);
+	setValue('dialog_val', domain);
+	showDialog('Usunąć domenę "' + domain + '" z listy?', 'Anuluj', 'Usuń', okremovefromblacklist);
 }
 
 function okremovefromblacklist() {
-	var domain = getValue('removefromblacklist_domain');
-	cancelremovefromblacklist();
+	var domain = getValue('dialog_val');
 
 	var cmd = [];
 	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
