@@ -3045,7 +3045,7 @@ function savenightmode() {
 	execute(cmd, shownightmode);
 }
 
-function btn_nightmoder_wifi_on() {
+function btn_nightmode_wifi_on() {
 	var cmd = ['wifi up'];
 
 	execute(cmd, function() {});
