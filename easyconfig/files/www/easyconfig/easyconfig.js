@@ -1733,7 +1733,7 @@ function wlanclientscallback(sortby) {
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
-      showicon();
+	showicon();
 }
 
 function clientslogscallback(logs) {
@@ -1742,7 +1742,7 @@ function clientslogscallback(logs) {
 		var sorted = sortJSON(logs, 'id', '321');
 		for(var idx = 0; idx < sorted.length; idx++){
 			var title = '';
-			if (sorted[idx].desc !== '') {
+			if (sorted[idx].desc !== '' && typeof sorted[idx].desc.band !== 'undefined') {
 				title = 'Pasmo ' + (sorted[idx].desc.band == 2 ? '2.4GHz' : '5GHz') + ', SSID: ' + sorted[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
