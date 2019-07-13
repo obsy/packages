@@ -838,6 +838,10 @@ function showcallback(data) {
 		opt.value = 'none';
 		opt.innerHTML = 'Brak akcji';
 		select.appendChild(opt);
+		var opt = document.createElement('option');
+		opt.value = 'leds';
+		opt.innerHTML = 'Włącz/wyłącz diody LED';
+		select.appendChild(opt);
 		if (is_radio2 || is_radio5) {
 			var opt = document.createElement('option');
 			opt.value = 'wifi';
@@ -850,10 +854,6 @@ function showcallback(data) {
 			opt.innerHTML = 'Włącz/wyłącz VPN';
 			select.appendChild(opt);
 		}
-		var opt = document.createElement('option');
-		opt.value = 'leds';
-		opt.innerHTML = 'Włącz/wyłącz diody LED';
-		select.appendChild(opt);
 		setValue('system_button_name', config.button.name);
 		setValue('system_button', config.button.action);
 	}
