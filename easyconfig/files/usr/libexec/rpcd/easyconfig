@@ -369,6 +369,9 @@ case $(cat /tmp/sysinfo/board_name) in
 		;;
 esac
 if [ -n "$BUTTON" ]; then
+	if grep -q leds /etc/rc.button/$BUTTON; then
+		ACTION="leds"
+	fi
 	if grep -q rfkill /etc/rc.button/$BUTTON; then
 		ACTION="wifi"
 	fi
@@ -1201,6 +1204,27 @@ show_nightmode()
 
 ##############################################################################
 
+leds() {
+	read input;
+	json_load "$input"
+	json_get_var action action
+	if [ "x$action" = "xoff" ]; then
+		for i in /sys/class/leds/*:*:*; do
+		echo none > $i/trigger
+		echo 0 > $i/brightness
+		done
+		touch /tmp/led_off
+	else
+		rm /tmp/led_off 2>/dev/null
+		/etc/init.d/led start >/dev/null 2>&1
+		. /etc/diag.sh
+		set_state done
+	fi
+	echo '{"response":"done"}'
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -1223,7 +1247,8 @@ case "$1" in
 		echo '"pptp":{},'
 		echo '"geolocation":{},'
 		echo '"adblock":{},'
-		echo '"nightmode":{}'
+		echo '"nightmode":{},'
+		echo '"leds":{"action":"string"}'
 		echo '}'
 	;;
 	call)
@@ -1287,6 +1312,9 @@ case "$1" in
 				;;
 			nightmode)
 				show_nightmode
+				;;
+			leds)
+				leds
 				;;
 		esac
 	;;

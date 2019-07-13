@@ -28,21 +28,10 @@ SCRDOWN=0
 [ "$CURR" \< "$SUNSET" ] && SCRDOWN=1
 
 if [ $SCRUP -eq 1 ]; then
-(sunwait sun up $LAT $LON && {
-		rm /tmp/led_off 2>/dev/null
-		/etc/init.d/led start
-		. /etc/diag.sh
-		set_state done
-		}) &
+(sunwait sun up $LAT $LON && ubus call easyconfig leds '{"action":"on"}') &
 fi
 if [ $SCRDOWN -eq 1 ]; then
-(sunwait sun down $LAT $LON && {
-		for i in /sys/class/leds/*:*:*; do
-		echo none > $i/trigger
-		echo 0 > $i/brightness
-		done
-		touch /tmp/led_off
-		}) &
+(sunwait sun down $LAT $LON && ubus call easyconfig leds '{"action":"off"}') &
 fi
 
 exit 0

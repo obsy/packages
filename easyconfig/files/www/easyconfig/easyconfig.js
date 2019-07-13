@@ -850,6 +850,10 @@ function showcallback(data) {
 			opt.innerHTML = 'Włącz/wyłącz VPN';
 			select.appendChild(opt);
 		}
+		var opt = document.createElement('option');
+		opt.value = 'leds';
+		opt.innerHTML = 'Włącz/wyłącz diody LED';
+		select.appendChild(opt);
 		setValue('system_button_name', config.button.name);
 		setValue('system_button', config.button.action);
 	}
@@ -1129,6 +1133,21 @@ function saveconfig() {
 		button = getValue('system_button');
 		if (config.button.code != button) {
 			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
+			if (button == 'leds') {
+				cmd.push('F=$(mktemp)');
+				cmd.push('cat <<EOF > $F');
+				cmd.push('#!/bin/sh');
+				cmd.push('[ \\\"\\\\${ACTION}\\\" = \\\"released\\\" ] || exit 0');
+				cmd.push('if [ -e /tmp/led_off ]; then')
+				cmd.push(' ubus call easyconfig leds \'{\\\"action\\\":\\\"on\\\"}\'');
+				cmd.push('else');
+				cmd.push(' ubus call easyconfig leds \'{\\\"action\\\":\\\"off\\\"}\'');
+				cmd.push('fi');
+				cmd.push('exit 0');
+				cmd.push('EOF');
+				cmd.push('chmod 755 $F');
+				cmd.push('mv $F /etc/rc.button/' + config.button.code);
+			}
 			if (button == 'wifi') {
 				cmd.push('[ -e /rom/etc/rc.button/rfkill ] && ln -s /rom/etc/rc.button/rfkill /etc/rc.button/' + config.button.code);
 			}
@@ -3057,25 +3076,12 @@ function btn_nightmode_wifi_off() {
 	execute(cmd, function() {});
 }
 
-function btn_nightmode_led_on() {
-	var cmd = [];
-	cmd.push('rm /tmp/led_off 2>/dev/null');
-	cmd.push('/etc/init.d/led start');
-	cmd.push('. /etc/diag.sh');
-	cmd.push('set_state done');
-
-	execute(cmd, function() {});
+function btn_nightmode_leds_on() {
+	ubus_call('"easyconfig", "leds", {"action":"on"}', function(data) {});
 }
 
-function btn_nightmode_led_off() {
-	var cmd = [];
-	cmd.push('for i in /sys/class/leds/*:*:*; do');
-	cmd.push('echo none > $i/trigger');
-	cmd.push('echo 0 > $i/brightness');
-	cmd.push('done');
-	cmd.push('touch /tmp/led_off');
-
-	execute(cmd, function() {});
+function btn_nightmode_leds_off() {
+	ubus_call('"easyconfig", "leds", {"action":"off"}', function(data) {});
 }
 
 function btn_nightmode_getlocation() {
