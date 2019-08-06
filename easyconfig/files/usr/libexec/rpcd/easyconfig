@@ -363,7 +363,11 @@ BUTTON=""
 ACTION="none"
 case $(cat /tmp/sysinfo/board_name) in
 	"cellc,rtl30vw"|\
-	"dlink,dwr-921-c1")
+	"dlink,dwr-921-c1"|\
+	"tl-wr902ac-v1"|\
+	"tplink,tl-mr3020-v1"|\
+	"tplink,tl-mr3020-v3"|\
+	"tplink,tl-wr902ac-v3")
 		BUTTON_NAME="WPS"
 		BUTTON="wps"
 		;;
