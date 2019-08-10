@@ -18,7 +18,7 @@ show_status()
 {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
-	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $T))")
+	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - T))")
 	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
 else
 	SYSTEM_UPTIME_SINCE="-"
@@ -44,7 +44,7 @@ fi
 
 if [ -n "$WAN_UPTIME" ]; then
 	if $TIMEISVALID; then
-		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $WAN_UPTIME))")
+		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - WAN_UPTIME))")
 	else
 		WAN_UPTIME_SINCE="-"
 	fi
@@ -55,12 +55,12 @@ fi
 
 F=/tmp/easyconfig_wan_up
 if [ -e $F ]; then
-	WAN_UP_CNT=$(cat $F | wc -l)
+	WAN_UP_CNT=$(wc -l < $F)
 	for i in $(tail -n 10 $F); do
 		SINCE=$((SYSTEM_UPTIME - i))
 		WAN_UP_SINCE="$WAN_UP_SINCE{\"$SINCE\":"
 		if $TIMEISVALID; then
-			WAN_UP_SINCE="$WAN_UP_SINCE\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - $SINCE))")"\"},"
+			WAN_UP_SINCE="$WAN_UP_SINCE\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - SINCE))")"\"},"
 		else
 			WAN_UP_SINCE="$WAN_UP_SINCE\"\"},"
 		fi
@@ -81,7 +81,7 @@ fi
 WLAN_CLIENTS=0
 IFACES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[*].ifname')
 for i in $IFACES; do
-	CNT=$(iw dev $i station dump | grep Station | wc -l)
+	CNT=$(iw dev $i station dump | grep -c Station)
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
@@ -509,7 +509,7 @@ for M in $WLAN_MAC; do
 	T=${M%,\"ba*}
 	CONNECTED=${T##*:}
 	if $TIMEISVALID; then
-		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $CONNECTED))")'"'
+		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - CONNECTED))")'"'
 	else
 		CONNECTED_SINCE=',"connected_since":"-"'
 	fi
@@ -1051,7 +1051,7 @@ show_pptp()
 	if [ "x$UP" = "xtrue" ]; then
 		UPTIME=$(echo "$T" | jsonfilter -q -e "@.uptime")
 		if $TIMEISVALID; then
-			UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - $UPTIME))")
+			UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - UPTIME))")
 		else
 			UPTIME_SINCE=""
 		fi
