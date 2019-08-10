@@ -742,7 +742,7 @@ $10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {LINE[$9]=sprintf("\"id\":%d,\"time\":\
 $13 ~ /NXDOMAIN/ {NXDOMAIN[$9]="true"}
 END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 ')
-	IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)",.*/\1/g' | sort | uniq)
+	IPS=$(echo "$T" | sed 's/.*"host":"\(.*\)",.*/\1/g' | sort -u)
 
 	for IP in $IPS; do
 		MAC=$(awk '/'$IP'/{print $2}' /tmp/dhcp.leases)
