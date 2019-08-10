@@ -832,18 +832,18 @@ detect_wan()
 			(uqmi -s -d $D --get-pin-status > $F) &
 			sleep 2
 			killall uqmi > /dev/null 2>&1
-			if cat $F | grep -q '"pin1_status"'; then
+			if grep -q '"pin1_status"' $F; then
 				DEVICE=$D
 				break
 			fi
-			if cat $F | grep -q '"Not supported"\|"Invalid QMI command"'; then
+			if grep -q '"Not supported"\|"Invalid QMI command"' $F; then
 				DEVICE=$D
 				break
 			fi
 		done
 
 		if [ -n "$DEVICE" ]; then
-			if cat $F | grep -q '"pin1_status":"not_verified"'; then
+			if grep -q '"pin1_status":"not_verified"' $F; then
 				rm $F > /dev/null 2>&1
 				echo '{"proto":"qmi","device":"'$DEVICE'","action":"pinrequired"}'
 				exit 0
