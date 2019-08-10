@@ -532,9 +532,9 @@ echo '],'
 
 echo '"logs":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
-/AP-STA-CONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$10; WIFI[$10]=NR; EVENT[NR]="connect"; DESC[NR]=$8}
-/DHCPACK\(/ {if(WIFI[$10]!=0){DHCP[WIFI[$10]]=$11; NAME[$10]=$11}}
-/AP-STA-DISCONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$10; WIFI[$10]=0; EVENT[NR]="disconnect"; DHCP[NR]=NAME[$10]; NAME[$10]=""; DESC[NR]=$8}
+/AP-STA-CONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$11; WIFI[$11]=NR; EVENT[NR]="connect"; DESC[NR]=$9}
+/DHCPACK\(/ {if(WIFI[$11]!=0){DHCP[WIFI[$11]]=$12; NAME[$11]=$12}}
+/AP-STA-DISCONNECTED/ {TIME[NR]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[NR]=$11; WIFI[$11]=0; EVENT[NR]="disconnect"; DHCP[NR]=NAME[$11]; NAME[$11]=""; DESC[NR]=$9}
 END { for (T in EVENT) {
 		printf "{\"id\":%d,\"time\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\",\"desc\":\"%s\"},\n", T, TIME[T], MAC[T], DHCP[T], EVENT[T], DESC[T]
 	}
