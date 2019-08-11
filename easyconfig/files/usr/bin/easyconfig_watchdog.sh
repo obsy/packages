@@ -23,7 +23,7 @@ else
 	echo 1 > /tmp/easyconfig_watchdog_cnt
 	exit 0
 fi
-CNT=$(cat /tmp/easyconfig_watchdog_cnt | wc -l)
+CNT=$(wc -l < /tmp/easyconfig_watchdog_cnt)
 CNT=$((CNT-1))
 
 if [ $CNT -ge $4 ]; then
