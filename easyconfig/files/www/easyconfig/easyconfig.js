@@ -1658,6 +1658,11 @@ function sitesurveycallback(sortby) {
 						}
 					}
 				} else {
+					if (sorted[idx].mode1 == 'n') {
+						if (sorted[idx].mode2 == 'HT20') {
+							channels[sorted[idx].channel]++;
+						}
+					}
 					if (sorted[idx].mode1 == 'ac') {
 						if (sorted[idx].mode2 == 'VHT20') {
 							channels[sorted[idx].channel]++;
