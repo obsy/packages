@@ -748,6 +748,7 @@ END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 		MAC=$(awk '/'$IP'/{print $2}' /tmp/dhcp.leases)
 		if [ -n "$MAC" ]; then
 			NAME1=$(awk '/'$IP'/{print $4}' /tmp/dhcp.leases)
+			[ "x$NAME1" = "x*" ] && NAME1=$MAC
 		else
 			NAME1=""
 			MAC=$(awk '/'$IP'/{print $4}' /proc/net/arp)
