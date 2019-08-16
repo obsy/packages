@@ -1662,6 +1662,20 @@ function sitesurveycallback(sortby) {
 						if (sorted[idx].mode2 == 'HT20') {
 							channels[sorted[idx].channel]++;
 						}
+						if (sorted[idx].mode2 == 'HT40-') {
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -6])) { channels[parseInt(sorted[idx].channel) -6]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -4])) { channels[parseInt(sorted[idx].channel) -4]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+							channels[sorted[idx].channel]++;
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+						}
+						if (sorted[idx].mode2 == 'HT40+') {
+							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
+							channels[sorted[idx].channel]++;
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +4])) { channels[parseInt(sorted[idx].channel) +4]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].channel) +6])) { channels[parseInt(sorted[idx].channel) +6]++; }
+						}
 					}
 					if (sorted[idx].mode1 == 'ac') {
 						if (sorted[idx].mode2 == 'VHT20') {
@@ -1669,19 +1683,22 @@ function sitesurveycallback(sortby) {
 						}
 						if (sorted[idx].mode2 == 'VHT40') {
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -0])) { channels[parseInt(sorted[idx].vhtch1) -0]++; }
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
 						}
 						if (sorted[idx].mode2 == 'VHT80') {
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -6])) { channels[parseInt(sorted[idx].vhtch1) -6]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -4])) { channels[parseInt(sorted[idx].vhtch1) -4]++; }
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -0])) { channels[parseInt(sorted[idx].vhtch1) -0]++; }
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
+							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +4])) { channels[parseInt(sorted[idx].vhtch1) +4]++; }
 							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +6])) { channels[parseInt(sorted[idx].vhtch1) +6]++; }
 						}
 					}
 				}
 			}
 		}
-
 		for (var ch in channels) {
 			var percent = parseInt(channels[ch] * 100 / sorted.length) + '%';
 			document.getElementById('channel' + ch + 'bar').style.width = percent;
