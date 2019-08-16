@@ -747,22 +747,20 @@ END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 	for IP in $IPS; do
 		MAC=$(awk '/'$IP'/{print $2}' /tmp/dhcp.leases)
 		if [ -n "$MAC" ]; then
-			NAME1=$(awk '/'$IP'/{print $4}' /tmp/dhcp.leases)
-			[ "x$NAME1" = "x*" ] && NAME1=$MAC
+			DHCPNAME=$(awk '/'$IP'/{print $4}' /tmp/dhcp.leases)
+			[ "x$DHCPNAME" = "x*" ] && DHCPNAME=""
 		else
-			NAME1=""
 			MAC=$(awk '/'$IP'/{print $4}' /proc/net/arp)
 		fi
 		if [ -n "$MAC" ]; then
-			NAME2=$(uci -q get easyconfig.m${MAC//:/}.name)
-			if [ -n "$NAME2" ]; then
-				NAME="$NAME2"
-			else
-				NAME="$NAME1"
-			fi
-			if [ -n "$NAME" ]; then
-				T=$(echo "$T" | sed "s/\"host\":\"$IP\"/\"host\":\"$NAME\"/g")
-			fi
+			USERNAME=$(uci -q get easyconfig.m${MAC//:/}.name)
+		fi
+		NAME=""
+		[ -n "$MAC" ] && NAME=$MAC
+		[ -n "$DHCPNAME" ] && NAME=$DHCPNAME
+		[ -n "$USERNAME" ] && NAME=$USERNAME
+		if [ -n "$NAME" ]; then
+			T=$(echo "$T" | sed "s/\"host\":\"$IP\"/\"host\":\"$NAME\"/g")
 		fi
 	done
 
