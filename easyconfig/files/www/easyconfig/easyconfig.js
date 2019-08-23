@@ -3021,7 +3021,7 @@ function blacklistdomain() {
 
 	var cmd = [];
 	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
-	cmd.push('[ -z \\\"$F\\\" ] && exit 0');
+	cmd.push('[ -z \\\"$F\\\" ] && F=/etc/adblock/adblock.blacklist');
 	cmd.push('mkdir -p $(dirname $F)');
 	cmd.push('echo \\\"' + domain + '\\\" >> $F');
 	cmd.push('/etc/init.d/adblock restart');
@@ -3042,7 +3042,7 @@ function okremovefromblacklist() {
 
 	var cmd = [];
 	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
-	cmd.push('[ -z \\\"$F\\\" ] && exit 0');
+	cmd.push('[ -z \\\"$F\\\" ] && F=/etc/adblock/adblock.blacklist');
 	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
 	cmd.push('/etc/init.d/adblock restart');
 

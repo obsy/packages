@@ -1158,6 +1158,7 @@ show_adblock()
 	json_add_array blacklist
 
 	F=$(uci -q get adblock.blacklist.adb_src)
+	[ -z "$F" ] && F=/etc/adblock/adblock.blacklist
 	if [ -s "$F" ]; then
 		while read line; do
 			json_add_string "" "$line"
