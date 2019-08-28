@@ -1084,7 +1084,7 @@ show_pptp()
 	echo '],'
 
 	SYSTEM=$(uci show system)
-	T=$(ls -d /sys/class/leds/*:*:* 2>/dev/null)
+	T=$(ls -d /sys/class/leds/*:*:* 2>/dev/null | sed 's|/sys/class/leds/||g')
 	O=""
 	echo '"leds":['
 	for LED in $T; do
