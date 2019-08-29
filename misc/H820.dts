@@ -14,26 +14,37 @@
 		reg = <0x0 0x4000000>;
 	};
 
-	gpio-leds {
+	aliases {
+		led-boot = &led_system;
+		led-failsafe = &led_system;
+		led-running = &led_system;
+		led-upgrade = &led_system;
+	};
+
+	leds {
 		compatible = "gpio-leds";
 
 		cell {
 			label = "h820:yellow:cell";
 			gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
 		};
+
 		signal {
 			label = "h820:blue:signal";
 			gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
 		};
+
 		wps {
 			label = "h820:green:wps";
 			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
 		};
+
 		vpn {
 			label = "h820:green:vpn";
 			gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
 		};
-		sys {
+
+		led_system: sys {
 			label = "h820:red:sys";
 			gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
 		};
@@ -50,7 +61,7 @@
 		};
 	};
 
-	gpio-keys-polled {
+	keys {
 		compatible = "gpio-keys-polled";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -73,38 +84,43 @@
 	status = "okay";
 
 	m25p80@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <10000000>;
 
-		partition@0 {
-			label = "u-boot";
-			reg = <0x0 0x30000>;
-			read-only;
-		};
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
 
-		partition@30000 {
-			label = "u-boot-env";
-			reg = <0x30000 0x20000>;
-			read-only;
-		};
+			partition@0 {
+				label = "u-boot";
+				reg = <0x0 0x30000>;
+				read-only;
+			};
 
-		factory: partition@50000 {
-			label = "factory";
-			reg = <0x50000 0x10000>;
-			read-only;
-		};
+			partition@30000 {
+				label = "u-boot-env";
+				reg = <0x30000 0x20000>;
+				read-only;
+			};
 
-		partition@60000 {
-			label = "user_fs";
-			reg = <0x60000 0x1a0000>;
-		};
+			factory: partition@50000 {
+				label = "factory";
+				reg = <0x50000 0x10000>;
+				read-only;
+			};
 
-		partition@200000 {
-			label = "firmware";
-			reg = <0x200000 0x600000>;
+			partition@60000 {
+				label = "user_fs";
+				reg = <0x60000 0x1a0000>;
+			};
+
+			partition@200000 {
+				compatible = "denx,uimage";
+				label = "firmware";
+				reg = <0x200000 0x600000>;
+			};
 		};
 	};
 };
