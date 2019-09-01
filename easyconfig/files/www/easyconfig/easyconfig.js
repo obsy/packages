@@ -1394,12 +1394,17 @@ function showmodemsection() {
 /*****************************************************************************/
 
 function btn_system_reboot() {
+	showDialog('Uruchomić urządzenie ponownie?', 'Nie', 'Tak', okreboot);
+}
+
+function okreboot() {
 	ubus('"easyconfig", "reboot", {}', function(data) {
 		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
 	});
 }
+
 
 /*****************************************************************************/
 
