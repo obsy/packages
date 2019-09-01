@@ -1216,9 +1216,9 @@ function showwanup(data) {
 	for (var propt in arr) {
 		for (var k in arr[propt]) {
 			if (arr[propt][k] == '') {
-				html += '<div class="row"><div class="col-xs-12">' + formatTime(k, true) + ' temu</div></div>';
+				html += '<div class="row"><div class="col-xs-12">' + formatDuration(k, true) + ' temu</div></div>';
 			} else {
-				html += '<div class="row"><div class="col-xs-6 text-right">' + arr[propt][k] + '</div><div class="col-xs-6 text-left">'  + formatTime(k, true) + ' temu</div></div>';
+				html += '<div class="row"><div class="col-xs-6 text-right">' + arr[propt][k] + '</div><div class="col-xs-6 text-left">'  + formatDuration(k, true) + ' temu</div></div>';
 			}
 		}
 	}
@@ -1227,17 +1227,17 @@ function showwanup(data) {
 
 function showstatus() {
 	ubus_call('"easyconfig", "status", {}', function(data) {
-		setValue('system_uptime', formatTime(data.system_uptime, false));
-		setValue('system_uptime_since', data.system_uptime_since == '-'?'':' (od ' + data.system_uptime_since + ')');
+		setValue('system_uptime', formatDuration(data.system_uptime, false));
+		setValue('system_uptime_since', data.system_uptime_since == '' ? '' : ' (od ' + data.system_uptime_since + ')');
 		setValue('system_load', data.system_load);
-		setValue('system_time', data.system_time);
+		setValue('system_time', data.system_time == '' ? '-' : data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
-		setValue('wan_rx', data.wan_rx == '-'?'-':bytesToSize(data.wan_rx));
-		setValue('wan_tx', data.wan_tx == '-'?'-':bytesToSize(data.wan_tx));
-		setValue('wan_uptime', formatTime(data.wan_uptime, false));
-		setValue('wan_uptime_since', data.wan_uptime_since == '-'?'':' (od ' + data.wan_uptime_since + ')');
-		setValue('wan_up_cnt', (data.wan_up_cnt == '-')?'-':'<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
-		setValue('wan_ipaddr_status', (data.wan_ipaddr == '-')?'-':'<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
+		setValue('wan_rx', data.wan_rx == '' ? '-' : bytesToSize(data.wan_rx));
+		setValue('wan_tx', data.wan_tx == '' ? '-' : bytesToSize(data.wan_tx));
+		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
+		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + data.wan_uptime_since + ')');
+		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
+		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
 		setDisplay('div_vpn_up_status', data.vpn_up);
 	});
 }
@@ -1247,11 +1247,11 @@ function showsystem() {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
-		setValue('modem_vendor', data.modem.vendor);
-		setValue('modem_model', data.modem.product);
-		setValue('modem_revision', data.modem.revision);
-		setValue('modem_imei', data.modem.imei);
-		setValue('modem_iccid', data.modem.iccid);
+		setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
+		setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
+		setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);
+		setValue('modem_imei', data.modem.imei == '' ? '-' : data.modem.imei);
+		setValue('modem_iccid', data.modem.iccid == '' ? '-' : data.modem.iccid);
 	});
 }
 
@@ -1348,7 +1348,7 @@ function showmodem() {
 			setValue('modem_registration', 'Zalogowana do sieci w roamingu');
 			break;
 		default:
-			setValue('modem_registration', data.registration == '-'?'-':data.registration);
+			setValue('modem_registration', data.registration == '' ? '-' : data.registration);
 		}
 
 		if (data.addon) {
@@ -1476,7 +1476,7 @@ function sortJSON(data, key, way) {
 	});
 }
 
-function formatTime(s, showsec) {
+function formatDuration(s, showsec) {
 	if (s === '-') {return '-';}
 	if (s === '') {return '-';}
 	var d = Math.floor(s/86400),
@@ -1577,7 +1577,7 @@ function sitesurveycallback(sortby) {
 
 			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
 			if (key in manuf) {html += manuf[key] + '<br>';}
-			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatTime(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
+			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatDuration(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
 			if (rogueap) {html += '<br>Wrogi AP';}
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
@@ -1851,7 +1851,7 @@ function hostinfo(data) {
 	}
 
 	html += createRowForModal('Pasmo', (host.band == 2 ? '2.4GHz' : '5GHz'));
-	html += createRowForModal('Połączony', '<span>' + formatTime(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '-' ? '' : ' (od ' + host.connected_since + ')') + '</span></small>');
+	html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + host.connected_since + ')') + '</span></small>');
 	showMsg(html, false);
 }
 
@@ -2751,7 +2751,7 @@ function showpptp() {
 	ubus_call('"easyconfig", "pptp", {}', function(data) {
 		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
 		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
-		setValue('pptp_uptime', formatTime(data.uptime, false));
+		setValue('pptp_uptime', formatDuration(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + data.uptime_since + ')');
 		setValue('pptp_auto', data.auto == '' ? true : false);
 		setValue('pptp_name', data.name);
@@ -2934,7 +2934,7 @@ var adblock_lists;
 
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
-		setValue('adblock_domains', data.domains);
+		setValue('adblock_domains', data.domains == '' ? '-' : data.domains);
 		setValue('adblock_enabled', data.enabled);
 		setValue('adblock_forcedns', data.forcedns);
 

@@ -8,7 +8,7 @@
 
 . /usr/share/libubox/jshn.sh
 
-if grep -q "time is valid" /tmp/state/dnsmasqsec 2> /dev/null; then
+if grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null; then
 	TIMEISVALID="true"
 else
 	TIMEISVALID="false"
@@ -20,9 +20,6 @@ T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
 	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - T))")
 	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
-else
-	SYSTEM_UPTIME_SINCE="-"
-	SYSTEM_TIME="-"
 fi
 
 SYSTEM_UPTIME=$T
@@ -40,17 +37,11 @@ if [ "x$PROTO" = "xqmi" -o "x$PROTO" = "xncm" ]; then
 else
 	network_get_ipaddr WAN_IPADDR wan
 fi
-[ -z "$WAN_IPADDR" ] && WAN_IPADDR="-"
 
 if [ -n "$WAN_UPTIME" ]; then
 	if $TIMEISVALID; then
 		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - WAN_UPTIME))")
-	else
-		WAN_UPTIME_SINCE="-"
 	fi
-else
-	WAN_UPTIME_SINCE="-"
-	WAN_UPTIME="-"
 fi
 
 F=/tmp/easyconfig_wan_up
@@ -65,17 +56,11 @@ if [ -e $F ]; then
 			WAN_UP_SINCE="$WAN_UP_SINCE\"\"},"
 		fi
 	done
-else
-	WAN_UP_CNT="-"
-	WAN_UP_SINCE=""
 fi
 
 if [ -n "$IFNAME" ]; then
 	WAN_RX=$(awk '/^[ ]*'$IFNAME':/{print $2}' /proc/net/dev)
 	WAN_TX=$(awk '/^[ ]*'$IFNAME':/{print $10}' /proc/net/dev)
-else
-	WAN_RX="-"
-	WAN_TX="-"
 fi
 
 WLAN_CLIENTS=0
@@ -112,11 +97,6 @@ GUI_VERSION="-devel-"
 VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
 MODEL=$(cat /tmp/sysinfo/model)
 
-VENDOR="-"
-PRODUCT="-"
-REVISION="-"
-IMEI="-"
-ICCID="-"
 if [ -e /tmp/modem ]; then
 	DEVICE=$(cat /tmp/modem)
 	O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
@@ -156,7 +136,6 @@ WAN_GATEWAY=$(uci -q -P /var/state get network.wan.gateway)
 WAN_DNS=$(uci -q -P /var/state get network.wan.dns)
 WAN_DNS_SOURCE="config"
 WAN_APN=$(uci -q get network.wan.apn)
-[ -z "$WAN_APN" ] && WAN_APN="internet"
 WAN_DEVICE=$(uci -q get network.wan.device)
 WAN_PINCODE=$(uci -q get network.wan.pincode)
 WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
@@ -250,7 +229,7 @@ echo '"wan_gateway":"'$WAN_GATEWAY'",'
 echo '"wan_dns1":"'$WAN_DNS1'",'
 echo '"wan_dns2":"'$WAN_DNS2'",'
 echo '"wan_dns_source":"'$WAN_DNS_SOURCE'",'
-echo '"wan_apn":"'$WAN_APN'",'
+echo '"wan_apn":"'${WAN_APN:-internet}'",'
 echo '"wan_device":"'$WAN_DEVICE'",'
 echo '"wan_pincode":"'$WAN_PINCODE'",'
 echo '"wan_ifname":"'$WAN_IFNAME'",'
@@ -511,7 +490,7 @@ for M in $WLAN_MAC; do
 	if $TIMEISVALID; then
 		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - CONNECTED))")'"'
 	else
-		CONNECTED_SINCE=',"connected_since":"-"'
+		CONNECTED_SINCE=',"connected_since":""'
 	fi
 
 	BLOCK=',"block":0,"blockdata":""'
@@ -638,7 +617,7 @@ show_modem()
 				;;
 			"xsearching")
 				registration="2"
-				plmn_description="-"
+				plmn_description=""
 				;;
 			"xregistering_denied")
 				registration="3"
@@ -672,7 +651,7 @@ show_ussd() {
 		[ "x$T" = "x1" ] && OPT="$OPT -R"
 		T=$(uci -q get easyconfig.ussd.raw_output)
 		[ "x$T" = "x1" ] && OPT="$OPT -r"
-		[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh > /dev/null 2>&1
+		[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
 		DEVICE=$(cat /tmp/modem)
 		if [ -n "$DEVICE" ]; then
 			T=$(sms_tool -d $DEVICE $OPT ussd "$code" 2>/dev/null)
@@ -706,7 +685,7 @@ show_sms() {
 	json_get_var arg1 arg1
 	json_get_var arg2 arg2
 
-	[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh > /dev/null 2>&1
+	[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
 	DEVICE=$(cat /tmp/modem)
 	if [ -z "$DEVICE" ]; then
 		echo '{"response":"Device not found"}'
@@ -810,10 +789,10 @@ pincode()
 	json_get_vars proto device pincode
 
 	if [ "x$proto" = "xqmi" ]; then
-		uqmi -d $device --verify-pin1 $pincode > /dev/null 2>&1
+		uqmi -d $device --verify-pin1 $pincode >/dev/null 2>&1
 	fi
 	if [ "x$proto" = "xncm" -o "x$proto" = "x3g" ]; then
-		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom > /dev/null 2>&1
+		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom >/dev/null 2>&1
 	fi
 	echo '{}'
 }
@@ -830,7 +809,7 @@ detect_wan()
 			echo "" > $F
 			(uqmi -s -d $D --get-pin-status > $F) &
 			sleep 2
-			killall uqmi > /dev/null 2>&1
+			killall uqmi >/dev/null 2>&1
 			if grep -q '"pin1_status"' $F; then
 				DEVICE=$D
 				break
@@ -843,11 +822,11 @@ detect_wan()
 
 		if [ -n "$DEVICE" ]; then
 			if grep -q '"pin1_status":"not_verified"' $F; then
-				rm $F > /dev/null 2>&1
+				rm $F >/dev/null 2>&1
 				echo '{"proto":"qmi","device":"'$DEVICE'","action":"pinrequired"}'
 				exit 0
 			fi
-			rm $F > /dev/null 2>&1
+			rm $F >/dev/null 2>&1
 			echo '{"proto":"qmi","device":"'$DEVICE'","apn":"internet"}'
 			exit 0
 		fi
@@ -1140,8 +1119,6 @@ show_adblock()
 		json_select data
 		json_get_var DOMAINS overall_domains
 		DOMAINS=${DOMAINS%% *}
-	else
-		DOMAINS="-"
 	fi
 
 	json_init
