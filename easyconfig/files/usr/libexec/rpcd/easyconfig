@@ -415,6 +415,12 @@ else
 	echo '"sunwait":false,'
 fi
 
+if hostapd -vsae; then
+	echo '"sae":true,'
+else
+	echo '"sae":false,'
+fi
+
 echo '}'
 
 echo '}'

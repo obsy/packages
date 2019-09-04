@@ -760,10 +760,20 @@ function showcallback(data) {
 	setDisplay('menu_queries', config.dhcp_logqueries);
 
 	// wlan
+	var is_radio2 = false;
+	var is_radio5 = false;
+	var enc = [];
+	enc['none'] = 'Brak';
+	enc['psk'] = 'WPA Personal';
+	enc['psk2'] = 'WPA2 Personal';
+	if (config.services.sae) {
+		enc['sae-mixed'] = 'WPA2/WPA3 Personal';
+		enc['sae'] = 'WPA3 Personal';
+	}
 	var radios = (config.wlan_devices).slice(0,2);
 	for (var i = 0; i < radios.length; i++) {
-		var is_radio2 = false;
-		var is_radio5 = false;
+		is_radio2 = false;
+		is_radio5 = false;
 		removeOptions('wlan_channel' + i);
 		select = document.getElementById('wlan_channel' + i);
 		obj = config[radios[i]].wlan_channels;
@@ -796,7 +806,17 @@ function showcallback(data) {
 		}
 		setValue('wlan_txpower' + i, txpower);
 		setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
+
+		removeOptions('wlan_encryption' + i);
+		var select = document.getElementById('wlan_encryption' + i);
+		for(var propt in enc) {
+			var opt = document.createElement('option');
+			opt.value = propt;
+			opt.innerHTML = enc[propt];
+			select.appendChild(opt);
+		}
 		setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
+
 		setValue('wlan_key' + i, config[radios[i]].wlan_key);
 		enableWlanEncryption(config[radios[i]].wlan_encryption, i)
 		setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate);
