@@ -647,6 +647,8 @@ function login()
 				expires = setTimeout(function(){ location.reload(); }, data.result[1].expires * 1000);
 				timeout = data.result[1].timeout;
 
+				ubus_call('"session", "grant", {"scope":"file","objects":[["*","exec"],["*","write"],["*","read"]]}', function(data) {});
+
 				setDisplay('div_login', false);
 				setDisplay('div_content', true);
 				setDisplay('div_security', (system_pass == '12345678'));
