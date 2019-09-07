@@ -150,8 +150,18 @@
 &pinctrl {
 	state_default: pinctrl0 {
 		gpio {
-			ralink,group = "i2c", "jtag", "uartf";
+			ralink,group = "jtag", "uartf";
 			ralink,function = "gpio";
 		};
+	};
+};
+
+&i2c {
+	status = "okay";
+
+	/* SDMC DM2016 1024 bit EEPROM + 128 bit OTP */
+	eeprom: dm2016@50 {
+		compatible = "sdmc,dm2016";
+		reg = <0x50>;
 	};
 };
