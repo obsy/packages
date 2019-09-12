@@ -3010,6 +3010,21 @@ function showadblock() {
 		}
 		html += '<hr><p>Liczba domen: ' + blacklist.length + '</p>';
 		setValue('div_adblock_list_blacklist', html);
+
+		html = '';
+		var whitelist = data.whitelist;
+		if (whitelist.length > 0) {
+			html = '<hr>';
+			for (var idx = 0; idx < whitelist.length; idx++) {
+				html += '<div class="row">';
+				html += '<div class="col-xs-9">' + whitelist[idx] + '</div>';
+				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
+				html += '</div>';
+			}
+		}
+		html += '<hr><p>Liczba domen: ' + whitelist.length + '</p>';
+		setValue('div_adblock_list_whitelist', html);
+
 		showicon();
 	});
 }
@@ -3061,7 +3076,7 @@ function blacklistdomain() {
 
 function removefromblacklist(domain) {
 	setValue('dialog_val', domain);
-	showDialog('Usunąć domenę "' + domain + '" z listy?', 'Anuluj', 'Usuń', okremovefromblacklist);
+	showDialog('Usunąć domenę "' + domain + '" z listy blokowanych?', 'Anuluj', 'Usuń', okremovefromblacklist);
 }
 
 function okremovefromblacklist() {
@@ -3070,6 +3085,39 @@ function okremovefromblacklist() {
 	var cmd = [];
 	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
 	cmd.push('[ -z \\\"$F\\\" ] && F=/etc/adblock/adblock.blacklist');
+	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
+	cmd.push('/etc/init.d/adblock restart');
+
+	execute(cmd, showadblock);
+}
+
+function whitelistdomain() {
+	if (checkField('adblock_domain', validateHost)) {return;}
+
+	var domain = getValue('adblock_domain');
+
+	var cmd = [];
+	cmd.push('F=/etc/adblock/adblock.whitelist');
+	cmd.push('mkdir -p $(dirname $F)');
+	cmd.push('echo \\\"' + domain + '\\\" >> $F');
+	cmd.push('/etc/init.d/adblock restart');
+
+	execute(cmd, function(){
+		setValue('adblock_domain', '');
+		showadblock();
+	});
+}
+
+function removefromwhitelist(domain) {
+	setValue('dialog_val', domain);
+	showDialog('Usunąć domenę "' + domain + '" z listy dozwolonych?', 'Anuluj', 'Usuń', okremovefromwhitelist);
+}
+
+function okremovefromwhitelist() {
+	var domain = getValue('dialog_val');
+
+	var cmd = [];
+	cmd.push('F=/etc/adblock/adblock.whitelist');
 	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
 	cmd.push('/etc/init.d/adblock restart');
 

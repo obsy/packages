@@ -1131,15 +1131,14 @@ show_adblock()
 	json_add_boolean "enabled" $ENABLED
 	json_add_boolean "forcedns" $FORCEDNS
 	json_add_string "domains" "$DOMAINS"
-	json_add_array lists
 
+	json_add_array lists
 	. /lib/functions.sh
 	config_load adblock
 	config_foreach adblock_source source
-
 	json_close_array
-	json_add_array blacklist
 
+	json_add_array blacklist
 	F=$(uci -q get adblock.blacklist.adb_src)
 	[ -z "$F" ] && F=/etc/adblock/adblock.blacklist
 	if [ -s "$F" ]; then
@@ -1147,8 +1146,17 @@ show_adblock()
 			json_add_string "" "$line"
 		done < $F
 	fi
-
 	json_close_array
+
+	json_add_array whitelist
+	F=/etc/adblock/adblock.whitelist
+	if [ -s "$F" ]; then
+		while read line; do
+			json_add_string "" "$line"
+		done < $F
+	fi
+	json_close_array
+
 	json_dump
 }
 
