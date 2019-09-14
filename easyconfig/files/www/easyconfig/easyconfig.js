@@ -2780,12 +2780,12 @@ function showpptp() {
 		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
 		setValue('pptp_uptime', formatDuration(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + data.uptime_since + ')');
-		setValue('pptp_auto', data.auto == '1' ? true : false);
+		setValue('pptp_auto', data.auto == '1');
 		setValue('pptp_name', data.name);
 		setValue('pptp_server', data.server);
 		setValue('pptp_username', data.username);
 		setValue('pptp_password', data.password);
-		setValue('pptp_mppe', data.mppe);
+		setValue('pptp_mppe', data.mppe == '1');
 
 		document.getElementById('btn_uppptp').disabled = (data.proto == '' || data.server == '');
 		document.getElementById('btn_downpptp').disabled = (data.proto == '' || data.server == '');
@@ -2911,12 +2911,12 @@ function selectVpn(data, copydatafromprofile) {
 		document.getElementById('btn_removepptp').disabled = false;
 		if (copydatafromprofile) {
 			var profile = JSON.parse((data).replace(/\$/g,'"'));
-			setValue('pptp_auto', profile.auto == '1' ? true : false);
+			setValue('pptp_auto', profile.auto == '1');
 			setValue('pptp_name', profile.name);
 			setValue('pptp_server', profile.server);
 			setValue('pptp_username', profile.username);
 			setValue('pptp_password', profile.password);
-			setValue('pptp_mppe', profile.mppe == '1' ? true : false);
+			setValue('pptp_mppe', profile.mppe == '1');
 		}
 	}
 }
