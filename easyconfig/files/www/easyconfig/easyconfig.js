@@ -2780,7 +2780,7 @@ function showpptp() {
 		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
 		setValue('pptp_uptime', formatDuration(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + data.uptime_since + ')');
-		setValue('pptp_auto', data.auto == '' ? true : false);
+		setValue('pptp_auto', data.auto == '1' ? true : false);
 		setValue('pptp_name', data.name);
 		setValue('pptp_server', data.server);
 		setValue('pptp_username', data.username);
@@ -2861,6 +2861,7 @@ function savepptp() {
 	}
 	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
 	cmd.push('uci del_list firewall.$ZONE.network=vpn');
+	cmd.push('uci add_list firewall.$ZONE.network=vpn');
 
 	// profile
 	if (getValue('pptp_name') != '') {
@@ -2878,7 +2879,6 @@ function savepptp() {
 
 	if (getValue('pptp_auto')) {
 		cmd.push('uci set network.vpn.auto=1');
-		cmd.push('uci add_list firewall.$ZONE.network=vpn');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
 		cmd.push('ifup vpn');
@@ -2911,7 +2911,7 @@ function selectVpn(data, copydatafromprofile) {
 		document.getElementById('btn_removepptp').disabled = false;
 		if (copydatafromprofile) {
 			var profile = JSON.parse((data).replace(/\$/g,'"'));
-			setValue('pptp_auto', profile.auto == '' ? true : false);
+			setValue('pptp_auto', profile.auto == '1' ? true : false);
 			setValue('pptp_name', profile.name);
 			setValue('pptp_server', profile.server);
 			setValue('pptp_username', profile.username);
