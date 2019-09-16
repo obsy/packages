@@ -1037,10 +1037,6 @@ show_pptp()
 		else
 			UPTIME_SINCE=""
 		fi
-	else
-		UP="false"
-		UPTIME=""
-		UPTIME_SINCE=""
 	fi
 
 	PROTO=$(uci -q get network.vpn.proto)
@@ -1051,9 +1047,8 @@ show_pptp()
 		USERNAME=$(uci -q get network.vpn.username)
 		PASSWORD=$(uci -q get network.vpn.password)
 	fi
-	VPNLED=$(uci -q get system.led_vpn.sysfs)
 	MPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
-	echo "{\"up\":$UP,\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\"$NAME\",\"auto\":\"${AUTO:-1}\",\"server\":\"$SERVER\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\",\"mppe\":$MPPE,\"led\":\"$VPNLED\","
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\"$NAME\",\"auto\":\"${AUTO:-1}\",\"server\":\"$SERVER\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\",\"mppe\":$MPPE,"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
@@ -1068,10 +1063,11 @@ show_pptp()
 	done
 	echo '],'
 
+	VPNLED=$(uci -q get system.led_vpn.sysfs)
 	SYSTEM=$(uci show system)
 	T=$(ls -d /sys/class/leds/*:*:* 2>/dev/null | sed 's|/sys/class/leds/||g')
 	O=""
-	echo '"leds":['
+	echo '"led":"'$VPNLED'","leds":['
 	for LED in $T; do
 		if ! echo "$SYSTEM" | grep -q "$LED" || [ "x$LED" = "x$VPNLED" ]; then
 			[ -n "$O" ] && O="$O,"
