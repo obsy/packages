@@ -506,10 +506,10 @@ function showDialog(msg, default_value, primary_value, primary_callback) {
 	setValue('dialog_msg', msg);
 	var e = document.getElementById('dialog_btn_default');
 	e.value = default_value;
-	e.onclick = function(){ setDisplay('div_dialog', false); };
+	e.onclick = function(){ setDisplay('div_dialog', false); }
 	e = document.getElementById('dialog_btn_primary');
 	e.value = primary_value;
-	e.onclick = function(){ setDisplay('div_dialog', false); primary_callback(); };
+	e.onclick = function(){ setDisplay('div_dialog', false); primary_callback(); }
 	setDisplay('div_dialog', true);
 }
 
@@ -554,9 +554,9 @@ var ubus = function(param, successHandler, errorHandler) {
 				errorHandler && errorHandler(status);
 			}
 		}
-	};
+	}
 	xhr.send(param);
-};
+}
 
 function ubus_error(error) {
 	closeMsg();
@@ -784,15 +784,15 @@ function showcallback(data) {
 			opt.value = propt;
 			opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
 			select.appendChild(opt);
-			if (propt < 36) {is_radio2=true};
-			if (propt >= 36) {is_radio5=true};
+			if (propt < 36) { is_radio2 = true; }
+			if (propt >= 36) { is_radio5 = true; }
 		}
 
 		if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4GHz');}
 		if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5GHz');}
 		if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5GHz');}
 
-		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != '1'));
+		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
 		setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
 		var txpower;
 		if (config[radios[i]].wlan_txpower == '') {
@@ -821,7 +821,7 @@ function showcallback(data) {
 
 		setValue('wlan_key' + i, config[radios[i]].wlan_key);
 		enableWlanEncryption(config[radios[i]].wlan_encryption, i)
-		setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate);
+		setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate == 1);
 		setDisplay('div_radio' + i, true);
 	}
 
@@ -1040,13 +1040,13 @@ function saveconfig() {
 	}
 
 	// wlan
-	var wlan_restart_required=false;
+	var wlan_restart_required = false;
 
 	var radios = (config.wlan_devices).slice(0,2);
 	for (var i = 0; i < radios.length; i++) {
 		var section = config[radios[i]].wlan_section;
 
-		if (section == "") {
+		if (section == '') {
 			wlan_restart_required = true;
 			cmd.push('uci add wireless wifi-iface');
 			section = '@wifi-iface[-1]';
@@ -1058,13 +1058,13 @@ function saveconfig() {
 		}
 
 		if (getValue('wlan_enabled' + i)) {
-			if (config[radios[i]].wlan_disabled === "1") {
+			if (config[radios[i]].wlan_disabled == 1) {
 				wlan_restart_required = true;
 				cmd.push('uci -q del wireless.' + radios[i] + '.disabled');
 				cmd.push('uci -q del wireless.' + section + '.disabled');
 			}
 		} else {
-			if (config[radios[i]].wlan_disabled !== "1") {
+			if (config[radios[i]].wlan_disabled != 1) {
 				wlan_restart_required = true;
 				cmd.push('uci set wireless.' + radios[i] + '.disabled=1');
 				cmd.push('uci set wireless.' + section + '.disabled=1');
@@ -1111,12 +1111,12 @@ function saveconfig() {
 		}
 
 		if (getValue('wlan_isolate' + i)) {
-			if (config[radios[i]].wlan_isolate === false) {
+			if (config[radios[i]].wlan_isolate == 0) {
 				wlan_restart_required = true;
 				cmd.push('uci set wireless.' + section + '.isolate=1');
 			}
 		} else {
-			if (config[radios[i]].wlan_isolate) {
+			if (config[radios[i]].wlan_isolate != 0) {
 				wlan_restart_required = true;
 				cmd.push('uci -q del wireless.' + section + '.isolate');
 			}
@@ -1516,7 +1516,7 @@ function formatDuration(s, showsec) {
 	if (showsec) {
 		time += s + 's';
 	} else {
-		if (time == '') {time += m + 'm'};
+		if (time == '') { time += m + 'm'; }
 	}
 	return time;
 }
@@ -1748,7 +1748,7 @@ function bytesToSize(bytes) {
 	var dm = 0;
 	if (i > 2) {dm = 3;}
 	return parseFloat((bytes / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
-};
+}
 
 var wlanclients;
 
