@@ -146,7 +146,7 @@ elif [ -e /etc/gargoyle_default_ifs ]; then
 	WAN_IFNAME_DEFAULT=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 fi
 
-WAN_IFNAME_HILINK=$(egrep -Hi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+WAN_IFNAME_HILINK=$(grep -EHi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
 [ -z "$WAN_IFNAME_HILINK" ] && WAN_IFNAME_HILINK=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
 
 if [ "x$WAN_PROTO" = "xdhcp" ]; then
@@ -884,7 +884,7 @@ detect_wan()
 	fi
 
 # modem usb hilink or rndis
-	T=$(egrep -Hi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
+	T=$(grep -EHi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
 	[ -z "$T" ] && T=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
 	if [ -n "$T" ]; then
 		echo '{"proto":"dhcp_hilink","ifname":"'$T'"}'
@@ -1001,7 +1001,7 @@ upgrade()
 	fi
 
 	BOARD=$(cat /tmp/sysinfo/board_name)
-	T=$(egrep "mifi.*$BOARD.*sysupgrade" $FSUMS)
+	T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS)
 	rm $FSUMS >/dev/null 2>&1
 	if [ -z "$T" ]; then
 		echo '{"error":2}'
