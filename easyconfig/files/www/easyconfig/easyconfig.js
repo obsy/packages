@@ -826,6 +826,7 @@ function showcallback(data) {
 	if (!is_radio2 && !is_radio5) {
 		setDisplay('menu_wlan', false);
 		setDisplay('div_status_wlan', false);
+		setDisplay('div_nightmode_wlan', false);
 	}
 
 	// system
