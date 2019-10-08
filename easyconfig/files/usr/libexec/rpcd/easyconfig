@@ -176,9 +176,9 @@ fi
 if [ -e /etc/init.d/stubby ]; then
 	STUBBY="true"
 	T=$(uci -q get stubby.global.listen_address)
-	T1=$(uci -q get dhcp.@dnsmasq[0].server)
+	T1=$(uci -q get dhcp.@dnsmasq[0].server | sed 's/#/@/g')
 	if [ -n "$T1" ]; then
-		echo "$T" | grep -q "$T" && WAN_DNS_SOURCE="stubby"
+		echo "$T" | grep -q "$T1" && WAN_DNS_SOURCE="stubby"
 	fi
 else
 	STUBBY="false"
