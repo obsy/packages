@@ -965,8 +965,8 @@ function saveconfig() {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].server');
 		var t = '';
 		if (use_dns == 'stubby') {
-			t = '';
-			cmd.push('IP=$(uci -q -d, get stubby.global.listen_address | awk -F, \'{for(i=1;i<=NF;i++)if($i~/.*\\\\..*\\\\..*\\\\..*@/){print $i; break}}\')');
+			t = '127.0.0.1';
+			cmd.push('IP=$(uci -q -d, get stubby.global.listen_address | awk -F, \'{for(i=1;i<=NF;i++)if($i~/.*\\\\..*\\\\..*\\\\..*@/){gsub(\\\"@\\\", \\\"#\\\"); print $i; break}}\')');
 			cmd.push('if [ -n \\\"$IP\\\" ]; then');
 			cmd.push(' uci add_list dhcp.@dnsmasq[0].server=\\\"$IP\\\"');
 			cmd.push(' /etc/init.d/stubby enable');
