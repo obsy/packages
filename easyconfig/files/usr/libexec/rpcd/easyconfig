@@ -484,7 +484,7 @@ for M in $WLAN_MAC; do
 	T=${M%\",\"tx*}
 	MAC=${T##*\"}
 	IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
-	[ -z "$IP" ] && IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1}' /proc/net/arp)
+	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
 
 	T=$(uci -q get easyconfig.m${MAC//:/}.name)
