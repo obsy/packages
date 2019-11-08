@@ -1,0 +1,6 @@
+#!/bin/sh
+case "$ACTION" in
+	add | update | remove)
+		/usr/bin/easyconfig_wlanlogs.sh
+		;;
+esac
