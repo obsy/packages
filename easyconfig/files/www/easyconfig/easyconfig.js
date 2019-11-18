@@ -31,10 +31,6 @@ function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
 
-function proofreadMask(input) {
-	proofreadText(input, validateMask, 0);
-}
-
 function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
 		var e = input.closest('div');
@@ -89,39 +85,6 @@ function validateIP(address) {
 					errorCode = 1;
 				}
 			}
-		}
-	}
-	return errorCode;
-}
-
-function validateMask(mask) {
-	var errorCode = 0;
-	var ipFields = mask.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-	if (ipFields == null) {
-		errorCode = 1;
-	} else {
-		previousField = 255;
-		for(field=1; field <= 4; field++) {
-			if (ipFields[field] > 255) {
-				errorCode = 1;
-			}
-			if (previousField < 255 && ipFields[field] != 0 && errorCode < 2) {
-				errorCode = 1;
-			}
-			if (ipFields[field] != 255 &&
-				ipFields[field] != 254 &&
-				ipFields[field] != 252 &&
-				ipFields[field] != 248 &&
-				ipFields[field] != 240 &&
-				ipFields[field] != 224 &&
-				ipFields[field] != 192 &&
-				ipFields[field] != 128 &&
-				ipFields[field] != 0 &&
-				errorCode < 1) {
-				errorCode = 1;
-			}
-
-			previousField = ipFields[field];
 		}
 	}
 	return errorCode;
@@ -911,7 +874,6 @@ function saveconfig() {
 	}
 	if (wan_type == 'static') {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
-		if (checkField('wan_netmask', validateMask)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
 
 		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
