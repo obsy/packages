@@ -802,8 +802,9 @@ function showcallback(data) {
 
 	// stat
 	setDisplay('div_stat', (config.services.statistics.enabled != -1));
-	if (config.services.statistics.enabled != -1)
+	if (config.services.statistics.enabled != -1) {
 		setValue('stat_enabled', (config.services.statistics.enabled == 1));
+	}
 
 	// pptp
 	setDisplay('menu_pptp', config.services.pptp);
