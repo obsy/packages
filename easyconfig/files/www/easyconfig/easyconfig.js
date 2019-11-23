@@ -2170,6 +2170,17 @@ var queries;
 function queriescallback(sortby, order) {
 	var html = '';
 	if (queries.length > 0) {
+
+		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań</label><div class="col-xs-6"><p>' + queries.length + '</p></div></div>';
+		var cnt = 0;
+		for (var idx = 0; idx < queries.length; idx++) {
+			if (queries[idx].nxdomain) {
+				cnt ++;
+			}
+		}
+		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</label><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / queries.length) + '%)</small></p></div></div>';
+		html += '<hr>'
+
 		html += '<div class="row">';
 		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
 		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
