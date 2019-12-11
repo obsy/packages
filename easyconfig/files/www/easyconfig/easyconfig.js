@@ -703,7 +703,6 @@ function showcallback(data) {
 	setValue('wan_apn', config.wan_apn);
 	setValue('wan_device', config.wan_device);
 	setValue('wan_pincode', config.wan_pincode);
-	setValue('wan_modem_mode', config.wan_modem_mode);
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
 	setValue('wan_proto', config.wan_proto);
@@ -714,6 +713,7 @@ function showcallback(data) {
 		}
 	}
 	enableWan(getValue('wan_proto'));
+	setValue('wan_modem_mode', config.wan_modem_mode);
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
