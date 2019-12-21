@@ -1547,6 +1547,7 @@ function sitesurveycallback(sortby) {
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, '123');
 		var rogueap = false;
+		var modes = ['b', 'g', 'n', 'ac', 'ax'];
 		for(var idx = 0; idx < sorted.length; idx++){
 
 			rogueap = false;
@@ -1573,7 +1574,9 @@ function sitesurveycallback(sortby) {
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
 			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
 			html += (sorted[idx].encryption?'<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>':'');
-			html += '<span class="hidden-vxs">Standard </span>802.11' + sorted[idx].mode1 + (sorted[idx].mode2!=''?', ' + sorted[idx].mode2:'');
+			var t = modes.indexOf(sorted[idx].mode1);
+			if (t > -1) {html += 'Wi-Fi ' + (t + 2) + ' ';}
+			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')';
 			html += '</div></div>';
 		}
 		html += '<hr><p>Liczba sieci bezprzewodowych: ' + sorted.length + '</p>';
