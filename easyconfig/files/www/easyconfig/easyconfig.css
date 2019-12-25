@@ -371,3 +371,43 @@ h3 {
 .iconwithtext {
   margin-right: 10px;
 }
+
+.darkmode,
+.darkmode .btn-default,
+.darkmode .form-control {
+  color: #fff;
+  background-color: #2f363d;
+}
+
+.darkmode .icon-bar {
+  color: #000;
+  background-color: #fff;
+}
+
+.darkmode .btn-primary {
+  background-color: #0066ff;
+}
+
+.darkmode .modal-content {
+  color: #fff !important;
+  background-color: #2f363d;
+}
+
+.darkmode a,
+.darkmode .click {
+  color: #0066ff !important;
+}
+
+.darkmode input:checked + .slider,
+.darkmode .rb input:checked ~ .checkmark {
+  background-color: #0066ff !important;
+}
+
+.darkmode .sidenav a {
+  color: #818181 !important;
+}
+
+.darkmode .slider:before,
+.darkmode .rb .checkmark:after {
+  background-color: #2f363d;
+}

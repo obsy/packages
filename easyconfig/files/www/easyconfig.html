@@ -663,20 +663,11 @@
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Wersja GUI</label>
-		<div class="col-xs-6">
-		<p id="gui_version">-</p>
-		</div>
-	</div>
-
-	<div class="row">
 		<label class="col-xs-6 text-right">Wersja oprogramowania</label>
 		<div class="col-xs-6">
 		<p id="firmware_version">-</p>
 		</div>
 	</div>
-
-	<h3 class="section"></h3>
 
 	<div class="row">
 		<label class="col-xs-6 text-right">Restart urządzenia</label>
@@ -684,6 +675,27 @@
 		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" />
 		</div>
 	</div>
+
+	<h3 class="section">Interfejs użytkownika</h3>
+
+	<div class="row">
+		<label class="col-xs-6 text-right">Wersja GUI</label>
+		<div class="col-xs-6">
+		<p id="gui_version">-</p>
+		</div>
+	</div>
+
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="darkmode_enabled" class="col-xs-6 control-label">Tryb ciemny</label>
+			<div class="col-xs-6">
+			<label class="switch">
+				<input id="darkmode_enabled" type="checkbox" onclick="darkmode();">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+	</form>
 
 	<div id="div_upgrade" style="display:none;">
 		<h3 class="section">Aktualizacja</h3>

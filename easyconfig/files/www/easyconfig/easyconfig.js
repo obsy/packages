@@ -21,6 +21,21 @@ function getCookie(cname) {
 	return "";
 }
 
+function darkmode() {
+	var e = document.body;
+	e.classList.toggle('darkmode');
+	setCookie('easyconfig_darkmode', e.classList.contains('darkmode') ? '1' : '0');
+}
+
+function showicon() {
+	feather.replace({'width':18, 'height':18});
+}
+
+function easyconfig_onload() {
+	showicon();
+	if (getCookie('easyconfig_darkmode') == '1') { darkmode(); }
+}
+
 /*****************************************************************************/
 
 function proofreadHost(input) {
@@ -35,11 +50,11 @@ function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
 		var e = input.closest('div');
 		if (proofFunction(input.value) == validReturnCode) {
-			input.style.color = "#555";
-			removeClasses(e, ["has-error"]);
+			input.style.color = document.body.style.color;
+			removeClasses(e, ['has-error']);
 		} else {
-			input.style.color = "red";
-			addClasses(e, ["has-error"]);
+			input.style.color = 'red';
+			addClasses(e, ['has-error']);
 		}
 	}
 }
@@ -447,7 +462,7 @@ function showMsg(msg, error) {
 		e.style.color = 'red';
 		addClasses(e, ['has-error']);
 	} else {
-		e.style.color = '#555';
+		e.style.color = document.body.style.color;
 		removeClasses(e, ['has-error']);
 	}
 
@@ -1231,6 +1246,7 @@ function showsystem() {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model);
+		setValue('darkmode_enabled', getCookie('easyconfig_darkmode') == '1' ? true : false);
 		setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
 		setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
 		setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);
@@ -1946,7 +1962,7 @@ function okhostblock() {
 
 function hostblock_toggle(evt) {
 	var e = evt.target;
-	e.style.backgroundColor = (e.style.backgroundColor == document.getElementById('hostblock_off').style.backgroundColor) ? '#fff' : '#337ab7';
+	e.style.backgroundColor = (e.style.backgroundColor == document.getElementById('hostblock_off').style.backgroundColor) ? document.body.style.backgroundColor : '#337ab7';
 }
 
 function hostblock_checkall() {
@@ -1960,7 +1976,7 @@ function hostblock_checkall() {
 function hostblock_uncheckall() {
 	for(var i = 0; i < 24; i++) {
 		for (var j = 0; j < 7; j++) {
-			document.getElementById('t' + i + j).style.backgroundColor = '#fff';
+			document.getElementById('t' + i + j).style.backgroundColor = document.body.style.backgroundColor;
 		}
 	}
 }
@@ -2395,9 +2411,9 @@ function showtraffic() {
 		}
 
 		var e1 = document.getElementById("traffic_today");
-		e1.style.color = "#333";
+		e1.style.color = document.body.style.color;
 		var e2 = document.getElementById("traffic_currentperiod");
-		e2.style.color = "#333";
+		e2.style.color = document.body.style.color;
 		setDisplay("div_traffic_today_progress", false);
 		setDisplay("div_traffic_currentperiod_progress", false);
 		var color = "#31708f";
@@ -3240,8 +3256,4 @@ function btn_pages(page) {
 	}
 }
 
-function showicon() {
-	feather.replace({'width':18, 'height':18});
-}
-
-window.onload  = showicon;
+window.onload = easyconfig_onload;
