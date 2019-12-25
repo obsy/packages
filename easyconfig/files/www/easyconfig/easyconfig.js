@@ -1732,12 +1732,14 @@ function bytesToSize(bytes) {
 }
 
 var wlanclients;
+var logs;
 
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
+		logs = sortJSON(data.logs, 'id', '321');
 		wlanclientscallback('displayname');
-		clientslogscallback(data.logs);
+		clientslogscallback(0, 9);
 	});
 }
 
@@ -1785,21 +1787,24 @@ function wlanclientscallback(sortby) {
 	showicon();
 }
 
-function clientslogscallback(logs) {
+function clientslogscallback(first, last) {
 	var html = '';
 	if (logs.length > 0) {
-		var sorted = sortJSON(logs, 'id', '321');
-		for(var idx = 0; idx < sorted.length; idx++){
+		if (logs.length - 1 < last) { last = logs.length - 1; }
+		for(var idx = first; idx <= last; idx++){
 			var title = '';
-			if (sorted[idx].desc !== '' && typeof sorted[idx].desc.band !== 'undefined') {
-				title = 'Pasmo ' + (sorted[idx].desc.band == 2 ? '2.4GHz' : '5GHz') + ', SSID: ' + sorted[idx].desc.ssid;
+			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
+				title = 'Pasmo ' + (logs[idx].desc.band == 2 ? '2.4GHz' : '5GHz') + ', SSID: ' + logs[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
-			html += '<div class="col-xs-6 col-sm-3">' + sorted[idx].time + '</div>';
-			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (sorted[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
-			html += '<div class="col-xs-12 col-sm-6">' + (sorted[idx].username != '' ? sorted[idx].username : (sorted[idx].dhcpname != '' ? sorted[idx].dhcpname + ' / ' + sorted[idx].mac : sorted[idx].mac)) + '</div>';
+			html += '<div class="col-xs-6 col-sm-3">' + logs[idx].time + '</div>';
+			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (logs[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
+			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
 			html += '</div>';
 		}
+		if (first <= 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6"></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
+		if (first > 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
+		if (first > 0 && last >= logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6"></div></div>'};
 	} else {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}

@@ -168,6 +168,7 @@ h3 {
 .click, .click:hover, .click:visited, .click:link {
   text-decoration: none;
   color: #31708f;
+  cursor: pointer;
 }
 
 .space {
