@@ -1578,7 +1578,7 @@ function sitesurveycallback(sortby) {
 
 			html += '<hr><div class="row' + (rogueap ? ' text-danger' : '') +  '">';
 			html += '<div class="col-xs-6">';
-			html += '<h4>' + ssid_new + '</h4>';
+			html += '<h4><span class="wordbreak">' + ssid_new + '</span></h4>';
 			html += sorted[idx].mac + '<br>';
 
 			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
@@ -2992,29 +2992,29 @@ function showadblock() {
 		html = '';
 		var blacklist = data.blacklist;
 		if (blacklist.length > 0) {
-			html = '<hr>';
 			for (var idx = 0; idx < blacklist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
 				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
 				html += '</div>';
 			}
+			html += '<hr>';
 		}
-		html += '<hr><p>Liczba domen: ' + blacklist.length + '</p>';
+		html += '<p>Liczba domen: ' + blacklist.length + '</p>';
 		setValue('div_adblock_list_blacklist', html);
 
 		html = '';
 		var whitelist = data.whitelist;
 		if (whitelist.length > 0) {
-			html = '<hr>';
 			for (var idx = 0; idx < whitelist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + whitelist[idx] + '</div>';
 				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
 				html += '</div>';
 			}
+			html += '<hr>';
 		}
-		html += '<hr><p>Liczba domen: ' + whitelist.length + '</p>';
+		html += '<p>Liczba domen: ' + whitelist.length + '</p>';
 		setValue('div_adblock_list_whitelist', html);
 
 		showicon();
