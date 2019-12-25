@@ -390,7 +390,7 @@ h3 {
 }
 
 .darkmode .modal-content {
-  color: #fff !important;
+  color: #fff;
   background-color: #2f363d;
 }
 
