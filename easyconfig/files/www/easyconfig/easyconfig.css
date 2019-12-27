@@ -412,6 +412,10 @@ h3 {
   background-color: #2f363d;
 }
 
+.darkmode hr {
+  border-top: 1px solid #777;
+}
+
 .wordbreak {
   word-break: break-all;
   word-break: break-word;
