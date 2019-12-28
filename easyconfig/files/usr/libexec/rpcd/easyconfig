@@ -349,6 +349,17 @@ case $(cat /tmp/sysinfo/board_name) in
 		BUTTON_NAME="WPS"
 		BUTTON="wps"
 		;;
+	"tl-mr3220"|\
+	"tl-mr3420"|\
+	"tl-mr3420-v2")
+		BUTTON_NAME="QSS"
+		BUTTON="wps"
+		;;
+	"tl-mr3220-v2"|\
+	"tplink,tl-mr3420-v5")
+		BUTTON_NAME="WIFI"
+		BUTTON="rfkill"
+		;;
 esac
 if [ -n "$BUTTON" ]; then
 	if grep -q leds /etc/rc.button/$BUTTON; then
