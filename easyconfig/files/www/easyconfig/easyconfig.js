@@ -1766,8 +1766,8 @@ function wlanclientscallback(sortby) {
 		var sorted = sortJSON(wlanclients, sortby, '123');
 		for(var idx=0; idx<sorted.length; idx++){
 			html += '<hr><div class="row">';
-			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\',\'' + sorted[idx].displayname + '\');">' + sorted[idx].displayname + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + (JSON.stringify(sorted[idx])).replace(/\"/g,"$") + '\');"><i data-feather="more-vertical"></i></a></div>';
+			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</a></div>';
+			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + sorted[idx].mac + '\');"><i data-feather="more-vertical"></i></a></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -1811,17 +1811,23 @@ function clientslogscallback(first, last) {
 	setValue('div_clientslogs_content', html);
 }
 
-function hostmenu(data) {
-	var host = JSON.parse((data).replace(/\$/g,'"'));
+function hostmenu(mac) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
 	var html = host.displayname + '<hr>';
 
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + data + '\');">informacje</a></p>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\',\'' + host.displayname + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\',\'' + host.displayname + '\',' + host.block + ',\'' + host.blockdata + '\');">blokady</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\');">informacje</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\');">zmiana nazwy</a>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\');">blokady</a></p>';
 	if (config.services.nftqos) {
-		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\',\'' + host.displayname + '\',\'' + host.ip + '\',' + host.qos.bwup + ',' + host.qos.bwdown + ');">limity</a></p>';
+		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\');">limity</a></p>';
 	}
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\',\'' + host.displayname + '\',\'' + host.ip + '\',\'' + host.staticdhcp + '\');">statyczny adres IP</a></p>';
+	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\');">statyczny adres IP</a></p>';
 	showMsg(html);
 }
 
@@ -1830,10 +1836,16 @@ function calculatedistance(frequency, signal) {
 	return dist.toFixed(0);
 }
 
-function hostinfo(data) {
+function hostinfo(mac) {
 	var html = '';
 	var vendor = '';
-	var host = JSON.parse((data).replace(/\$/g,'"'));
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
 
 	var key = (host.mac).substring(0,8).toUpperCase();
 	if (key in manuf) {
@@ -1868,9 +1880,16 @@ function hostinfo(data) {
 	showMsg(html, false);
 }
 
-function hostblock(mac, name, action, blockdata) {
-	setValue('hostblock_mac', mac);
-	setValue('hostblock_name', name);
+function hostblock(mac) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
+	setValue('hostblock_mac', host.mac);
+	setValue('hostblock_name', host.displayname);
 
 	var days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
@@ -1893,12 +1912,12 @@ function hostblock(mac, name, action, blockdata) {
 	var bc = '#337ab7';
 	document.getElementById('hostblock_off').style.backgroundColor = bc;
 
-	if (action == 0) { setValue('hostblock_none', true); }
-	if (action == 1) { setValue('hostblock_permanent', true); }
-	if (action == 2) {
+	if (host.block == 0) { setValue('hostblock_none', true); }
+	if (host.block == 1) { setValue('hostblock_permanent', true); }
+	if (host.block == 2) {
 		setValue('hostblock_temporary', true);
 		var code = [64,32,16,8,4,2,1]
-		var hours = blockdata.match(/.{1,2}/g);
+		var hours = (host.blockdata).match(/.{1,2}/g);
 		if (hours.length == 24) {
 			for (var i = 0; i < 24; i++) {
 				var t = parseInt(hours[i], 16);
@@ -1986,10 +2005,18 @@ function hostblock_uncheckall() {
 	}
 }
 
-function hostnameedit(mac, name) {
+function hostnameedit(mac) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
+
 	setValue('hostname_mac', mac);
-	setValue('hostname_name', name);
-	setValue('hostname_name1', name);
+	setValue('hostname_name', host.displayname);
+	setValue('hostname_name1', host.displayname);
 	setDisplay('div_hostname', true);
 	document.getElementById('hostname_name').focus();
 }
@@ -2014,15 +2041,23 @@ function savehostname() {
 	execute(cmd, showwlanclients);
 }
 
-function hostip(mac, name, ip, staticdhcp) {
-	setValue('hostip_mac', mac);
-	setValue('hostip_name', name);
-	setValue('hostip_ip', (staticdhcp == '' ? ip : staticdhcp));
+function hostip(mac) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
+
+	setValue('hostip_mac', host.mac);
+	setValue('hostip_name', host.displayname);
+	setValue('hostip_ip', (host.staticdhcp == '' ? host.ip : host.staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
 	setValue('hostip_disconnect', false);
 
-	setValue('hostip_ipaddr', (staticdhcp == '' ? 'brak' : staticdhcp));
+	setValue('hostip_ipaddr', (host.staticdhcp == '' ? 'brak' : host.staticdhcp));
 	setDisplay('div_hostip', true);
 	e.focus();
 }
@@ -2091,14 +2126,22 @@ function savehostip() {
 	execute(cmd, showwlanclients);
 }
 
-function hostqos(mac, name, ip, bwup, bwdown) {
-	setValue('hostqos_mac', mac);
-	setValue('hostqos_name', name);
-	setValue('hostqos_ip', ip);
+function hostqos(mac) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].mac == mac) {
+			host = wlanclients[i];
+			break;
+		}
+	}
+
+	setValue('hostqos_mac', host.mac);
+	setValue('hostqos_name', host.displayname);
+	setValue('hostqos_ip', host.ip);
 
 	// KB/s to Mb/s
-	setValue('hostqos_upload', parseInt(bwup * 8 / 1024));
-	setValue('hostqos_download', parseInt(bwdown * 8 / 1024));
+	setValue('hostqos_upload', parseInt(host.qos.bwup * 8 / 1024));
+	setValue('hostqos_download', parseInt(host.qos.bwdown * 8 / 1024));
 
 	setDisplay('div_hostqos', true);
 	document.getElementById('hostqos_upload').focus();
