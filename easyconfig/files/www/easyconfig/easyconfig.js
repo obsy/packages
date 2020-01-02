@@ -1546,7 +1546,6 @@ function showsitesurvey() {
 	});
 }
 
-
 function sitesurveycallback(sortby) {
 	var html = '';
 	if (wifiscanresults.length > 0) {
@@ -1596,128 +1595,225 @@ function sitesurveycallback(sortby) {
 			html += '</div></div>';
 		}
 		html += '<hr><p>Liczba sieci bezprzewodowych: ' + sorted.length + '</p>';
-
-		html += '<hr><h3 class="section">Wykorzystanie kanałów</h3>';
-
-		var channels = [];
-		for (var i = 0; i < wlan_devices.length; i++) {
-			for (var ch in config[wlan_devices[i]].wlan_channels) {
-				channels[ch] = 0;
-			}
-		}
-
-		for (var ch in channels) {
-			html += '<div class="row">';
-			html += '<div class="col-xs-1 text-right">' + ch + '</div>';
-			html += '<div class="col-xs-6">';
-			html += '	<div class="progress" style="margin-bottom:2px;">';
-			html += '		<div class="progress-bar" id="channel' + ch + 'bar">&nbsp;</div>';
-			html += '	</div>';
-			html += '</div>';
-			html += '<div class="col-xs-5"><span id="channel' + ch + 'percent">0%</div>';
-			html += '</div>';
-		}
-
+		html += '<div class="row" id="div_channels2" style="display:none">';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
+		html += '</div>';
+		html += '<div class="row" id="div_channels5" style="display:none">';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 5 GHz</h3><canvas id="channels5" height="400"></canvas></div>';
+		html += '</div>';
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>';
 	}
 	setValue('div_sitesurvey_content', html);
 
 	if (wifiscanresults.length > 0) {
-		for(var idx = 0; idx < sorted.length; idx++){
-			if (sorted[idx].channel != '?') {
-				if (sorted[idx].channel < 36) {
-					if (sorted[idx].mode1 == 'g') {
-						if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-						if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
-						channels[sorted[idx].channel]++;
-						if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
-						if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-					}
-					if (sorted[idx].mode1 == 'n') {
-						if ((sorted[idx].mode2 == 'HT20') || (sorted[idx].mode2 == 'VHT20')) {
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
-							channels[sorted[idx].channel]++;
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-						}
-						if (sorted[idx].mode2 == 'HT40-') {
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -6])) { channels[parseInt(sorted[idx].channel) -6]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -5])) { channels[parseInt(sorted[idx].channel) -5]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -4])) { channels[parseInt(sorted[idx].channel) -4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -3])) { channels[parseInt(sorted[idx].channel) -3]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
-							channels[sorted[idx].channel]++;
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-						}
-						if (sorted[idx].mode2 == 'HT40+') {
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -1])) { channels[parseInt(sorted[idx].channel) -1]++; }
-							channels[sorted[idx].channel]++;
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +1])) { channels[parseInt(sorted[idx].channel) +1]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +3])) { channels[parseInt(sorted[idx].channel) +3]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +4])) { channels[parseInt(sorted[idx].channel) +4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +5])) { channels[parseInt(sorted[idx].channel) +5]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +6])) { channels[parseInt(sorted[idx].channel) +6]++; }
-						}
-					}
-				} else {
-					if (sorted[idx].mode1 == 'n') {
-						if (sorted[idx].mode2 == 'HT20') {
-							channels[sorted[idx].channel]++;
-						}
-						if (sorted[idx].mode2 == 'HT40-') {
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -6])) { channels[parseInt(sorted[idx].channel) -6]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -4])) { channels[parseInt(sorted[idx].channel) -4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-							channels[sorted[idx].channel]++;
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-						}
-						if (sorted[idx].mode2 == 'HT40+') {
-							if (!isNaN(channels[parseInt(sorted[idx].channel) -2])) { channels[parseInt(sorted[idx].channel) -2]++; }
-							channels[sorted[idx].channel]++;
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +2])) { channels[parseInt(sorted[idx].channel) +2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +4])) { channels[parseInt(sorted[idx].channel) +4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].channel) +6])) { channels[parseInt(sorted[idx].channel) +6]++; }
-						}
-					}
-					if (sorted[idx].mode1 == 'ac') {
-						if (sorted[idx].mode2 == 'VHT20') {
-							channels[sorted[idx].channel]++;
-						}
-						if (sorted[idx].mode2 == 'VHT40') {
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -0])) { channels[parseInt(sorted[idx].vhtch1) -0]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
-						}
-						if (sorted[idx].mode2 == 'VHT80') {
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -6])) { channels[parseInt(sorted[idx].vhtch1) -6]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -4])) { channels[parseInt(sorted[idx].vhtch1) -4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -2])) { channels[parseInt(sorted[idx].vhtch1) -2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) -0])) { channels[parseInt(sorted[idx].vhtch1) -0]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +2])) { channels[parseInt(sorted[idx].vhtch1) +2]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +4])) { channels[parseInt(sorted[idx].vhtch1) +4]++; }
-							if (!isNaN(channels[parseInt(sorted[idx].vhtch1) +6])) { channels[parseInt(sorted[idx].vhtch1) +6]++; }
-						}
-					}
-				}
+		var surveydata2 = [];
+		var surveydata5 = [];
+		for(var idx = 0; idx < wifiscanresults.length; idx++) {
+			var a = {};
+			a['mac'] = wifiscanresults[idx].mac;
+			a['ssid'] = (wifiscanresults[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
+			if (a['ssid'] == '') {a['ssid'] = '<bez nazwy>';}
+			a['signal'] = parseInt(wifiscanresults[idx].signal);
+			if (a['signal'] < -100) {continue;}
+			a['channel'] = parseInt(wifiscanresults[idx].channel);
+			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
+			a['width'] = wifiscanresults[idx].mode2;
+			if (wifiscanresults[idx].channel > 14) {
+				surveydata5.push(a);
+			} else {
+				surveydata2.push(a);
 			}
 		}
-		for (var ch in channels) {
-			var percent = parseInt(channels[ch] * 100 / sorted.length) + '%';
-			document.getElementById('channel' + ch + 'bar').style.width = percent;
-			setValue('channel' + ch + 'percent', percent == '0%'?' ':(percent + ', ' + channels[ch] + ' z ' + sorted.length));
+		setDisplay('div_channels2', (surveydata2.length > 0));
+		if (surveydata2.length > 0) {
+			wifigraph.draw({band: 2, element: 'channels2', data: surveydata2 });
 		}
+		setDisplay('div_channels5', (surveydata5.length > 0));
+		if (surveydata5.length > 0) {
+			wifigraph.draw({band: 5, element: 'channels5', data: surveydata5 });
+		}
+
 		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
 		for(var idx = 0; idx < all.length; idx++){
 			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 	}
+}
+
+wifigraph = {
+	axisTop: 10,
+	axisRight: 5,
+	axisBottom: 20,
+	axisLeft: 40,
+	ch2: [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+	ch5: [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],
+
+	getX: function (graph, channel) {
+		if (graph.band == 2) {
+			return ((channel + 1) * graph.width) / 16 + wifigraph.axisLeft;
+		} else {
+			if (channel >= 100) {
+				channel -= 31;
+			}
+			return ((channel - 31) * graph.width) / 106 + wifigraph.axisLeft;
+		}
+	},
+
+	getY: function(graph, signal) {
+		return ((((-1 * signal) - 30) * graph.height) / 70) + wifigraph.axisTop;
+	},
+
+	frame: function (graph) {
+		var ctx = graph.context;
+		ctx.strokeStyle = '#c0c0c0';
+		ctx.lineWidth = 0.5;
+		ctx.beginPath();
+		ctx.moveTo(wifigraph.axisLeft, wifigraph.axisTop);
+		ctx.lineTo(wifigraph.axisLeft + graph.width, wifigraph.axisTop);
+		ctx.lineTo(wifigraph.axisLeft + graph.width, wifigraph.axisTop + graph.height);
+		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop + graph.height);
+		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop);
+		ctx.stroke();
+
+		if (getCookie('easyconfig_darkmode') == '1') {
+			ctx.fillStyle = '#ffffff';
+		} else {
+			ctx.fillStyle = document.body.style.color;
+		}
+
+		ctx.textAlign = 'right';
+		for (var i = -30; i >= -100; i-=10) {
+			var y = wifigraph.getY(graph, i);
+			ctx.beginPath();
+			ctx.moveTo(wifigraph.axisLeft, y);
+			ctx.lineTo(wifigraph.axisLeft + graph.width, y);
+			ctx.stroke();
+			ctx.fillText(i, wifigraph.axisLeft - 5, y + 5, wifigraph.axisLeft);
+		}
+
+		var ch = (graph.band == 2) ? wifigraph.ch2 : wifigraph.ch5;
+		var oldwidth = 0;
+		ctx.textAlign = 'center';
+		for (var i = 0; i < ch.length ; i++) {
+			var x = wifigraph.getX(graph, ch[i]);
+			ctx.beginPath();
+			ctx.moveTo(x, wifigraph.axisTop);
+			ctx.lineTo(x, wifigraph.axisTop + graph.height);
+			ctx.stroke();
+			if (oldwidth < x) {
+				ctx.fillText(ch[i], x, wifigraph.axisTop + graph.height + 15);
+				oldwidth = x + ctx.measureText(ch[i]).width;
+			}
+		}
+	},
+
+	plot: function (graph) {
+		var ctx = graph.context
+		var data = sortJSON(graph.data, 'signal', '321');
+
+		for (var i = 0; i < data.length; i++) {
+			var x = wifigraph.getX(graph, data[i].channel);
+
+			var x1, x11, x2, x22;
+			var width = data[i].width;
+
+			if (width == 'HT40-') {
+				x1 = wifigraph.getX(graph, data[i].channel - 6);
+				x11 = wifigraph.getX(graph, data[i].channel - 5);
+			} else 	if (width == 'VHT40') {
+				x1 = wifigraph.getX(graph, data[i].vhtch1 - 4);
+				x11 = wifigraph.getX(graph, data[i].vhtch1 - 3);
+			} else if (width == 'VHT80') {
+				x1 = wifigraph.getX(graph, data[i].vhtch1 - 8);
+				x11 = wifigraph.getX(graph, data[i].vhtch1 - 7);
+			} else {
+				x1 = wifigraph.getX(graph, data[i].channel - 2);
+				x11 = wifigraph.getX(graph, data[i].channel - 1);
+			}
+
+			var y = wifigraph.getY(graph, data[i].signal);
+			if (width == 'HT40+') {
+				x2 = wifigraph.getX(graph, data[i].channel + 6);
+				x22 = wifigraph.getX(graph, data[i].channel + 5);
+			} else if (width == 'VHT40') {
+				x2 = wifigraph.getX(graph, data[i].vhtch1 + 4);
+				x22 = wifigraph.getX(graph, data[i].vhtch1 + 3);
+			} else if (width == 'VHT80') {
+				x2 = wifigraph.getX(graph, data[i].vhtch1 + 8);
+				x22 = wifigraph.getX(graph, data[i].vhtch1 + 7);
+			} else {
+				x2 = wifigraph.getX(graph, data[i].channel + 2);
+				x22 = wifigraph.getX(graph, data[i].channel + 1);
+			}
+
+			ctx.fillStyle = stringToColor(data[i].mac);
+			ctx.strokeStyle = ctx.fillStyle
+			ctx.globalAlpha = 0.2;
+			ctx.beginPath();
+			ctx.moveTo(x1, graph.height + wifigraph.axisTop);
+			ctx.lineTo(x11, y);
+			ctx.lineTo(x22, y);
+			ctx.lineTo(x2, graph.height + wifigraph.axisTop);
+			ctx.stroke();
+			ctx.fill();
+
+			ctx.globalAlpha = 1;
+			ctx.lineWidth = 1.5;
+			ctx.beginPath();
+			ctx.moveTo(x1, graph.height + wifigraph.axisTop);
+			ctx.lineTo(x11, y);
+			ctx.lineTo(x22, y);
+			ctx.lineTo(x2, graph.height + wifigraph.axisTop);
+			ctx.stroke();
+
+			ctx.textAlign = 'center';
+			ctx.fillText(data[i].ssid, x, y - 15);
+
+			ctx.beginPath();
+			ctx.arc(x, y, 4, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.fill();
+		}
+	},
+
+	draw: function (graph) {
+		var canvas = document.getElementById(graph.element);
+		if (canvas == null) {
+			return;
+		}
+
+		var ctx = canvas.getContext('2d');
+		if (ctx == null) {
+			return;
+		}
+
+		var positionInfo = document.getElementById('div_' + graph.element).getBoundingClientRect();
+		canvas.width = positionInfo.width - 30;
+
+		graph.width = canvas.width - wifigraph.axisRight - wifigraph.axisLeft;
+		graph.height = canvas.height - wifigraph.axisTop - wifigraph.axisBottom;
+
+		ctx.font = window.getComputedStyle(document.body,null).getPropertyValue('font');
+		graph.context = ctx;
+
+		wifigraph.frame(graph);
+		wifigraph.plot(graph);
+	}
+};
+
+function stringToColor(str) {
+	var hash = 0;
+	for (var i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	var color = '#';
+	for (var i = 0; i < 3; i++) {
+		var value = (hash >> (i * 8)) & 0xFF;
+		color += ('00' + value.toString(16)).substr(-2);
+	}
+	return color;
 }
 
 /*****************************************************************************/

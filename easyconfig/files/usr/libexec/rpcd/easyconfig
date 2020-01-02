@@ -2,7 +2,7 @@
 
 ##############################################################################
 
-# (c) 2016-2019 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2020 Cezary Jackiewicz <cezary@eko.one.pl>
 
 ##############################################################################
 
@@ -777,6 +777,7 @@ show_wifiscan() {
 			if($0 ~ /secondary channel offset: no secondary/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT20"}
 			if($0 ~ /secondary channel offset: above/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40+"}
 			if($0 ~ /secondary channel offset: below/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40-"}
+			if($0 ~ /STA channel width: 20 MHz/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT20"}
 			if($0 ~ /VHT operation:/) {if(wifi_chan[MAC] > 14){wifi_mode1[MAC] = "ac"}; wifi_mode2[MAC] = "VHT20"}
 			if($0 ~ /center freq segment 1:/) {wifi_vhtch1[MAC] = $6; if($6>0 && wifi_mode2[MAC] != "VHT80" && $6 != wifi_chan[MAC]){wifi_mode2[MAC] = "VHT40"}}
 			if($0 ~ /center freq segment 2:/) {wifi_vhtch2[MAC] = $6}
