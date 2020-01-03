@@ -36,6 +36,29 @@ function easyconfig_onload() {
 	if (getCookie('easyconfig_darkmode') == '1') { darkmode(); }
 }
 
+function string2color(str) {
+	var hash = 0;
+	for (var i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	var color = '#';
+	for (var i = 0; i < 3; i++) {
+		var value = (hash >> (i * 8)) & 0xFF;
+		color += ('00' + value.toString(16)).substr(-2);
+	}
+	return color;
+}
+
+function rgb2hex(rgb) {
+	if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
+
+	rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+	function hex(x) {
+		return ("0" + parseInt(x).toString(16)).slice(-2);
+	}
+	return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+
 /*****************************************************************************/
 
 function proofreadHost(input) {
@@ -50,7 +73,7 @@ function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
 		var e = input.closest('div');
 		if (proofFunction(input.value) == validReturnCode) {
-			input.style.color = document.body.style.color;
+			input.style.color = null;
 			removeClasses(e, ['has-error']);
 		} else {
 			input.style.color = 'red';
@@ -462,7 +485,7 @@ function showMsg(msg, error) {
 		e.style.color = 'red';
 		addClasses(e, ['has-error']);
 	} else {
-		e.style.color = document.body.style.color;
+		e.style.color = null;
 		removeClasses(e, ['has-error']);
 	}
 
@@ -1676,13 +1699,7 @@ wifigraph = {
 		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop + graph.height);
 		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop);
 		ctx.stroke();
-
-		if (getCookie('easyconfig_darkmode') == '1') {
-			ctx.fillStyle = '#ffffff';
-		} else {
-			ctx.fillStyle = document.body.style.color;
-		}
-
+		ctx.fillStyle = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'));
 		ctx.textAlign = 'right';
 		for (var i = -30; i >= -100; i-=10) {
 			var y = wifigraph.getY(graph, i);
@@ -1748,7 +1765,7 @@ wifigraph = {
 				x22 = wifigraph.getX(graph, data[i].channel + 1);
 			}
 
-			ctx.fillStyle = stringToColor(data[i].mac);
+			ctx.fillStyle = string2color(data[i].mac);
 			ctx.strokeStyle = ctx.fillStyle
 			ctx.globalAlpha = 0.2;
 			ctx.beginPath();
@@ -1803,18 +1820,6 @@ wifigraph = {
 	}
 };
 
-function stringToColor(str) {
-	var hash = 0;
-	for (var i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash);
-	}
-	var color = '#';
-	for (var i = 0; i < 3; i++) {
-		var value = (hash >> (i * 8)) & 0xFF;
-		color += ('00' + value.toString(16)).substr(-2);
-	}
-	return color;
-}
 
 /*****************************************************************************/
 
@@ -2555,9 +2560,9 @@ function showtraffic() {
 		}
 
 		var e1 = document.getElementById("traffic_today");
-		e1.style.color = document.body.style.color;
+		e1.style.color = null;
 		var e2 = document.getElementById("traffic_currentperiod");
-		e2.style.color = document.body.style.color;
+		e2.style.color = null;
 		setDisplay("div_traffic_today_progress", false);
 		setDisplay("div_traffic_currentperiod_progress", false);
 		var color = "#31708f";
