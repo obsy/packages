@@ -698,7 +698,7 @@ function showcallback(data) {
 
 	removeOptions('wan_dns');
 	var sorteddns = [];
-	sorteddns = sortJSON(dns, 'name', '123');
+	sorteddns = sortJSON(dns, 'name', 'asc');
 	sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
 	if (config.services.stubby) {
 		sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
@@ -764,9 +764,9 @@ function showcallback(data) {
 			if (propt >= 36) { is_radio5 = true; }
 		}
 
-		if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4GHz');}
-		if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5GHz');}
-		if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5GHz');}
+		if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4 GHz');}
+		if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5 GHz');}
+		if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5 GHz');}
 
 		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
 		setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
@@ -1476,8 +1476,8 @@ function savewatchdog() {
 function sortJSON(data, key, way) {
 	return data.sort(function(a, b) {
 		var x = a[key]; var y = b[key];
-		if (way === '123' ) { return ((x < y) ? -1 : ((x > y) ? 1 : 0)); }
-		if (way === '321') { return ((x > y) ? -1 : ((x < y) ? 1 : 0)); }
+		if (way === 'asc' ) { return ((x < y) ? -1 : ((x > y) ? 1 : 0)); }
+		if (way === 'desc') { return ((x > y) ? -1 : ((x < y) ? 1 : 0)); }
 	});
 }
 
@@ -1560,7 +1560,7 @@ function sitesurveycallback(sortby) {
 
 		var wlan_devices = config.wlan_devices;
 		var ts = Date.now()/1000;
-		var sorted = sortJSON(wifiscanresults, sortby, '123');
+		var sorted = sortJSON(wifiscanresults, sortby, 'asc');
 		var rogueap = false;
 		var modes = ['b', 'g', 'n', 'ac', 'ax'];
 		for(var idx = 0; idx < sorted.length; idx++){
@@ -1711,7 +1711,7 @@ wifigraph = {
 
 	plot: function (graph) {
 		var ctx = graph.context
-		var data = sortJSON(graph.data, 'signal', '321');
+		var data = sortJSON(graph.data, 'signal', 'desc');
 
 		for (var i = 0; i < data.length; i++) {
 			var x = wifigraph.getX(graph, data[i].channel);
@@ -1833,7 +1833,7 @@ var logs;
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
-		logs = sortJSON(data.logs, 'id', '321');
+		logs = sortJSON(data.logs, 'id', 'desc');
 		wlanclientscallback('displayname');
 		clientslogscallback(0, 9);
 	});
@@ -1859,7 +1859,7 @@ function wlanclientscallback(sortby) {
 			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
 			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
 		}
-		var sorted = sortJSON(wlanclients, sortby, '123');
+		var sorted = sortJSON(wlanclients, sortby, 'asc');
 		for(var idx=0; idx<sorted.length; idx++){
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</a></div>';
@@ -1890,7 +1890,7 @@ function clientslogscallback(first, last) {
 		for(var idx = first; idx <= last; idx++){
 			var title = '';
 			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
-				title = 'Pasmo ' + (logs[idx].desc.band == 2 ? '2.4GHz' : '5GHz') + ', SSID: ' + logs[idx].desc.ssid;
+				title = 'Pasmo ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + logs[idx].time + '</div>';
@@ -1968,10 +1968,10 @@ function hostinfo(mac) {
 	if (freq == -1) {
 		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm'));
 	} else {
-		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + 'm)'));
+		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + ' m)'));
 	}
 
-	html += createRowForModal('Pasmo', (host.band == 2 ? '2.4GHz' : '5GHz'));
+	html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
 	html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + host.connected_since + ')') + '</span></small>');
 	showMsg(html, false);
 }
@@ -2324,7 +2324,7 @@ function cancelhostqos() {
 function showqueries() {
 	ubus_call('"easyconfig", "queries", {}', function(data) {
 		queries = data.result;
-		queriescallback('id', '321');
+		queriescallback('id', 'desc');
 	});
 }
 
@@ -2350,7 +2350,7 @@ function queriescallback(sortby, order) {
 		html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
 		html += '</div><hr>';
 
-		var sorted = sortJSON(queries, sortby, (order ? order : '123'));
+		var sorted = sortJSON(queries, sortby, (order ? order : 'asc'));
 		for (var idx = 0; idx < sorted.length; idx++) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].time + '</div>';
@@ -2703,7 +2703,7 @@ function readsms() {
 		var html = '';
 		var arr = data.msg;
 		if (arr.length > 0) {
-			var sorted = sortJSON(arr, 'timestamp', '123');
+			var sorted = sortJSON(arr, 'timestamp', 'asc');
 			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-10">Od: ' + sorted[idx].sender + ', odebrano: ' + sorted[idx].timestamp;
@@ -2932,7 +2932,7 @@ function showpptp() {
 		opt.value = '';
 		opt.innerHTML = 'brak';
 		e.appendChild(opt);
-		var arr = sortJSON(data.profiles, 'name', '123');
+		var arr = sortJSON(data.profiles, 'name', 'asc');
 		var selected = '';
 		for(var idx = 0; idx < arr.length; idx++) {
 			var opt = document.createElement('option');

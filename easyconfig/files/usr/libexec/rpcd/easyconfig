@@ -32,7 +32,7 @@ json_get_var IFNAME l3_device
 json_get_var PROTO proto
 
 . /lib/functions/network.sh
-if [ "x$PROTO" = "xqmi" -o "x$PROTO" = "xncm" ]; then
+if [ "x$PROTO" = "xqmi" ] || [ "x$PROTO" = "xncm" ]; then
 	network_get_ipaddr WAN_IPADDR wan_4
 else
 	network_get_ipaddr WAN_IPADDR wan
@@ -600,7 +600,7 @@ echo '}'
 
 show_modem()
 {
-	if [ "x$(uci -q get network.wan.proto)" = "xqmi" -a "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ]; then
+	if [ "x$(uci -q get network.wan.proto)" = "xqmi" ] && [ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ]; then
 		D=$(uci -q get network.wan.device)
 		T=$(uqmi -sd $D --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')
 
@@ -808,7 +808,7 @@ pincode()
 	if [ "x$proto" = "xqmi" ]; then
 		uqmi -d $device --verify-pin1 $pincode >/dev/null 2>&1
 	fi
-	if [ "x$proto" = "xncm" -o "x$proto" = "x3g" ]; then
+	if [ "x$proto" = "xncm" ] || [ "x$proto" = "x3g" ]; then
 		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom >/dev/null 2>&1
 	fi
 	echo '{}'
@@ -1184,7 +1184,7 @@ show_nightmode()
 	echo '"longitude":"'$LON'",'
 	SUNRISE=""
 	SUNSET=""
-	if [ -n "$LAT" -a -n "$LON" ]; then
+	if [ -n "$LAT" ] && [ -n "$LON" ]; then
 		T=$(echo ${LAT:0:1})
 		[ "x$T" = "x-" ] && LAT=${LAT:0:1}"S" || LAT="${LAT}N"
 		T=$(echo ${LON:0:1})
