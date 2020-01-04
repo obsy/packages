@@ -461,6 +461,10 @@ function enableWlanEncryption(encryption, idx) {
 	setElementEnabled('wlan_key' + idx, (encryption != 'none' && encryption != ''), false);
 }
 
+function enableWlanTXPower(channel, idx) {
+	setDisplay('div_wlan_txpower' + idx, (channel != 0));
+}
+
 /*****************************************************************************/
 
 function setElementEnabled(element, show, disabled) {
@@ -761,6 +765,8 @@ function showcallback(data) {
 	setDisplay('menu_queries', config.dhcp_logqueries);
 
 	// wlan
+	var t = (config.wlan_current_channels).filter(function (val) {return val;}).join(', ');
+	setValue('wlan_current_channels', t == '' ? '-' : t);
 	var is_radio2 = false;
 	var is_radio5 = false;
 	var enc = [];
@@ -778,13 +784,20 @@ function showcallback(data) {
 		removeOptions('wlan_channel' + i);
 		select = document.getElementById('wlan_channel' + i);
 		obj = config[radios[i]].wlan_channels;
+		var opt = document.createElement('option');
+		opt.value = '0';
+		opt.innerHTML = 'automatycznie';
+		select.appendChild(opt);
 		for(var propt in obj){
 			var opt = document.createElement('option');
 			opt.value = propt;
 			opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
 			select.appendChild(opt);
-			if (propt < 36) { is_radio2 = true; }
-			if (propt >= 36) { is_radio5 = true; }
+			if (propt > 14) {
+				is_radio5 = true;
+			} else {
+				is_radio2 = true;
+			}
 		}
 
 		if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4 GHz');}
@@ -793,8 +806,9 @@ function showcallback(data) {
 
 		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
 		setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
+		enableWlanTXPower(config[radios[i]].wlan_channel, i);
 		var txpower;
-		if (config[radios[i]].wlan_txpower == '') {
+		if (config[radios[i]].wlan_txpower == '' || config[radios[i]].wlan_channel == 0) {
 			txpower = 100;
 		} else {
 			var maxtxpower = config[radios[i]].wlan_channels[config[radios[i]].wlan_channel][1];
@@ -1075,14 +1089,18 @@ function saveconfig() {
 		if (config[radios[i]].wlan_channel != wlan_channel) {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
-			cmd.push('uci set wireless.' + radios[i] + '.hwmode=11'+((wlan_channel < 36)?'g':'a'));
+			cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
 		}
-		txpower = getValue('wlan_txpower' + i);
-		var maxtxpower = config[radios[i]].wlan_channels[wlan_channel][1];
-		var curtxpower = Math.round(txpower * maxtxpower / 100);
-		if (config[radios[i]].wlan_txpower != curtxpower) {
-			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + radios[i] + '.txpower=' + curtxpower);
+		if (wlan_channel > 0) {
+			txpower = getValue('wlan_txpower' + i);
+			var maxtxpower = config[radios[i]].wlan_channels[wlan_channel][1];
+			var curtxpower = Math.round(txpower * maxtxpower / 100);
+			if (config[radios[i]].wlan_txpower != curtxpower) {
+				wlan_restart_required = true;
+				cmd.push('uci set wireless.' + radios[i] + '.txpower=' + curtxpower);
+			}
+		} else {
+			cmd.push('uci -q del wireless.' + radios[i] + '.txpower');
 		}
 		wlan_ssid = getValue('wlan_ssid' + i);
 		if (config[radios[i]].wlan_ssid != wlan_ssid) {
@@ -1690,6 +1708,7 @@ wifigraph = {
 
 	frame: function (graph) {
 		var ctx = graph.context;
+		var color = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'))
 		ctx.strokeStyle = '#c0c0c0';
 		ctx.lineWidth = 0.5;
 		ctx.beginPath();
@@ -1699,7 +1718,7 @@ wifigraph = {
 		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop + graph.height);
 		ctx.lineTo(wifigraph.axisLeft, wifigraph.axisTop);
 		ctx.stroke();
-		ctx.fillStyle = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'));
+		ctx.fillStyle = color;
 		ctx.textAlign = 'right';
 		for (var i = -30; i >= -100; i-=10) {
 			var y = wifigraph.getY(graph, i);
@@ -1720,6 +1739,7 @@ wifigraph = {
 			ctx.lineTo(x, wifigraph.axisTop + graph.height);
 			ctx.stroke();
 			if (oldwidth < x) {
+				ctx.fillStyle = ((config.wlan_current_channels).indexOf(ch[i]) > -1) ? 'red' : color;
 				ctx.fillText(ch[i], x, wifigraph.axisTop + graph.height + 15);
 				oldwidth = x + ctx.measureText(ch[i]).width;
 			}
@@ -1962,7 +1982,7 @@ function hostinfo(mac) {
 	var radios = config.wlan_devices;
 	for (var i = 0; i < radios.length; i++) {
 		var channel = config[radios[i]].wlan_channel;
-		var t = (channel >= 36) ? 5 : 2;
+		var t = (channel > 14) ? 5 : 2;
 		if (host.band == t) {
 			if (config[radios[i]].wlan_channels[channel]) {
 				freq = config[radios[i]].wlan_channels[channel][0];

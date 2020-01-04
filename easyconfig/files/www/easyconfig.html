@@ -192,6 +192,12 @@
 	<div id="div_status_wlan">
 		<h3 class="section">Wi-Fi</h3>
 		<div class="row">
+			<label class="col-xs-6 text-right">Wykorzystywane kanały</label>
+			<div class="col-xs-6">
+			<p id="wlan_current_channels">-</p>
+			</div>
+		</div>
+		<div class="row">
 			<label class="col-xs-6 text-right">Połączonych klientów</label>
 			<div class="col-xs-6">
 			<a href="#" class="click" onclick="btn_pages('wlanclients');"><p id="wlan_clients">0</p></a>
@@ -431,7 +437,7 @@
 			</div>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group" id="div_wlan_txpower0">
 			<label for="wlan_txpower0" class="col-xs-4 col-sm-3 control-label">Moc nadawania</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_txpower0" class="form-control">
@@ -454,7 +460,7 @@
 		<div class="form-group">
 			<label for="wlan_channel0" class="col-xs-4 col-sm-3 control-label">Kanał</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_channel0" class="form-control">
+			<select id="wlan_channel0" class="form-control" onchange="enableWlanTXPower(this.value, 0);">
 			</select>
 			</div>
 		</div>
@@ -462,7 +468,7 @@
 		<div class="form-group" id="div_wlan_encryption0">
 			<label for="wlan_encryption0" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_encryption0" class="form-control" onchange="enableWlanEncryption(this.value, 0)">
+			<select id="wlan_encryption0" class="form-control" onchange="enableWlanEncryption(this.value, 0);">
 			</select>
 			</div>
 		</div>
@@ -499,7 +505,7 @@
 			</div>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group" id="div_wlan_txpower1">
 			<label for="wlan_txpower1" class="col-xs-4 col-sm-3 control-label">Moc nadawania</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="wlan_txpower1" class="form-control">
@@ -522,7 +528,7 @@
 		<div class="form-group">
 			<label for="wlan_channel1" class="col-xs-4 col-sm-3 control-label">Kanał</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_channel1" class="form-control">
+			<select id="wlan_channel1" class="form-control" onchange="enableWlanTXPower(this.value, 1);">
 			</select>
 			</div>
 		</div>
@@ -530,7 +536,7 @@
 		<div class="form-group" id="div_wlan_encryption1">
 			<label for="wlan_encryption1" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_encryption1" class="form-control" onchange="enableWlanEncryption(this.value, 1)">
+			<select id="wlan_encryption1" class="form-control" onchange="enableWlanEncryption(this.value, 1);">
 			</select>
 			</div>
 		</div>

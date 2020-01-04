@@ -272,6 +272,8 @@ echo "$O"'],'
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
+WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{printf "%d,\n", $2}' | sort -n -u)
+echo '"wlan_current_channels":['$WLAN_CURRENT_CHANNELS'],'
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 echo '"wlan_devices":['
 for R in $RADIOS; do
@@ -283,6 +285,7 @@ for R in $RADIOS; do
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
 	WLAN_TXPOWER=$(uci -q get wireless.$R.txpower)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
+	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
 	T=$(uci show wireless | awk -F. '/device=.*'$R'/{print $2}')
 	if [ -n "$T" ]; then
 		for WLAN_SEC in $T; do
