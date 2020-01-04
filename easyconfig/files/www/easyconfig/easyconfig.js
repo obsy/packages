@@ -1659,6 +1659,7 @@ function sitesurveycallback(sortby) {
 			if (a['signal'] < -100) {continue;}
 			a['channel'] = parseInt(wifiscanresults[idx].channel);
 			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
+			a['vhtch2'] = parseInt(wifiscanresults[idx].vhtch2);
 			a['width'] = wifiscanresults[idx].mode2;
 			if (wifiscanresults[idx].channel > 14) {
 				surveydata5.push(a);
@@ -1765,6 +1766,9 @@ wifigraph = {
 			} else if (width == 'VHT80') {
 				x1 = wifigraph.getX(graph, data[i].vhtch1 - 8);
 				x11 = wifigraph.getX(graph, data[i].vhtch1 - 7);
+			} else if (width == 'VHT160') {
+				x1 = wifigraph.getX(graph, data[i].vhtch2 - 16);
+				x11 = wifigraph.getX(graph, data[i].vhtch2 - 15);
 			} else {
 				x1 = wifigraph.getX(graph, data[i].channel - 2);
 				x11 = wifigraph.getX(graph, data[i].channel - 1);
@@ -1780,6 +1784,9 @@ wifigraph = {
 			} else if (width == 'VHT80') {
 				x2 = wifigraph.getX(graph, data[i].vhtch1 + 8);
 				x22 = wifigraph.getX(graph, data[i].vhtch1 + 7);
+			} else if (width == 'VHT160') {
+				x2 = wifigraph.getX(graph, data[i].vhtch2 + 16);
+				x22 = wifigraph.getX(graph, data[i].vhtch2 + 15);
 			} else {
 				x2 = wifigraph.getX(graph, data[i].channel + 2);
 				x22 = wifigraph.getX(graph, data[i].channel + 1);
