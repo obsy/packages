@@ -1722,7 +1722,10 @@ function sitesurveycallback(sortby) {
 		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
 		html += '</div>';
 		html += '<div class="row" id="div_channels5" style="display:none">';
-		html += '<div class="col-xs-12"><h3 class="section">Sieci 5 GHz</h3><canvas id="channels5" height="400"></canvas></div>';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 5 GHz</h3></div>';
+		html += '<div class="col-xs-12" id="div_channels51"><canvas id="channels51" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels52"><canvas id="channels52" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels53"><canvas id="channels53" height="400"></canvas></div>';
 		html += '</div>';
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>';
@@ -1731,7 +1734,9 @@ function sitesurveycallback(sortby) {
 
 	if (wifiscanresults.length > 0) {
 		var surveydata2 = [];
-		var surveydata5 = [];
+		var surveydata51 = [];
+		var surveydata52 = [];
+		var surveydata53 = [];
 		for(var idx = 0; idx < wifiscanresults.length; idx++) {
 			var a = {};
 			a['mac'] = wifiscanresults[idx].mac;
@@ -1743,19 +1748,26 @@ function sitesurveycallback(sortby) {
 			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
 			a['vhtch2'] = parseInt(wifiscanresults[idx].vhtch2);
 			a['width'] = wifiscanresults[idx].mode2;
-			if (wifiscanresults[idx].channel > 14) {
-				surveydata5.push(a);
+			if (wifiscanresults[idx].channel >= 149) {
+				surveydata53.push(a);
+			} else if (wifiscanresults[idx].channel >= 100) {
+				surveydata52.push(a);
+			} else if (wifiscanresults[idx].channel >= 36) {
+				surveydata51.push(a);
 			} else {
 				surveydata2.push(a);
 			}
 		}
 		setDisplay('div_channels2', (surveydata2.length > 0));
 		if (surveydata2.length > 0) {
-			wifigraph.draw({band: 2, element: 'channels2', data: surveydata2 });
+			wifigraph.draw({band: 2, element: 'channels2', data: surveydata2});
 		}
-		setDisplay('div_channels5', (surveydata5.length > 0));
-		if (surveydata5.length > 0) {
-			wifigraph.draw({band: 5, element: 'channels5', data: surveydata5 });
+
+		setDisplay('div_channels5', (surveydata51.length > 0 || surveydata52.length > 0 || surveydata53.length > 0));
+		if (surveydata51.length > 0 || surveydata52.length > 0 || surveydata53.length > 0) {
+			wifigraph.draw({band: 51, element: 'channels51', data: surveydata51});
+			wifigraph.draw({band: 52, element: 'channels52', data: surveydata52});
+			wifigraph.draw({band: 53, element: 'channels53', data: surveydata53});
 		}
 
 		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
@@ -1771,17 +1783,25 @@ wifigraph = {
 	axisRight: 5,
 	axisBottom: 20,
 	axisLeft: 40,
-	ch2: [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-	ch5: [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],
+	ch2: [1,2,3,4,5,6,7,8,9,10,11,12,13],
+	ch51: [36,40,44,48,52,56,60,64],
+	ch52: [100,102,104,106,108,110,112,114,116,118,120,122,124,126,128,132,134,136,138,140,142,144],
+	ch53: [149,151,153,155,157,159,161,165,169,173],
 
 	getX: function (graph, channel) {
-		if (graph.band == 2) {
-			return ((channel + 1) * graph.width) / 16 + wifigraph.axisLeft;
-		} else {
-			if (channel >= 100) {
-				channel -= 31;
-			}
-			return ((channel - 31) * graph.width) / 106 + wifigraph.axisLeft;
+		switch (graph.band) {
+			case 2:
+				return ((channel + 1) * graph.width) / 16 + wifigraph.axisLeft;
+				break;
+			case 51:
+				return ((channel - 34) * graph.width) / 32 + wifigraph.axisLeft;
+				break;
+			case 52:
+				return ((channel - 98) * graph.width) / 48 + wifigraph.axisLeft;
+				break;
+			case 53:
+				return ((channel - 147) * graph.width) / 28 + wifigraph.axisLeft;
+				break;
 		}
 	},
 
@@ -1791,7 +1811,7 @@ wifigraph = {
 
 	frame: function (graph) {
 		var ctx = graph.context;
-		var color = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'))
+		var color = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'));
 		ctx.strokeStyle = '#c0c0c0';
 		ctx.lineWidth = 0.5;
 		ctx.beginPath();
@@ -1812,7 +1832,21 @@ wifigraph = {
 			ctx.fillText(i, wifigraph.axisLeft - 5, y + 5, wifigraph.axisLeft);
 		}
 
-		var ch = (graph.band == 2) ? wifigraph.ch2 : wifigraph.ch5;
+		var ch;
+		switch (graph.band) {
+			case 2:
+				ch = wifigraph.ch2;
+				break;
+			case 51:
+				ch = wifigraph.ch51;
+				break;
+			case 52:
+				ch = wifigraph.ch52;
+				break;
+			case 53:
+				ch = wifigraph.ch53;
+				break;
+		}
 		var oldwidth = 0;
 		ctx.textAlign = 'center';
 		for (var i = 0; i < ch.length ; i++) {
