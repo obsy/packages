@@ -524,10 +524,12 @@ var token="00000000000000000000000000000000";
 var expires;
 var timeout;
 
-var ubus = function(param, successHandler, errorHandler) {
+var ubus = function(param, successHandler, errorHandler, showWait) {
 //console.log(param);
 
-	showMsg();
+	if (showWait) {
+		showMsg();
+	}
 	counter++;
 	param='{ "jsonrpc": "2.0", "id": '+counter+', "method": "call", "params": [ "'+token+'", '+param+' ] }';
 
@@ -548,7 +550,9 @@ var ubus = function(param, successHandler, errorHandler) {
 	xhr.onreadystatechange = function() {
 		var status = xhr.status;
 		if (xhr.readyState == 4) {
-			closeMsg();
+			if (showWait) {
+				closeMsg();
+			}
 			if (status == 200) {
 				successHandler && successHandler(
 					responseTypeAware
@@ -594,7 +598,7 @@ function ubus_call(param, callback)
 		}
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
-	});
+	}, true);
 }
 
 function ubus_call_noerror(param, callback) {
@@ -617,7 +621,24 @@ function ubus_call_noerror(param, callback) {
 	}, function(status) {
 		var data = {killed:1};
 		callback(data);
-	});
+	}, true);
+}
+
+function ubus_call_nomsg(param, callback) {
+	ubus(param, function(data) {
+		if (data.error) {
+		} else {
+			if (data.result[0] === 0) {
+
+				if (expires) {
+					clearTimeout(expires);
+					expires = setTimeout(function(){ document.getElementById("system_password").focus(); location.reload(); }, timeout * 1000);
+				}
+
+				callback(data.result[1]);
+			}
+		}
+	}, null, false);
 }
 
 function execute(cmd, callback) {
@@ -674,7 +695,7 @@ function login()
 	}, function(status) {
 		showMsg('Błąd logowania!', true);
 		setTimeout(function(){ closeMsg(); }, 3000);
-	});
+	}, true);
 }
 
 /*****************************************************************************/
@@ -1265,6 +1286,67 @@ function showwanup(data) {
 	showMsg(html);
 }
 
+var bandwidth_oldtx = -1;
+var bandwidth_oldrx = -1;
+var bandwidthID;
+var bandwidth_unit = false;
+
+function convertToSpeed(val) {
+	var sizes;
+	if (bandwidth_unit) {
+		sizes = ['B/s', 'KiB/s', 'MiB/s', 'GiB/s'];
+	} else {
+		sizes = ['bit/s', 'Kibit/s', 'Mibit/s', 'Gibit/s'];
+		val *= 8;
+	}
+	if (val == 0) return '0';
+	var i = parseInt(Math.floor(Math.log(val) / Math.log(1024)));
+	var dm = 0;
+	if (i > 2) {dm = 3;}
+	return parseFloat((val / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function bandwidthcallback(val) {
+	bandwidth_unit = val;
+	document.getElementById('bandwidth_bits').style.fontWeight = val ? 400 : 700;
+	document.getElementById('bandwidth_bytes').style.fontWeight = val ? 700 : 400;
+}
+
+function showbandwidth() {
+	var html = '';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Wysłano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Pobrano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
+	html += '<div class="row space"><label class="col-xs-5 col-sm-6 text-right">Jednostki</label><div class="col-xs-7 col-sm-6 text-left">';
+	html += '<a href="#" class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></a>|';
+	html += '<a href="#" class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></a>';
+	html += '</div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość wysyłania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_tx">-</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość pobiernia</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_rx">-</p></div></div>';
+	showMsg(html)
+	if (config.wan_ifname != '') {
+		bandwidthcallback(false);
+		bandwidthID = setInterval(function() {
+			var e = document.getElementById('bandwidth_all_tx');
+			if(!e || e.offsetParent === null) {
+				clearInterval(bandwidthID);
+				setValue('wan_rx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldrx) + '</a>');
+				setValue('wan_tx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldtx) + '</a>');
+				return;
+			}
+			ubus_call_nomsg('"network.device", "status", {"name":"' + config.wan_ifname + '"}', function(data) {
+				setValue('bandwidth_all_tx', bytesToSize(data.statistics.tx_bytes));
+				setValue('bandwidth_all_rx', bytesToSize(data.statistics.rx_bytes));
+				if (bandwidth_oldtx != -1) {
+					setValue('bandwidth_speed_tx', convertToSpeed(data.statistics.tx_bytes - bandwidth_oldtx));
+					setValue('bandwidth_speed_rx', convertToSpeed(data.statistics.rx_bytes - bandwidth_oldrx));
+				}
+				bandwidth_oldtx = data.statistics.tx_bytes;
+				bandwidth_oldrx = data.statistics.rx_bytes;
+			});
+		}, 1000);
+	}
+}
+
 function showstatus() {
 	ubus_call('"easyconfig", "status", {}', function(data) {
 		setValue('system_uptime', formatDuration(data.system_uptime, false));
@@ -1272,8 +1354,8 @@ function showstatus() {
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time == '' ? '-' : data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
-		setValue('wan_rx', data.wan_rx == '' ? '-' : bytesToSize(data.wan_rx));
-		setValue('wan_tx', data.wan_tx == '' ? '-' : bytesToSize(data.wan_tx));
+		setValue('wan_rx', data.wan_rx == '' ? '-' : '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(data.wan_rx) + '</a>');
+		setValue('wan_tx', data.wan_tx == '' ? '-' : '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(data.wan_tx) + '</a>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + data.wan_uptime_since + ')');
 		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
@@ -1443,7 +1525,7 @@ function okreboot() {
 		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
-	});
+	}, true);
 }
 
 
