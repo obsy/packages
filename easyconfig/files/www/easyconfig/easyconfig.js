@@ -1665,7 +1665,20 @@ function showsitesurvey() {
 		} else {
 			wifiscanresults = arr;
 		}
-		sitesurveycallback('ssid');
+
+		var sortby = 'ssid';
+		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
+		for (var idx = 0; idx < all.length; idx++) {
+			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
+			if (e === null) {
+				break;
+			}
+			if (e.style.fontWeight == 700) {
+				sortby = all[idx];
+				break;
+			}
+		}
+		sitesurveycallback(sortby);
 	});
 }
 
@@ -1679,7 +1692,7 @@ function sitesurveycallback(sortby) {
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'signal\');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></a>';
-		html += '<div></div>';
+		html += '</div></div>';
 
 		var wlan_devices = config.wlan_devices;
 		var ts = Date.now()/1000;
@@ -1982,7 +1995,20 @@ function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
 		logs = sortJSON(data.logs, 'id', 'desc');
-		wlanclientscallback('displayname');
+
+		var sortby = 'displayname';
+		var all = ['displayname', 'tx', 'rx', 'percent'];
+		for (var idx = 0; idx < all.length; idx++) {
+			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
+			if (e === null) {
+				break;
+			}
+			if (e.style.fontWeight == 700) {
+				sortby = all[idx];
+				break;
+			}
+		}
+		wlanclientscallback(sortby);
 		clientslogscallback(0, 9);
 	});
 }
@@ -1996,7 +2022,7 @@ function wlanclientscallback(sortby) {
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></a>|';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></a>|';
 		html += '<a href="#" class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></a>';
-		html += '<div></div>';
+		html += '</div></div>';
 
 		var total = 0;
 		for(var idx = 0; idx < wlanclients.length; idx++){
