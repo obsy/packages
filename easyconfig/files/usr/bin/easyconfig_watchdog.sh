@@ -13,7 +13,7 @@ T=$(uci -q get network.wan.proto)
 UPTIME=$(awk '{printf "%d", $1}' /proc/uptime)
 [ $UPTIME -le $1 ] && exit 0
 
-ping -q -c $2 $3 > /tmp/easyconfig_watchdog 2>/dev/null
+ping -q -4 -w 10 -c $2 $3 > /tmp/easyconfig_watchdog 2>/dev/null
 
 PR=$(awk '/packets received/ {print $4}' /tmp/easyconfig_watchdog)
 [ -z "$PR" ] && PR=0
