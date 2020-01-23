@@ -1638,7 +1638,7 @@ function showsitesurvey() {
 			if (arr[idx1].channel == "?") {
 				for (var i = 0; i < wlan_devices.length; i++) {
 					obj = config[wlan_devices[i]].wlan_channels;
-					for(var propt in obj) {
+					for (var propt in obj) {
 						if (obj[propt][0] == arr[idx1].freq) {
 							arr[idx1].channel = propt;
 							break;
@@ -1649,11 +1649,11 @@ function showsitesurvey() {
 
 		}
 		if (wifiscanresults) {
-			for (var idx=wifiscanresults.length - 1; idx >= 0; idx--) {
+			for (var idx = wifiscanresults.length - 1; idx >= 0; idx--) {
 				if ((ts - wifiscanresults[idx].timestamp) > 180) {
 					wifiscanresults.splice(idx, 1);
 				} else {
-					for (var idx1=0; idx1 < l; idx1++) {
+					for (var idx1 = 0; idx1 < l; idx1++) {
 						if (wifiscanresults[idx].mac == arr[idx1].mac) {
 							wifiscanresults.splice(idx, 1);
 							break;
@@ -1665,9 +1665,24 @@ function showsitesurvey() {
 		} else {
 			wifiscanresults = arr;
 		}
+		sitesurveycallback('');
+	});
+}
 
-		var sortby = 'ssid';
-		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
+function sitesurveycallbackfilter(filterby) {
+	var all = ['all', '2', '5'];
+	for (var idx = 0; idx < all.length; idx++) {
+		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
+		e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
+	}
+}
+
+function sitesurveycallback(sortby) {
+
+	var all;
+	if (sortby == '') {
+		sortby = 'ssid';
+		all = ['ssid', 'mac', 'signal', 'freq', 'timestamp'];
 		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
 			if (e === null) {
@@ -1678,20 +1693,35 @@ function showsitesurvey() {
 				break;
 			}
 		}
-		sitesurveycallback(sortby);
-	});
-}
+	}
 
-function sitesurveycallback(sortby) {
+	var filterby = 'all';
+	all = ['all', '2', '5'];
+	for (var idx = 0; idx < all.length; idx++) {
+		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
+		if (e === null) {
+			break;
+		}
+		if (e.style.fontWeight == 700) {
+			filterby = all[idx];
+			break;
+		}
+	}
+
 	var html = '';
 	if (wifiscanresults.length > 0) {
-		html += '<div class="row space"><div class="col-xs-12">';
+		html += '<div class="row space"><div class="col-xs-12 space">';
 		html += '<span>Sortowanie po</span>';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'signal\');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></a>|';
 		html += '<a href="#" class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></a>';
+		html += '</div><div class="col-xs-12">';
+		html += '<span>Filtrowanie</span>';
+		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></a>|';
+		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4GHz (0) </span></a>|';
+		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5GHz (0) </span></a>';
 		html += '</div></div>';
 
 		var wlan_devices = config.wlan_devices;
@@ -1699,7 +1729,18 @@ function sitesurveycallback(sortby) {
 		var sorted = sortJSON(wifiscanresults, sortby, 'asc');
 		var rogueap = false;
 		var modes = ['b', 'g', 'n', 'ac', 'ax'];
-		for(var idx = 0; idx < sorted.length; idx++){
+		var counter_all = 0;
+		var counter_2 = 0;
+		var counter_5 = 0;
+		for (var idx = 0; idx < sorted.length; idx++) {
+			counter_all ++;
+			if (sorted[idx].channel > 14) {
+				counter_5 ++;
+				if (filterby == '2') { continue; }
+			} else {
+				counter_2 ++;
+				if (filterby == '5') { continue; }
+			}
 
 			rogueap = false;
 			for (var i = 0; i < wlan_devices.length; i++) {
@@ -1730,7 +1771,7 @@ function sitesurveycallback(sortby) {
 			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')';
 			html += '</div></div>';
 		}
-		html += '<hr><p>Liczba sieci bezprzewodowych: ' + sorted.length + '</p>';
+		html += '<hr>';
 		html += '<div class="row" id="div_channels2" style="display:none">';
 		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
 		html += '</div>';
@@ -1750,7 +1791,10 @@ function sitesurveycallback(sortby) {
 		var surveydata51 = [];
 		var surveydata52 = [];
 		var surveydata53 = [];
-		for(var idx = 0; idx < wifiscanresults.length; idx++) {
+		for (var idx = 0; idx < wifiscanresults.length; idx++) {
+			if (filterby == '2') { if (wifiscanresults[idx].channel > 14) { continue; } }
+			if (filterby == '5') { if (wifiscanresults[idx].channel < 36) { continue; } }
+
 			var a = {};
 			a['mac'] = wifiscanresults[idx].mac;
 			a['ssid'] = (wifiscanresults[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
@@ -1783,11 +1827,16 @@ function sitesurveycallback(sortby) {
 			wifigraph.draw({band: 53, element: 'channels53', data: surveydata53});
 		}
 
-		var all=['ssid', 'mac', 'signal', 'freq', 'timestamp'];
-		for(var idx = 0; idx < all.length; idx++){
+		all = ['ssid', 'mac', 'signal', 'freq', 'timestamp'];
+		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
+
+		setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
+		setValue('sitesurvey_filter_2', ' 2.4GHz (' + counter_2 + ') ');
+		setValue('sitesurvey_filter_5', ' 5GHz (' + counter_5 + ') ');
+		sitesurveycallbackfilter(filterby);
 	}
 }
 
