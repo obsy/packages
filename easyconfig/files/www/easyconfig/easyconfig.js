@@ -9,7 +9,7 @@ function setCookie(cname, cvalue) {
 function getCookie(cname) {
 	var name = cname + "=";
 	var ca = document.cookie.split(';');
-	for(var i = 0; i < ca.length; i++) {
+	for (var i = 0; i < ca.length; i++) {
 		var c = ca[i];
 		while (c.charAt(0) == ' ') {
 			c = c.substring(1);
@@ -118,7 +118,7 @@ function validateIP(address) {
 		if (ipFields == null) {
 			errorCode = 1;
 		} else {
-			for(field=1; field <= 4; field++) {
+			for (field=1; field <= 4; field++) {
 				if ((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
 					errorCode = 1;
 				}
@@ -210,7 +210,7 @@ function showPassword(element) {
 
 function removeOptions(element) {
 	var e = document.getElementById(element);
-	for(var idx = e.options.length - 1 ; idx >= 0 ; idx--) {
+	for (var idx = e.options.length - 1 ; idx >= 0 ; idx--) {
 		e.remove(idx);
 	}
 }
@@ -222,7 +222,7 @@ function cleanField(element) {
 function setValue(element, value) {
 	var e = document.getElementById(element);
 	if (e.tagName == "SELECT") {
-		for(var i = 0; i < e.options.length; i++) {
+		for (var i = 0; i < e.options.length; i++) {
 			if (e.options[i].value == value) {
 				e.selectedIndex = i;
 				break;
@@ -270,14 +270,14 @@ function setDisplay(element, show) {
 }
 
 function addClasses(element, classes) {
-	for(var i = 0; i < classes.length; i++) {
+	for (var i = 0; i < classes.length; i++) {
 		if (!element.className.match(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g')))
 			element.className += " " + classes[i];
 	}
 }
 
 function removeClasses(element, classes) {
-	for(var i = 0; i < classes.length; i++) {
+	for (var i = 0; i < classes.length; i++) {
 		element.className = element.className.replace(new RegExp('(?:^|\\s)' + classes[i] + '(?!\\S)', 'g'), '');
 	}
 }
@@ -418,10 +418,10 @@ function enableWan(proto) {
 	}
 
 	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode","wan_wanport"];
-	for(var idx=0; idx < all.length; idx++) {
+	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
-	for(var idx=0; idx < fields.length; idx++) {
+	for (var idx = 0; idx < fields.length; idx++) {
 		setElementEnabled(fields[idx], true, false);
 	}
 	if (proto != 'static' && proto != 'none') {
@@ -433,7 +433,7 @@ function enableWan(proto) {
 			setValue('wan_dns', 'isp');
 		} else {
 			setValue('wan_dns', 'custom');
-			for(var idx = 0; idx < dns.length; idx++){
+			for (var idx = 0; idx < dns.length; idx++) {
 				var ip = (dns[idx].ip).sort();
 				if (ip == t) {
 					setValue('wan_dns', t);
@@ -519,8 +519,8 @@ function showDialog(msg, default_value, primary_value, primary_callback) {
 }
 
 var config;
-var counter=0;
-var token="00000000000000000000000000000000";
+var counter = 0;
+var token = "00000000000000000000000000000000";
 var expires;
 var timeout;
 
@@ -726,7 +726,7 @@ function showcallback(data) {
 	var arr = config.wan_protos;
 	arr.push('-');
 	arr.push('detect');
-	for (var idx=0; idx<arr.length; idx++) {
+	for (var idx = 0; idx<arr.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = arr[idx];
 		opt.innerHTML = wan[arr[idx]];
@@ -737,7 +737,7 @@ function showcallback(data) {
 	removeOptions('wan_device');
 	e = document.getElementById('wan_device');
 	var arr = config.wan_devices;
-	for(var idx=0; idx<arr.length; idx++){
+	for (var idx = 0; idx<arr.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = arr[idx];
 		opt.innerHTML = arr[idx];
@@ -752,7 +752,7 @@ function showcallback(data) {
 		sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
 	}
 	e = document.getElementById('wan_dns');
-	for(var idx = 0; idx < sorteddns.length; idx++){
+	for (var idx = 0; idx < sorteddns.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = (sorteddns[idx].ip).sort();
 		opt.innerHTML = sorteddns[idx].name;
@@ -809,7 +809,7 @@ function showcallback(data) {
 		opt.value = '0';
 		opt.innerHTML = 'automatycznie';
 		select.appendChild(opt);
-		for(var propt in obj){
+		for (var propt in obj) {
 			var opt = document.createElement('option');
 			opt.value = propt;
 			opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
@@ -845,7 +845,7 @@ function showcallback(data) {
 
 		removeOptions('wlan_encryption' + i);
 		var select = document.getElementById('wlan_encryption' + i);
-		for(var propt in enc) {
+		for (var propt in enc) {
 			var opt = document.createElement('option');
 			opt.value = propt;
 			opt.innerHTML = enc[propt];
@@ -1327,7 +1327,7 @@ function showbandwidth() {
 		bandwidthcallback(false);
 		bandwidthID = setInterval(function() {
 			var e = document.getElementById('bandwidth_all_tx');
-			if(!e || e.offsetParent === null) {
+			if (!e || e.offsetParent === null) {
 				clearInterval(bandwidthID);
 				setValue('wan_rx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldrx) + '</a>');
 				setValue('wan_tx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldtx) + '</a>');
@@ -2074,16 +2074,16 @@ function wlanclientscallback(sortby) {
 		html += '</div></div>';
 
 		var total = 0;
-		for(var idx = 0; idx < wlanclients.length; idx++){
+		for (var idx = 0; idx < wlanclients.length; idx++) {
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
-		for(var idx = 0; idx < wlanclients.length; idx++){
+		for (var idx = 0; idx < wlanclients.length; idx++) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
 			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
 			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
 		}
 		var sorted = sortJSON(wlanclients, sortby, 'asc');
-		for(var idx=0; idx<sorted.length; idx++){
+		for (var idx = 0; idx<sorted.length; idx++) {
 			html += '<hr><div class="row">';
 			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</a></div>';
 			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + sorted[idx].mac + '\');"><i data-feather="more-vertical"></i></a></div>';
@@ -2098,7 +2098,7 @@ function wlanclientscallback(sortby) {
 
 	if (wlanclients.length > 0) {
 		var all = ['displayname', 'tx', 'rx', 'percent'];
-		for(var idx = 0; idx < all.length; idx++){
+		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
@@ -2110,7 +2110,7 @@ function clientslogscallback(first, last) {
 	var html = '';
 	if (logs.length > 0) {
 		if (logs.length - 1 < last) { last = logs.length - 1; }
-		for(var idx = first; idx <= last; idx++){
+		for (var idx = first; idx <= last; idx++) {
 			var title = '';
 			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
 				title = 'Pasmo ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
@@ -2309,7 +2309,7 @@ function hostblock_toggle(evt) {
 }
 
 function hostblock_checkall() {
-	for(var i = 0; i < 24; i++) {
+	for (var i = 0; i < 24; i++) {
 		for (var j = 0; j < 7; j++) {
 			document.getElementById('t' + i + j).style.backgroundColor = '#337ab7';
 		}
@@ -2317,7 +2317,7 @@ function hostblock_checkall() {
 }
 
 function hostblock_uncheckall() {
-	for(var i = 0; i < 24; i++) {
+	for (var i = 0; i < 24; i++) {
 		for (var j = 0; j < 7; j++) {
 			document.getElementById('t' + i + j).style.backgroundColor = document.body.style.backgroundColor;
 		}
@@ -2645,17 +2645,17 @@ function currentPeriod(start) {
 function lastPeriod(start) {
 	d = new Date();
 	var days = [];
-	var i=62;
-	var t=0;
+	var i = 62;
+	var t = 0;
 	d.setDate(d.getDate() + 1);
 	while (i--) {
 		var nd = new Date(d-=8.64e7);
 		if (nd.getDate() == start) {
 			if (t == 1) {
 				days.push(formatDate(nd));
-				t=0;
+				t = 0;
 			} else {
-				t=1;
+				t = 1;
 			}
 			continue;
 		}
@@ -2716,16 +2716,16 @@ function showtraffic() {
 		var current_period = currentPeriod(traffic_cycle);
 		var last_period = lastPeriod(traffic_cycle);
 
-		var traffic_today=0;
-		var traffic_today_rx=0;
-		var traffic_today_tx=0;
-		var traffic_yesterday=0;
-		var traffic_last7d=0;
-		var traffic_last30d=0;
-		var traffic_total=0;
-		var traffic_currentperiod=0;
-		var traffic_lastperiod=0;
-		var total_since="";
+		var traffic_today = 0;
+		var traffic_today_rx = 0;
+		var traffic_today_tx = 0;
+		var traffic_yesterday = 0;
+		var traffic_last7d = 0;
+		var traffic_last30d = 0;
+		var traffic_total = 0;
+		var traffic_currentperiod = 0;
+		var traffic_lastperiod = 0;
+		var total_since = "";
 
 		var traffic = [];
 		if (data.stdout) {
@@ -2749,25 +2749,25 @@ function showtraffic() {
 				traffic_yesterday = t_value;
 			}
 
-			for (var idx1=0; idx1<7; idx1++) {
+			for (var idx1 = 0; idx1<7; idx1++) {
 				if (t_date == last7d[idx1]) {
 					traffic_last7d += parseInt(t_value);
 				}
 			}
 
-			for (var idx1=0; idx1<30; idx1++) {
+			for (var idx1 = 0; idx1<30; idx1++) {
 				if (t_date == last30d[idx1]) {
 					traffic_last30d += parseInt(t_value);
 				}
 			}
 
-			for (var idx1=0; idx1<current_period.length; idx1++) {
+			for (var idx1 = 0; idx1<current_period.length; idx1++) {
 				if (t_date == current_period[idx1]) {
 					traffic_currentperiod += parseInt(t_value);
 				}
 			}
 
-			for (var idx1=0; idx1<last_period.length; idx1++) {
+			for (var idx1 = 0; idx1<last_period.length; idx1++) {
 				if (t_date == last_period[idx1]) {
 					traffic_lastperiod += parseInt(t_value);
 				}
@@ -2884,7 +2884,7 @@ function showtrafficdetails(period, total, tx, rx) {
 function removeDiacritics(str) {
 	var from = "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ";
 	var to   = "acelnoszzACELNOSZZ";
-	for (var idx=0, l=from.length; idx<l; idx++) {
+	for (var idx = 0, l = from.length; idx < l; idx++) {
 		str = str.replace(new RegExp(from.charAt(idx), 'g'), to.charAt(idx));
 	}
 	return str;
@@ -2995,8 +2995,8 @@ function readussdshortcuts() {
 			opt.value = 'own';
 			opt.innerHTML = 'wybierz kod USSD';
 			select.appendChild(opt);
-			for(var propt in arr) {
-				for(var propt1 in arr[propt]) {
+			for (var propt in arr) {
+				for (var propt1 in arr[propt]) {
 					var opt = document.createElement('option');
 					opt.value = propt1;
 					opt.innerHTML = arr[propt][propt1];
@@ -3157,7 +3157,7 @@ function showpptp() {
 		e.appendChild(opt);
 		var arr = sortJSON(data.profiles, 'name', 'asc');
 		var selected = '';
-		for(var idx = 0; idx < arr.length; idx++) {
+		for (var idx = 0; idx < arr.length; idx++) {
 			var opt = document.createElement('option');
 			opt.value = (JSON.stringify(arr[idx])).replace(/\"/g,"$")
 			opt.innerHTML = arr[idx].name;
@@ -3176,7 +3176,7 @@ function showpptp() {
 		opt.innerHTML = 'brak';
 		e.appendChild(opt);
 		arr = data.leds;
-		for(var idx = 0; idx < arr.length; idx++) {
+		for (var idx = 0; idx < arr.length; idx++) {
 			var opt = document.createElement('option');
 			opt.value = arr[idx];
 			opt.innerHTML = arr[idx];
