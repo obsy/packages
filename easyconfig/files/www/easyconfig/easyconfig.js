@@ -1317,8 +1317,8 @@ function showbandwidth() {
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Wysłano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Pobrano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
 	html += '<div class="row space"><label class="col-xs-5 col-sm-6 text-right">Jednostki</label><div class="col-xs-7 col-sm-6 text-left">';
-	html += '<a href="#" class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></a>|';
-	html += '<a href="#" class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></a>';
+	html += '<span class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></span>|';
+	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>';
 	html += '</div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość wysyłania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_tx">-</p></div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość pobiernia</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_rx">-</p></div></div>';
@@ -1329,8 +1329,8 @@ function showbandwidth() {
 			var e = document.getElementById('bandwidth_all_tx');
 			if (!e || e.offsetParent === null) {
 				clearInterval(bandwidthID);
-				setValue('wan_rx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldrx) + '</a>');
-				setValue('wan_tx', '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(bandwidth_oldtx) + '</a>');
+				setValue('wan_rx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_oldrx) + '</span>');
+				setValue('wan_tx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_oldtx) + '</span>');
 				return;
 			}
 			ubus_call_nomsg('"network.device", "status", {"name":"' + config.wan_ifname + '"}', function(data) {
@@ -1354,12 +1354,12 @@ function showstatus() {
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time == '' ? '-' : data.system_time);
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
-		setValue('wan_rx', data.wan_rx == '' ? '-' : '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(data.wan_rx) + '</a>');
-		setValue('wan_tx', data.wan_tx == '' ? '-' : '<a href="#" class="click" onclick="showbandwidth();">'+ bytesToSize(data.wan_tx) + '</a>');
+		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth();">' + bytesToSize(data.wan_rx) + '</span>');
+		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth();">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + data.wan_uptime_since + ')');
-		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<a href="#" class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">'+ data.wan_up_cnt + '</a>');
-		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">'+ data.wan_ipaddr + '</a>');
+		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
+		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.wan_ipaddr + '</span>');
 		setDisplay('div_vpn_up_status', data.vpn_up);
 	});
 }
@@ -1712,16 +1712,16 @@ function sitesurveycallback(sortby) {
 	if (wifiscanresults.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12 space">';
 		html += '<span>Sortowanie po</span>';
-		html += '<a href="#" class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallback(\'signal\');" ><span id="sitesurvey_sortby_signal"> sile sygnału </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></a>';
+		html += '<span class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallback(\'signal\');"><span id="sitesurvey_sortby_signal"> sile sygnału </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></span>';
 		html += '</div><div class="col-xs-12">';
 		html += '<span>Filtrowanie</span>';
-		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4GHz (0) </span></a>|';
-		html += '<a href="#" class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5GHz (0) </span></a>';
+		html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4GHz (0) </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5GHz (0) </span></span>';
 		html += '</div></div>';
 
 		var wlan_devices = config.wlan_devices;
@@ -2067,10 +2067,10 @@ function wlanclientscallback(sortby) {
 	if (wlanclients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
-		html += '<a href="#" class="click" onclick="wlanclientscallback(\'displayname\');"><span id="wlanclients_sortby_displayname"> nazwie </span></a>|';
-		html += '<a href="#" class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></a>|';
-		html += '<a href="#" class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></a>|';
-		html += '<a href="#" class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></a>';
+		html += '<span class="click" onclick="wlanclientscallback(\'displayname\');"><span id="wlanclients_sortby_displayname"> nazwie </span></span>|';
+		html += '<span class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></span>|';
+		html += '<span class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></span>|';
+		html += '<span class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></span>';
 		html += '</div></div>';
 
 		var total = 0;
@@ -2085,8 +2085,8 @@ function wlanclientscallback(sortby) {
 		var sorted = sortJSON(wlanclients, sortby, 'asc');
 		for (var idx = 0; idx<sorted.length; idx++) {
 			html += '<hr><div class="row">';
-			html += '<div class="col-xs-9"><a href="#" class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</a></div>';
-			html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="hostmenu(\'' + sorted[idx].mac + '\');"><i data-feather="more-vertical"></i></a></div>';
+			html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</span></div>';
+			html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].mac + '\');"><i data-feather="more-vertical"></i></span></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -2140,13 +2140,13 @@ function hostmenu(mac) {
 	}
 	var html = host.displayname + '<hr>';
 
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\');">informacje</a></p>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\');">zmiana nazwy</a>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\');">blokady</a></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\');">informacje</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\');">zmiana nazwy</span>';
+	html += '<p><span class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\');">blokady</span></p>';
 	if (config.services.nftqos) {
-		html += '<p><a href="#" class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\');">limity</a></p>';
+		html += '<p><span class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\');">limity</span></p>';
 	}
-	html += '<p><a href="#" class="click" onclick="closeMsg();hostip(\'' + host.mac + '\');">statyczny adres IP</a></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostip(\'' + host.mac + '\');">statyczny adres IP</span></p>';
 	showMsg(html);
 }
 
@@ -2568,9 +2568,9 @@ function queriescallback(sortby, order) {
 		html += '<hr>'
 
 		html += '<div class="row">';
-		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></a></div>';
-		html += '<div class="col-xs-6 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></a></div>';
-		html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></a></div>';
+		html += '<div class="col-xs-6 col-sm-4"><span class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></span></div>';
+		html += '<div class="col-xs-6 col-sm-4"><span class="click" onclick="queriescallback(\'host\');"><span id="queries_sortby_host">Klient</span></span></div>';
+		html += '<div class="col-xs-12 col-sm-4"><span class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></span></div>';
 		html += '</div><hr>';
 
 		var sorted = sortJSON(queries, sortby, (order ? order : 'asc'));
@@ -2582,7 +2582,7 @@ function queriescallback(sortby, order) {
 				html += '<div class="col-xs-12 col-sm-4 text-muted" title="brak domeny">' + sorted[idx].query + '</div>';
 			} else {
 				if (config.services.adblock) {
-					html += '<div class="col-xs-12 col-sm-4"><a href="#" class="click" onclick="queriesmenu(\'' + sorted[idx].query + '\');">' + sorted[idx].query + '</a></div>';
+					html += '<div class="col-xs-12 col-sm-4"><span class="click" onclick="queriesmenu(\'' + sorted[idx].query + '\');">' + sorted[idx].query + '</span></div>';
 				} else {
 					html += '<div class="col-xs-12 col-sm-4">' + sorted[idx].query + '</div>';
 				}
@@ -2605,7 +2605,7 @@ function queriescallback(sortby, order) {
 
 function queriesmenu(domain) {
 	var html = domain + '<hr>';
-	html += '<p><a href="#" class="click" onclick="closeMsg();gotoadblock(\'' + domain + '\');">przenieś do blokady domen</a></p>';
+	html += '<p><a span class="click" onclick="closeMsg();gotoadblock(\'' + domain + '\');">przenieś do blokady domen</span></p>';
 	showMsg(html);
 }
 
@@ -2814,7 +2814,7 @@ function showtraffic() {
 		if (traffic_today == 0) {
 			setValue("traffic_today", traffic_today);
 		} else {
-			setValue("traffic_today", '<a href="#" class="click" style="color:'+ color + '" onclick="showtrafficdetails(\'Dziś\',' + traffic_today + ',' + traffic_today_tx + ',' + traffic_today_rx + ');">' + bytesToSize(traffic_today) + '</a>');
+			setValue("traffic_today", '<span class="click" style="color:'+ color + '" onclick="showtrafficdetails(\'Dziś\',' + traffic_today + ',' + traffic_today_tx + ',' + traffic_today_rx + ');">' + bytesToSize(traffic_today) + '</span>');
 		}
 		setValue("traffic_yesterday", bytesToSize(traffic_yesterday));
 		setValue("traffic_last7d", bytesToSize(traffic_last7d));
@@ -2934,7 +2934,7 @@ function readsms() {
 					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
 				}
 				html += '</div>';
-				html += '<div class="col-xs-2 text-right"><a href="#" class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></a></div>';
+				html += '<div class="col-xs-2 text-right"><span class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';
 			}
@@ -3136,7 +3136,7 @@ function upgrade_step3() {
 function showpptp() {
 	ubus_call('"easyconfig", "pptp", {}', function(data) {
 		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
-		setValue('pptp_ip', (data.ip == '') ? '-' : '<a href="#" class="click" onclick="showgeolocation();">' + data.ip + '</a>');
+		setValue('pptp_ip', (data.ip == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.ip + '</span>');
 		setValue('pptp_uptime', formatDuration(data.uptime, false));
 		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + data.uptime_since + ')');
 		setValue('pptp_auto', data.auto == '1');
@@ -3362,7 +3362,7 @@ function showadblock() {
 			for (var idx = 0; idx < blacklist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '</div>';
 			}
 			html += '<hr>';
@@ -3376,7 +3376,7 @@ function showadblock() {
 			for (var idx = 0; idx < whitelist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + whitelist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><a href="#" class="click" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></a></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '</div>';
 			}
 			html += '<hr>';
