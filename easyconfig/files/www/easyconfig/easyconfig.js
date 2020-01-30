@@ -1321,7 +1321,7 @@ function showbandwidth() {
 	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>';
 	html += '</div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość wysyłania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_tx">-</p></div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość pobiernia</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_rx">-</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość pobierania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_rx">-</p></div></div>';
 	showMsg(html)
 	if (config.wan_ifname != '') {
 		bandwidthcallback(false);
