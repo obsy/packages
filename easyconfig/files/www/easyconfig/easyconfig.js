@@ -1929,6 +1929,8 @@ wifigraph = {
 		var ctx = graph.context
 		var data = sortJSON(graph.data, 'signal', 'desc');
 
+		ctx.textAlign = 'center';
+		ctx.lineWidth = 1.5;
 		for (var i = 0; i < data.length; i++) {
 			var x = wifigraph.getX(graph, data[i].channel);
 
@@ -1971,26 +1973,18 @@ wifigraph = {
 			}
 
 			ctx.fillStyle = string2color(data[i].mac);
-			ctx.strokeStyle = ctx.fillStyle
+			ctx.strokeStyle = ctx.fillStyle;
 			ctx.globalAlpha = 0.2;
 			ctx.beginPath();
 			ctx.moveTo(x1, graph.height + wifigraph.axisTop);
 			ctx.lineTo(x11, y);
 			ctx.lineTo(x22, y);
 			ctx.lineTo(x2, graph.height + wifigraph.axisTop);
-			ctx.stroke();
 			ctx.fill();
 
 			ctx.globalAlpha = 1;
-			ctx.lineWidth = 1.5;
-			ctx.beginPath();
-			ctx.moveTo(x1, graph.height + wifigraph.axisTop);
-			ctx.lineTo(x11, y);
-			ctx.lineTo(x22, y);
-			ctx.lineTo(x2, graph.height + wifigraph.axisTop);
 			ctx.stroke();
 
-			ctx.textAlign = 'center';
 			ctx.fillText(data[i].ssid, x, y - 15);
 
 			ctx.beginPath();
