@@ -59,6 +59,13 @@ function rgb2hex(rgb) {
 	return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
 }
 
+function escapeShell(value) {
+	value = value.replace(/\\/g, '\\\\\\\\');
+	value = value.replace(/\$/g, '\\\\$');
+	value = value.replace(/"/g, '\\\\\\"');
+	return value;
+}
+
 /*****************************************************************************/
 
 function proofreadHost(input) {
@@ -256,13 +263,8 @@ function getValue(element) {
 	} else if (e.type === 'radio') {
 		return e.checked;
 	} else {
-		var val=e.value;
-		return val.replace(/(["\\])/g,'');
+		return e.value;
 	}
-}
-
-function getValueRaw(element) {
-	return document.getElementById(element).value;
 }
 
 function setDisplay(element, show) {
@@ -295,7 +297,7 @@ function enableDns(value) {
 }
 
 function okdetectwan() {
-	var data = JSON.parse(getValueRaw('dialog_val'));
+	var data = JSON.parse(getValue('dialog_val'));
 
 	var cmd = [];
 	cmd.push('uci -q del network.wan');
@@ -662,7 +664,7 @@ function login()
 	var system_user = getValue('system_login');
 	var system_pass = getValue('system_password');
 
-	ubus('"session", "login", { "username": "' + system_user + '", "password": "' + system_pass + '" }', function(data) {
+	ubus('"session", "login", { "username": "' + system_user + '", "password": "' + (system_pass).replace(/\\/g, '\\\\').replace(/"/g,'\\\"') + '" }', function(data) {
 		if (data.error) {
 			ubus_error(data.error.code);
 		} else {
@@ -1130,7 +1132,7 @@ function saveconfig() {
 				return;
 			}
 			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + section + '.ssid=\\\"'+wlan_ssid+'\\\"');
+			cmd.push('uci set wireless.' + section + '.ssid=\\\"' + escapeShell(wlan_ssid) + '\\\"');
 		}
 		wlan_encryption = getValue('wlan_encryption' + i);
 		if (config[radios[i]].wlan_encryption != wlan_encryption) {
@@ -1146,7 +1148,7 @@ function saveconfig() {
 				}
 			}
 			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + section + '.key=\\\"'+wlan_key+'\\\"');
+			cmd.push('uci set wireless.' + section + '.key=\\\"' + escapeShell(wlan_key) + '\\\"');
 		}
 
 		if (getValue('wlan_isolate' + i)) {
@@ -1246,10 +1248,10 @@ function saveconfig() {
 	var pass2 = getValue('password2');
 	if (pass1 != '') {
 		if (pass1 != pass2) {
-			showMsg("Hasła nie są takie same!", true);
+			showMsg('Hasła nie są takie same!', true);
 			return;
 		}
-		cmd.push('(echo \\\"'+pass1+'\\\"; sleep 1; echo \\\"'+pass1+'\\\") | passwd root');
+		cmd.push('(echo \\\"' + escapeShell(pass1) + '\\\"; sleep 1; echo \\\"' + escapeShell(pass1) + '\\\") | passwd root');
 	}
 
 //console.log(cmd);
@@ -1384,7 +1386,7 @@ function modemat() {
 }
 
 function sendmodemat() {
-	var atcmd = getValueRaw('modemat_cmd');
+	var atcmd = getValue('modemat_cmd');
 	if (atcmd == '') {
 		document.getElementById('modemat_cmd').focus();
 		return;
@@ -3192,10 +3194,10 @@ function savepptp() {
 
 	cmd.push('uci set network.vpn=interface');
 	cmd.push('uci set network.vpn.proto=pptp');
-	cmd.push('uci set network.vpn.name=\\\"' + getValue('pptp_name') + '\\\"');
+	cmd.push('uci set network.vpn.name=\\\"' + escapeShell(getValue('pptp_name')) + '\\\"');
 	cmd.push('uci set network.vpn.server=\\\"' + getValue('pptp_server') + '\\\"');
-	cmd.push('uci set network.vpn.username=\\\"' + getValue('pptp_username') + '\\\"');
-	cmd.push('uci set network.vpn.password=\\\"' + getValue('pptp_password') + '\\\"');
+	cmd.push('uci set network.vpn.username=\\\"' + escapeShell(getValue('pptp_username')) + '\\\"');
+	cmd.push('uci set network.vpn.password=\\\"' + escapeShell(getValue('pptp_password')) + '\\\"');
 	if (getValue('pptp_mppe')) {
 		cmd.push('sed -i \'s/^#mppe/mppe/g\' /etc/ppp/options.pptp');
 	} else {
@@ -3222,10 +3224,10 @@ function savepptp() {
 		cmd.push('uci -q del easyconfig.' + section);
 		cmd.push('uci set easyconfig.' + section + '=vpn');
 		cmd.push('uci set easyconfig.' + section + '.proto=pptp');
-		cmd.push('uci set easyconfig.' + section + '.name=\\\"' + getValue('pptp_name') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.name=\\\"' + escapeShell(getValue('pptp_name')) + '\\\"');
 		cmd.push('uci set easyconfig.' + section + '.server=\\\"' + getValue('pptp_server') + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.username=\\\"' + getValue('pptp_username') + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.password=\\\"' + getValue('pptp_password') + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.username=\\\"' + escapeShell(getValue('pptp_username')) + '\\\"');
+		cmd.push('uci set easyconfig.' + section + '.password=\\\"' + escapeShell(getValue('pptp_password')) + '\\\"');
 		cmd.push('uci set easyconfig.' + section + '.mppe=' + (getValue('pptp_mppe') ? '1' : '0'));
 		cmd.push('uci set easyconfig.' + section + '.auto=' + (getValue('pptp_auto') ? '1' : '0'));
 	}

@@ -14,6 +14,13 @@ else
 	TIMEISVALID="false"
 fi
 
+function escapeJson() {
+	ret=$1
+	ret="${ret//\\/\\\\}"
+	ret="${ret//\"/\\\"}"
+	echo "$ret"
+}
+
 show_status()
 {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
@@ -308,10 +315,10 @@ for R in $RADIOS; do
 	fi
 	echo '"wlan_disabled":'${WLAN_DISABLED:-0}','
 	echo '"wlan_txpower":"'$WLAN_TXPOWER'",'
-	echo '"wlan_ssid":"'$WLAN_SSID'",'
+	echo '"wlan_ssid":"'$(escapeJson "$WLAN_SSID")'",'
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
-	echo '"wlan_key":"'$WLAN_KEY'",'
+	echo '"wlan_key":"'$(escapeJson "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	echo '"wlan_channels":{'
@@ -1062,17 +1069,17 @@ show_pptp()
 		PASSWORD=$(uci -q get network.vpn.password)
 	fi
 	MPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\"$NAME\",\"auto\":\"${AUTO:-1}\",\"server\":\"$SERVER\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\",\"mppe\":$MPPE,"
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":\"${AUTO:-1}\",\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
 	for i in $T; do
 		echo '{"proto":"'$(uci -q get easyconfig.$i.proto)'",'
-		echo '"name":"'$(uci -q get easyconfig.$i.name)'",'
+		echo '"name":"'$(escapeJson "$(uci -q get easyconfig.$i.name)")'",'
 		echo '"auto":"'$(uci -q get easyconfig.$i.auto)'",'
 		echo '"server":"'$(uci -q get easyconfig.$i.server)'",'
-		echo '"username":"'$(uci -q get easyconfig.$i.username)'",'
-		echo '"password":"'$(uci -q get easyconfig.$i.password)'",'
+		echo '"username":"'$(escapeJson "$(uci -q get easyconfig.$i.username)")'",'
+		echo '"password":"'$(escapeJson "$(uci -q get easyconfig.$i.password)")'",'
 		echo '"mppe":"'$(uci -q get easyconfig.$i.mppe)'"},'
 	done
 	echo '],'
