@@ -89,6 +89,10 @@ function proofreadText(input, proofFunction, validReturnCode) {
 	}
 }
 
+function proofreadLengthRange(input, min, max) {
+	proofreadText(input, function(text){return validateLengthRange(text,min,max)}, 0);
+}
+
 function proofreadNumericRange(input, min, max) {
 	proofreadText(input, function(text){return validateNumericRange(text,min,max)}, 0);
 }
@@ -133,6 +137,17 @@ function validateIP(address) {
 		}
 	}
 	return errorCode;
+}
+
+function validateLengthRange(text, min, max) {
+	var errorcode = 0;
+	if(text.length < min) {
+		errorcode = 1;
+	}
+	if(text.length > max) {
+		errorcode = 2;
+	}
+	return errorcode;
 }
 
 function validateNumericRange(num, min, max) {
@@ -1127,8 +1142,12 @@ function saveconfig() {
 		}
 		wlan_ssid = getValue('wlan_ssid' + i);
 		if (config[radios[i]].wlan_ssid != wlan_ssid) {
-			if (wlan_ssid == "") {
+			if (wlan_ssid == '') {
 				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i), true);
+				return;
+			}
+			if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
+				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i) + '<br /><br />Nazwa Wi-Fi nie może być dłuższa niż 32 znaki', true);
 				return;
 			}
 			wlan_restart_required = true;
@@ -1143,7 +1162,7 @@ function saveconfig() {
 		if (config[radios[i]].wlan_key != wlan_key) {
 			if (wlan_encryption != 'none') {
 				if (wlan_key.length < 8) {
-					showMsg('Hasło do Wi-Fi musi mieć co najmniej 8 znaków!', true);
+					showMsg('Błąd w polu ' + getLabelText('wlan_key' + i) + '<br /><br />Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
 					return;
 				}
 			}
