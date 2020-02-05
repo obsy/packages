@@ -1323,7 +1323,7 @@ function convertToSpeed(val) {
 	if (val == 0) return '0';
 	var i = parseInt(Math.floor(Math.log(val) / Math.log(1024)));
 	var dm = 0;
-	if (i > 2) {dm = 3;}
+	if (i > 1) {dm = 3;}
 	return parseFloat((val / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
