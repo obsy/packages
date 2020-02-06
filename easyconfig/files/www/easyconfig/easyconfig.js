@@ -803,7 +803,19 @@ function showcallback(data) {
 	setDisplay('menu_queries', config.dhcp_logqueries);
 
 	// wlan
-	var t = (config.wlan_current_channels).filter(function (val) {return val;}).join(', ');
+	var t = '';
+	for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
+		var o = config.wlan_current_channels[idx];
+		if (o.channel > 14) {
+			if (o.min < wifigraph.ch51[0]) { o.min = wifigraph.ch51[0]; }
+			if (o.max > wifigraph.ch53[wifigraph.ch53.length - 1]) { o.max = wifigraph.ch53[wifigraph.ch53.length - 1]; }
+		} else {
+			if (o.min < wifigraph.ch2[0]) { o.min = wifigraph.ch2[0]; }
+			if (o.max > wifigraph.ch2[wifigraph.ch2.length - 1]) { o.max = wifigraph.ch2[wifigraph.ch2.length - 1]; }
+		}
+		if (t != '') { t += ', '; }
+		t += o.channel + ' (' + o.min + ' - ' + o.max + ')';
+	}
 	setValue('wlan_current_channels', t == '' ? '-' : t);
 	var is_radio2 = false;
 	var is_radio5 = false;
@@ -1939,7 +1951,13 @@ wifigraph = {
 			ctx.lineTo(x, wifigraph.axisTop + graph.height);
 			ctx.stroke();
 			if (oldwidth < x) {
-				ctx.fillStyle = ((config.wlan_current_channels).indexOf(ch[i]) > -1) ? 'red' : color;
+				ctx.fillStyle = color;
+				for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
+					if (ch[i] >= config.wlan_current_channels[idx].min && ch[i] <= config.wlan_current_channels[idx].max) {
+						ctx.fillStyle = 'red';
+						break;
+					}
+				}
 				ctx.fillText(ch[i], x, wifigraph.axisTop + graph.height + 15);
 				oldwidth = x + ctx.measureText(ch[i]).width;
 			}

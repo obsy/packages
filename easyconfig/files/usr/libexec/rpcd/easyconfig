@@ -279,7 +279,7 @@ echo "$O"'],'
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
-WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{printf "%d,\n", $2}' | sort -n -u)
+WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}' | sort -u)
 echo '"wlan_current_channels":['$WLAN_CURRENT_CHANNELS'],'
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 echo '"wlan_devices":['
