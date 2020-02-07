@@ -71,7 +71,7 @@ if [ -n "$IFNAME" ]; then
 fi
 
 WLAN_CLIENTS=0
-IFACES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[*].ifname')
+IFACES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 for i in $IFACES; do
 	CNT=$(iw dev $i station dump | grep -c Station)
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
@@ -490,7 +490,7 @@ WLAN_MAC=""
 RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
-	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[*].ifname')
+	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 	if [ -n "$IFNAME" ]; then
 		T1=$(echo "$T" | jsonfilter -e @.*.config.channel)
 		[ $T1 -gt 14 ] && BAND=5 || BAND=2
