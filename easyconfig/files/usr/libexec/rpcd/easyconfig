@@ -281,7 +281,7 @@ echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}' | sort -u)
 echo '"wlan_current_channels":['$WLAN_CURRENT_CHANNELS'],'
-RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 echo '"wlan_devices":['
 for R in $RADIOS; do
 	echo '"'$R'",'
@@ -293,7 +293,7 @@ for R in $RADIOS; do
 	WLAN_TXPOWER=$(uci -q get wireless.$R.txpower)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
 	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
-	T=$(uci show wireless | awk -F. '/device=.*'$R'/{print $2}')
+	T=$(uci -q show wireless | awk -F. '/device=.*'$R'/{print $2}')
 	if [ -n "$T" ]; then
 		for WLAN_SEC in $T; do
 			[ "x$(uci -q get wireless.$WLAN_SEC.network)" = "xlan" ] || continue
@@ -487,7 +487,7 @@ echo '}'
 show_clients()
 {
 WLAN_MAC=""
-RADIOS=$(uci show wireless | awk -F. '/type=/{print $2}')
+RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
 	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
