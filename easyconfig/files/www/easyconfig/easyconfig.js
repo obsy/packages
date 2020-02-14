@@ -1303,17 +1303,15 @@ function showstatistics() {
 
 function showwanup(data) {
 	var html = 'Wznowienia połączenia z internetem';
-	arr = JSON.parse((data).replace(/\$/g,'"'));
-	if (arr.length > 9)
+	var sorted = sortJSON(JSON.parse((data).replace(/\$/g,'"')), 'up', 'asc');
+	if (sorted.length > 9)
 		html += '<br>(ostatnie 10)';
 	html += '<hr>';
-	for (var propt in arr) {
-		for (var k in arr[propt]) {
-			if (arr[propt][k] == '') {
-				html += '<div class="row"><div class="col-xs-12">' + formatDuration(k, true) + ' temu</div></div>';
-			} else {
-				html += '<div class="row"><div class="col-xs-6 text-right">' + arr[propt][k] + '</div><div class="col-xs-6 text-left">'  + formatDuration(k, true) + ' temu</div></div>';
-			}
+	for (var idx = 0; idx < sorted.length; idx++) {
+		if (sorted[idx].since == '') {
+			html += '<div class="row"><div class="col-xs-12">' + formatDuration(sorted[idx].up, true) + ' temu</div></div>';
+		} else {
+			html += createRowForModal(sorted[idx].since, formatDuration(sorted[idx].up, true) + ' temu');
 		}
 	}
 	showMsg(html);

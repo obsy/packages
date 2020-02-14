@@ -56,11 +56,11 @@ if [ -e $F ]; then
 	WAN_UP_CNT=$(wc -l < $F)
 	for i in $(tail -n 10 $F); do
 		SINCE=$((SYSTEM_UPTIME - i))
-		WAN_UP_SINCE="$WAN_UP_SINCE{\"$SINCE\":"
+		WAN_UP_SINCE="$WAN_UP_SINCE{\"up\":$SINCE,"
 		if $TIMEISVALID; then
-			WAN_UP_SINCE="$WAN_UP_SINCE\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - SINCE))")"\"},"
+			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - SINCE))")"\"},"
 		else
-			WAN_UP_SINCE="$WAN_UP_SINCE\"\"},"
+			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\"\"},"
 		fi
 	done
 fi
