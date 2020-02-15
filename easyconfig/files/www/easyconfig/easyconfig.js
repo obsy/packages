@@ -2048,7 +2048,7 @@ wifigraph = {
 		graph.width = canvas.width - wifigraph.axisRight - wifigraph.axisLeft;
 		graph.height = canvas.height - wifigraph.axisTop - wifigraph.axisBottom;
 
-		ctx.font = window.getComputedStyle(document.body,null).getPropertyValue('font');
+		ctx.font = window.getComputedStyle(document.body,null).getPropertyValue('font-size') + ' ' + window.getComputedStyle(document.body,null).getPropertyValue('font-family');
 		graph.context = ctx;
 
 		wifigraph.frame(graph);
