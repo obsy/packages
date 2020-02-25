@@ -779,7 +779,8 @@ show_wifiscan() {
 	echo '{"result":['
 	for IFACE in /sys/class/net/wlan[0-9]; do
 		IFACE1=$(basename $IFACE)
-		iw dev $IFACE1 scan 2>/dev/null | awk '{gsub("(on","");if($0 ~ /BSS.*wlan.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""}
+		iw dev $IFACE1 scan 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("(on","");
+			if($0 ~ /BSS.*wlan.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""}
 			if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
 			if($1 == "signal:") {wifi_sig[MAC] = $2}
 			if($1 == "freq:") {wifi_freq[MAC] = $2; if($2<5000){wifi_mode1[MAC] = "g"}else{wifi_mode1[MAC] = "a"}}
@@ -790,7 +791,7 @@ show_wifiscan() {
 			if($0 ~ /STA channel width: 20 MHz/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT20"}
 			if($0 ~ /VHT operation:/) {if(wifi_chan[MAC] > 14){wifi_mode1[MAC] = "ac"}; wifi_mode2[MAC] = "VHT20"}
 			if($0 ~ /center freq segment 1:/) {wifi_vhtch1[MAC] = $6; if($6>0 && wifi_mode2[MAC] != "VHT80" && $6 != wifi_chan[MAC]){wifi_mode2[MAC] = "VHT40"}}
-			if($0 ~ /center freq segment 2:/) {wifi_vhtch2[MAC] = $6; if($6>0){wifi_mode2[MAC] = "VHT160"}}
+			if($0 ~ /center freq segment 2:/) {wifi_vhtch2[MAC] = $6; if($6>0){if(abs(wifi_vhtch2[MAC] - wifi_vhtch1[MAC]) > 16){wifi_mode2[MAC] = "VHT80+80"}else{wifi_mode2[MAC] = "VHT160"}}}
 			if($0 ~ /channel width: 1 \(80 MHz\)/) {wifi_mode2[MAC] = "VHT80"}
 			if($1 == "capability:") {t=$3; gsub(/\(/,"", t);gsub(/\)/,"", t); if(and(t,16)==16){wifi_enc[MAC] = "WEP"}}
 			if($0 ~ /Group cipher: CCMP/) {wifi_enc[MAC] = "WPA"}

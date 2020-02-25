@@ -1836,15 +1836,33 @@ function sitesurveycallback(sortby) {
 			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
 			a['vhtch2'] = parseInt(wifiscanresults[idx].vhtch2);
 			a['width'] = wifiscanresults[idx].mode2;
-			if (wifiscanresults[idx].channel >= 149) {
+			if (a['channel'] >= 149) {
 				surveydata53.push(a);
-			} else if (wifiscanresults[idx].channel >= 100) {
+			} else if (a['channel'] >= 100) {
 				surveydata52.push(a);
-			} else if (wifiscanresults[idx].channel >= 36) {
+			} else if (a['channel'] >= 36) {
 				surveydata51.push(a);
 			} else {
 				surveydata2.push(a);
 			}
+
+			if (wifiscanresults[idx].mode2 == 'VHT80+80') {
+				var a = {};
+				a['mac'] = wifiscanresults[idx].mac;
+				a['signal'] = parseInt(wifiscanresults[idx].signal);
+				if (a['signal'] < -100) {continue;}
+				a['channel'] = 0;
+				a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch2);
+				a['width'] = wifiscanresults[idx].mode2;
+				if (a['vhtch1'] >= 149) {
+					surveydata53.push(a);
+				} else if (a['vhtch1'] >= 100) {
+					surveydata52.push(a);
+				} else if (a['vhtch1'] >= 36) {
+					surveydata51.push(a);
+				}
+			}
+
 		}
 		setDisplay('div_channels2', (surveydata2.length > 0));
 		if (surveydata2.length > 0) {
@@ -1969,7 +1987,6 @@ wifigraph = {
 		ctx.textAlign = 'center';
 		ctx.lineWidth = 1.5;
 		for (var i = 0; i < data.length; i++) {
-			var x = wifigraph.getX(graph, data[i].channel);
 
 			var x1, x11, x2, x22;
 			var width = data[i].width;
@@ -1980,7 +1997,7 @@ wifigraph = {
 			} else 	if (width == 'VHT40') {
 				x1 = wifigraph.getX(graph, data[i].vhtch1 - 4);
 				x11 = wifigraph.getX(graph, data[i].vhtch1 - 3);
-			} else if (width == 'VHT80') {
+			} else if (width == 'VHT80' || width == 'VHT80+80') {
 				x1 = wifigraph.getX(graph, data[i].vhtch1 - 8);
 				x11 = wifigraph.getX(graph, data[i].vhtch1 - 7);
 			} else if (width == 'VHT160') {
@@ -1991,14 +2008,13 @@ wifigraph = {
 				x11 = wifigraph.getX(graph, data[i].channel - 1);
 			}
 
-			var y = wifigraph.getY(graph, data[i].signal);
 			if (width == 'HT40+') {
 				x2 = wifigraph.getX(graph, data[i].channel + 6);
 				x22 = wifigraph.getX(graph, data[i].channel + 5);
 			} else if (width == 'VHT40') {
 				x2 = wifigraph.getX(graph, data[i].vhtch1 + 4);
 				x22 = wifigraph.getX(graph, data[i].vhtch1 + 3);
-			} else if (width == 'VHT80') {
+			} else if (width == 'VHT80' || width == 'VHT80+80') {
 				x2 = wifigraph.getX(graph, data[i].vhtch1 + 8);
 				x22 = wifigraph.getX(graph, data[i].vhtch1 + 7);
 			} else if (width == 'VHT160') {
@@ -2008,6 +2024,8 @@ wifigraph = {
 				x2 = wifigraph.getX(graph, data[i].channel + 2);
 				x22 = wifigraph.getX(graph, data[i].channel + 1);
 			}
+
+			var y = wifigraph.getY(graph, data[i].signal);
 
 			ctx.fillStyle = string2color(data[i].mac);
 			ctx.strokeStyle = ctx.fillStyle;
@@ -2022,12 +2040,16 @@ wifigraph = {
 			ctx.globalAlpha = 1;
 			ctx.stroke();
 
-			ctx.fillText(data[i].ssid, x, y - 15);
+			if (data[i].channel > 0) {
+				var x = wifigraph.getX(graph, data[i].channel);
 
-			ctx.beginPath();
-			ctx.arc(x, y, 4, 0, 2 * Math.PI);
-			ctx.stroke();
-			ctx.fill();
+				ctx.fillText(data[i].ssid, x, y - 15);
+
+				ctx.beginPath();
+				ctx.arc(x, y, 4, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.fill();
+			}
 		}
 	},
 
