@@ -949,6 +949,15 @@ function showcallback(data) {
 	showmodemsection();
 }
 
+function copywireless() {
+	setValue('wlan_enabled1', getValue('wlan_enabled0'));
+	setValue('wlan_ssid1', getValue('wlan_ssid0'));
+	setValue('wlan_encryption1', getValue('wlan_encryption0'));
+	setValue('wlan_key1', getValue('wlan_key0'));
+	setValue('wlan_isolate1', getValue('wlan_isolate0'));
+	enableWlanEncryption(getValue('wlan_encryption0'), 1)
+}
+
 function saveconfig() {
 	var cmd = [];
 

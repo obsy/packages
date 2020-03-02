@@ -498,10 +498,17 @@
 		<div class="form-group">
 			<label for="wlan_enabled1" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="wlan_enabled1" type="checkbox">
-				<div class="slider round"></div>
-			</label>
+				<div class="row">
+					<div class="col-xs-6">
+					<label class="switch">
+						<input id="wlan_enabled1" type="checkbox">
+						<div class="slider round"></div>
+					</label>
+					</div>
+					<label class="col-xs-6 control-label">
+						<span class="click" onclick="copywireless();">kopiuj z poprzedniej sieci</span>
+					</label>
+				</div>
 			</div>
 		</div>
 
