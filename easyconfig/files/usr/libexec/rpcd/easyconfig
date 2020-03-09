@@ -365,6 +365,7 @@ case $(cat /tmp/sysinfo/board_name) in
 		BUTTON_NAME="QSS"
 		BUTTON="wps"
 		;;
+	"mr200"|\
 	"tl-mr3220-v2"|\
 	"tplink,tl-mr3420-v5")
 		BUTTON_NAME="WIFI"
