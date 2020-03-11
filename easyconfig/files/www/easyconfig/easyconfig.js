@@ -2143,12 +2143,13 @@ function wlanclientscallback(sortby) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
 			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
 			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
+			wlanclients[idx].id = idx;
 		}
 		var sorted = sortJSON(wlanclients, sortby, 'asc');
-		for (var idx = 0; idx<sorted.length; idx++) {
+		for (var idx = 0; idx < sorted.length; idx++) {
 			html += '<hr><div class="row">';
-			html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].mac + '\');">' + sorted[idx].displayname + '</span></div>';
-			html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].mac + '\');"><i data-feather="more-vertical"></i></span></div>';
+			html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].id + '\');">' + sorted[idx].displayname + '</span></div>';
+			html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].id + '\');"><i data-feather="more-vertical"></i></span></div>';
 			html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 			html += '</div>';
 		}
@@ -2192,23 +2193,23 @@ function clientslogscallback(first, last) {
 	setValue('div_clientslogs_content', html);
 }
 
-function hostmenu(mac) {
+function hostmenu(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
 	}
 	var html = host.displayname + '<hr>';
 
-	html += '<p><span class="click" onclick="closeMsg();hostinfo(\'' + host.mac + '\');">informacje</span></p>';
-	html += '<p><span class="click" onclick="closeMsg();hostnameedit(\'' + host.mac + '\');">zmiana nazwy</span>';
-	html += '<p><span class="click" onclick="closeMsg();hostblock(\'' + host.mac + '\');">blokady</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostinfo(\'' + host.id + '\');">informacje</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostnameedit(\'' + host.id + '\');">zmiana nazwy</span>';
+	html += '<p><span class="click" onclick="closeMsg();hostblock(\'' + host.id + '\');">blokady</span></p>';
 	if (config.services.nftqos) {
-		html += '<p><span class="click" onclick="closeMsg();hostqos(\'' + host.mac + '\');">limity</span></p>';
+		html += '<p><span class="click" onclick="closeMsg();hostqos(\'' + host.id + '\');">limity</span></p>';
 	}
-	html += '<p><span class="click" onclick="closeMsg();hostip(\'' + host.mac + '\');">statyczny adres IP</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostip(\'' + host.id + '\');">statyczny adres IP</span></p>';
 	showMsg(html);
 }
 
@@ -2217,12 +2218,12 @@ function calculatedistance(frequency, signal) {
 	return dist.toFixed(0);
 }
 
-function hostinfo(mac) {
+function hostinfo(id) {
 	var html = '';
 	var vendor = '';
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
@@ -2261,10 +2262,10 @@ function hostinfo(mac) {
 	showMsg(html, false);
 }
 
-function hostblock(mac) {
+function hostblock(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
@@ -2386,16 +2387,16 @@ function hostblock_uncheckall() {
 	}
 }
 
-function hostnameedit(mac) {
+function hostnameedit(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
 	}
 
-	setValue('hostname_mac', mac);
+	setValue('hostname_mac', host.mac);
 	setValue('hostname_name', host.displayname);
 	setValue('hostname_name1', host.displayname);
 	setDisplay('div_hostname', true);
@@ -2422,10 +2423,10 @@ function savehostname() {
 	execute(cmd, showwlanclients);
 }
 
-function hostip(mac) {
+function hostip(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
@@ -2507,10 +2508,10 @@ function savehostip() {
 	execute(cmd, showwlanclients);
 }
 
-function hostqos(mac) {
+function hostqos(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].mac == mac) {
+		if (wlanclients[i].id == id) {
 			host = wlanclients[i];
 			break;
 		}
