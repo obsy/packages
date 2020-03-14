@@ -1134,6 +1134,21 @@ show_adblock()
 		exit 0
 	fi
 
+	LISTS=""
+	if [ -e /etc/adblock/adblock.sources.gz ]; then
+		json_load "$(zcat /etc/adblock/adblock.sources.gz)"
+		json_get_keys keylist
+		for key in ${keylist}; do
+			json_select "${key}"
+			json_get_var SIZE size
+			json_get_var DESCURL descurl
+			uci -q get adblock.global.adb_sources | grep -q ${key} && ENABLED=1 || ENABLED=0
+			json_select ..
+			[ -n "$LISTS" ] && LISTS="${LISTS},"
+			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${SIZE}\",\"desc\":\"${DESCURL}\"}"
+		done
+	fi
+
 	ENABLED=$(uci -q get adblock.global.adb_enabled)
 	FORCEDNS=$(uci -q get adblock.extra.adb_forcedns)
 
@@ -1151,11 +1166,17 @@ show_adblock()
 	json_add_boolean "forcedns" $FORCEDNS
 	json_add_string "domains" "$DOMAINS"
 
-	json_add_array lists
-	. /lib/functions.sh
-	config_load adblock
-	config_foreach adblock_source source
-	json_close_array
+	if [ -e /etc/adblock/adblock.sources.gz ]; then
+		json_add_boolean "compressed_lists" 1
+		eval "`jshn -r "{'lists':[${LISTS}]}" | grep -v json_init`"
+	else
+		json_add_boolean "compressed_lists" 0
+		json_add_array lists
+		. /lib/functions.sh
+		config_load adblock
+		config_foreach adblock_source source
+		json_close_array
+	fi
 
 	json_add_array blacklist
 	F=$(uci -q get adblock.blacklist.adb_src)
