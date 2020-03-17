@@ -1326,8 +1326,6 @@ function showwanup(data) {
 	showMsg(html);
 }
 
-var bandwidth_oldtx = -1;
-var bandwidth_oldrx = -1;
 var bandwidthID;
 var bandwidth_unit = false;
 
@@ -1341,6 +1339,7 @@ function convertToSpeed(val) {
 	}
 	if (val == 0) return '0';
 	var i = parseInt(Math.floor(Math.log(val) / Math.log(1024)));
+	if (i < 0) return '0';
 	var dm = 0;
 	if (i > 1) {dm = 3;}
 	return parseFloat((val / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
@@ -1360,28 +1359,49 @@ function showbandwidth() {
 	html += '<span class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></span>|';
 	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>';
 	html += '</div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość wysyłania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_tx">-</p></div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Szybkość pobierania</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_speed_rx">-</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right"></label><div class="col-xs-3 col-sm-3 text-left"><p>teraz</p></div><div class="col-xs-4 col-sm-3 text-left"><p>maks.</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_tx">Szybkość wysyłania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_tx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_tx">-</p></div></div>';
+	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_rx">Szybkość pobierania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_rx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_rx">-</p></div></div>';
+	html += '<div class="row" id="div_bandwidth"><div class="col-xs-12"><canvas id="bandwidth" height="400"></canvas></div></div>';
 	showMsg(html)
+	var bandwidth_arr = []; bandwidth_arr[0] = []; bandwidth_arr[1] = [];
+	var bandwidth_old = []; bandwidth_old['tx'] = -1;
+	var bandwidth_max = []; bandwidth_max['tx'] = 0; bandwidth_max['rx'] = 0;
+	var bandwidth_legend = [{color:'green',elements:['bandwidth_speed_label_tx','bandwidth_speed_tx','bandwidth_speed_max_tx']},{color:'blue',elements:['bandwidth_speed_label_rx','bandwidth_speed_rx','bandwidth_speed_max_rx']}];
+	livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
 	if (config.wan_ifname != '') {
 		bandwidthcallback(false);
 		bandwidthID = setInterval(function() {
 			var e = document.getElementById('bandwidth_all_tx');
 			if (!e || e.offsetParent === null) {
 				clearInterval(bandwidthID);
-				setValue('wan_rx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_oldrx) + '</span>');
-				setValue('wan_tx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_oldtx) + '</span>');
+				setValue('wan_tx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_old['tx']) + '</span>');
+				setValue('wan_rx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_old['rx']) + '</span>');
 				return;
 			}
 			ubus_call_nomsg('"network.device", "status", {"name":"' + config.wan_ifname + '"}', function(data) {
 				setValue('bandwidth_all_tx', bytesToSize(data.statistics.tx_bytes));
 				setValue('bandwidth_all_rx', bytesToSize(data.statistics.rx_bytes));
-				if (bandwidth_oldtx != -1) {
-					setValue('bandwidth_speed_tx', convertToSpeed(data.statistics.tx_bytes - bandwidth_oldtx));
-					setValue('bandwidth_speed_rx', convertToSpeed(data.statistics.rx_bytes - bandwidth_oldrx));
+				if (bandwidth_old['tx'] != -1) {
+					var dtx = data.statistics.tx_bytes - bandwidth_old['tx'];
+					var drx = data.statistics.rx_bytes - bandwidth_old['rx'];
+					setValue('bandwidth_speed_tx', convertToSpeed(dtx));
+					setValue('bandwidth_speed_rx', convertToSpeed(drx));
+					if (dtx > bandwidth_max['tx']) { bandwidth_max['tx'] = dtx; }
+					if (drx > bandwidth_max['rx']) { bandwidth_max['rx'] = drx; }
+					setValue('bandwidth_speed_max_tx', convertToSpeed(bandwidth_max['tx']));
+					setValue('bandwidth_speed_max_rx', convertToSpeed(bandwidth_max['rx']));
+					var timestamp = (new Date()).getTime();
+					bandwidth_arr[0].push([timestamp, dtx]);
+					bandwidth_arr[1].push([timestamp, drx]);
+					if ((bandwidth_arr[0]).length > 121) {
+						bandwidth_arr[0].shift();
+						bandwidth_arr[1].shift();
+					}
+					livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
 				}
-				bandwidth_oldtx = data.statistics.tx_bytes;
-				bandwidth_oldrx = data.statistics.rx_bytes;
+				bandwidth_old['tx'] = data.statistics.tx_bytes;
+				bandwidth_old['rx'] = data.statistics.rx_bytes;
 			});
 		}, 1000);
 	}
@@ -3703,3 +3723,147 @@ function btn_pages(page) {
 }
 
 window.onload = easyconfig_onload;
+
+/*****************************************************************************/
+
+livegraph = {
+	axisTop: 10,
+	axisRight: 2,
+	axisBottom: 20,
+
+	getX: function (graph, tick) {
+		return (((120 - (graph.time - tick) / 1000) * graph.width) / 120) + graph.axisLeft;
+	},
+
+	getY: function(graph, tick) {
+		return (((graph.max - tick) * graph.height) / graph.max) + livegraph.axisTop;
+	},
+
+	plot: function (graph) {
+		var ctx = graph.context;
+		var data = graph.data;
+		ctx.strokeStyle = '#c0c0c0';
+		ctx.lineWidth = 0.5;
+		ctx.beginPath();
+		ctx.moveTo(graph.axisLeft, livegraph.axisTop);
+		ctx.lineTo(graph.axisLeft + graph.width, livegraph.axisTop);
+		ctx.lineTo(graph.axisLeft + graph.width, livegraph.axisTop + graph.height);
+		ctx.lineTo(graph.axisLeft, livegraph.axisTop + graph.height);
+		ctx.lineTo(graph.axisLeft, livegraph.axisTop);
+		ctx.stroke();
+		ctx.fillStyle = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'));
+		var offset;
+		if (graph.axisLeft > 10) {
+			ctx.textAlign = 'right';
+			offset = -5;
+		} else {
+			ctx.textAlign = 'left';
+			offset = 5;
+		}
+		var t;
+		for (var i = 1; i < 10; i++) {
+			var y = livegraph.getY(graph, i * graph.max / 10);
+			ctx.beginPath();
+			ctx.moveTo(graph.axisLeft, y);
+			ctx.lineTo(graph.axisLeft + graph.width, y);
+			ctx.stroke();
+			t = (convertToSpeed(i * graph.max / 10)).split(' ');
+			ctx.fillText(t[0], graph.axisLeft + offset, y + 5);
+		}
+		if (t[1]) {
+			ctx.fillText(t[1], graph.axisLeft + offset, livegraph.getY(graph, graph.max) + 5);
+		}
+
+		if (data.length > 0) {
+			if (data[0].length > 0) {
+				graph.time = data[0][data[0].length - 1][0];
+			}
+		}
+		var oldwidth = 0;
+		ctx.textAlign = 'center';
+		if (data.length > 0) {
+			for (var i = 0; i < data[0].length; i++) {
+				var x = livegraph.getX(graph, data[0][i][0]);
+				if (oldwidth < x) {
+					ctx.beginPath();
+					ctx.moveTo(x, livegraph.axisTop);
+					ctx.lineTo(x, livegraph.axisTop + graph.height);
+					ctx.stroke();
+					var t = new Date(data[0][i][0]);
+					var t1 = (t.getHours() < 10 ? '0' : '') + t.getHours()  + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() + ':' + (t.getSeconds() < 10 ? '0' : '') + t.getSeconds();
+					ctx.fillText(t1, x, livegraph.axisTop + graph.height + 15);
+					oldwidth = x + ctx.measureText(t1).width + 5;
+				}
+			}
+		}
+		for (var i = 0; i < (graph.legend).length; i++) {
+			for (var j = 0; j < (graph.legend)[i].elements.length; j++) {
+				document.getElementById((graph.legend)[i].elements[j]).style.color = (graph.legend)[i].color;
+			}
+		}
+
+		function plot1(idx, fill) {
+			ctx.beginPath();
+			var x = livegraph.getX(graph, data[idx][0][0]);
+			var y = livegraph.getY(graph, data[idx][0][1]);
+			if (fill) {
+				ctx.moveTo(x, livegraph.axisTop + graph.height)
+				ctx.lineTo(x, y);
+			} else {
+				ctx.moveTo(x, y);
+			}
+			for (var i = 1; i < data[idx].length; i++) {
+				x = livegraph.getX(graph, data[idx][i][0]);
+				y = livegraph.getY(graph, data[idx][i][1]);
+				ctx.lineTo(x, y);
+			}
+			if (fill) {
+				ctx.lineTo(x, livegraph.axisTop + graph.height);
+				ctx.fill();
+			} else {
+				ctx.stroke();
+			}
+		}
+
+		ctx.lineWidth = 1.5;
+		for (var i = 0; i < (graph.data).length; i++) {
+			if (data[i].length == 0) { continue; }
+			ctx.fillStyle = (graph.legend)[i].color;
+			ctx.strokeStyle = ctx.fillStyle;
+			ctx.globalAlpha = 0.2;
+			plot1(i, true);
+			ctx.globalAlpha = 1;
+			plot1(i, false);
+		}
+	},
+
+	draw: function (graph) {
+		var canvas = document.getElementById(graph.element);
+		if (canvas == null) {
+			return;
+		}
+
+		var ctx = canvas.getContext('2d');
+		if (ctx == null) {
+			return;
+		}
+
+		var positionInfo = document.getElementById('div_' + graph.element).getBoundingClientRect();
+		canvas.width = positionInfo.width - 30;
+		graph.axisLeft = (canvas.width > 400) ? 50 : 5;
+
+		graph.width = canvas.width - livegraph.axisRight - graph.axisLeft;
+		graph.height = canvas.height - livegraph.axisTop - livegraph.axisBottom;
+
+		ctx.font = window.getComputedStyle(document.body,null).getPropertyValue('font-size') + ' ' + window.getComputedStyle(document.body,null).getPropertyValue('font-family');
+		graph.context = ctx;
+
+		graph.max = 1;
+		for (var j = 0; j < (graph.data).length; j++) {
+			for (var i = 0; i < (graph.data)[j].length; i++) {
+				if ((graph.data)[j][i][1] > graph.max) { graph.max = (graph.data)[j][i][1]; }
+			}
+		}
+		livegraph.plot(graph);
+	}
+};
