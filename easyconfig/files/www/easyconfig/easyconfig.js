@@ -1394,7 +1394,7 @@ function showbandwidth() {
 					var timestamp = (new Date()).getTime();
 					bandwidth_arr[0].push([timestamp, dtx]);
 					bandwidth_arr[1].push([timestamp, drx]);
-					if ((bandwidth_arr[0]).length > 121) {
+					if ((bandwidth_arr[0]).length > 181) {
 						bandwidth_arr[0].shift();
 						bandwidth_arr[1].shift();
 					}
@@ -3732,7 +3732,7 @@ livegraph = {
 	axisBottom: 20,
 
 	getX: function (graph, tick) {
-		return (((120 - (graph.time - tick) / 1000) * graph.width) / 120) + graph.axisLeft;
+		return (((180 - (graph.time - tick) / 1000) * graph.width) / 180) + graph.axisLeft;
 	},
 
 	getY: function(graph, tick) {
@@ -3774,14 +3774,12 @@ livegraph = {
 			ctx.fillText(t[1], graph.axisLeft + offset, livegraph.getY(graph, graph.max) + 5);
 		}
 
+		var oldwidth = 0;
+		ctx.textAlign = 'center';
 		if (data.length > 0) {
 			if (data[0].length > 0) {
 				graph.time = data[0][data[0].length - 1][0];
 			}
-		}
-		var oldwidth = 0;
-		ctx.textAlign = 'center';
-		if (data.length > 0) {
 			for (var i = 0; i < data[0].length; i++) {
 				var x = livegraph.getX(graph, data[0][i][0]);
 				if (oldwidth < x) {
@@ -3792,7 +3790,7 @@ livegraph = {
 					var t = new Date(data[0][i][0]);
 					var t1 = (t.getHours() < 10 ? '0' : '') + t.getHours()  + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() + ':' + (t.getSeconds() < 10 ? '0' : '') + t.getSeconds();
 					ctx.fillText(t1, x, livegraph.axisTop + graph.height + 15);
-					oldwidth = x + ctx.measureText(t1).width + 5;
+					oldwidth = x + ctx.measureText(t1).width + 10;
 				}
 			}
 		}
@@ -3850,7 +3848,7 @@ livegraph = {
 
 		var positionInfo = document.getElementById('div_' + graph.element).getBoundingClientRect();
 		canvas.width = positionInfo.width - 30;
-		graph.axisLeft = (canvas.width > 400) ? 50 : 5;
+		graph.axisLeft = (canvas.width > 400) ? 80 : 5;
 
 		graph.width = canvas.width - livegraph.axisRight - graph.axisLeft;
 		graph.height = canvas.height - livegraph.axisTop - livegraph.axisBottom;
