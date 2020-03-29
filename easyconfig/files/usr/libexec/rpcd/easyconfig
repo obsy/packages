@@ -1071,7 +1071,7 @@ show_pptp()
 		PASSWORD=$(uci -q get network.vpn.password)
 	fi
 	MPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":\"${AUTO:-1}\",\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":\"${AUTO:0}\",\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
