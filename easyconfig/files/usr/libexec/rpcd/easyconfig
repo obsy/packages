@@ -1168,7 +1168,7 @@ show_adblock()
 
 	if [ -e /etc/adblock/adblock.sources.gz ]; then
 		json_add_boolean "compressed_lists" 1
-		eval "`jshn -r "{'lists':[${LISTS}]}" | grep -v json_init`"
+		eval "$(jshn -r "{'lists':[${LISTS}]}" | grep -v json_init)"
 	else
 		json_add_boolean "compressed_lists" 0
 		json_add_array lists
