@@ -1142,23 +1142,30 @@ show_adblock()
 			json_select "${key}"
 			json_get_var SIZE size
 			json_get_var DESCURL descurl
+			json_get_var FOCUS focus
 			uci -q get adblock.global.adb_sources | grep -q ${key} && ENABLED=1 || ENABLED=0
 			json_select ..
 			[ -n "$LISTS" ] && LISTS="${LISTS},"
-			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${SIZE}\",\"desc\":\"${DESCURL}\"}"
+			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${SIZE}\",\"descurl\":\"${DESCURL}\",\"focus\":\"${FOCUS}\"}"
 		done
+		FORCEDNS=$(uci -q get adblock.global.adb_forcedns)
+	else
+		FORCEDNS=$(uci -q get adblock.extra.adb_forcedns)
 	fi
 
 	ENABLED=$(uci -q get adblock.global.adb_enabled)
-	FORCEDNS=$(uci -q get adblock.extra.adb_forcedns)
 
 	rtfile="$(uci -q get adblock.extra.adb_rtfile)"
 	rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
 	if [ -s "$rtfile" ]; then
 		json_load "$(cat "${rtfile}" 2>/dev/null)"
 		json_select data
-		json_get_var DOMAINS overall_domains
-		DOMAINS=${DOMAINS%% *}
+		if [ -e /etc/adblock/adblock.sources.gz ]; then
+			json_get_var DOMAINS blocked_domains
+		else
+			json_get_var DOMAINS overall_domains
+			DOMAINS=${DOMAINS%% *}
+		fi
 	fi
 
 	json_init
