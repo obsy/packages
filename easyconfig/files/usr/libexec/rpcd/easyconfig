@@ -1225,16 +1225,14 @@ show_nightmode()
 	SUNRISE=""
 	SUNSET=""
 	if [ -n "$LAT" ] && [ -n "$LON" ]; then
-		T=$(echo ${LAT:0:1})
-		[ "x$T" = "x-" ] && LAT=${LAT:0:1}"S" || LAT="${LAT}N"
-		T=$(echo ${LON:0:1})
-		[ "x$T" = "x-" ] && LON=${LON:0:1}"W" || LON="${LON}.E"
+		[ "x${LAT:0:1}" = "x-" ] && LAT="${LAT:1}S" || LAT="${LAT}N"
+		[ "x${LON:0:1}" = "x-" ] && LON="${LON:1}W" || LON="${LON}.E"
 		if [ -e /usr/bin/sunwait ]; then
 			T=$(sunwait -p $LAT $LON)
 			SUNRISE=$(echo "$T" | awk '/Sun rises/{print $3}')
 			SUNSET=$(echo "$T" | awk '/Sun rises/{print $6}')
-			SUNRISE=${SUNRISE:0:2}:${SUNRISE:2:2}
-			SUNSET=${SUNSET:0:2}:${SUNSET:2:2}
+			SUNRISE="${SUNRISE:0:2}:${SUNRISE:2:2}"
+			SUNSET="${SUNSET:0:2}:${SUNSET:2:2}"
 		fi
 	fi
 	echo '"sunrise":"'$SUNRISE'",'
