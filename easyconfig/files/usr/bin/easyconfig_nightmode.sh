@@ -8,13 +8,11 @@ fi
 
 LAT=$(uci -q get easyconfig.global.latitude)
 [ -z "$LAT" ] && exit 0
-T=$(echo ${LAT:0:1})
-[ "x$T" = "x-" ] && LAT=${LAT:0:1}"S" || LAT="${LAT}N"
+[ "x${LAT:0:1}" = "x-" ] && LAT="${LAT:1}S" || LAT="${LAT}N"
 
 LON=$(uci -q get easyconfig.global.longitude)
 [ -z "$LON" ] && exit 0
-T=$(echo ${LON:0:1})
-[ "x$T" = "x-" ] && LON=${LON:0:1}"W" || LON="${LON}.E"
+[ "x${LON:0:1}" = "x-" ] && LON="${LON:1}W" || LON="${LON}.E"
 
 T=$(sunwait -p $LAT $LON)
 
