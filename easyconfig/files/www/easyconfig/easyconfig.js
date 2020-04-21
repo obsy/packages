@@ -332,7 +332,7 @@ function okdetectwan() {
 	cmd.push('uci commit network');
 	cmd.push('ifup wan');
 
-	execute(cmd, showconfig);
+	execute(cmd, showsettings);
 }
 
 function canceldetectwan_pin() {
@@ -702,7 +702,7 @@ function login()
 					setDisplay('div_system_modem', true);
 				}
 
-				showconfig();
+				showsettings();
 				showstatus();
 			} else {
 				showMsg('Błąd logowania!', true);
@@ -717,7 +717,7 @@ function login()
 
 /*****************************************************************************/
 
-function showconfig() {
+function showsettings() {
 	ubus_call('"easyconfig", "config", {}', showcallback);
 }
 
@@ -958,7 +958,7 @@ function copywireless() {
 	enableWlanEncryption(getValue('wlan_encryption0'), 1)
 }
 
-function saveconfig() {
+function savesettings() {
 	var cmd = [];
 
 	// wan
@@ -1299,7 +1299,7 @@ function saveconfig() {
 		cleanField('password1');
 		cleanField('password2');
 		setDisplay('div_security', (pass1 == '12345678'));
-		showconfig();
+		showsettings();
 	});
 }
 
@@ -3663,22 +3663,26 @@ function closenav() {
 
 function btn_pages(page) {
 	closenav();
-	setDisplay("div_status",   (page == 'status'));
-	setDisplay("div_settings", (page == 'settings'));
-	setDisplay("div_system",   (page == 'system'));
-	setDisplay("div_watchdog", (page == 'watchdog'));
-	setDisplay("div_sitesurvey", (page == 'sitesurvey'));
-	setDisplay("div_wlanclients", (page == 'wlanclients'));
-	setDisplay("div_queries", (page == 'queries'));
-	setDisplay("div_traffic", (page == 'traffic'));
-	setDisplay("div_ussdsms", (page == 'ussdsms'));
-	setDisplay("div_pptp", (page == 'pptp'));
-	setDisplay("div_adblock", (page == 'adblock'));
-	setDisplay("div_nightmode", (page == 'nightmode'));
+	setDisplay('div_status',   (page == 'status'));
+	setDisplay('div_settings', (page == 'settings'));
+	setDisplay('div_system',   (page == 'system'));
+	setDisplay('div_watchdog', (page == 'watchdog'));
+	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
+	setDisplay('div_wlanclients', (page == 'wlanclients'));
+	setDisplay('div_queries', (page == 'queries'));
+	setDisplay('div_traffic', (page == 'traffic'));
+	setDisplay('div_ussdsms', (page == 'ussdsms'));
+	setDisplay('div_pptp', (page == 'pptp'));
+	setDisplay('div_adblock', (page == 'adblock'));
+	setDisplay('div_nightmode', (page == 'nightmode'));
 
 	if (page == 'status') {
 		showstatus();
 		showmodemsection();
+	}
+
+	if (page == 'settings') {
+		showsettings();
 	}
 
 	if (page == 'system') {
