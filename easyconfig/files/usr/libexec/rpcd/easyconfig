@@ -493,8 +493,8 @@ for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
 	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 	if [ -n "$IFNAME" ]; then
-		T1=$(echo "$T" | jsonfilter -e @.*.config.channel)
-		[ $T1 -gt 14 ] && BAND=5 || BAND=2
+		T1=$(echo "$T" | jsonfilter -e @.*.config.hwmode)
+		[ "x$T1" = "x11a" ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
 			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "{\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done

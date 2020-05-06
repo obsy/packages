@@ -827,12 +827,10 @@ function showcallback(data) {
 	for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
 		var o = config.wlan_current_channels[idx];
 		for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
-			if ((config[config.wlan_devices[idx1]].wlan_channel > 14 &&
-			    o.channel > 14) ||
-			    (config[config.wlan_devices[idx1]].wlan_channel <= 14 &&
-			    o.channel <= 14)) {
-				o.min = findClosestChannel(true, o.min, config[config.wlan_devices[idx1]].wlan_channels);
-				o.max = findClosestChannel(false, o.max, config[config.wlan_devices[idx1]].wlan_channels);
+			var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
+			if (wlan_channels.hasOwnProperty(o.channel)) {
+				o.min = findClosestChannel(true, o.min, wlan_channels);
+				o.max = findClosestChannel(false, o.max, wlan_channels);
 				break;
 			}
 		}
@@ -2221,7 +2219,7 @@ function clientslogscallback(first, last) {
 		for (var idx = first; idx <= last; idx++) {
 			var title = '';
 			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
-				title = 'Pasmo ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
+				title = 'Pasmo: ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + logs[idx].time + '</div>';
@@ -2285,16 +2283,10 @@ function hostinfo(id) {
 	html += createRowForModal('Pobrano', bytesToSize(host.rx));
 
 	var freq = -1;
-	var radios = config.wlan_devices;
-	for (var i = 0; i < radios.length; i++) {
-		var channel = config[radios[i]].wlan_channel;
-		var t = (channel > 14) ? 5 : 2;
-		if (host.band == t) {
-			if (config[radios[i]].wlan_channels[channel]) {
-				freq = config[radios[i]].wlan_channels[channel][0];
-				break;
-			}
-		}
+	if (host.band == 2) {
+		freq = 2412;
+	} else {
+		freq = 5180;
 	}
 	if (freq == -1) {
 		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm'));
