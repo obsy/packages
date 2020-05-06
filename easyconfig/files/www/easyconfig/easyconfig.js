@@ -715,6 +715,28 @@ function login()
 
 /*****************************************************************************/
 
+function findClosestChannel(findmin, channel, wlan_channels) {
+	if (wlan_channels.hasOwnProperty(channel)) {
+		return channel;
+	}
+	var closestValue = 0;
+	for (var t in wlan_channels) {
+		if (findmin) {
+			if (t > channel) {
+				closestValue = t;
+				break;
+			}
+		} else {
+			if (t < channel) {
+				closestValue = t;
+			} else {
+				break;
+			}
+		}
+	}
+	return closestValue;
+}
+
 function showsettings() {
 	ubus_call('"easyconfig", "config", {}', showcallback);
 }
@@ -804,12 +826,15 @@ function showcallback(data) {
 	var t = '';
 	for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
 		var o = config.wlan_current_channels[idx];
-		if (o.channel > 14) {
-			if (o.min < wifigraph.ch51[0]) { o.min = wifigraph.ch51[0]; }
-			if (o.max > wifigraph.ch53[wifigraph.ch53.length - 1]) { o.max = wifigraph.ch53[wifigraph.ch53.length - 1]; }
-		} else {
-			if (o.min < wifigraph.ch2[0]) { o.min = wifigraph.ch2[0]; }
-			if (o.max > wifigraph.ch2[wifigraph.ch2.length - 1]) { o.max = wifigraph.ch2[wifigraph.ch2.length - 1]; }
+		for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
+			if ((config[config.wlan_devices[idx1]].wlan_channel > 14 &&
+			    o.channel > 14) ||
+			    (config[config.wlan_devices[idx1]].wlan_channel <= 14 &&
+			    o.channel <= 14)) {
+				o.min = findClosestChannel(true, o.min, config[config.wlan_devices[idx1]].wlan_channels);
+				o.max = findClosestChannel(false, o.max, config[config.wlan_devices[idx1]].wlan_channels);
+				break;
+			}
 		}
 		if (t != '') { t += ', '; }
 		t += o.channel + ' (' + o.min + ' - ' + o.max + ')';
