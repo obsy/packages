@@ -422,12 +422,10 @@ function enableWan(proto) {
 		}
 		e = document.getElementById('wan_modem_mode');
 		for (key in t) {
-			if (t.hasOwnProperty(key)) {
-				var opt = document.createElement('option');
-				opt.value = key;
-				opt.innerHTML = t[key];
-				e.appendChild(opt);
-			}
+			var opt = document.createElement('option');
+			opt.value = key;
+			opt.innerHTML = t[key];
+			e.appendChild(opt);
 		}
 	}
 	if (proto != "static" && proto != "dhcp" && config.wan_ifname_default !== "") {
