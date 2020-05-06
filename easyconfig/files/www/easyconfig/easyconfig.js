@@ -1171,7 +1171,9 @@ function savesettings() {
 		if (config[radios[i]].wlan_channel != wlan_channel) {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
-			cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
+			if (wlan_channel > 0) {
+				cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
+			}
 		}
 		if (wlan_channel > 0) {
 			txpower = getValue('wlan_txpower' + i);
