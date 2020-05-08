@@ -14,7 +14,7 @@ else
 	TIMEISVALID="false"
 fi
 
-function escapeJson() {
+escapeJson() {
 	ret=$1
 	ret="${ret//\\/\\\\}"
 	ret="${ret//\"/\\\"}"
