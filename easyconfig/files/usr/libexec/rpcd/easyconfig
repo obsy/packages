@@ -346,6 +346,9 @@ T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
 [ "x$T" = "x1" ] && T="true" || T="false"
 echo '"dhcp_logqueries":'$T','
 
+T=$(uci -q get easyconfig.global.datarec_period)
+echo '"datarec_period":'${T:-15}','
+
 BUTTON_NAME=""
 BUTTON=""
 ACTION="none"
@@ -589,14 +592,12 @@ else
 	echo '"traffic_enabled": false,'
 fi
 
-T_PERIOD=$(uci -q get easyconfig.traffic.period)
 T_CYCLE=$(uci -q get easyconfig.traffic.cycle)
 T_WARNING_ENABLED=$(uci -q get easyconfig.traffic.warning_enabled)
 T_WARNING_VALUE=$(uci -q get easyconfig.traffic.warning_value)
 T_WARNING_UNIT=$(uci -q get easyconfig.traffic.warning_unit)
 T_WARNING_CYCLE=$(uci -q get easyconfig.traffic.warning_cycle)
 
-echo '"traffic_period": "'${T_PERIOD:-10}'",'
 echo '"traffic_cycle": "'${T_CYCLE:-1}'",'
 echo '"traffic_warning_enabled": "'${T_WARNING_ENABLED:-0}'",'
 echo '"traffic_warning_value": "'${T_WARNING_VALUE:-0}'",'

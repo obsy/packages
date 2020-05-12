@@ -1,7 +1,7 @@
 config easyconfig global
+	option datarec_period '15'
 
 config service traffic
-	option period '10'
 	option cycle '1'
 	option warning_enabled '0'
 	option warning_unit 'g'

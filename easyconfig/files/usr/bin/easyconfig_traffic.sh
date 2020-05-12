@@ -36,8 +36,8 @@ TRX=$((OLDRX+RX))
 TTX=$((OLDTX+TX))
 echo "$D $TRX $TTX" >> $TDB
 
-PERIOD=$(uci -q get easyconfig.traffic.period)
-[ -z "$PERIOD" ] && PERIOD=10
+PERIOD=$(uci -q get easyconfig.global.datarec_period)
+[ -z "$PERIOD" ] && PERIOD=15
 if [ $CNT -ge $PERIOD ]; then
 
 	OLDRX=$(awk '{print $1}' $TT)

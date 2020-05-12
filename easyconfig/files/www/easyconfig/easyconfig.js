@@ -967,6 +967,8 @@ function showcallback(data) {
 	}
 	setDisplay('div_button', config.button.code != '')
 
+	setValue('datarec_period', config.datarec_period);
+
 	showmodemsection();
 }
 
@@ -1296,6 +1298,8 @@ function savesettings() {
 			}
 		}
 	}
+
+	cmd.push('uci set easyconfig.global.datarec_period=' + getValue('datarec_period'));
 
 	// commit & restart services
 	cmd.push('uci commit');
@@ -2775,7 +2779,6 @@ function showtraffic() {
 
 	ubus_call('"easyconfig", "traffic", {}', function(data) {
 		setValue("traffic_enabled", data.traffic_enabled);
-		setValue("traffic_period", data.traffic_period);
 		setValue("traffic_cycle", data.traffic_cycle);
 
 		var now = new Date();
@@ -2945,7 +2948,6 @@ function savetraffic() {
 	}
 	cmd.push('/etc/init.d/cron restart');
 	cmd.push('uci set easyconfig.traffic=service');
-	cmd.push('uci set easyconfig.traffic.period=' + getValue('traffic_period'));
 	cmd.push('uci set easyconfig.traffic.cycle=' + getValue('traffic_cycle'));
 	cmd.push('uci set easyconfig.traffic.warning_enabled=' + (getValue('traffic_warning_enabled') ? '1' : '0'));
 	cmd.push('uci set easyconfig.traffic.warning_value=' + getValue('traffic_warning_value'));

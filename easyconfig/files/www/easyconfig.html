@@ -614,6 +614,25 @@
 			</select>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label for="datarec_period" class="col-xs-4 col-sm-3 control-label">Okres zapisu danych</label>
+			<div class="col-xs-8 col-sm-9">
+			<select id="datarec_period" class="form-control">
+			<option value='1'>1 minuta</option>
+			<option value='3'>3 minuty</option>
+			<option value='5'>5 minut</option>
+			<option value='10'>10 minut</option>
+			<option value='15'>15 minut</option>
+			<option value='30'>30 minut</option>
+			<option value='60'>1 godzina</option>
+			<option value='180'>3 godziny</option>
+			<option value='360'>6 godzin</option>
+			<option value='720'>12 godzin</option>
+			<option value='1440'>24 godziny</option>
+			</select>
+			</div>
+		</div>
 	</form>
 
 	<h3 class="section"></h3>
@@ -982,7 +1001,7 @@
 	<h3 class="section"></h3>
 
 	<form class="form-horizontal">
-		<div class="form-group" id="div_traffic_enabled">
+		<div class="form-group">
 			<label for="traffic_enabled" class="col-xs-4 col-sm-3 control-label">Zliczanie transferu włączone</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
@@ -992,26 +1011,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_traffic_period">
-			<label for="traffic_period" class="col-xs-4 col-sm-3 control-label">Okres zapisu danych</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="traffic_period" class="form-control">
-			<option value='1'>1 minuta</option>
-			<option value='3'>3 minuty</option>
-			<option value='5'>5 minut</option>
-			<option value='10'>10 minut</option>
-			<option value='15'>15 minut</option>
-			<option value='30'>30 minut</option>
-			<option value='60'>1 godzina</option>
-			<option value='180'>3 godziny</option>
-			<option value='360'>6 godzin</option>
-			<option value='720'>12 godzin</option>
-			<option value='1440'>24 godziny</option>
-			</select>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_traffic_cycle">
+		<div class="form-group">
 			<label for="traffic_cycle" class="col-xs-4 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="traffic_cycle" class="form-control">
@@ -1051,7 +1051,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_traffic_warning_enabled">
+		<div class="form-group">
 			<label for="traffic_warning_enabled" class="col-xs-4 col-sm-3 control-label">Ostrzeżenie włączone</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
@@ -1061,7 +1061,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_traffic_warning">
+		<div class="form-group">
 		<div class="input-group">
 			<label for="traffic_warning_value" class="col-xs-4 col-sm-3 control-label">Poziom ostrzeżenia</label>
 			<div class="col-xs-8 col-sm-9">
