@@ -2,5 +2,6 @@
 case "$ACTION" in
 	add | update | remove)
 		/usr/bin/easyconfig_wlanlogs.sh
+		/usr/bin/easyconfig_statistics.sh
 		;;
 esac

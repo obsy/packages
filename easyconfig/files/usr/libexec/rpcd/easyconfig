@@ -25,8 +25,8 @@ show_status()
 {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
-	SYSTEM_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - T))")
-	SYSTEM_TIME=$(date "+%Y-%m-%d %H:%M")
+	SYSTEM_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - T))")
+	SYSTEM_TIME=$(date "+%Y%m%d%H%M")
 fi
 
 SYSTEM_UPTIME=$T
@@ -47,7 +47,7 @@ fi
 
 if [ -n "$WAN_UPTIME" ]; then
 	if $TIMEISVALID; then
-		WAN_UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - WAN_UPTIME))")
+		WAN_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - WAN_UPTIME))")
 	fi
 fi
 
@@ -58,7 +58,7 @@ if [ -e $F ]; then
 		SINCE=$((SYSTEM_UPTIME - i))
 		WAN_UP_SINCE="$WAN_UP_SINCE{\"up\":$SINCE,"
 		if $TIMEISVALID; then
-			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\""$(date "+%Y-%m-%d %H:%M:%S" -d "@$(($(date +%s) - SINCE))")"\"},"
+			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\""$(date "+%Y%m%d%H%M%S" -d "@$(($(date +%s) - SINCE))")"\"},"
 		else
 			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\"\"},"
 		fi
@@ -462,7 +462,7 @@ show_watchdog() {
 		W_ENABLED="true"
 		if [ -e /tmp/easyconfig_watchdog ]; then
 			W_MAM=$(awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
-			W_RUNDATE=$(date "+%Y-%m-%d %H:%M:%S" -r /tmp/easyconfig_watchdog)
+			W_RUNDATE=$(date "+%Y%m%d%H%M%S" -r /tmp/easyconfig_watchdog)
 		fi
 	fi
 
@@ -486,8 +486,7 @@ show_watchdog() {
 
 ##############################################################################
 
-show_clients()
-{
+show_clients() {
 WLAN_MAC=""
 RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 for R in $RADIOS; do
@@ -497,15 +496,30 @@ for R in $RADIOS; do
 		T1=$(echo "$T" | jsonfilter -e @.*.config.hwmode)
 		[ "x$T1" = "x11a" ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "{\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d ", w, tx[w], rx[w], signal[w], connected[w], band}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done
 	fi
 done
+
+if [ -e "/tmp/easyconfig_statistics.json" ]; then
+	json_init
+	json_load_file "/tmp/easyconfig_statistics.json"
+	json_get_keys MACS
+
+	for M in $MACS; do
+		[ "$M" = "wan" ] && continue
+		json_select "$M"
+		json_get_vars first_seen last_seen
+		json_select ..
+		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"tx\":0,\"rx\":0,\"signal\":0,\"connected\":0,\"band\":0,\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\""
+	done
+fi
 
 echo '{"clients":['
 for M in $WLAN_MAC; do
 	T=${M%\",\"tx*}
 	MAC=${T##*\"}
+
 	IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
 	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
@@ -516,7 +530,7 @@ for M in $WLAN_MAC; do
 	T=${M%,\"ba*}
 	CONNECTED=${T##*:}
 	if $TIMEISVALID; then
-		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - CONNECTED))")'"'
+		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - CONNECTED))")'"'
 	else
 		CONNECTED_SINCE=',"connected_since":""'
 	fi
@@ -533,15 +547,15 @@ for M in $WLAN_MAC; do
 
 	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${MAC//:/}.ip)'"'
 
-	echo "${M}${IP}${USERNAME}${CONNECTED_SINCE}${BLOCK}${QOS}${STATICDHCP}},"
+	echo "{${M}${IP}${USERNAME}${CONNECTED_SINCE}${BLOCK}${QOS}${STATICDHCP}},"
 done
 echo '],'
 
 echo '"logs":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
-/AP-STA-CONNECTED/ {TIME[$6]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=$6; EVENT[$6]="connect"; DESC[$6]=$9}
+/AP-STA-CONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=$6; EVENT[$6]="connect"; DESC[$6]=$9}
 /DHCPACK\(/ {if(WIFI[$11]!=0){DHCP[WIFI[$11]]=$12; NAME[$11]=$12}}
-/AP-STA-DISCONNECTED/ {TIME[$6]=sprintf("%s-%02d-%02d %s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=0; EVENT[$6]="disconnect"; DHCP[$6]=NAME[$11]; NAME[$11]=""; DESC[$6]=$9}
+/AP-STA-DISCONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=0; EVENT[$6]="disconnect"; DHCP[$6]=NAME[$11]; NAME[$11]=""; DESC[$6]=$9}
 END { for (T in EVENT) {
 		printf "{\"id\":\"%s\",\"time\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\",\"desc\":\"%s\"},\n", T, TIME[T], MAC[T], DHCP[T], EVENT[T], DESC[T]
 	}
@@ -573,6 +587,48 @@ done
 echo "${T%?}"
 echo ']'
 echo '}'
+}
+
+show_clientstatistics() {
+	read input;
+	json_load "$input"
+	json_get_var mac mac
+
+	echo '{"statistics":['
+
+	if [ -z "$mac" ]; then
+		echo "]}"
+		exit 0
+	fi
+	if [ ! -e "/tmp/easyconfig_statistics.json" ]; then
+		echo "]}"
+		exit 0
+	fi
+
+	local _json_no_warning=1
+	json_init
+	json_load_file "/tmp/easyconfig_statistics.json"
+	json_select "$mac" || {
+		echo "]}"
+		exit 0
+	}
+	json_get_keys IFNAMES
+	for I in $IFNAMES; do
+		if json_is_a "$I" object; then
+			json_select "$I"
+			json_get_keys DAYS
+			for D in $DAYS; do
+				if json_is_a "$D" object; then
+					json_select "$D"
+					json_get_vars total_tx total_rx
+					json_select ..
+					echo "{\"ifname\":\"$I\",\"date\":\"$D\",\"tx\":$total_tx,\"rx\":$total_rx},"
+				fi
+			done
+			json_select ..
+		fi
+	done
+	echo "]}"
 }
 
 ##############################################################################
@@ -723,7 +779,7 @@ show_sms() {
 		STORAGE=""
 		T=$(uci -q get easyconfig.sms.storage)
 		[ "x$T" = "x" ] || STORAGE="-s $T"
-		sms_tool -d $DEVICE $STORAGE -j -f "%Y-%m-%d %H:%M:%S" recv
+		sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv
 	fi
 
 	if [ "x$action" = "xsend" ]; then
@@ -743,7 +799,7 @@ show_queries() {
 	echo '{"result":['
 
 	T=$(logread -e "query\[A\]\|NXDOMAIN" | awk '
-$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s-%02d-%02d %s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", NR, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
+$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {gsub(":", "", $4);LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s%02d%02d%s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", NR, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
 $13 ~ /NXDOMAIN/ {NXDOMAIN[$9]="true"}
 END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 ')
@@ -1055,7 +1111,7 @@ show_pptp()
 	if [ "x$UP" = "xtrue" ]; then
 		UPTIME=$(echo "$T" | jsonfilter -q -e "@.uptime")
 		if $TIMEISVALID; then
-			UPTIME_SINCE=$(date "+%Y-%m-%d %H:%M" -d "@$(($(date +%s) - UPTIME))")
+			UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
 		else
 			UPTIME_SINCE=""
 		fi
@@ -1270,6 +1326,7 @@ case "$1" in
 		echo '"system":{},'
 		echo '"watchdog":{},'
 		echo '"clients":{},'
+		echo '"clientstatistics":{"mac":"string"},'
 		echo '"traffic":{},'
 		echo '"modem":{},'
 		echo '"ussd":{"code":"string"},'
@@ -1304,6 +1361,9 @@ case "$1" in
 				;;
 			clients)
 				show_clients
+				;;
+			clientstatistics)
+				show_clientstatistics
 				;;
 			traffic)
 				show_traffic

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-IFACE=$(ifstatus wan | jsonfilter -e '@.l3_device' 2>/dev/null)
+IFACE=$(ifstatus wan | jsonfilter -q -e '@.l3_device')
 [ -z "$IFACE" ] && exit 0
 
 TT=/tmp/easyconfig_traffic.tmp
@@ -14,7 +14,7 @@ fi
 TDB=/tmp/easyconfig_traffic.txt
 [ -e $TDB ] || zcat $CDB > $TDB
 
-D=$(date +%Y-%m-%d)
+D=$(date "+%Y%m%d")
 
 NEWRX=$(awk '/^[ ]*'$IFACE':/{print $2}' /proc/net/dev)
 NEWTX=$(awk '/^[ ]*'$IFACE':/{print $10}' /proc/net/dev)
