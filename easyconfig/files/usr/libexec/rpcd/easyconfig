@@ -986,12 +986,15 @@ detect_wan()
 
 ##############################################################################
 
-reboot()
-{
+reboot() {
 	[ -e /etc/crontabs/root ] && TEN=$(grep easyconfig_traffic /etc/crontabs/root)
 	if [ -n "$TEN" ]; then
-		uci set easyconfig.traffic.period=1
+		uci set easyconfig.global.datarec=1
 		/usr/bin/easyconfig_traffic.sh
+	fi
+	if [ -e /tmp/easyconfig_statistics.json ]; then
+		touch -d "2000-01-01 00:00:00" /usr/lib/easyconfig/easyconfig_statistics.json.gz
+		/usr/bin/easyconfig_statistics.sh
 	fi
 	sync
 	/sbin/reboot
