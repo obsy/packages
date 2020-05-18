@@ -930,7 +930,7 @@
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Dziś</label>
+		<label for="traffic_today" class="col-xs-6 text-right">Dziś</label>
 		<div class="col-xs-6">
 		<p><span id="traffic_today">0</span><small><span class="visible-xs oneline"></span><span id="traffic_today_progress"></span></small></p>
 		</div>
@@ -943,25 +943,25 @@
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Wczoraj</label>
+		<label for="traffic_yesterday" class="col-xs-6 text-right">Wczoraj</label>
 		<div class="col-xs-6">
 		<p id="traffic_yesterday">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 7 dni</label>
+		<label for="traffic_last7d" class="col-xs-6 text-right">Ostatnie 7 dni</label>
 		<div class="col-xs-6">
 		<p id="traffic_last7d">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 30 dni</label>
+		<label for="traffic_last30d" class="col-xs-6 text-right">Ostatnie 30 dni</label>
 		<div class="col-xs-6">
 		<p id="traffic_last30d">0</p>
 		</div>
 	</div>
 	<div class="row space">
-		<label class="col-xs-6 text-right">Łącznie</label>
+		<label for="traffic_total" class="col-xs-6 text-right">Łącznie</label>
 		<div class="col-xs-6">
 		<p><span id="traffic_total">0</span><span class="visible-xs oneline"></span><small><span id="traffic_total_since"></span></small></p>
 		</div>
@@ -1001,16 +1001,6 @@
 	<h3 class="section"></h3>
 
 	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="traffic_enabled" class="col-xs-4 col-sm-3 control-label">Zliczanie transferu włączone</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="traffic_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			</div>
-		</div>
-
 		<div class="form-group">
 			<label for="traffic_cycle" class="col-xs-4 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
 			<div class="col-xs-8 col-sm-9">

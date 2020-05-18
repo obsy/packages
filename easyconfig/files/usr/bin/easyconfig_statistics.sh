@@ -3,9 +3,11 @@
 DB=/tmp/easyconfig_statistics.json
 SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz
 
+FIRSTRUN=0
 if [ ! -e $DB ]; then
 	if [ -e "$SDB" ]; then
 		zcat "$SDB" > "$DB"
+		FIRSTRUN=1
 	else
 		mkdir -p $(dirname "$SDB")
 		echo "{}" > "$DB"
@@ -19,6 +21,23 @@ DATE=$(date "+%Y%m%d")
 
 json_init
 json_load_file "$DB"
+
+if [ "x$FIRSTRUN" = "x1" ]; then
+	_json_no_warning=1
+	json_select "wan" && {
+		json_get_keys IFNAMES
+		for I in $IFNAMES; do
+			if json_is_a "$I" object; then
+				json_select "$I" && {
+					json_add_int "last_tx" 0
+					json_add_int "last_rx" 0
+					json_select ..
+				}
+			fi
+		done
+		json_select ..
+	}
+fi
 
 update_entry() {
 	MAC=$1
@@ -95,6 +114,11 @@ for I in $IFNAMES; do
 		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";")
 	done
 done
+
+IFNAME=$(ifstatus wan | jsonfilter -q -e '@.l3_device')
+if [ -n "$IFNAME" ]; then
+	update_entry "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999
+fi
 
 json_dump > $DB
 

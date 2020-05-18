@@ -20,7 +20,7 @@ endef
 
 define Package/easyconfig/conffiles
 /etc/config/easyconfig
-/usr/lib/easyconfig/easyconfig_traffic.txt.gz
+/usr/lib/easyconfig/easyconfig_statistics.json.gz
 endef
 
 define Build/Compile
@@ -41,6 +41,7 @@ define Package/easyconfig/postrm
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	/etc/init.d/rpcd restart
 	sed -i '/easyconfig_wlanlogs.sh/d' /etc/crontabs/root
+	sed -i '/easyconfig_statistics.sh/d' /etc/crontabs/root
 	/etc/init.d/cron restart
 fi
 exit 0
