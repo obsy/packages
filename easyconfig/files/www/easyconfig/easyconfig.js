@@ -3635,7 +3635,11 @@ var adblock_lists;
 
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
-		setValue('adblock_domains', data.domains == '' ? '-' : data.domains);
+		var tmp = data.domains == '' ? '-' : data.domains
+		if (data.domains == '0') {
+			if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
+		}
+		setValue('adblock_domains', tmp);
 		setValue('adblock_enabled', data.enabled);
 		setValue('adblock_forcedns', data.forcedns);
 

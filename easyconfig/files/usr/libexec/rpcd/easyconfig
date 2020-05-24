@@ -1198,6 +1198,7 @@ show_adblock()
 	if [ -s "$rtfile" ]; then
 		json_load "$(cat "${rtfile}" 2>/dev/null)"
 		json_select data
+		json_get_var STATUS adblock_status
 		if [ -e /etc/adblock/adblock.sources.gz ]; then
 			json_get_var DOMAINS blocked_domains
 		else
@@ -1210,6 +1211,7 @@ show_adblock()
 	json_add_boolean "enabled" $ENABLED
 	json_add_boolean "forcedns" $FORCEDNS
 	json_add_string "domains" "$DOMAINS"
+	json_add_string "status" "$STATUS"
 
 	if [ -e /etc/adblock/adblock.sources.gz ]; then
 		json_add_boolean "compressed_lists" 1
