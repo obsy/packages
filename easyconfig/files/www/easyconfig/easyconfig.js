@@ -1821,8 +1821,8 @@ function sitesurveycallback(sortby) {
 		html += '<div class="row space"><div class="col-xs-12 space">';
 		html += '<span>Filtrowanie:</span>';
 		html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
-		html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4GHz (0) </span></span>|';
-		html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5GHz (0) </span></span>';
+		html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>|';
+		html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
 		html += '</div><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></span>|';
@@ -1960,8 +1960,8 @@ function sitesurveycallback(sortby) {
 		}
 
 		setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
-		setValue('sitesurvey_filter_2', ' 2.4GHz (' + counter_2 + ') ');
-		setValue('sitesurvey_filter_5', ' 5GHz (' + counter_5 + ') ');
+		setValue('sitesurvey_filter_2', ' 2.4 GHz (' + counter_2 + ') ');
+		setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
 		sitesurveycallbackfilter(filterby);
 	}
 }
