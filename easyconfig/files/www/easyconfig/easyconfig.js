@@ -236,10 +236,11 @@ function createRowForModal(key, value) {
 
 function createRow4ColForModal(key, value1, value2, value3) {
 	return '<div class="row">' +
-		'<label class="col-xs-3 text-right">' + key +
-		'</label><div class="col-xs-3 text-left"><p>' + value1 + '</p></div>' +
-		'</label><div class="col-xs-3 text-left"><p>' + value2 + '</p></div>' +
-		'</label><div class="col-xs-3 text-left"><p>' + value3 + '</p></div></div>';
+		'<label class="col-xs-3 text-right">' + key + '</label>' +
+		'<div class="col-xs-3 text-left"><p>' + value1 + '</p></div>' +
+		'<div class="col-xs-3 text-left"><p>' + value2 + '</p></div>' +
+		'<div class="col-xs-3 text-left"><p>' + value3 + '</p></div>' +
+		'</div>';
 }
 
 /*****************************************************************************/
