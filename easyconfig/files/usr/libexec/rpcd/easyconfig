@@ -98,37 +98,36 @@ echo '}'
 
 ##############################################################################
 
-show_system()
-{
-GUI_VERSION="-devel-"
-VERSION=$(awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs)
-MODEL=$(cat /tmp/sysinfo/model)
+show_system() {
+	GUI_VERSION="-devel-"
+	VERSION=$(awk -F\' '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release)
+	MODEL=$(cat /tmp/sysinfo/model)
 
-if [ -e /tmp/modem ]; then
-	DEVICE=$(cat /tmp/modem)
-	O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
-	T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-	[ -n "$T" ] && VENDOR="$T"
-	T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-	[ -n "$T" ] && PRODUCT="$T"
-	T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-	[ -n "$T" ] && REVISION="$T"
-	T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-	[ -n "$T" ] && IMEI="$T"
-	T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-	[ -n "$T" ] && ICCID="$T"
-fi
+	if [ -e /tmp/modem ]; then
+		DEVICE=$(cat /tmp/modem)
+		O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
+		T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+		[ -n "$T" ] && VENDOR="$T"
+		T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+		[ -n "$T" ] && PRODUCT="$T"
+		T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+		[ -n "$T" ] && REVISION="$T"
+		T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+		[ -n "$T" ] && IMEI="$T"
+		T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+		[ -n "$T" ] && ICCID="$T"
+	fi
 
-echo '{"modem":{'
-echo '"vendor":"'$VENDOR'",'
-echo '"product":"'$PRODUCT'",'
-echo '"revision":"'$REVISION'",'
-echo '"imei":"'$IMEI'",'
-echo '"iccid":"'$ICCID'"},'
-echo '"version":"'$VERSION'",'
-echo '"gui_version":"'$GUI_VERSION'",'
-echo '"model":"'$MODEL'"'
-echo '}'
+	echo '{"modem":{'
+	echo '"vendor":"'$VENDOR'",'
+	echo '"product":"'$PRODUCT'",'
+	echo '"revision":"'$REVISION'",'
+	echo '"imei":"'$IMEI'",'
+	echo '"iccid":"'$ICCID'"},'
+	echo '"version":"'$VERSION'",'
+	echo '"gui_version":"'$GUI_VERSION'",'
+	echo '"model":"'$MODEL'"'
+	echo '}'
 }
 
 ##############################################################################
@@ -982,8 +981,7 @@ reboot() {
 
 ##############################################################################
 
-upgrade()
-{
+upgrade() {
 	read input;
 	json_load "$input"
 	json_get_vars step arg1 arg2
@@ -1052,7 +1050,7 @@ upgrade()
 
 	FSUMS=/tmp/upgrade-sha256sums
 
-	ARCH=$(awk -F[\'\"/] '/DISTRIB_TARGET/{print $2}' /etc/openwrt_release)
+	ARCH=$(awk -F[\'/] '/DISTRIB_TARGET/{print $2}' /etc/openwrt_release)
 	URL="http://dl.eko.one.pl/mifi/$ARCH"
 	wget -q -T 3 -O $FSUMS $URL/sha256sums
 	if [ ! -s $FSUMS ]; then
@@ -1072,7 +1070,7 @@ upgrade()
 	CHECKSUM=$(echo "$T" | awk '{print $1}')
 	FILE=$(echo "$T" | awk '{print $2}')
 
-	OLD_BUILD=$(awk -F[\'\"/] '/BUILD_ID/{print $2}' /etc/os-release)
+	OLD_BUILD=$(awk -F\' '/DISTRIB_REVISION/{print $2}' /etc/openwrt_release)
 	NEW_BUILD=$(echo $FILE | sed 's|.*-\(r[0-9]*-.*\)-'$BOARD'.*|\1|g')
 
 	if [ "x$OLD_BUILD" = "x$NEW_BUILD" ]; then
