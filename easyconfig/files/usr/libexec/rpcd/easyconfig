@@ -77,7 +77,7 @@ for i in $IFACES; do
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
-VPN_UP=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e "@.up")
+VPN_UP=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e '@.up')
 
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
@@ -492,7 +492,7 @@ for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
 	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 	if [ -n "$IFNAME" ]; then
-		T1=$(echo "$T" | jsonfilter -e @.*.config.hwmode)
+		T1=$(echo "$T" | jsonfilter -q -e '@.*.config.hwmode')
 		[ "x$T1" = "x11a" ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
 			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}')
@@ -577,9 +577,9 @@ if($1 == "channel") {if($2 < 36){band[INTERFACE] = "2"}else{band[INTERFACE] = "5
 }
 }')
 for B in $BANDS; do
-	INTERFACE=$(echo $B | jsonfilter -q -e @.interface)
-	SSID=$(echo $B | jsonfilter -q -e @.ssid)
-	BAND=$(echo $B | jsonfilter -q -e @.band)
+	INTERFACE=$(echo $B | jsonfilter -q -e '@.interface')
+	SSID=$(echo $B | jsonfilter -q -e '@.ssid')
+	BAND=$(echo $B | jsonfilter -q -e '@.band')
 	T=$(echo "$T" | sed "s/,\"desc\":\"$INTERFACE\"/,\"desc\":{\"band\":$BAND,\"ssid\":\"$SSID\"}/g")
 done
 
@@ -1086,11 +1086,11 @@ show_pptp()
 {
 	T=$(ifstatus vpn 2>/dev/null)
 
-	IP=$(echo "$T" | jsonfilter -q -e "@['ipv4-address'][0].address")
+	IP=$(echo "$T" | jsonfilter -q -e '@["ipv4-address"][0].address')
 
 	UP=$(echo "$T" | jsonfilter -q -e "@.up")
 	if [ "x$UP" = "xtrue" ]; then
-		UPTIME=$(echo "$T" | jsonfilter -q -e "@.uptime")
+		UPTIME=$(echo "$T" | jsonfilter -q -e '@.uptime')
 		if $TIMEISVALID; then
 			UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
 		else
