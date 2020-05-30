@@ -2249,18 +2249,14 @@ function wlanclientscallback(sortby) {
 
 		var total = 0;
 		for (var idx = 0; idx < wlanclients.length; idx++) {
-			if (!wlanclients[idx].active) { continue; }
-			total += wlanclients[idx].tx + wlanclients[idx].rx;
-			for (var idx1 = 0; idx1 < wlanclients.length; idx1++) {
-				if (!wlanclients[idx1].active) {
-					if (wlanclients[idx1].mac == wlanclients[idx].mac) {
-						wlanclients[idx1].active_idx = idx;
-						wlanclients[idx].first_seen = wlanclients[idx1].first_seen;
-						wlanclients[idx].last_seen = wlanclients[idx1].last_seen;
-						break;
-					}
-				}
+			if (!wlanclients[idx].active) {
+				wlanclients[idx].active_idx = -1;
+				continue;
+			} else {
+				wlanclients[idx].first_seen = '-';
+				wlanclients[idx].last_seen = '-';
 			}
+			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
@@ -2269,6 +2265,16 @@ function wlanclientscallback(sortby) {
 			wlanclients[idx].id = idx;
 			if (wlanclients[idx].active) {
 				counter_active ++;
+				for (var idx1 = 0; idx1 < wlanclients.length; idx1++) {
+					if (!wlanclients[idx1].active) {
+						if (wlanclients[idx1].mac == wlanclients[idx].mac) {
+							wlanclients[idx1].active_idx = idx;
+							wlanclients[idx].first_seen = wlanclients[idx1].first_seen;
+							wlanclients[idx].last_seen = wlanclients[idx1].last_seen;
+							break;
+						}
+					}
+				}
 			} else {
 				counter_all ++;
 			}
@@ -2290,7 +2296,7 @@ function wlanclientscallback(sortby) {
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].id + '\');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].id + '\');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen) + (sorted[idx].active_idx > 0 ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
+				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen) + (sorted[idx].active_idx > -1 ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
 				html += '</div>';
 				any_all = true;
 			}
@@ -2409,7 +2415,7 @@ function hostinfo(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
 		if (wlanclients[i].id == id) {
-			if (wlanclients[i].active_idx > 0) {
+			if (wlanclients[i].active_idx > -1) {
 				host = wlanclients[wlanclients[i].active_idx];
 			} else {
 				host = wlanclients[i];
@@ -2433,8 +2439,8 @@ function hostinfo(id) {
 		html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');
 		html += createRowForModal('Adres IP', host.ip);
 	}
-	html += createRowForModal('Pierwszy raz', formatDateTime(host.first_seen));
-	html += createRowForModal('Ostatni raz', formatDateTime(host.last_seen));
+	html += createRowForModal('Pierwszy raz widziany', formatDateTime(host.first_seen));
+	html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen));
 	showMsg(html, false);
 }
 
