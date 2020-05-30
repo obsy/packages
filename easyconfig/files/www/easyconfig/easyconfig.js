@@ -2251,6 +2251,16 @@ function wlanclientscallback(sortby) {
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			if (!wlanclients[idx].active) { continue; }
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
+			for (var idx1 = 0; idx1 < wlanclients.length; idx1++) {
+				if (!wlanclients[idx1].active) {
+					if (wlanclients[idx1].mac == wlanclients[idx].mac) {
+						wlanclients[idx1].active_idx = idx;
+						wlanclients[idx].first_seen = wlanclients[idx1].first_seen;
+						wlanclients[idx].last_seen = wlanclients[idx1].last_seen;
+						break;
+					}
+				}
+			}
 		}
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
@@ -2277,19 +2287,10 @@ function wlanclientscallback(sortby) {
 				any_active = true;
 			} else {
 				if (sorted[idx].active) { continue; }
-				var has_active = false;
-				for (var idx1 = 0; idx1 < sorted.length; idx1++) {
-					if (sorted[idx1].active) {
-						if (sorted[idx1].mac == sorted[idx].mac) {
-							has_active = true;
-							break;
-						}
-					}
-				}
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].id + '\');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].id + '\');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni: ' + formatDateTime(sorted[idx].last_seen) + (has_active ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
+				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen) + (sorted[idx].active_idx > 0 ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
 				html += '</div>';
 				any_all = true;
 			}
@@ -2408,7 +2409,11 @@ function hostinfo(id) {
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
 		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+			if (wlanclients[i].active_idx > 0) {
+				host = wlanclients[wlanclients[i].active_idx];
+			} else {
+				host = wlanclients[i];
+			}
 			break;
 		}
 	}
@@ -2417,31 +2422,19 @@ function hostinfo(id) {
 	if (key in manuf) {
 		vendor = manuf[key];
 	}
-	html += createRowForModal('MAC', '<span>' + host.mac + '</span><br><small><span>' + vendor + '</span></small>');
 	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
+	html += createRowForModal('MAC', '<span>' + host.mac + '</span><br><small><span>' + vendor + '</span></small>');
 	if (host.active) {
 		html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 		html += createRowForModal('Wysłano', bytesToSize(host.tx));
 		html += createRowForModal('Pobrano', bytesToSize(host.rx));
-
-		var freq = -1;
-		if (host.band == 2) {
-			freq = 2412;
-		} else {
-			freq = 5180;
-		}
-		if (freq == -1) {
-			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm'));
-		} else {
-			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(freq, host.signal) + ' m)'));
-		}
-
+		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
 		html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
 		html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');
-	} else {
-		html += createRowForModal('Pierwszy', formatDateTime(host.first_seen));
-		html += createRowForModal('Ostatni', formatDateTime(host.last_seen));
+		html += createRowForModal('Adres IP', host.ip);
 	}
+	html += createRowForModal('Pierwszy raz', formatDateTime(host.first_seen));
+	html += createRowForModal('Ostatni raz', formatDateTime(host.last_seen));
 	showMsg(html, false);
 }
 
