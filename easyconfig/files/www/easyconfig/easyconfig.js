@@ -2326,12 +2326,12 @@ function wlanclientscallback(sortby) {
 			}
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
-	}
-	showicon();
+		showicon();
 
-	setValue('wlanclients_filter_active', ' aktywni (' + counter_active + ') ');
-	setValue('wlanclients_filter_all', ' wszyscy (' + counter_all + ') ');
-	wlanclientscallbackfilter(filterby);
+		setValue('wlanclients_filter_active', ' aktywni (' + counter_active + ') ');
+		setValue('wlanclients_filter_all', ' wszyscy (' + counter_all + ') ');
+		wlanclientscallbackfilter(filterby);
+	}
 }
 
 function clientslogscallback(first, last) {
