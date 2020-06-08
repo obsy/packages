@@ -2437,7 +2437,7 @@ function hostinfo(id) {
 		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
 		html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
 		html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');
-		html += createRowForModal('Adres IP', host.ip);
+		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));
 	}
 	html += createRowForModal('Pierwszy raz widziany', formatDateTime(host.first_seen));
 	html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen));
