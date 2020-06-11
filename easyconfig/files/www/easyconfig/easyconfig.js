@@ -2344,30 +2344,6 @@ function clientslogscallback(first, last) {
 				title = 'Pasmo: ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
-			html += '<div class="col-xs-6 col-sm-3">' + logs[idx].time + '</div>';
-			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (logs[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
-			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
-			html += '</div>';
-		}
-		if (first <= 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6"></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
-		if (first > 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
-		if (first > 0 && last >= logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6"></div></div>'};
-	} else {
-		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
-	}
-	setValue('div_clientslogs_content', html);
-}
-
-function clientslogscallback(first, last) {
-	var html = '';
-	if (logs.length > 0) {
-		if (logs.length - 1 < last) { last = logs.length - 1; }
-		for (var idx = first; idx <= last; idx++) {
-			var title = '';
-			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
-				title = 'Pasmo: ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
-			}
-			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(logs[idx].time) + '</div>';
 			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (logs[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
 			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
