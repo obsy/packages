@@ -2349,9 +2349,15 @@ function clientslogscallback(first, last) {
 			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
 			html += '</div>';
 		}
-		if (first <= 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6"></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
-		if (first > 0 && last < logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6 text-right"><span class="click" onclick="clientslogscallback(' + (last + 1) + ',' + (last + 10)  + ');">starsze</span></div></div>'};
-		if (first > 0 && last >= logs.length - 1) {html += '<div class="row"><div class="col-xs-6 text-left"><span class="click" onclick="clientslogscallback(' + (first - 10) + ',' + (first - 1)  + ');">nowsze</span></div><div class="col-xs-6"></div></div>'};
+		html += '<div class="row">';
+		html += '<div class="col-xs-4 text-left"><p>' + (first + 1) + ' - ' + (last + 1) + ' z ' + logs.length + '</p></div>';
+		html += '<div class="col-xs-8 text-right">';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(0,9);">|&larr;</span>';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(' + ((first - 10) < 0 ? '0,9' : (first - 10) + ',' + (first - 1)) + ');">&larr;</span>';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(' + ((last + 10) > (logs.length - 1) ? (logs.length - 10) + ',' + (logs.length - 1) : (last + 1) + ',' + (last + 10))  + ');">&rarr;</span>';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(' + (logs.length - 10) + ',' + (logs.length - 1) + ');">&rarr;|</span>';
+		html += '</div>';
+		html += '</div>';
 	} else {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
