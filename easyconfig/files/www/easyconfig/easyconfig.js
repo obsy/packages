@@ -2286,16 +2286,16 @@ function wlanclientscallback(sortby) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].id + '\');">' + sorted[idx].displayname + '</span></div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].id + '\');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
 				html += '</div>';
 				any_active = true;
 			} else {
 				if (sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(\'' + sorted[idx].id + '\');">' + sorted[idx].displayname + '</span></div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(\'' + sorted[idx].id + '\');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen) + (sorted[idx].active_idx > -1 ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
 				html += '</div>';
 				any_all = true;
@@ -2374,15 +2374,15 @@ function hostmenu(id) {
 	}
 	var html = host.displayname + '<hr>';
 
-	html += '<p><span class="click" onclick="closeMsg();hostinfo(\'' + host.id + '\');">informacje</span></p>';
-	html += '<p><span class="click" onclick="closeMsg();hostnameedit(\'' + host.id + '\');">zmiana nazwy</span>';
-	html += '<p><span class="click" onclick="closeMsg();hostblock(\'' + host.id + '\');">blokady</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostinfo(' + host.id + ');">informacje</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span>';
+	html += '<p><span class="click" onclick="closeMsg();hostblock(' + host.id + ');">blokady</span></p>';
 	if (config.services.nftqos) {
-		html += '<p><span class="click" onclick="closeMsg();hostqos(\'' + host.id + '\');">limity</span></p>';
+		html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
 	}
-	html += '<p><span class="click" onclick="closeMsg();hostip(\'' + host.id + '\');">statyczny adres IP</span></p>';
-	html += '<p><span class="click" onclick="closeMsg();hoststatistics(\'' + host.id + '\',\'d\',30);">transfer dzienny</span></p>';
-	html += '<p><span class="click" onclick="closeMsg();hoststatistics(\'' + host.id + '\',\'m\',0);">transfer miesięczny</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
 	showMsg(html);
 }
 
