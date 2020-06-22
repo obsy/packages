@@ -21,8 +21,7 @@ escapeJson() {
 	echo "$ret"
 }
 
-show_status()
-{
+show_status() {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
 	SYSTEM_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - T))")
@@ -93,6 +92,16 @@ echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"wan_up_since":['$WAN_UP_SINCE'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"vpn_up":'${VPN_UP:-false}','
+
+echo '"sensors":['
+case $(cat /tmp/sysinfo/board_name) in
+	"cellc,rtl30vw")
+		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
+		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
+		;;
+esac
+echo ']'
+
 echo '}'
 }
 

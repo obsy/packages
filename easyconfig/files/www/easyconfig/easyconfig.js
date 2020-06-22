@@ -1470,6 +1470,19 @@ function showstatus() {
 		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.wan_ipaddr + '</span>');
 		setDisplay('div_vpn_up_status', data.vpn_up);
+		if ((data.sensors).length > 0) {
+			var html = '';
+			for (var i in data.sensors) {
+				for (var j in data.sensors[i]) {
+					html += '<div class="row"><label class="col-xs-6 text-right">' + j + '</label>';
+					html += '<div class="col-xs-6"><p>' + data.sensors[i][j] + '</p></div></div>';
+				}
+			}
+			setValue('div_status_sensors_addon', html);
+			setDisplay('div_status_sensors', true);
+		} else {
+			setDisplay('div_status_sensors', false);
+		}
 	});
 }
 
