@@ -3258,7 +3258,7 @@ function readsms() {
 
 function removesms(index, sender, timestamp) {
 	setValue('dialog_val', index);
-	showDialog('Usunąć wiadomość od "' + sender + '" otrzymaną ' + timestamp + '?', 'Anuluj', 'Usuń', okremovesms);
+	showDialog('Usunąć wiadomość od "' + sender + '" otrzymaną ' + formatDateTime(timestamp) + '?', 'Anuluj', 'Usuń', okremovesms);
 }
 
 function okremovesms() {
