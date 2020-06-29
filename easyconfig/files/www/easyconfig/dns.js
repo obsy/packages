@@ -9,5 +9,7 @@ var dns=[
 {"ip": ["77.88.8.8", "77.88.8.1"], "name": "Yandex.DNS Basic", "url": "https://dns.yandex.com/"},
 {"ip": ["77.88.8.88", "77.88.8.2"], "name": "Yandex.DNS Safe", "url": "https://dns.yandex.com/"},
 {"ip": ["77.88.8.7", "77.88.8.3"], "name": "Yandex.DNS Family", "url": "https://dns.yandex.com/"},
-{"ip": ["1.1.1.1", "1.0.0.1"], "name": "Cloudflare", "url": "https://1.1.1.1/"}
+{"ip": ["1.1.1.1", "1.0.0.1"], "name": "Cloudflare", "url": "https://1.1.1.1/dns/"},
+{"ip": ["1.1.1.2", "1.0.0.2"], "name": "1.1.1.1 for Families Malware only", "url": "https://1.1.1.1/family/"},
+{"ip": ["1.1.1.3", "1.0.0.3"], "name": "1.1.1.1 for Families Malware and Adult", "url": "https://1.1.1.1/family/"}
 ];
