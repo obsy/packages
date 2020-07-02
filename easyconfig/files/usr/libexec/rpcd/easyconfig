@@ -99,6 +99,14 @@ case $(cat /tmp/sysinfo/board_name) in
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
 		;;
+	"ravpower,wd03")
+		if [ -e /usr/sbin/wd03-battery ]; then
+			T=$(/usr/sbin/wd03-battery)
+			CHARGING=$(echo "$T" | awk -F= '/charging/ {if ($2 == "no") {print "Nie"} else {print "Tak"}}')
+			BATTERY_LEVEL=$(echo "$T" | awk -F= '/battery_level/{ print $2}')
+			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+		fi
+		;;
 esac
 echo ']'
 
