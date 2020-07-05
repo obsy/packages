@@ -3510,9 +3510,9 @@ function savepptp() {
 	cmd.push('uci set network.vpn.username=\\\"' + escapeShell(getValue('pptp_username')) + '\\\"');
 	cmd.push('uci set network.vpn.password=\\\"' + escapeShell(getValue('pptp_password')) + '\\\"');
 	if (getValue('pptp_mppe')) {
-		cmd.push('sed -i \'s/^#mppe/mppe/g\' /etc/ppp/options.pptp');
+		cmd.push('uci -q del network.vpn.pppd_options');
 	} else {
-		cmd.push('sed -i \'s/^mppe/#mppe/g\' /etc/ppp/options.pptp');
+		cmd.push('uci set network.vpn.pppd_options=\\\"nomppe\\\"');
 	}
 	var led = getValue('pptp_led');
 	if (led != '') {
@@ -3554,6 +3554,7 @@ function savepptp() {
 		cmd.push('ubus call network reload');
 		cmd.push('ifdown vpn');
 	}
+	cmd.push('/etc/init.d/led restart');
 
 	execute(cmd, showpptp);
 }

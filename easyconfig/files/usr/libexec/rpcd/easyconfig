@@ -1122,20 +1122,20 @@ show_pptp()
 		SERVER=$(uci -q get network.vpn.server)
 		USERNAME=$(uci -q get network.vpn.username)
 		PASSWORD=$(uci -q get network.vpn.password)
+		MPPE=$(uci -q get network.vpn.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
 	fi
-	MPPE=$(grep -q "^mppe" /etc/ppp/options.pptp && echo "true" || echo "false")
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":\"${AUTO:0}\",\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":${AUTO:0},\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
 	for i in $T; do
 		echo '{"proto":"'$(uci -q get easyconfig.$i.proto)'",'
 		echo '"name":"'$(escapeJson "$(uci -q get easyconfig.$i.name)")'",'
-		echo '"auto":"'$(uci -q get easyconfig.$i.auto)'",'
+		echo '"auto":'$(uci -q get easyconfig.$i.auto)','
 		echo '"server":"'$(uci -q get easyconfig.$i.server)'",'
 		echo '"username":"'$(escapeJson "$(uci -q get easyconfig.$i.username)")'",'
 		echo '"password":"'$(escapeJson "$(uci -q get easyconfig.$i.password)")'",'
-		echo '"mppe":"'$(uci -q get easyconfig.$i.mppe)'"},'
+		echo '"mppe":'$(uci -q get easyconfig.$i.mppe)'},'
 	done
 	echo '],'
 
