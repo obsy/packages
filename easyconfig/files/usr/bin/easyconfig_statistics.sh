@@ -45,6 +45,7 @@ update_entry() {
 	TX=$3
 	RX=$4
 	CONNECTED=$5
+	DHCPNAME="$6"
 
 	local _json_no_warning=1
 	NEW_MAC=0
@@ -53,6 +54,7 @@ update_entry() {
 		json_add_object "$MAC"
 		json_add_string "first_seen" "$TS"
 	}
+	[ -n "$DHCPNAME" ] && json_add_string "dhcpname" "$DHCPNAME"
 
 	NEW_IFNAME=0
 	json_select "$IFNAME" || {
@@ -111,13 +113,14 @@ IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@
 for I in $IFNAMES; do
 	STATIONS=$(iw dev "$I" station dump | awk -v IFNAME="$I" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "%s;%s;%s;%s;%s\n", w, IFNAME, tx[w], rx[w], connected[w]}}')
 	for S in $STATIONS; do
-		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";")
+		DHCPNAME=$(awk '/'$(echo "$S" | cut -f1 -d";")'/{print $4}' /tmp/dhcp.leases)
+		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";") "$DHCPNAME"
 	done
 done
 
 IFNAME=$(ifstatus wan | jsonfilter -q -e '@.l3_device')
 if [ -n "$IFNAME" ]; then
-	update_entry "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999
+	update_entry "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999 ""
 fi
 
 json_dump > $DB

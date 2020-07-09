@@ -2268,12 +2268,15 @@ function wlanclientscallback(sortby) {
 			} else {
 				wlanclients[idx].first_seen = '-';
 				wlanclients[idx].last_seen = '-';
+				wlanclients[idx].last_dhcpname = '';
 			}
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
 			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
+			if (wlanclients[idx].last_dhcpname == '*') { wlanclients[idx].last_dhcpname = ''; }
+			if (wlanclients[idx].dhcpname == '' && wlanclients[idx].last_dhcpname != '') { wlanclients[idx].dhcpname = wlanclients[idx].last_dhcpname; }
 			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
 			wlanclients[idx].id = idx;
 			if (wlanclients[idx].active) {
@@ -2421,8 +2424,8 @@ function hostinfo(id) {
 	}
 	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
 	html += createRowForModal('MAC', '<span>' + host.mac + '</span><br><small><span>' + vendor + '</span></small>');
+	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 	if (host.active) {
-		html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 		html += createRowForModal('Wysłano', bytesToSize(host.tx));
 		html += createRowForModal('Pobrano', bytesToSize(host.rx));
 		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));

@@ -102,8 +102,8 @@ case $(cat /tmp/sysinfo/board_name) in
 	"ravpower,wd03")
 		if [ -e /usr/sbin/wd03-battery ]; then
 			T=$(/usr/sbin/wd03-battery)
-			CHARGING=$(echo "$T" | awk -F= '/charging/ {if ($2 == "no") {print "Nie"} else {print "Tak"}}')
-			BATTERY_LEVEL=$(echo "$T" | awk -F= '/battery_level/{ print $2}')
+			CHARGING=$(echo "$T" | awk -F= '/charging/{if ($2 == "no") {print "Nie"} else {print "Tak"}}')
+			BATTERY_LEVEL=$(echo "$T" | awk -F= '/battery_level/{print $2}')
 			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		fi
 		;;
@@ -525,9 +525,9 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 	for M in $MACS; do
 		[ "$M" = "wan" ] && continue
 		json_select "$M"
-		json_get_vars first_seen last_seen
+		json_get_vars first_seen last_seen dhcpname
 		json_select ..
-		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"tx\":0,\"rx\":0,\"signal\":0,\"connected\":0,\"band\":0,\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\""
+		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"tx\":0,\"rx\":0,\"signal\":0,\"connected\":0,\"band\":0,\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\",\"last_dhcpname\":\"$dhcpname\""
 	done
 fi
 
