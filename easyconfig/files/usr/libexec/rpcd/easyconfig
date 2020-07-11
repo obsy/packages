@@ -582,7 +582,7 @@ fi
 echo '],'
 
 echo '"logs":['
-T=$(zcat /1tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
+T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
 /AP-STA-CONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=$6; EVENT[$6]="connect"; DESC[$6]=$9}
 /DHCPACK\(/ {if(WIFI[$11]!=0){DHCP[WIFI[$11]]=$12; NAME[$11]=$12}}
 /AP-STA-DISCONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=0; EVENT[$6]="disconnect"; DHCP[$6]=NAME[$11]; NAME[$11]=""; DESC[$6]=$9}
