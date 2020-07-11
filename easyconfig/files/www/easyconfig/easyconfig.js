@@ -2264,19 +2264,17 @@ function wlanclientscallback(sortby) {
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			if (!wlanclients[idx].active) {
 				wlanclients[idx].active_id = -1;
+				wlanclients[idx].ip = '';
 				continue;
 			} else {
 				wlanclients[idx].first_seen = '-';
 				wlanclients[idx].last_seen = '-';
-				wlanclients[idx].last_dhcpname = '';
 			}
 			total += wlanclients[idx].tx + wlanclients[idx].rx;
 		}
 		for (var idx = 0; idx < wlanclients.length; idx++) {
 			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
 			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
-			if (wlanclients[idx].last_dhcpname == '*') { wlanclients[idx].last_dhcpname = ''; }
-			if (wlanclients[idx].dhcpname == '' && wlanclients[idx].last_dhcpname != '') { wlanclients[idx].dhcpname = wlanclients[idx].last_dhcpname; }
 			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
 			wlanclients[idx].id = idx;
 			if (wlanclients[idx].active) {
@@ -2285,6 +2283,7 @@ function wlanclientscallback(sortby) {
 					if (!wlanclients[idx1].active) {
 						if (wlanclients[idx1].mac == wlanclients[idx].mac) {
 							wlanclients[idx1].active_id = wlanclients[idx].id;
+							wlanclients[idx1].ip = wlanclients[idx].ip;
 							wlanclients[idx].first_seen = wlanclients[idx1].first_seen;
 							wlanclients[idx].last_seen = wlanclients[idx1].last_seen;
 							break;

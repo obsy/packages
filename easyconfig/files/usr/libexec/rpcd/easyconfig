@@ -502,6 +502,28 @@ show_watchdog() {
 
 ##############################################################################
 
+client_data() {
+	MAC=$1
+	NMAC=${MAC//:/}
+
+	T=$(uci -q get easyconfig.m${NMAC}.name)
+	[ -n "$T" ] && USERNAME=',"username":"'$T'"' || USERNAME=',"username":""'
+
+	BLOCK=',"block":0,"blockdata":""'
+	T=$(uci -q get firewall.m${NMAC})
+	[ -n "$T" ] && BLOCK=',"block":1,"blockdata":""'
+	T=$(easyconfig_firewall_helper.sh get $MAC)
+	[ "x$T" = "x000000000000000000000000000000000000000000000000" ] || BLOCK=',"block":2,"blockdata":"'$T'"'
+
+	TUP=$(uci -q get nft-qos.m${NMAC}up.rate)
+	TDOWN=$(uci -q get nft-qos.m${NMAC}down.rate)
+	QOS=',"qos":{"bwup":'${TUP:-0}',"bwdown":'${TDOWN:-0}'}'
+
+	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${NMAC}.ip)'"'
+
+	echo "${USERNAME}${BLOCK}${QOS}${STATICDHCP}"
+}
+
 show_clients() {
 WLAN_MAC=""
 RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
@@ -517,20 +539,6 @@ for R in $RADIOS; do
 	fi
 done
 
-if [ -e "/tmp/easyconfig_statistics.json" ]; then
-	json_init
-	json_load_file "/tmp/easyconfig_statistics.json"
-	json_get_keys MACS
-
-	for M in $MACS; do
-		[ "$M" = "wan" ] && continue
-		json_select "$M"
-		json_get_vars first_seen last_seen dhcpname
-		json_select ..
-		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"tx\":0,\"rx\":0,\"signal\":0,\"connected\":0,\"band\":0,\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\",\"last_dhcpname\":\"$dhcpname\""
-	done
-fi
-
 echo '{"clients":['
 for M in $WLAN_MAC; do
 	T=${M%\",\"tx*}
@@ -540,9 +548,6 @@ for M in $WLAN_MAC; do
 	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
 
-	T=$(uci -q get easyconfig.m${MAC//:/}.name)
-	[ -n "$T" ] && USERNAME=',"username":"'$T'"' || USERNAME=',"username":""'
-
 	T=${M%,\"ba*}
 	CONNECTED=${T##*:}
 	if $TIMEISVALID; then
@@ -551,24 +556,33 @@ for M in $WLAN_MAC; do
 		CONNECTED_SINCE=',"connected_since":""'
 	fi
 
-	BLOCK=',"block":0,"blockdata":""'
-	T=$(uci -q get firewall.m${MAC//:/})
-	[ -n "$T" ] && BLOCK=',"block":1,"blockdata":""'
-	T=$(easyconfig_firewall_helper.sh get $MAC)
-	[ "x$T" = "x000000000000000000000000000000000000000000000000" ] || BLOCK=',"block":2,"blockdata":"'$T'"'
-
-	TUP=$(uci -q get nft-qos.m${MAC//:/}up.rate)
-	TDOWN=$(uci -q get nft-qos.m${MAC//:/}down.rate)
-	QOS=',"qos":{"bwup":'${TUP:-0}',"bwdown":'${TDOWN:-0}'}'
-
-	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${MAC//:/}.ip)'"'
-
-	echo "{${M}${IP}${USERNAME}${CONNECTED_SINCE}${BLOCK}${QOS}${STATICDHCP}},"
+	echo "{${M}${IP}${CONNECTED_SINCE}$(client_data $MAC)},"
 done
+
+if [ -e "/tmp/easyconfig_statistics.json" ]; then
+	json_init
+	json_load_file "/tmp/easyconfig_statistics.json"
+	json_get_keys MACS
+
+	WLAN_MAC=""
+	for M in $MACS; do
+		[ "$M" = "wan" ] && continue
+		json_select "$M"
+		json_get_vars first_seen last_seen dhcpname
+		json_select ..
+		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\",\"dhcpname\":\"$dhcpname\""
+	done
+	for M in $WLAN_MAC; do
+		T=${M%\",\"ac*}
+		MAC=${T##*\"}
+		echo "{${M}$(client_data $MAC)},"
+	done
+fi
+
 echo '],'
 
 echo '"logs":['
-T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
+T=$(zcat /1tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
 /AP-STA-CONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=$6; EVENT[$6]="connect"; DESC[$6]=$9}
 /DHCPACK\(/ {if(WIFI[$11]!=0){DHCP[WIFI[$11]]=$12; NAME[$11]=$12}}
 /AP-STA-DISCONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=0; EVENT[$6]="disconnect"; DHCP[$6]=NAME[$11]; NAME[$11]=""; DESC[$6]=$9}
