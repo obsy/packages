@@ -3216,7 +3216,7 @@ function sendsms() {
 	if (checkField('sms_number', validateNumeric)) {return;}
 	if (checkField('sms_msg', validateSMSText)) {return;}
 
-	var tnumber = getValue("sms_number");
+	var tnumber = getValue("sms_number").replace(/[^0-9]/g, '');
 	var msg = getValue("sms_msg");
 
 	msg = removeDiacritics(msg);
