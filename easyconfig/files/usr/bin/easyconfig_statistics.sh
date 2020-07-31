@@ -113,7 +113,7 @@ IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@
 for I in $IFNAMES; do
 	STATIONS=$(iw dev "$I" station dump | awk -v IFNAME="$I" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "%s;%s;%s;%s;%s\n", w, IFNAME, tx[w], rx[w], connected[w]}}')
 	for S in $STATIONS; do
-		DHCPNAME=$(awk '/'$(echo "$S" | cut -f1 -d";")'/{print $4}' /tmp/dhcp.leases)
+		DHCPNAME=$(awk '/'$(echo "$S" | cut -f1 -d";")'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
 		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";") "$DHCPNAME"
 	done
 done
