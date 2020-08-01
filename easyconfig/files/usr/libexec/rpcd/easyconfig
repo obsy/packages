@@ -560,22 +560,11 @@ for M in $WLAN_MAC; do
 done
 
 if [ -e "/tmp/easyconfig_statistics.json" ]; then
-	json_init
-	json_load_file "/tmp/easyconfig_statistics.json"
-	json_get_keys MACS
-
-	WLAN_MAC=""
+	eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'MACS=@')
 	for M in $MACS; do
 		[ "$M" = "wan" ] && continue
-		json_select "$M"
-		json_get_vars first_seen last_seen dhcpname
-		json_select ..
-		WLAN_MAC="$WLAN_MAC \"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$first_seen\",\"last_seen\":\"$last_seen\",\"dhcpname\":\"$dhcpname\""
-	done
-	for M in $WLAN_MAC; do
-		T=${M%\",\"ac*}
-		MAC=${T##*\"}
-		echo "{${M}$(client_data $MAC)},"
+		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname')
+		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\"$(client_data ${M//_/:})},"
 	done
 fi
 
