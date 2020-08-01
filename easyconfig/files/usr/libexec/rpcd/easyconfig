@@ -632,13 +632,15 @@ show_clientstatistics() {
 		exit 0
 	fi
 
-	local _json_no_warning=1
-	json_init
-	json_load_file "/tmp/easyconfig_statistics.json"
-	json_select "$mac" || {
+	T="$(jsonfilter -i /tmp/easyconfig_statistics.json -e '@["'${mac//:/_}'"]')"
+	if [ -z "$T" ]; then
 		echo "]}"
 		exit 0
-	}
+	fi
+
+	local _json_no_warning=1
+	json_init
+	json_load "$T"
 	json_get_keys IFNAMES
 	for I in $IFNAMES; do
 		if json_is_a "$I" object; then
