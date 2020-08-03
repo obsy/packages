@@ -1378,7 +1378,7 @@ function showwanup(data) {
 var bandwidthID;
 var bandwidth_unit = false;
 
-function convertToSpeed(val) {
+function convertToSpeed(val, fixedpow) {
 	var sizes;
 	if (bandwidth_unit) {
 		sizes = ['B/s', 'KiB/s', 'MiB/s', 'GiB/s'];
@@ -1387,7 +1387,12 @@ function convertToSpeed(val) {
 		val *= 8;
 	}
 	if (val == 0) return '0';
-	var i = parseInt(Math.floor(Math.log(val) / Math.log(1024)));
+	var i;
+	if (fixedpow) {
+		i = fixedpow;
+	} else {
+		i = parseInt(Math.floor(Math.log(val) / Math.log(1024)));
+	}
 	if (i < 0) return '0';
 	var dm = 0;
 	if (i > 1) {dm = 3;}
@@ -3997,17 +4002,20 @@ livegraph = {
 			offset = 5;
 		}
 		var t;
-		for (var i = 1; i < 10; i++) {
+		t = bandwidth_unit ? graph.max : graph.max * 8;
+		var pow = parseInt(Math.floor(Math.log(t) / Math.log(1024)));
+		for (var i = 1; i < 11; i++) {
 			var y = livegraph.getY(graph, i * graph.max / 10);
 			ctx.beginPath();
 			ctx.moveTo(graph.axisLeft, y);
 			ctx.lineTo(graph.axisLeft + graph.width, y);
 			ctx.stroke();
-			t = (convertToSpeed(i * graph.max / 10)).split(' ');
+			t = (convertToSpeed(i * graph.max / 10, pow)).split(' ');
 			ctx.fillText(t[0], graph.axisLeft + offset, y + 5);
 		}
 		if (t[1]) {
-			ctx.fillText(t[1], graph.axisLeft + offset, livegraph.getY(graph, graph.max) + 5);
+			var m = (livegraph.getY(graph, 9 * graph.max / 10) - livegraph.getY(graph, graph.max)) / 2;
+			ctx.fillText(t[1], graph.axisLeft + offset, livegraph.getY(graph, graph.max) + 5 + m);
 		}
 
 		var oldwidth = 0;
