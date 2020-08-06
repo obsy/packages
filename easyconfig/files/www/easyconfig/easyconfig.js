@@ -2188,15 +2188,11 @@ function bytesToSize(bytes) {
 }
 
 var wlanclients;
-var logs;
 
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 		wlanclients = data.clients;
-		logs = sortJSON(data.logs, 'id', 'desc');
-
 		wlanclientscallback('');
-		clientslogscallback(0, 9);
 	});
 }
 
@@ -2352,6 +2348,15 @@ function wlanclientscallback(sortby) {
 		setValue('wlanclients_filter_all', ' wszyscy (' + counter_all + ') ');
 		wlanclientscallbackfilter(filterby);
 	}
+}
+
+var logs;
+
+function showclientslogs() {
+	ubus_call('"easyconfig", "clientslogs", {}', function(data) {
+		logs = sortJSON(data.logs, 'id', 'desc');
+		clientslogscallback(0, 9);
+	});
 }
 
 function clientslogscallback(first, last) {
@@ -3905,6 +3910,7 @@ function btn_pages(page) {
 	setDisplay('div_watchdog', (page == 'watchdog'));
 	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
 	setDisplay('div_wlanclients', (page == 'wlanclients'));
+	setDisplay('div_clientslogs', (page == 'clientslogs'));
 	setDisplay('div_queries', (page == 'queries'));
 	setDisplay('div_traffic', (page == 'traffic'));
 	setDisplay('div_ussdsms', (page == 'ussdsms'));
@@ -3935,6 +3941,10 @@ function btn_pages(page) {
 
 	if (page == 'wlanclients') {
 		showwlanclients();
+	}
+
+	if (page == 'clientslogs') {
+		showclientslogs();
 	}
 
 	if (page == 'queries') {

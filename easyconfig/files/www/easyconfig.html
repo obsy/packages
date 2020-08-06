@@ -29,6 +29,7 @@
 	<div id="menu_wlan">
 		<a href="#" onclick="btn_pages('sitesurvey');"><i data-feather="wifi" class="iconwithtext"></i>Sieci Wi-Fi</a>
 		<a href="#" onclick="btn_pages('wlanclients');"><i data-feather="users" class="iconwithtext"></i>Klienci</a>
+		<a href="#" onclick="btn_pages('clientslogs');"><i data-feather="book-open" class="iconwithtext"></i>Historia połączeń</a>
 	</div>
 	<div id="menu_queries" style="display:none;">
 		<a href="#" onclick="btn_pages('queries');"><i data-feather="search" class="iconwithtext"></i>Zapytania DNS</a>
@@ -904,13 +905,22 @@
 	<div id="div_wlanclients_content">
 		<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>
 	</div>
+	<h3 class="section"></h3>
+	<div class="text-center">
+		<input type="button" class="btn btn-default" onclick="showwlanclients();" value="Odśwież" />
+	</div>
+
+	</div>
+
+	<div id="div_clientslogs" style="display:none;">
+
 	<h3 class="section">Historia połączeń</h3>
 	<div id="div_clientslogs_content">
 		<div class="alert alert-warning">Brak historii połączeń</div>
 	</div>
 	<h3 class="section"></h3>
 	<div class="text-center">
-		<input type="button" class="btn btn-default" onclick="showwlanclients();" value="Odśwież" />
+		<input type="button" class="btn btn-default" onclick="showclientslogs();" value="Odśwież" />
 	</div>
 
 	</div>

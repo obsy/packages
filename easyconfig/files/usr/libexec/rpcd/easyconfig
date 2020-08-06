@@ -568,9 +568,11 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 	done
 fi
 
-echo '],'
+echo ']}'
+}
 
-echo '"logs":['
+show_clientslogs() {
+echo '{"logs":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
 /AP-STA-CONNECTED/ {gsub(":", "", $4);TIME[$6]=sprintf("%s%02d%02d%s", $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4); MAC[$6]=$11; WIFI[$11]=$6; EVENT[$6]="connect"; DESC[$6]=$9}
 /DHCPACK\(/ {if(WIFI[$11]!=0){DHCP[WIFI[$11]]=$12; NAME[$11]=$12}}
@@ -601,8 +603,7 @@ for B in $BANDS; do
 done
 
 echo "${T%?}"
-echo ']'
-echo '}'
+echo ']}'
 }
 
 show_clientstatistics() {
@@ -1328,6 +1329,7 @@ case "$1" in
 		echo '"system":{},'
 		echo '"watchdog":{},'
 		echo '"clients":{},'
+		echo '"clientslogs":{},'
 		echo '"clientstatistics":{"mac":"string"},'
 		echo '"traffic":{},'
 		echo '"modem":{},'
@@ -1363,6 +1365,9 @@ case "$1" in
 				;;
 			clients)
 				show_clients
+				;;
+			clientslogs)
+				show_clientslogs
 				;;
 			clientstatistics)
 				show_clientstatistics
