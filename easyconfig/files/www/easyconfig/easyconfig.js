@@ -2319,15 +2319,11 @@ function wlanclientscallback(sortby) {
 		}
 	}
 	if (filterby == 'active') {
-		if (any_active) {
-			html += '<hr>';
-		} else {
+		if (!any_active) {
 			html += '<div class="alert alert-warning">Brak połączonych klientów Wi-Fi</div>';
 		}
 	} else {
-		if (any_all) {
-			html += '<hr>';
-		} else {
+		if (!any_all) {
 			html += '<div class="alert alert-warning">Brak informacji o połączeniach klientów Wi-Fi</div>';
 		}
 	}
