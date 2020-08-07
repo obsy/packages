@@ -123,7 +123,8 @@ h3 {
   white-space:nowrap;
 }
 
-.sidenav a:hover, .offcanvas a:focus{
+.sidenav a:hover,
+.offcanvas a:focus {
   color: #f1f1f1;
 }
 
@@ -165,7 +166,10 @@ h3 {
   border-color: #faebcc;
 }
 
-.click, .click:hover, .click:visited, .click:link {
+.click,
+.click:hover,
+.click:visited,
+.click:link {
   text-decoration: none;
   color: #31708f;
   cursor: pointer;
@@ -195,7 +199,8 @@ h3 {
   padding: 20px;
 }
 
-.wifi, .wifi:before {
+.wifi,
+.wifi:before {
   display: inline-block;
   border: 60px double transparent;
   border-top-color: currentColor;
@@ -385,7 +390,7 @@ h3 {
 }
 
 .darkmode .btn-primary {
-  background-color: #0066ff;
+  background-color: #0f82af;
 }
 
 .darkmode .modal-content {
@@ -395,16 +400,21 @@ h3 {
 
 .darkmode a,
 .darkmode .click {
-  color: #0066ff !important;
+  color: #0f82af !important;
 }
 
 .darkmode input:checked + .slider,
 .darkmode .rb input:checked ~ .checkmark {
-  background-color: #0066ff !important;
+  background-color: #0f82af !important;
 }
 
 .darkmode .sidenav a {
   color: #818181 !important;
+}
+
+.sidenav a:hover,
+.offcanvas a:focus {
+  color: #f1f1f1 !important;
 }
 
 .darkmode .slider:before,
