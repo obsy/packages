@@ -412,8 +412,8 @@ h3 {
   color: #818181 !important;
 }
 
-.sidenav a:hover,
-.offcanvas a:focus {
+.darkmode .sidenav a:hover,
+.darkmode .offcanvas a:focus {
   color: #f1f1f1 !important;
 }
 
