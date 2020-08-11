@@ -783,7 +783,7 @@ show_sms() {
 		STORAGE=""
 		T=$(uci -q get easyconfig.sms.storage)
 		[ "x$T" = "x" ] || STORAGE="-s $T"
-		sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv
+		sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null
 	fi
 
 	if [ "x$action" = "xsend" ]; then
