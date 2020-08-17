@@ -2355,6 +2355,12 @@ function showclientslogs() {
 	});
 }
 
+function timestampToDate(ts) {
+	function z(n){return (n<10?'0':'')+ +n;}
+	var d = new Date(ts * 1000);
+	return '' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds());
+}
+
 function clientslogscallback(first, last) {
 	var html = '';
 	if (logs.length > 0) {
@@ -2365,7 +2371,7 @@ function clientslogscallback(first, last) {
 				title = 'Pasmo: ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
-			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(logs[idx].time) + '</div>';
+			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(logs[idx].id)) + '</div>';
 			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (logs[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
 			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
 			html += '</div>';
