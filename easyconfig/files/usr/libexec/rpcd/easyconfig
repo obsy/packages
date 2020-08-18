@@ -14,7 +14,7 @@ else
 	TIMEISVALID="false"
 fi
 
-escapeJson() {
+escapeJSON() {
 	ret=$1
 	ret="${ret//\\/\\\\}"
 	ret="${ret//\"/\\\"}"
@@ -331,10 +331,10 @@ for R in $RADIOS; do
 	fi
 	echo '"wlan_disabled":'${WLAN_DISABLED:-0}','
 	echo '"wlan_txpower":"'$WLAN_TXPOWER'",'
-	echo '"wlan_ssid":"'$(escapeJson "$WLAN_SSID")'",'
+	echo '"wlan_ssid":"'$(escapeJSON "$WLAN_SSID")'",'
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
-	echo '"wlan_key":"'$(escapeJson "$WLAN_KEY")'",'
+	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	echo '"wlan_channels":{'
@@ -539,7 +539,7 @@ for R in $RADIOS; do
 	fi
 done
 
-echo '{"clients":['
+echo '{"result":['
 for M in $WLAN_MAC; do
 	T=${M%\",\"tx*}
 	MAC=${T##*\"}
@@ -572,7 +572,7 @@ echo ']}'
 }
 
 show_clientslogs() {
-echo '{"logs":['
+echo '{"result":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
 /AP-STA-CONNECTED/ {MAC[$1]=$6; WIFI[$6]=$1; EVENT[$1]="connect"; DESC[$1]=$4}
 /DHCPACK\(/ {if(WIFI[$6]!=0){DHCP[WIFI[$6]]=$7; NAME[$6]=$7}}
@@ -747,7 +747,7 @@ show_ussd() {
 	fi
 
 	json_init
-	json_add_string "response" "$T"
+	json_add_string "result" "$T"
 	json_dump
 }
 
@@ -1127,17 +1127,17 @@ show_pptp()
 		PASSWORD=$(uci -q get network.vpn.password)
 		MPPE=$(uci -q get network.vpn.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
 	fi
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJson "$NAME")"\",\"auto\":${AUTO:0},\"server\":\"$SERVER\",\"username\":\""$(escapeJson "$USERNAME")"\",\"password\":\""$(escapeJson "$PASSWORD")"\",\"mppe\":$MPPE,"
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"auto\":${AUTO:0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":$MPPE,"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
 	for i in $T; do
 		echo '{"proto":"'$(uci -q get easyconfig.$i.proto)'",'
-		echo '"name":"'$(escapeJson "$(uci -q get easyconfig.$i.name)")'",'
+		echo '"name":"'$(escapeJSON "$(uci -q get easyconfig.$i.name)")'",'
 		echo '"auto":'$(uci -q get easyconfig.$i.auto)','
 		echo '"server":"'$(uci -q get easyconfig.$i.server)'",'
-		echo '"username":"'$(escapeJson "$(uci -q get easyconfig.$i.username)")'",'
-		echo '"password":"'$(escapeJson "$(uci -q get easyconfig.$i.password)")'",'
+		echo '"username":"'$(escapeJSON "$(uci -q get easyconfig.$i.username)")'",'
+		echo '"password":"'$(escapeJSON "$(uci -q get easyconfig.$i.password)")'",'
 		echo '"mppe":'$(uci -q get easyconfig.$i.mppe)'},'
 	done
 	echo '],'

@@ -2191,7 +2191,7 @@ var wlanclients;
 
 function showwlanclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
-		wlanclients = data.clients;
+		wlanclients = data.result;
 		wlanclientscallback('');
 	});
 }
@@ -2350,7 +2350,7 @@ var logs;
 
 function showclientslogs() {
 	ubus_call('"easyconfig", "clientslogs", {}', function(data) {
-		logs = sortJSON(data.logs, 'id', 'desc');
+		logs = sortJSON(data.result, 'id', 'desc');
 		clientslogscallback(0, 9);
 	});
 }
@@ -3219,7 +3219,7 @@ function sendussd() {
 		if (data.response == "") {
 			showMsg("Brak odpowiedzi z modemu");
 		} else {
-			showMsg((data.response).replace(/(\r\n|\r|\n)/g, '<br />'));
+			showMsg((data.result).replace(/(\r\n|\r|\n)/g, '<br />'));
 		}
 	});
 }
