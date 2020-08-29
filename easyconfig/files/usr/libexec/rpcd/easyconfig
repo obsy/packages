@@ -1127,7 +1127,7 @@ show_pptp()
 		PASSWORD=$(uci -q get network.vpn.password)
 		MPPE=$(uci -q get network.vpn.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
 	fi
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"auto\":${AUTO:0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":$MPPE,"
+	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"auto\":${AUTO:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":${MPPE:-1},"
 
 	echo '"profiles":['
 	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
