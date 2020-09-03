@@ -21,6 +21,14 @@ escapeJSON() {
 	echo "$ret"
 }
 
+escapeForSed() {
+	ret=$1
+	ret="$(escapeJSON "$ret")"
+	ret="${ret//\\/\\\\}"
+	ret="${ret//\//\\/}"
+	echo "$ret"
+}
+
 show_status() {
 T=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
@@ -507,7 +515,7 @@ client_data() {
 	NMAC=${MAC//:/}
 
 	T=$(uci -q get easyconfig.m${NMAC}.name)
-	[ -n "$T" ] && USERNAME=',"username":"'$T'"' || USERNAME=',"username":""'
+	[ -n "$T" ] && USERNAME=',"username":"'"$(escapeJSON "$T")"'"' || USERNAME=',"username":""'
 
 	BLOCK=',"block":0,"blockdata":""'
 	T=$(uci -q get firewall.m${NMAC})
@@ -587,7 +595,7 @@ for MAC in $MACS; do
 	NAME=$(uci -q get easyconfig.m${MAC}.name)
 	if [ -n "$NAME" ]; then
 		TMAC=${MAC:0:2}:${MAC:2:2}:${MAC:4:2}:${MAC:6:2}:${MAC:8:2}:${MAC:10:2}
-		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"username\":\".*\",\"dhcpname\"/,\"mac\":\"$TMAC\",\"username\":\"$NAME\",\"dhcpname\"/g")
+		T=$(echo "$T" | sed "s/,\"mac\":\"$TMAC\",\"username\":\".*\",\"dhcpname\"/,\"mac\":\"$TMAC\",\"username\":\"""$(escapeForSed "$NAME")""\",\"dhcpname\"/g")
 	fi
 done
 
@@ -819,6 +827,7 @@ END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 		fi
 		if [ -n "$MAC" ]; then
 			USERNAME=$(uci -q get easyconfig.m${MAC//:/}.name)
+			[ -n "$USERNAME" ] && USERNAME="$(escapeForSed "$USERNAME")"
 		fi
 		NAME=""
 		[ -n "$MAC" ] && NAME=$MAC
