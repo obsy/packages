@@ -2410,6 +2410,7 @@ function hostmenu(id) {
 	html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
+	html += '<hr><p><span class="click" onclick="closeMsg();hostremovedata(' + host.id + ');">usuwanie danych</span></p>';
 	showMsg(html);
 }
 
@@ -2861,6 +2862,19 @@ function hoststatisticsmodal(mac, title, type, limit) {
 	});
 }
 
+function hostremovedata(id) {
+	var host;
+	for (var i = 0; i < wlanclients.length; i++) {
+		if (wlanclients[i].id == id) {
+			host = wlanclients[i];
+			break;
+		}
+	}
+
+	setValue('dialog_val', (host.mac).replace(/:/g, '_'));
+	showDialog('Usunąć dane o transferze dla "' + host.displayname + '"?', 'Anuluj', 'Usuń', okremovetraffic);
+}
+
 /*****************************************************************************/
 
 function showqueries() {
@@ -3177,11 +3191,13 @@ function savetraffic() {
 }
 
 function removetraffic() {
+	setValue('dialog_val', 'wan');
 	showDialog('Usunąć dane o transferze?', 'Anuluj', 'Usuń', okremovetraffic);
 }
 
 function okremovetraffic() {
 	var cmd = [];
+	var mac = getValue('dialog_val');
 
 	cmd.push('DB=/tmp/easyconfig_statistics.json');
 	cmd.push('SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz');
@@ -3189,15 +3205,14 @@ function okremovetraffic() {
 	cmd.push('if [ -e \\\"$DB\\\" ]; then');
 	cmd.push('json_init');
 	cmd.push('json_load_file \\\"$DB\\\"');
-	cmd.push('json_add_object \\\"wan\\\"');
-	cmd.push('json_add_string \\\"first_seen\\\" \\\"$(date \\\"+%Y%m%d%H%M\\\")\\\"');
+	cmd.push('export K_J_V=$(echo \\\"${K_J_V}\\\" | sed \'s/ ' + mac + '//g\')');
 	cmd.push('json_close_object');
 	cmd.push('json_dump > \\\"$DB\\\"');
 	cmd.push('date -d \\\"2000-01-01 00:00:00\\\" \\\"$SDB\\\"');
 	cmd.push('/usr/bin/easyconfig_statistics.sh');
 	cmd.push('fi');
 
-	execute(cmd, showtraffic);
+	execute(cmd, (mac == 'wan') ? showtraffic : showwlanclients);
 }
 
 /*****************************************************************************/
