@@ -1615,7 +1615,7 @@ function showmodem() {
 			setDisplay('div_status_modem_addon', false);
 		}
 
-		if (data.cid_dec && data.operator_mcc == 260) {
+		if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
 			document.getElementById("modem_btsearch").setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
 			setDisplay('div_modem_btsearch', true);
 		} else {
