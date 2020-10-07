@@ -1153,7 +1153,7 @@ show_pptp()
 
 	VPNLED=$(uci -q get system.led_vpn.sysfs)
 	SYSTEM=$(uci show system)
-	T=$(ls -d /sys/class/leds/*:*:* 2>/dev/null | sed 's|/sys/class/leds/||g')
+	T=$(ls -d /sys/class/leds/*:* 2>/dev/null | sed 's|/sys/class/leds/||g')
 	O=""
 	echo '"led":"'$VPNLED'","leds":['
 	for LED in $T; do
@@ -1314,7 +1314,7 @@ leds() {
 	json_load "$input"
 	json_get_var action action
 	if [ "x$action" = "xoff" ]; then
-		for i in /sys/class/leds/*:*:*; do
+		for i in /sys/class/leds/*:*; do
 		echo none > $i/trigger
 		echo 0 > $i/brightness
 		done
