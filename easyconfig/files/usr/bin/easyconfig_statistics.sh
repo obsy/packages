@@ -3,6 +3,8 @@
 DB=/tmp/easyconfig_statistics.json
 SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz
 
+[ -e "$DB.lock" ] && exit 0
+
 FIRSTRUN=0
 if [ ! -e $DB ]; then
 	if [ -e "$SDB" ]; then

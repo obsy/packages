@@ -3203,12 +3203,14 @@ function okremovetraffic() {
 	cmd.push('SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz');
 	cmd.push('. /usr/share/libubox/jshn.sh');
 	cmd.push('if [ -e \\\"$DB\\\" ]; then');
+	cmd.push('touch \\\"$DB.lock\\\"');
 	cmd.push('json_init');
 	cmd.push('json_load_file \\\"$DB\\\"');
 	cmd.push('export K_J_V=$(echo \\\"${K_J_V}\\\" | sed \'s/ ' + mac + '//g\')');
 	cmd.push('json_close_object');
 	cmd.push('json_dump > \\\"$DB\\\"');
 	cmd.push('date -d \\\"2000-01-01 00:00:00\\\" \\\"$SDB\\\"');
+	cmd.push('rm \\\"$DB.lock\\\"');
 	cmd.push('/usr/bin/easyconfig_statistics.sh');
 	cmd.push('fi');
 
