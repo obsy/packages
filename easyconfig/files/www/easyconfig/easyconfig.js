@@ -2421,7 +2421,7 @@ function calculatedistance(frequency, signal) {
 
 function hostinfo(id) {
 	var html = '';
-	var vendor = '';
+	var vendor = '-';
 	var host;
 	for (var i = 0; i < wlanclients.length; i++) {
 		if (wlanclients[i].id == id) {
@@ -2435,7 +2435,8 @@ function hostinfo(id) {
 		vendor = manuf[key];
 	}
 	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
-	html += createRowForModal('MAC', '<span>' + host.mac + '</span><br><small><span>' + vendor + '</span></small>');
+	html += createRowForModal('MAC', host.mac);
+	html += createRowForModal('Producent', vendor);
 	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 	if (host.active) {
 		html += createRowForModal('Wysłano', bytesToSize(host.tx));
