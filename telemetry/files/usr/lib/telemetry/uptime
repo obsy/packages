@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Uptime"
+else
+	awk '{printf "%d", $1}' /proc/uptime
+fi
+exit 0

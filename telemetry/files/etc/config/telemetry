@@ -1,0 +1,95 @@
+
+config telemetry 'global'
+	option enabled '1'
+
+	option type 'get'
+	option url 'http://192.168.1.1/cgi-bin/index.php'
+
+#	option type 'post'
+#	option url 'http://192.168.1.1/cgi-bin/index.php'
+
+#	option type 'mqtt'
+#	option host '192.168.1.1'
+#	option topic 'telemetry/host/json'
+#	option options '-i clientid -u user -P pass'
+
+config script
+	option enabled '1'
+	option param 'board'
+	option script 'board'
+
+config script
+	option enabled '1'
+	option param 'conntrack'
+	option script 'conntrack'
+
+config script
+	option enabled '1'
+	option param 'mem'
+	option script 'freememory'
+
+config script
+	option enabled '1'
+	option param 'hostname'
+	option script 'hostname'
+
+config script
+	option enabled '1'
+	option param 'id'
+	option script 'ident'
+
+config script
+	option enabled '1'
+	option param 'l15'
+	option script 'load15m'
+
+config script
+	option enabled '1'
+	option param 'l1'
+	option script 'load1m'
+
+config script
+	option enabled '1'
+	option param 'l5'
+	option script 'load5m'
+
+config script
+	option enabled '0'
+	option param 'rssi'
+	option script 'modemuqmi'
+
+config script
+	option enabled '1'
+	option param 'version'
+	option script 'systemversion'
+
+config script
+	option enabled '1'
+	option param 'uptime'
+	option script 'uptime'
+
+config script
+	option enabled '1'
+	option param 'proto'
+	option script 'wanproto'
+
+config script
+	option enabled '1'
+	option param 'wrx'
+	option script 'wanrx'
+
+config script
+	option enabled '1'
+	option param 'wtx'
+	option script 'wantx'
+
+config script
+	option enabled '1'
+	option param 'wanuptime'
+	option script 'wanuptime'
+
+config script
+	option enabled '1'
+	option param 'clients'
+	option script 'wlanclients'
+

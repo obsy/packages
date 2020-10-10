@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Device model"
+else
+	cat /tmp/sysinfo/model
+fi
+exit 0

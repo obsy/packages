@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "WAN protocol"
+else
+	ifstatus wan | jsonfilter -q -e @.proto | xargs
+fi
+exit 0

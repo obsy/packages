@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Uploaded data on WAN"
+else
+	IFNAME=$(ifstatus wan | jsonfilter -q -e '@.l3_device')
+	[ -z "$IFNAME" ] && exit 0
+	cat /sys/class/net/$IFNAME/statistics/tx_bytes
+fi
+exit 0

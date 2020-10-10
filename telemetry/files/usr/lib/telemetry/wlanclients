@@ -1,0 +1,13 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Connected WiFi clients"
+else
+	IFACES=$(ubus call network.wireless  status | jsonfilter -q -e '@.*.interfaces[*].ifname')
+	ALL=0
+	for i in $IFACES; do
+		CNT=$(iw dev $i station dump | grep -c Station)
+		ALL=$((ALL+CNT))
+	done
+	echo "$ALL"
+fi
+exit 0

@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Modem QMI - RSSI"
+else
+	PORT=$(uci -q get network.wan.device)
+
+	uqmi -d $PORT --get-signal-info | jsonfilter -q -e '@.rssi'
+fi
+exit 0

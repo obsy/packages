@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "System version"
+else
+	awk -F= '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release | xargs
+fi
+exit 0

@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Load 5m"
+else
+	awk '{printf "%s", $2}' /proc/loadavg
+fi
+exit 0

@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Device name"
+else
+	cat /proc/sys/kernel/hostname
+fi
+exit 0

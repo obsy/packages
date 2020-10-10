@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Tracked connections"
+else
+	cat /proc/sys/net/netfilter/nf_conntrack_count
+fi
+exit 0

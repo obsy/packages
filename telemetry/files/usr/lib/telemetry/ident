@@ -1,0 +1,8 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Device ID"
+else
+	grep -q br-lan /proc/net/dev && IF=br-lan || IF=eth0
+	md5sum /sys/class/net/$IF/address | cut -f1 -d" "
+fi
+exit 0
