@@ -581,7 +581,7 @@ echo ']}'
 
 show_clientslogs() {
 echo '{"result":['
-T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | awk '
+T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | tail -n 3000 | awk '
 /AP-STA-CONNECTED/ {MAC[$1]=$6; WIFI[$6]=$1; EVENT[$1]="connect"; DESC[$1]=$4}
 /DHCPACK\(/ {if(WIFI[$6]!=0){DHCP[WIFI[$6]]=$7; NAME[$6]=$7}}
 /AP-STA-DISCONNECTED/ {MAC[$1]=$6; WIFI[$6]=0; EVENT[$1]="disconnect"; DHCP[$1]=NAME[$6]; NAME[$6]=""; DESC[$1]=$4}
