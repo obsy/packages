@@ -29,11 +29,16 @@ handle_script() {
 	config_get script "$config" script
 	if [ -e "$RES/$script" ]; then
 		value=$("$RES/$script")
+		lines=$(echo "$value" | wc -l)
 		config_get param "$config" param
 		case "$type" in
 			"get" | "post")
 				[ "x$DATA" = "x" ] || DATA="${DATA}&"
-				DATA="${DATA}${param}=${value}"
+				if [ $lines -le 1 ]; then
+					DATA="${DATA}${param}=${value}"
+				else
+					DATA="${DATA}${param}="$(echo "$value" | tr '\n' '|' | sed 's/|$//')
+				fi
 				;;
 			"mqtt")
 				if [ "x$DATA" = "x" ]; then
@@ -41,7 +46,15 @@ handle_script() {
 				else
 					json_load "$(echo "$DATA")"
 				fi
-				json_add_string "${param}" "${value}"
+				if [ $lines -le 1 ]; then
+					json_add_string "${param}" "${value}"
+				else
+					json_add_array "${param}"
+					for line in $value; do
+						json_add_string "" "${line}"
+					done
+					json_close_array
+				fi
 				DATA=$(json_dump)
 				;;
 		esac
