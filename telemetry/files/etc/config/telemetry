@@ -29,6 +29,11 @@ config script
 	option script 'freememory'
 
 config script
+	option enabled '0'
+	option param 'location'
+	option script 'gps'
+
+config script
 	option enabled '1'
 	option param 'hostname'
 	option script 'hostname'
@@ -40,16 +45,21 @@ config script
 
 config script
 	option enabled '1'
+	option param 'load'
+	option script 'load'
+
+config script
+	option enabled '0'
 	option param 'l15'
 	option script 'load15m'
 
 config script
-	option enabled '1'
+	option enabled '0'
 	option param 'l1'
 	option script 'load1m'
 
 config script
-	option enabled '1'
+	option enabled '0'
 	option param 'l5'
 	option script 'load5m'
 
@@ -74,12 +84,17 @@ config script
 	option script 'wanproto'
 
 config script
-	option enabled '1'
+	option enabled '0'
 	option param 'wrx'
 	option script 'wanrx'
 
 config script
 	option enabled '1'
+	option param 'transfer'
+	option script 'wantransfer'
+
+config script
+	option enabled '0'
 	option param 'wtx'
 	option script 'wantx'
 

@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "GPS"
+else
+	ubus call gps info | jsonfilter -e '@.latitude' -e '@.longitide'
+fi
+exit 0
