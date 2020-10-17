@@ -1405,7 +1405,7 @@ function bandwidthcallback(val) {
 	document.getElementById('bandwidth_bytes').style.fontWeight = val ? 700 : 400;
 }
 
-function showbandwidth() {
+function showbandwidth(mac) {
 	var html = '';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Wysłano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Pobrano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
@@ -1423,22 +1423,52 @@ function showbandwidth() {
 	var bandwidth_max = []; bandwidth_max['tx'] = 0; bandwidth_max['rx'] = 0;
 	var bandwidth_legend = [{color:'green',elements:['bandwidth_speed_label_tx','bandwidth_speed_tx','bandwidth_speed_max_tx']},{color:'blue',elements:['bandwidth_speed_label_rx','bandwidth_speed_rx','bandwidth_speed_max_rx']}];
 	livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
-	if (config.wan_ifname != '') {
+	if (config.wan_ifname != '' || mac) {
 		bandwidthcallback(false);
 		bandwidthID = setInterval(function() {
 			var e = document.getElementById('bandwidth_all_tx');
 			if (!e || e.offsetParent === null) {
 				clearInterval(bandwidthID);
-				setValue('wan_tx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_old['tx']) + '</span>');
-				setValue('wan_rx', '<span class="click" onclick="showbandwidth();">' + bytesToSize(bandwidth_old['rx']) + '</span>');
+				if (mac == '') {
+					setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
+					setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
+				} else {
+					for (var idx = 0; idx < wlanclients.length; idx++) {
+						if (wlanclients[idx].mac == mac && wlanclients[idx].active) {
+							wlanclients[idx].tx = bandwidth_old['tx'];
+							wlanclients[idx].rx = bandwidth_old['rx'];
+							wlanclientscallback('');
+							break;
+						}
+					}
+				}
 				return;
 			}
-			ubus_call_nomsg('"network.device", "status", {"name":"' + config.wan_ifname + '"}', function(data) {
-				setValue('bandwidth_all_tx', bytesToSize(data.statistics.tx_bytes));
-				setValue('bandwidth_all_rx', bytesToSize(data.statistics.rx_bytes));
+			var source = '';
+			if (mac == '') {
+				source = '"network.device", "status", {"name":"' + config.wan_ifname + '"}';
+			} else {
+				source = '"easyconfig", "clientbandwidth", {"mac":"' + mac + '"}';
+			}
+			ubus_call_nomsg(source, function(data) {
+				var tx = 0;
+				var rx = 0;
+				if (mac == '') {
+					tx = data.statistics.tx_bytes;
+					rx = data.statistics.rx_bytes;
+				} else {
+					for (var idx = 0; idx < data.result.length; idx++) {
+						tx += data.result[idx].tx_bytes;
+						rx += data.result[idx].rx_bytes;
+					}
+				}
+				setValue('bandwidth_all_tx', bytesToSize(tx));
+				setValue('bandwidth_all_rx', bytesToSize(rx));
 				if (bandwidth_old['tx'] != -1) {
-					var dtx = data.statistics.tx_bytes - bandwidth_old['tx'];
-					var drx = data.statistics.rx_bytes - bandwidth_old['rx'];
+					var dtx = tx - bandwidth_old['tx'];
+					var drx = rx - bandwidth_old['rx'];
+					if (dtx < 0) { dtx = 0; }
+					if (drx < 0) { drx = 0; }
 					setValue('bandwidth_speed_tx', convertToSpeed(dtx));
 					setValue('bandwidth_speed_rx', convertToSpeed(drx));
 					if (dtx > bandwidth_max['tx']) { bandwidth_max['tx'] = dtx; }
@@ -1454,8 +1484,8 @@ function showbandwidth() {
 					}
 					livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
 				}
-				bandwidth_old['tx'] = data.statistics.tx_bytes;
-				bandwidth_old['rx'] = data.statistics.rx_bytes;
+				bandwidth_old['tx'] = tx;
+				bandwidth_old['rx'] = rx;
 			});
 		}, 1000);
 	}
@@ -1468,8 +1498,8 @@ function showstatus() {
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time == '' ? '-' : formatDateTime(data.system_time));
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
-		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth();">' + bytesToSize(data.wan_rx) + '</span>');
-		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth();">' + bytesToSize(data.wan_tx) + '</span>');
+		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(data.wan_rx) + '</span>');
+		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.wan_uptime_since) + ')');
 		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
@@ -2439,8 +2469,8 @@ function hostinfo(id) {
 	html += createRowForModal('Producent', vendor);
 	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 	if (host.active) {
-		html += createRowForModal('Wysłano', bytesToSize(host.tx));
-		html += createRowForModal('Pobrano', bytesToSize(host.rx));
+		html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
+		html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.rx) + '</span>');
 		html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
 		html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
 		html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');

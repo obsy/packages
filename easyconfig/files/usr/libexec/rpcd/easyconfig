@@ -542,7 +542,7 @@ for R in $RADIOS; do
 		T1=$(echo "$T" | jsonfilter -q -e '@.*.config.hwmode')
 		[ "x$T1" = "x11a" ] && BAND=5 || BAND=2
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "\"mac\":\"%s\",\"tx\":%d,\"rx\":%d,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done
 	fi
 done
@@ -656,6 +656,25 @@ show_clientstatistics() {
 		fi
 	done
 	echo "]}"
+}
+
+show_clientbandwidth() {
+	read input;
+	json_load "$input"
+	json_get_var mac mac
+
+	echo '{"result":['
+
+	if [ -z "$mac" ]; then
+		echo ']}'
+		exit 0
+	fi
+
+	IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
+	for i in $IFNAMES; do
+		iw dev $i station get $mac 2>/dev/null | awk -v ifname=$i -v search=$mac '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3}} END for (w in station) {if(w == search){printf "{\"ifname\":\"%s\",\"tx_bytes\":%s,\"rx_bytes\":%s},", ifname, tx[w], rx[w]}}'
+	done
+	echo ']}'
 }
 
 ##############################################################################
@@ -1340,6 +1359,7 @@ case "$1" in
 		echo '"clients":{},'
 		echo '"clientslogs":{},'
 		echo '"clientstatistics":{"mac":"string"},'
+		echo '"clientbandwidth":{"mac":"string"},'
 		echo '"traffic":{},'
 		echo '"modem":{},'
 		echo '"ussd":{"code":"string"},'
@@ -1380,6 +1400,9 @@ case "$1" in
 				;;
 			clientstatistics)
 				show_clientstatistics
+				;;
+			clientbandwidth)
+				show_clientbandwidth
 				;;
 			traffic)
 				show_traffic
