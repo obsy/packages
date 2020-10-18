@@ -73,8 +73,8 @@ if [ -e $F ]; then
 fi
 
 if [ -n "$IFNAME" ]; then
-	WAN_RX=$(awk '/^[ ]*'$IFNAME':/{print $2}' /proc/net/dev)
-	WAN_TX=$(awk '/^[ ]*'$IFNAME':/{print $10}' /proc/net/dev)
+	WAN_RX=$(cat /sys/class/net/$IFNAME/statistics/rx_bytes)
+	WAN_TX=$(cat /sys/class/net/$IFNAME/statistics/tx_bytes)
 fi
 
 WLAN_CLIENTS=0
