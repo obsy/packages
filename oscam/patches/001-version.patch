@@ -1,6 +1,6 @@
 --- a/config.sh
 +++ b/config.sh
-@@ -698,11 +698,12 @@
+@@ -701,11 +701,12 @@
  		break
  	;;
  	'-r'|'--oscam-revision')
