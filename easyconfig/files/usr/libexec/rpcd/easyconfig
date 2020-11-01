@@ -840,7 +840,7 @@ show_queries() {
 	echo '{"result":['
 
 	T=$(logread -e "query\[A\]\|NXDOMAIN" | awk '
-$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ {gsub(":", "", $4);LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s%02d%02d%s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", NR, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
+$10 ~ /query\[A\]/ && $13 !~ /127.0.0.1/ && $13 !~ /::1/ {gsub(":", "", $4);LINE[$9]=sprintf("\"id\":%d,\"time\":\"%s%02d%02d%s\",\"query\":\"%s\",\"host\":\"%s\",\"nxdomain\":", NR, $5, (match("JanFebMarAprMayJunJulAugSepOctNovDec",$2)+2)/3, $3, $4, $11, $13); NXDOMAIN[$9]="false"}
 $13 ~ /NXDOMAIN/ {NXDOMAIN[$9]="true"}
 END {for (T in LINE) {printf "{%s%s},\n", LINE[T], NXDOMAIN[T]}}
 ')
