@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "WAN IP address"
+else
+	I=$(ubus call network.interface status '{"interface":"wan"}' | jsonfilter -e '@.l3_device')
+	[ -z "$I" ] && exit 0
+	ip -4 addr show dev $I | awk '/inet/{gsub(/\/.*/,""); print $2}'
+fi
+exit 0

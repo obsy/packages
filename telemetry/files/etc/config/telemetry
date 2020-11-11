@@ -79,6 +79,11 @@ config script
 	option script 'uptime'
 
 config script
+	option enabled '0'
+	option param 'ip'
+	option script 'wanpip'
+
+config script
 	option enabled '1'
 	option param 'proto'
 	option script 'wanproto'
