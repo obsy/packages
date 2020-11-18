@@ -3240,7 +3240,7 @@ function okremovetraffic() {
 	cmd.push('export K_J_V=$(echo \\\"${K_J_V}\\\" | sed \'s/ ' + mac + '//g\')');
 	cmd.push('json_close_object');
 	cmd.push('json_dump > \\\"$DB\\\"');
-	cmd.push('date -d \\\"2000-01-01 00:00:00\\\" \\\"$SDB\\\"');
+	cmd.push('touch -d \\\"2000-01-01 00:00:00\\\" \\\"$SDB\\\"');
 	cmd.push('rm \\\"$DB.lock\\\"');
 	cmd.push('/usr/bin/easyconfig_statistics.sh');
 	cmd.push('fi');
