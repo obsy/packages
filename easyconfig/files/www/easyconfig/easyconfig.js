@@ -1922,10 +1922,11 @@ function sitesurveycallback(sortby) {
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
 			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
-			html += (sorted[idx].encryption?'<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>':'');
+			html += (sorted[idx].encryption ? '<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>' : '');
 			var t = modes.indexOf(sorted[idx].mode1);
 			if (t > -1) {html += 'Wi-Fi ' + (t + 2) + ' ';}
 			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')';
+			html += (sorted[idx].uptime ? '<br><span class="hidden-vxs">Czas działania </span>' + formatDuration(sorted[idx].uptime, false) : '');
 			html += '</div></div>';
 		}
 		html += '<hr>';
