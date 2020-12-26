@@ -1354,6 +1354,17 @@ leds() {
 		/etc/init.d/led start >/dev/null 2>&1
 		. /etc/diag.sh
 		set_state done
+
+		BASE="/sys/firmware/devicetree/base/leds"
+		if [ -e "$BASE" ]; then
+			for i in $BASE/*; do
+				if [ -e "$i/linux,default-trigger" ]; then
+					LED="/sys/class/leds/"$(cat $i/label)"/trigger"
+					TRIGGER=$(cat $i/linux,default-trigger)
+					echo $TRIGGER > $LED
+				fi
+			done
+		fi
 	fi
 	echo '{"response":"done"}'
 }
