@@ -21,6 +21,7 @@ endef
 define Package/easyconfig/conffiles
 /etc/config/easyconfig
 /usr/lib/easyconfig/easyconfig_statistics.json.gz
+/etc/easyconfig_watchdog.user
 endef
 
 define Build/Compile

@@ -29,10 +29,12 @@ CNT=$((CNT-1))
 if [ $CNT -ge $4 ]; then
 	case "$5" in
 		"reboot")
+			[ -e /etc/easyconfig_watchdog.user ] && env -i ACTION="reboot" /bin/sh /etc/easyconfig_watchdog.user
 			logger -t $0 "Reboot"
 			ubus call easyconfig reboot
 			;;
 		"wan")
+			[ -e /etc/easyconfig_watchdog.user ] && env -i ACTION="wan" /bin/sh /etc/easyconfig_watchdog.user
 			logger -t $0 "WAN Restart"
 			(ifdown wan; sleep 5; ifup wan) &
 			;;
