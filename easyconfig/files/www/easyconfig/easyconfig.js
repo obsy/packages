@@ -3906,6 +3906,7 @@ function savenightmode() {
 		cmd.push('/usr/bin/easyconfig_nightmode.sh >/dev/null 2>&1');
 	} else {
 		cmd.push('killall sunwait >/dev/null 2>&1');
+		cmd.push('ubus call easyconfig leds \'{\\\"action\\\":\\\"on\\\"}\'');
 	}
 	cmd.push('/etc/init.d/cron restart');
 
