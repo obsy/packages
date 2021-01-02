@@ -19,17 +19,19 @@ T=$(sunwait -p $LAT $LON)
 SUNRISE=$(echo "$T" | awk '/Sun rises/{print $3}')
 SUNSET=$(echo "$T" | awk '/Sun rises/{print $6}')
 CURR=$(date +%H%M)
+OFF=0
 
-SCRUP=0
-SCRDOWN=0
-[ "$CURR" \< "$SUNRISE" ] && SCRUP=1
-[ "$CURR" \< "$SUNSET" ] && SCRDOWN=1
-
-if [ $SCRUP -eq 1 ]; then
+if [ "$CURR" \< "$SUNRISE" ]; then
+	OFF=1
 (sunwait sun up $LAT $LON && ubus call easyconfig leds '{"action":"on"}') &
 fi
-if [ $SCRDOWN -eq 1 ]; then
+
+if [ "$CURR" \< "$SUNSET" ]; then
 (sunwait sun down $LAT $LON && ubus call easyconfig leds '{"action":"off"}') &
+else
+	OFF=1
 fi
+
+[ $OFF -eq 1 ] && ubus call easyconfig leds '{"action":"off"}'
 
 exit 0
