@@ -65,6 +65,11 @@ config script
 
 config script
 	option enabled '0'
+	option param 'mac'
+	option script 'mac'
+
+config script
+	option enabled '0'
 	option param 'rssi'
 	option script 'modemuqmi'
 

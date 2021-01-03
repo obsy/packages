@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "x$1" = "xinfo" ]; then
+	echo "Device MAC"
+else
+	cat /sys/class/net/eth0/address
+fi
+exit 0
