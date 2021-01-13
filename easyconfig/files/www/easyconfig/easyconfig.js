@@ -2297,6 +2297,9 @@ function wlanclientscallback(sortby) {
 			if (!wlanclients[idx].active) {
 				wlanclients[idx].active_id = -1;
 				wlanclients[idx].ip = '';
+				wlanclients[idx].tx = 0;
+				wlanclients[idx].rx = 0;
+				wlanclients[idx].percent = 0;
 				continue;
 			} else {
 				wlanclients[idx].first_seen = '-';
