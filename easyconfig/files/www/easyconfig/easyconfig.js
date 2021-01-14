@@ -2431,7 +2431,7 @@ function wlanclientscallback(sortby) {
 						var e = document.getElementById('div_wlanclients_pie_tooltip');
 						e.style.top = (positionInfo.y + y + 15) + 'px';
 						e.style.left = (positionInfo.x + x + 15) + 'px';
-						setValue('div_wlanclients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].tx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
+						setValue('div_wlanclients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
 						setDisplay('div_wlanclients_pie_tooltip', true);
 						break;
 					}
