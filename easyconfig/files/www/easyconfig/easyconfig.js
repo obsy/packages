@@ -2254,7 +2254,7 @@ function wlanclientscallback(sortby) {
 	if (sortby == '') {
 		sortby = 'displayname';
 		if (filterby == 'active') {
-			all = ['displayname', 'tx', 'rx', 'percent'];
+			all = ['displayname', 'tx', 'rx', 'percent', 'connected'];
 		} else {
 			all = ['displayname', 'mac', 'last_seen'];
 		}
@@ -2285,12 +2285,18 @@ function wlanclientscallback(sortby) {
 		if (filterby == 'active') {
 			html += '<span class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></span>|';
 			html += '<span class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></span>';
+			html += '<span class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></span>|';
+			html += '<span class="click" onclick="wlanclientscallback(\'connected\');"><span id="wlanclients_sortby_connected"> czasie połączenia </span></span>';
 		} else {
 			html += '<span class="click" onclick="wlanclientscallback(\'mac\');"><span id="wlanclients_sortby_mac"> MAC </span></span>|';
 			html += '<span class="click" onclick="wlanclientscallback(\'last_seen\');"><span id="wlanclients_sortby_last_seen"> ostatniej widoczności </span></span>';
 		}
 		html += '</div></div>';
+
+		if (filterby == 'active') {
+			html += '<div id="div_wlanclients_pie"><canvas id="wlanclients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu</em></small></div></div>';
+			html += '<div id="div_wlanclients_pie_tooltip" class="tooltip"></div>';
+		}
 
 		var total = 0;
 		for (var idx = 0; idx < wlanclients.length; idx++) {
@@ -2300,6 +2306,7 @@ function wlanclientscallback(sortby) {
 				wlanclients[idx].tx = 0;
 				wlanclients[idx].rx = 0;
 				wlanclients[idx].percent = 0;
+				wlanclients[idx].connected = 0;
 				continue;
 			} else {
 				wlanclients[idx].first_seen = '-';
@@ -2336,9 +2343,9 @@ function wlanclientscallback(sortby) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].displayname) + '">&#9608</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu' + '</div>';
+				html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				html += '</div>';
 				any_active = true;
 			} else {
@@ -2364,7 +2371,7 @@ function wlanclientscallback(sortby) {
 	setValue('div_wlanclients_content', html);
 
 	if (wlanclients.length > 0) {
-		all = ['displayname', 'tx', 'rx', 'percent', 'mac', 'last_seen'];
+		all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'mac', 'last_seen'];
 		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
 			if (e === null) {
@@ -2377,6 +2384,62 @@ function wlanclientscallback(sortby) {
 		setValue('wlanclients_filter_active', ' aktywni (' + counter_active + ') ');
 		setValue('wlanclients_filter_all', ' wszyscy (' + counter_all + ') ');
 		wlanclientscallbackfilter(filterby);
+
+		if (filterby == 'active') {
+			var canvas = document.getElementById('wlanclients_pie');
+			var ctx = canvas.getContext('2d');
+			var previousRadian = 1.5 * Math.PI;
+			var positionInfo = document.getElementById('div_wlanclients_pie').getBoundingClientRect();
+			canvas.width = positionInfo.width;
+			var middle = {
+				x: canvas.width / 2,
+				y: canvas.height / 2,
+				radius: (Math.min(canvas.width, canvas.height) / 2) - 10,
+			};
+
+			ctx.strokeStyle = 'white';
+			for (var idx = 0; idx < sorted.length; idx++) {
+				if (!sorted[idx].active) { continue; }
+				ctx.fillStyle = string2color(sorted[idx].displayname);
+				radian = (2 * Math.PI) * ((sorted[idx].tx + sorted[idx].rx) / total);
+				ctx.beginPath();
+				ctx.moveTo(middle.x, middle.y);
+				ctx.arc(middle.x, middle.y, middle.radius, previousRadian, previousRadian + radian, false);
+				ctx.closePath();
+				ctx.fill();
+				ctx.stroke();
+				previousRadian += radian;
+			}
+
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.arc(middle.x, middle.y, middle.radius, 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.stroke();
+
+			var wlanclients_pie_tooltip = function (e) {
+				const rect = this.getBoundingClientRect();
+				const x = e.clientX - rect.left;
+				const y = e.clientY - rect.top;
+				var c = this.getContext('2d');
+				var p = c.getImageData(x, y, 1, 1).data;
+				var hex = rgb2hex('rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')');
+				setDisplay('div_wlanclients_pie_tooltip', false);
+				for (var idx = 0; idx < sorted.length; idx++) {
+					if (!sorted[idx].active) { continue; }
+					if (string2color(sorted[idx].displayname) == hex) {
+						var e = document.getElementById('div_wlanclients_pie_tooltip');
+						e.style.top = (positionInfo.y + y + 15) + 'px';
+						e.style.left = (positionInfo.x + x + 15) + 'px';
+						setValue('div_wlanclients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].tx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
+						setDisplay('div_wlanclients_pie_tooltip', true);
+						break;
+					}
+				}
+			};
+
+			document.getElementById('wlanclients_pie').addEventListener('mousemove', wlanclients_pie_tooltip, false);
+		}
 	}
 }
 

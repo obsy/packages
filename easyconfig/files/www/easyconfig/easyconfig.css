@@ -434,3 +434,15 @@ h3 {
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
 }
+
+.tooltip {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  border: 1px solid black;
+  padding: 3px;
+  background-color: #ccc;
+  opacity: 0.9;
+  box-shadow: 5px 5px 5px;
+}
