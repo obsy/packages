@@ -2343,7 +2343,7 @@ function wlanclientscallback(sortby) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].displayname) + '">&#9608</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				html += '</div>';
@@ -2400,7 +2400,7 @@ function wlanclientscallback(sortby) {
 			ctx.strokeStyle = 'white';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				if (!sorted[idx].active) { continue; }
-				ctx.fillStyle = string2color(sorted[idx].displayname);
+				ctx.fillStyle = string2color(sorted[idx].mac);
 				radian = (2 * Math.PI) * ((sorted[idx].tx + sorted[idx].rx) / total);
 				ctx.beginPath();
 				ctx.moveTo(middle.x, middle.y);
@@ -2427,7 +2427,7 @@ function wlanclientscallback(sortby) {
 				setDisplay('div_wlanclients_pie_tooltip', false);
 				for (var idx = 0; idx < sorted.length; idx++) {
 					if (!sorted[idx].active) { continue; }
-					if (string2color(sorted[idx].displayname) == hex) {
+					if (string2color(sorted[idx].mac) == hex) {
 						var e = document.getElementById('div_wlanclients_pie_tooltip');
 						e.style.top = (positionInfo.y + y + 15) + 'px';
 						e.style.left = (positionInfo.x + x + 15) + 'px';

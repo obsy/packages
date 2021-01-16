@@ -446,3 +446,7 @@ h3 {
   opacity: 0.9;
   box-shadow: 5px 5px 5px;
 }
+
+.darkmode .tooltip {
+  color: black;
+}
