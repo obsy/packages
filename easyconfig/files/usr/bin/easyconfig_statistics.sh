@@ -128,7 +128,8 @@ fi
 json_dump > $DB
 
 PERIOD=$(uci -q get easyconfig.global.datarec_period)
-[ -z "$PERIOD" ] && PERIOD=15
+[ -z "$PERIOD" ] && PERIOD=0
+[ "$PERIOD" = "0" ] && exit 0
 NOW=$(date +%s)
 if [ -e "$SDB" ]; then
 	DBTS=$(date +%s -r "$SDB")
