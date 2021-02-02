@@ -86,6 +86,38 @@ function removeRadio()
 	execute(commands)
 }
 
+function mute()
+{
+	this.firstChild.data = (this.firstChild.data == "Mute" ? "Unmute" : "Mute");
+	var name = this.parentNode.parentNode.firstChild.firstChild.data;
+
+	var commands = [];
+	commands.push("amixer set " + name + " toggle");
+
+	setControlsEnabled(false, true, UI.Wait);
+	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		setControlsEnabled(true);
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction)
+}
+
+function changerange()
+{
+	var name = this.parentNode.parentNode.firstChild.firstChild.data;
+	var commands = [];
+	commands.push("amixer set " + name + " " + this.value);
+
+	setControlsEnabled(false, true, UI.Wait);
+	var param = getParameterDefinition("commands", commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		setControlsEnabled(true);
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction)
+}
+
 function resetData()
 {
 	var TableData = []
@@ -104,13 +136,47 @@ function resetData()
 		TableData.push(rowData)
 	}
 
-	var Table = createTable([ iradio.Radio, ""], TableData, "iradio_table", false, false)
+	var Table = createTable([iradio.Radio, "", ""], TableData, "iradio_table", false, false);
 	var tableContainer = document.getElementById("iradio_table_container");
 	while(tableContainer.firstChild != null)
 	{
 		tableContainer.removeChild(tableContainer.firstChild);
 	}
 	tableContainer.appendChild(Table);
+
+	if (controls.length > 0) {
+		var TableControls = [];
+
+		for(idx=0; idx < controls.length; idx++)
+		{
+			var rowData = []
+			rowData.push(controls[idx].name);
+
+			var muteButton = createInput("button");
+			muteButton.textContent = (controls[idx].sound == "[on]" ? "Mute" : "Unmute");
+			muteButton.className="btn btn-default";
+			muteButton.onclick = mute;
+			rowData.push(muteButton);
+
+			var range = createInput("range");
+			range.onchange = changerange;
+			range.min = controls[idx].min;
+			range.max = controls[idx].max;
+			range.value = controls[idx].current;
+			range.step = 1;
+			rowData.push(range);
+
+			TableControls.push(rowData)
+		}
+
+		var Table = createTable([], TableControls, "iradio_controls", false, false);
+		var tableContainer = document.getElementById("iradio_controls_container");
+		while(tableContainer.firstChild != null)
+		{
+			tableContainer.removeChild(tableContainer.firstChild);
+		}
+		tableContainer.appendChild(Table);
+	}
 }
 
 function stopMusic()

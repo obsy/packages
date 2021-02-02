@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_iradio
-PKG_VERSION:=20140308-1
+PKG_VERSION:=20210202
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -13,7 +13,7 @@ define Package/plugin-gargoyle-iradio
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=iradio for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
-	DEPENDS:=+gargoyle +madplay-alsa +kmod-usb-audio
+	DEPENDS:=+gargoyle +madplay-alsa +kmod-usb-audio +alsa-utils
 	PKGARCH:=all
 endef
 
