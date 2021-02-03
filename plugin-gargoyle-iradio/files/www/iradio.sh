@@ -33,7 +33,7 @@ amixer | awk '{if($0 ~ /Simple mixer control/){gsub(/Simple mixer control '\''/,
 			<div class="panel-body">
 				<div class="row form-group">
 					<span class="col-xs-12"><div><button class="btn btn-default" id="stop_music_button" onclick="stopMusic()" /><%~ StopMusic %></button></div><p></p></span>
-					<span class="col-xs-12"><div id="iradio_controls_container" style="margin-left:5px;" ></div></span>
+					<span class="col-xs-12"><div id="iradio_controls_container"></div></span>
 				</div>
 			</div>
 		</div>

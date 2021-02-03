@@ -156,6 +156,7 @@ function resetData()
 			muteButton.textContent = (controls[idx].sound == "[on]" ? "Mute" : "Unmute");
 			muteButton.className="btn btn-default";
 			muteButton.onclick = mute;
+			muteButton.setAttribute('style', 'width: 70px');
 			rowData.push(muteButton);
 
 			var range = createInput("range");
