@@ -107,22 +107,29 @@ case $(cat /tmp/sysinfo/board_name) in
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
 		;;
-	"ravpower,wd03")
-		if [ -e /usr/sbin/wd03-battery ]; then
+	"ravpower,wd03"|\
+	"ravpower,rp-wd03")
+		if [ -e /usr/bin/ravpower-mcu ]; then
+			if [ $(ravpower-mcu battery-charging) = "0" ]; then
+				CHARGING="Nie"
+			else
+				CHARGING="Tak"
+			fi
+			BATTERY_LEVEL=$(ravpower-mcu battery-charge)
+			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+		elif [ -e /usr/sbin/wd03-battery ]; then
 			T=$(/usr/sbin/wd03-battery)
 			CHARGING=$(echo "$T" | awk -F= '/charging/{if ($2 == "no") {print "Nie"} else {print "Tak"}}')
 			BATTERY_LEVEL=$(echo "$T" | awk -F= '/battery_level/{print $2}')
 			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
-		else
-			if [ -f /usr/sbin/i2cset ] && [ -f /usr/sbin/i2cget ]; then
-				if [ $(i2cset -y 0 0x0a 0x0a 0x01 && i2cget -y 0 0x0a 0x0a) = 0x40 ]; then
-					CHARGING="Tak"
-				else
-					CHARGING="Nie"
-				fi
-				BATTERY_LEVEL=$(i2cset -y 0 0x0a 0x0a 0x10 && i2cget -y 0 0x0a 0x0a | xargs printf %d)
-				echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+		elif [ -f /usr/sbin/i2cset ] && [ -f /usr/sbin/i2cget ]; then
+			if [ $(i2cset -y 0 0x0a 0x0a 0x01 && i2cget -y 0 0x0a 0x0a) = 0x40 ]; then
+				CHARGING="Tak"
+			else
+				CHARGING="Nie"
 			fi
+			BATTERY_LEVEL=$(i2cset -y 0 0x0a 0x0a 0x10 && i2cget -y 0 0x0a 0x0a | xargs printf %d)
+			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		fi
 		;;
 esac
