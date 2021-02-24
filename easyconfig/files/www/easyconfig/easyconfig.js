@@ -1880,6 +1880,16 @@ function sitesurveycallback(sortby) {
 		html += '<span class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></span>|';
 		html += '<span class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></span>';
 		html += '</div></div>';
+		html += '<hr>';
+		html += '<div class="row" id="div_channels2" style="display:none">';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
+		html += '</div>';
+		html += '<div class="row" id="div_channels5" style="display:none">';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 5 GHz</h3></div>';
+		html += '<div class="col-xs-12" id="div_channels51"><canvas id="channels51" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels52"><canvas id="channels52" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels53"><canvas id="channels53" height="400"></canvas></div>';
+		html += '</div>';
 
 		var wlan_devices = config.wlan_devices;
 		var ts = Date.now()/1000;
@@ -1929,16 +1939,6 @@ function sitesurveycallback(sortby) {
 			html += (sorted[idx].uptime ? '<span class="hidden-vxs">Czas działania </span>' + formatDuration(sorted[idx].uptime, false) : '');
 			html += '</div></div>';
 		}
-		html += '<hr>';
-		html += '<div class="row" id="div_channels2" style="display:none">';
-		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
-		html += '</div>';
-		html += '<div class="row" id="div_channels5" style="display:none">';
-		html += '<div class="col-xs-12"><h3 class="section">Sieci 5 GHz</h3></div>';
-		html += '<div class="col-xs-12" id="div_channels51"><canvas id="channels51" height="400"></canvas></div>';
-		html += '<div class="col-xs-12" id="div_channels52"><canvas id="channels52" height="400"></canvas></div>';
-		html += '<div class="col-xs-12" id="div_channels53"><canvas id="channels53" height="400"></canvas></div>';
-		html += '</div>';
 	} else {
 		html += '<div class="alert alert-warning">Brak sieci bezprzewodowych lub Wi-Fi jest wyłączone</div>';
 	}
