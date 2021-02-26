@@ -2411,7 +2411,7 @@ function wlanclientscallback(sortby) {
 				previousRadian += radian;
 			}
 
-			ctx.strokeStyle = 'black';
+			ctx.strokeStyle = (getCookie('easyconfig_darkmode') == '1' ? 'white' : 'black');
 			ctx.beginPath();
 			ctx.arc(middle.x, middle.y, middle.radius, 0, 2 * Math.PI);
 			ctx.closePath();
