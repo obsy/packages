@@ -1261,7 +1261,9 @@ show_adblock()
 	rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
 	if [ -s "$rtfile" ]; then
 		json_load "$(cat "${rtfile}" 2>/dev/null)"
-		json_select data
+		if json_is_a "data" object; then
+			json_select data
+		fi
 		json_get_var STATUS adblock_status
 		if [ -e /etc/adblock/adblock.sources.gz ]; then
 			json_get_var DOMAINS blocked_domains
