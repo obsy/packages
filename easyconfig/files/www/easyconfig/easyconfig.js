@@ -2444,10 +2444,23 @@ function wlanclientscallback(sortby) {
 }
 
 var logs;
+var logs_hosts = [];
 
 function showclientslogs() {
 	ubus_call('"easyconfig", "clientslogs", {}', function(data) {
 		logs = sortJSON(data.result, 'id', 'desc');
+
+		var lookup = {};
+		var hosts = [];
+		for (var idx = 0; idx < logs.length; idx++) {
+			var mac = logs[idx].mac;
+			if (!(mac in lookup)) {
+				lookup[mac] = 1;
+				hosts.push({'mac': mac, 'username': logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)});
+			}
+		}
+		logs_hosts = sortJSON(hosts, 'username', 'asc');
+
 		clientslogscallback(0, 9);
 	});
 }
@@ -2459,33 +2472,61 @@ function timestampToDate(ts) {
 }
 
 function clientslogscallback(first, last) {
+	var selected = 'all'
+	var e = document.getElementById('clientslogs_hosts');
+	if (e != null) {
+		selected = e.options[e.selectedIndex].value;
+	}
+	var filtered = [];
+	if (selected == 'all') {
+		filtered = logs;
+	} else {
+		for (var idx = 0; idx < logs.length ; idx++) {
+			if (logs[idx].mac == selected) {
+				filtered.push(logs[idx]);
+			}
+		}
+	}
+
 	var html = '';
-	if (logs.length > 0) {
-		if (logs.length - 1 < last) { last = logs.length - 1; }
+	if (filtered.length > 0) {
+		html += '<div class="form-group row" id="div_clientslogs_hosts">';
+		html += '<div class="col-xs-12 col-sm-offset-6 col-sm-6"><select id="clientslogs_hosts" class="form-control" onchange="clientslogscallback(0,9);">';
+		html += '<option value="all">Wszyscy</option>';
+		for (var idx = 0; idx < logs_hosts.length; idx++) {
+			html += '<option value="' + logs_hosts[idx].mac + '">' + logs_hosts[idx].username + '</option>';
+		}
+		html += '</select></div></div>';
+
+		if (first < 0) { first = 0; }
+		if (filtered.length - 1 < last) { last = filtered.length - 1; }
 		for (var idx = first; idx <= last; idx++) {
 			var title = '';
-			if (logs[idx].desc !== '' && typeof logs[idx].desc.band !== 'undefined') {
-				title = 'Pasmo: ' + (logs[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + logs[idx].desc.ssid;
+			if (filtered[idx].desc !== '' && typeof filtered[idx].desc.band !== 'undefined') {
+				title = 'Pasmo: ' + (filtered[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + filtered[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
-			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(logs[idx].id)) + '</div>';
-			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (logs[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
-			html += '<div class="col-xs-12 col-sm-6">' + (logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)) + '</div>';
+			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(filtered[idx].id)) + '</div>';
+			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (filtered[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
+			html += '<div class="col-xs-12 col-sm-6">' + ((selected != 'all') ? title : (filtered[idx].username != '' ? filtered[idx].username : (filtered[idx].dhcpname != '' ? filtered[idx].dhcpname + ' / ' + filtered[idx].mac : filtered[idx].mac))) + '</div>';
 			html += '</div>';
 		}
 		html += '<div class="row">';
-		html += '<div class="col-xs-4 text-left"><p>' + (first + 1) + ' - ' + (last + 1) + ' z ' + logs.length + '</p></div>';
+		html += '<div class="col-xs-4 text-left"><p>' + (first + 1) + ' - ' + (last + 1) + ' z ' + filtered.length + '</p></div>';
 		html += '<div class="col-xs-8 text-right">';
 		html += '<span class="btn btn-default" onclick="clientslogscallback(0,9);">|&larr;</span>';
 		html += '<span class="btn btn-default" onclick="clientslogscallback(' + ((first - 10) < 0 ? '0,9' : (first - 10) + ',' + (first - 1)) + ');">&larr;</span>';
-		html += '<span class="btn btn-default" onclick="clientslogscallback(' + ((last + 10) > (logs.length - 1) ? (logs.length - 10) + ',' + (logs.length - 1) : (last + 1) + ',' + (last + 10))  + ');">&rarr;</span>';
-		html += '<span class="btn btn-default" onclick="clientslogscallback(' + (logs.length - 10) + ',' + (logs.length - 1) + ');">&rarr;|</span>';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(' + ((last + 10) > (filtered.length - 1) ? (filtered.length - 10) + ',' + (filtered.length - 1) : (last + 1) + ',' + (last + 10))  + ');">&rarr;</span>';
+		html += '<span class="btn btn-default" onclick="clientslogscallback(' + (filtered.length - 10) + ',' + (filtered.length - 1) + ');">&rarr;|</span>';
 		html += '</div>';
 		html += '</div>';
 	} else {
 		html += '<div class="alert alert-warning">Brak historii połączeń</div>';
 	}
 	setValue('div_clientslogs_content', html);
+	if (filtered.length > 0) {
+		setValue('clientslogs_hosts', selected);
+	}
 }
 
 function hostmenu(id) {
@@ -2975,28 +3016,64 @@ function hostremovedata(id) {
 
 /*****************************************************************************/
 
+var queries;
+var queries_hosts = [];
+
 function showqueries() {
 	ubus_call('"easyconfig", "queries", {}', function(data) {
 		queries = data.result;
+
+		var lookup = {};
+		var hosts = [];
+		for (var idx = 0; idx < queries.length; idx++) {
+			if (!(queries[idx].host in lookup)) {
+				lookup[queries[idx].host] = 1;
+				hosts.push({'host': queries[idx].host});
+			}
+		}
+		queries_hosts = sortJSON(hosts, 'host', 'asc');
+
 		queriescallback('id', 'desc');
 	});
 }
 
-var queries;
-
 function queriescallback(sortby, order) {
-	var html = '';
-	if (queries.length > 0) {
+	var selected = 'all'
+	var e = document.getElementById('queries_hosts');
+	if (e != null) {
+		selected = e.options[e.selectedIndex].value;
+	}
+	var filtered = [];
+	if (selected == 'all') {
+		filtered = queries;
+	} else {
+		for (var idx = 0; idx < queries.length ; idx++) {
+			if (queries[idx].host == selected) {
+				filtered.push(queries[idx]);
+			}
+		}
+	}
 
-		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań</label><div class="col-xs-6"><p>' + queries.length + '</p></div></div>';
+	var html = '';
+	if (filtered.length > 0) {
+
+		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań</label><div class="col-xs-6"><p>' + filtered.length + '</p></div></div>';
 		var cnt = 0;
-		for (var idx = 0; idx < queries.length; idx++) {
-			if (queries[idx].nxdomain) {
+		for (var idx = 0; idx < filtered.length; idx++) {
+			if (filtered[idx].nxdomain) {
 				cnt ++;
 			}
 		}
-		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</label><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / queries.length) + '%)</small></p></div></div>';
+		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</label><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / filtered.length) + '%)</small></p></div></div>';
 		html += '<hr>'
+
+		html += '<div class="form-group row" id="div_queries_hosts">';
+		html += '<div class="col-xs-offset-6 col-xs-6 col-sm-offset-4 col-sm-4"><select id="queries_hosts" class="form-control" onchange="queriescallback(\'id\', \'desc\');">';
+		html += '<option value="all">Wszyscy</option>';
+		for (var idx = 0; idx < queries_hosts.length; idx++) {
+			html += '<option value="' + queries_hosts[idx].host + '">' + queries_hosts[idx].host + '</option>';
+		}
+		html += '</select></div></div>';
 
 		html += '<div class="row">';
 		html += '<div class="col-xs-6 col-sm-4"><span class="click" onclick="queriescallback(\'time\');"><span id="queries_sortby_time">Czas</span></span></div>';
@@ -3004,7 +3081,7 @@ function queriescallback(sortby, order) {
 		html += '<div class="col-xs-12 col-sm-4"><span class="click" onclick="queriescallback(\'query\');"><span id="queries_sortby_query">Zapytanie</span></span></div>';
 		html += '</div><hr>';
 
-		var sorted = sortJSON(queries, sortby, (order ? order : 'asc'));
+		var sorted = sortJSON(filtered, sortby, (order ? order : 'asc'));
 		for (var idx = 0; idx < sorted.length; idx++) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + formatDateTime(sorted[idx].time) + '</div>';
@@ -3031,6 +3108,7 @@ function queriescallback(sortby, order) {
 			var e = document.getElementById('queries_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
+		setValue('queries_hosts', selected);
 	}
 }
 
