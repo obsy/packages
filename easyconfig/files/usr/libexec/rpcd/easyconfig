@@ -1125,8 +1125,8 @@ upgrade() {
 		exit 0
 	fi
 
-	BOARD=$(cat /tmp/sysinfo/board_name)
-	T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS)
+	BOARD=$(sed 's/,/_/g' /tmp/sysinfo/board_name)
+	T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS | tail -n1)
 	rm $FSUMS >/dev/null 2>&1
 	if [ -z "$T" ]; then
 		echo '{"error":2}'
