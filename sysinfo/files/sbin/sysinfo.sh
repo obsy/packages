@@ -59,12 +59,8 @@ SEC=$(uci show network | awk -F[\.=] '/=interface/{print $2}')
 for i in $SEC; do
 	[ "x$i" = "xloopback" ] && continue
 	S=$i
+	[ -n "$(ubus list network.interface."$S"_4 2>/dev/null)" ] && S=$i"_4"
 	PROTO=$(uci -q get network."$i".proto)
-	case $PROTO in
-	qmi|ncm)
-		S=$i"_4"
-		;;
-	esac
 	IP=$(ubus call network.interface status '{"interface":"'$S'"}' 2>/dev/null | jsonfilter -q -e "@['ipv4-address'][0].address")
 	[ -z "$IP" ] && IP=$(uci -q -P /var/state get network."$S".ipaddr)
 	printf " | %-""$LINE""s |\n" "$i: $PROTO, ${IP:-"?"}"
