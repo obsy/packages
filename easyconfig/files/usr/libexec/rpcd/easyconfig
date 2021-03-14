@@ -46,7 +46,7 @@ json_get_var IFNAME l3_device
 json_get_var PROTO proto
 
 . /lib/functions/network.sh
-if [ "x$PROTO" = "xqmi" ] || [ "x$PROTO" = "xncm" ]; then
+if [ -n "$(ubus list network.interface.wan_4 2>/dev/null)" ]; then
 	network_get_ipaddr WAN_IPADDR wan_4
 else
 	network_get_ipaddr WAN_IPADDR wan
