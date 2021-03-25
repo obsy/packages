@@ -41,9 +41,7 @@
 	<div id="menu_pptp" style="display:none;">
 		<a href="#" onclick="btn_pages('pptp');"><i data-feather="shield" class="iconwithtext"></i>VPN</a>
 	</div>
-	<div id="menu_adblock" style="display:none;">
-		<a href="#" onclick="btn_pages('adblock');"><i data-feather="globe" class="iconwithtext"></i>Blokada domen</a>
-	</div>
+	<a href="#" onclick="btn_pages('adblock');"><i data-feather="globe" class="iconwithtext"></i>Blokada domen</a>
 	<a href="#" onclick="btn_pages('nightmode');"><i data-feather="moon" class="iconwithtext"></i>Tryb nocny</a>
 </div>
 
@@ -1272,6 +1270,7 @@
 
 	<h3 class="section">Blokada domen</h3>
 
+	<div id="div_adblock_adblock" style="display:none;">
 	<div class="row">
 		<label class="col-xs-6 text-right">Liczba blokowanych domen</label>
 		<div class="col-xs-6">
@@ -1309,6 +1308,27 @@
 			<input type="button" class="btn btn-primary" onclick="saveadblock();" value="Zapisz zmiany" />
 		</div>
 	</form>
+	</div>
+
+	<div id="div_adblock_easyconfig" style="display:none;">
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="adblock_enabled_easyconfig" class="col-xs-4 col-sm-3 control-label">Włączona</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="adblock_enabled_easyconfig" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="showadblock();" value="Odśwież" />
+			<input type="button" class="btn btn-primary" onclick="saveadblock_easyconfig();" value="Zapisz zmiany" />
+		</div>
+	</form>
+	</div>
 
 	<h3 class="section">Własna lista domen</h3>
 	<form class="form-horizontal">
@@ -1322,7 +1342,7 @@
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="whitelistdomain();" value="Zezwalaj" />
 			<input type="button" class="btn btn-default" onclick="blacklistdomain();" value="Blokuj" />
-			<input type="button" class="btn btn-default" onclick="checkdomain();" value="Sprawdź" />
+			<input type="button" class="btn btn-default" style="display:none;" id="adblock_btn_check" onclick="checkdomain();" value="Sprawdź" />
 		</div>
 	</form>
 	<h3 class="section">Domeny blokowane (czarna lista)</h3>

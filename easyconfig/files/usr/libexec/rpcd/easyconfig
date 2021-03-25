@@ -2,7 +2,7 @@
 
 ##############################################################################
 
-# (c) 2016-2020 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2021 Cezary Jackiewicz <cezary@eko.one.pl>
 
 ##############################################################################
 
@@ -1229,10 +1229,35 @@ adblock_source()
 	json_close_object
 }
 
+adblock_bwlist()
+{
+	json_add_array blacklist
+	F=$(uci -q get adblock.blacklist.adb_src)
+	[ -z "$F" ] && F=/etc/adblock/adblock.blacklist
+	if [ -s "$F" ]; then
+		while read line; do
+			json_add_string "" "$line"
+		done < $F
+	fi
+	json_close_array
+
+	json_add_array whitelist
+	F=/etc/adblock/adblock.whitelist
+	if [ -s "$F" ]; then
+		while read line; do
+			json_add_string "" "$line"
+		done < $F
+	fi
+	json_close_array
+}
+
 show_adblock()
 {
 	if [ ! -e /etc/config/adblock ]; then
-		echo '{"enabled":false}'
+		json_init
+		/etc/init.d/easyconfig_adblock enabled && json_add_boolean "enabled" 1 || json_add_boolean "enabled" 0
+		adblock_bwlist
+		json_dump
 		exit 0
 	fi
 
@@ -1291,25 +1316,7 @@ show_adblock()
 		json_close_array
 	fi
 
-	json_add_array blacklist
-	F=$(uci -q get adblock.blacklist.adb_src)
-	[ -z "$F" ] && F=/etc/adblock/adblock.blacklist
-	if [ -s "$F" ]; then
-		while read line; do
-			json_add_string "" "$line"
-		done < $F
-	fi
-	json_close_array
-
-	json_add_array whitelist
-	F=/etc/adblock/adblock.whitelist
-	if [ -s "$F" ]; then
-		while read line; do
-			json_add_string "" "$line"
-		done < $F
-	fi
-	json_close_array
-
+	adblock_bwlist
 	json_dump
 }
 

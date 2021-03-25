@@ -954,9 +954,6 @@ function showcallback(data) {
 	// pptp
 	setDisplay('menu_pptp', config.services.pptp);
 
-	// adblock
-	setDisplay('menu_adblock', config.services.adblock);
-
 	// nightmode / sunwait
 	setDisplay('div_nightmode_led_auto', config.services.sunwait);
 
@@ -3089,11 +3086,7 @@ function queriescallback(sortby, order) {
 			if (sorted[idx].nxdomain) {
 				html += '<div class="col-xs-12 col-sm-4 text-muted" title="brak domeny">' + sorted[idx].query + '</div>';
 			} else {
-				if (config.services.adblock) {
-					html += '<div class="col-xs-12 col-sm-4"><span class="click" onclick="queriesmenu(\'' + sorted[idx].query + '\');">' + sorted[idx].query + '</span></div>';
-				} else {
-					html += '<div class="col-xs-12 col-sm-4">' + sorted[idx].query + '</div>';
-				}
+				html += '<div class="col-xs-12 col-sm-4"><span class="click" onclick="queriesmenu(\'' + sorted[idx].query + '\');">' + sorted[idx].query + '</span></div>';
 			}
 			html += '</div>';
 		}
@@ -3836,50 +3829,56 @@ var adblock_lists;
 
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
-		var tmp = data.domains == '' ? '-' : data.domains
-		if (data.domains == '0') {
-			if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
-		}
-		setValue('adblock_domains', tmp);
-		setValue('adblock_enabled', data.enabled);
-		setValue('adblock_forcedns', data.forcedns);
-
-		adblock_lists = data.lists;
-		adblock_compressed_lists = data.compressed_lists;
-		var html = '';
-		if (adblock_lists.length > 0) {
-			html += '<h3 class="section">Źródła</h3>';
-		}
-		for (var i in adblock_lists) {
-			html += '<div class="form-group" id="div_adblock_' + adblock_lists[i].section + '">';
-			html += '<label for="adblock_' + adblock_lists[i].section + '" class="col-xs-4 col-sm-3 control-label">' + adblock_lists[i].section + '</label>';
-			html += '<div class="col-xs-8 col-sm-9">';
-			html += '<label class="switch">';
-			html += '<input id="adblock_' + adblock_lists[i].section + '" type="checkbox">';
-			html += '<div class="slider round"></div>';
-			html += '</label>';
-			if (adblock_compressed_lists) {
-				html += '<span class="hidden-xs control-label labelleft">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></span>';
-				html += '<div class="visible-xs">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></div>';
-			} else {
-				html += '<span class="hidden-xs control-label labelleft">' + adblock_lists[i].desc + '</span>';
-				html += '<div class="visible-xs">' + adblock_lists[i].desc + '</div>';
+		if (config.services.adblock) {
+			setDisplay('div_adblock_adblock', true);
+			document.getElementById('adblock_btn_check').style.display = 'inline-block';
+			var tmp = data.domains == '' ? '-' : data.domains
+			if (data.domains == '0') {
+				if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
 			}
-			html += '</div>';
-			if (adblock_lists[i].section == 'blacklist') {
-				if (!adblock_lists[i].enabled) {
-					if ((data.blacklist).length > 0) {
-						html += '<label class="col-xs-4 col-sm-3 control-label">&nbsp;</label>';
-						html += '<div class="col-xs-8 col-sm-9 alert alert-warning" style="margin-bottom:-5px !important;">UWAGA: lista jest wyłączona, ręcznie dodane domeny nie będą blokowane</div>';
+			setValue('adblock_domains', tmp);
+			setValue('adblock_enabled', data.enabled);
+			setValue('adblock_forcedns', data.forcedns);
+
+			adblock_lists = data.lists;
+			adblock_compressed_lists = data.compressed_lists;
+			var html = '';
+			if (adblock_lists.length > 0) {
+				html += '<h3 class="section">Źródła</h3>';
+			}
+			for (var i in adblock_lists) {
+				html += '<div class="form-group" id="div_adblock_' + adblock_lists[i].section + '">';
+				html += '<label for="adblock_' + adblock_lists[i].section + '" class="col-xs-4 col-sm-3 control-label">' + adblock_lists[i].section + '</label>';
+				html += '<div class="col-xs-8 col-sm-9">';
+				html += '<label class="switch">';
+				html += '<input id="adblock_' + adblock_lists[i].section + '" type="checkbox">';
+				html += '<div class="slider round"></div>';
+				html += '</label>';
+				if (adblock_compressed_lists) {
+					html += '<span class="hidden-xs control-label labelleft">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></span>';
+					html += '<div class="visible-xs">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></div>';
+				} else {
+					html += '<span class="hidden-xs control-label labelleft">' + adblock_lists[i].desc + '</span>';
+					html += '<div class="visible-xs">' + adblock_lists[i].desc + '</div>';
+				}
+				html += '</div>';
+				if (adblock_lists[i].section == 'blacklist') {
+					if (!adblock_lists[i].enabled) {
+						if ((data.blacklist).length > 0) {
+							html += '<label class="col-xs-4 col-sm-3 control-label">&nbsp;</label>';
+							html += '<div class="col-xs-8 col-sm-9 alert alert-warning" style="margin-bottom:-5px !important;">UWAGA: lista jest wyłączona, ręcznie dodane domeny nie będą blokowane</div>';
+						}
 					}
 				}
+				html += '</div>';
 			}
-			html += '</div>';
-		}
-		setValue('div_adblock_lists', html);
-		setDisplay('div_adblock_lists', true);
-		for (var i in adblock_lists) {
-			setValue('adblock_' + adblock_lists[i].section, adblock_lists[i].enabled);
+			setValue('div_adblock_lists', html);
+			setDisplay('div_adblock_lists', true);
+			for (var i in adblock_lists) {
+				setValue('adblock_' + adblock_lists[i].section, adblock_lists[i].enabled);
+			}
+		} else {
+			setDisplay('div_adblock_easyconfig', true);
 		}
 
 		html = '';
@@ -3938,6 +3937,20 @@ function saveadblock() {
 	execute(cmd, showadblock);
 }
 
+function saveadblock_easyconfig() {
+	var cmd = [];
+
+	if (getValue('adblock_enabled_easyconfig')) {
+		cmd.push('/etc/init.d/easyconfig_adblock enable');
+		cmd.push('/etc/init.d/easyconfig_adblock start');
+	} else {
+		cmd.push('/etc/init.d/easyconfig_adblock disable');
+		cmd.push('/etc/init.d/easyconfig_adblock stop');
+	}
+
+	execute(cmd, showadblock);
+}
+
 function checkdomain() {
 	if (!getValue('adblock_enabled')) {
 		showMsg("Blokada domen jest wyłączona. Nie można sprawdzić domeny");
@@ -3961,7 +3974,13 @@ function blacklistdomain() {
 	cmd.push('[ -z \\\"$F\\\" ] && F=/etc/adblock/adblock.blacklist');
 	cmd.push('mkdir -p $(dirname $F)');
 	cmd.push('echo \\\"' + domain + '\\\" >> $F');
-	cmd.push('/etc/init.d/adblock restart');
+	if (config.services.adblock) {
+		cmd.push('/etc/init.d/adblock restart');
+	} else {
+		if (getValue('adblock_enabled_easyconfig')) {
+			cmd.push('/etc/init.d/easyconfig_adblock start');
+		}
+	}
 
 	execute(cmd, function(){
 		setValue('adblock_domain', '');
@@ -3981,7 +4000,13 @@ function okremovefromblacklist() {
 	cmd.push('F=$(uci -q get adblock.blacklist.adb_src)');
 	cmd.push('[ -z \\\"$F\\\" ] && F=/etc/adblock/adblock.blacklist');
 	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
-	cmd.push('/etc/init.d/adblock restart');
+	if (config.services.adblock) {
+		cmd.push('/etc/init.d/adblock restart');
+	} else {
+		if (getValue('adblock_enabled_easyconfig')) {
+			cmd.push('/etc/init.d/easyconfig_adblock start');
+		}
+	}
 
 	execute(cmd, showadblock);
 }
@@ -3995,7 +4020,13 @@ function whitelistdomain() {
 	cmd.push('F=/etc/adblock/adblock.whitelist');
 	cmd.push('mkdir -p $(dirname $F)');
 	cmd.push('echo \\\"' + domain + '\\\" >> $F');
-	cmd.push('/etc/init.d/adblock restart');
+	if (config.services.adblock) {
+		cmd.push('/etc/init.d/adblock restart');
+	} else {
+		if (getValue('adblock_enabled_easyconfig')) {
+			cmd.push('/etc/init.d/easyconfig_adblock start');
+		}
+	}
 
 	execute(cmd, function(){
 		setValue('adblock_domain', '');
@@ -4014,7 +4045,13 @@ function okremovefromwhitelist() {
 	var cmd = [];
 	cmd.push('F=/etc/adblock/adblock.whitelist');
 	cmd.push('sed -i \\\"/^' + domain + '$/d\\\" \\\"$F\\\"');
-	cmd.push('/etc/init.d/adblock restart');
+	if (config.services.adblock) {
+		cmd.push('/etc/init.d/adblock restart');
+	} else {
+		if (getValue('adblock_enabled_easyconfig')) {
+			cmd.push('/etc/init.d/easyconfig_adblock start');
+		}
+	}
 
 	execute(cmd, showadblock);
 }
