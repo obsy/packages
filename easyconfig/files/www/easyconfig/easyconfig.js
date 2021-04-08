@@ -1127,6 +1127,7 @@ function savesettings() {
 	// lan
 	if (checkField('lan_ipaddr', validateIP)) {return;}
 	cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
+	cmd.push('uci set network.lan.netmask=' + config.lan_netmask);
 
 	if (getValue("lan_dhcp_enabled")) {
 		cmd.push('uci -q del dhcp.lan.ignore');

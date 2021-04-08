@@ -213,6 +213,14 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	fi
 fi
 
+if [ "x$WAN_PROTO" = "xstatic" ]; then
+	if echo "$WAN_IPADDR" | grep -q "/"; then
+		T=$(ipcalc.sh $WAN_IPADDR)
+		WAN_IPADDR=$(echo "$T" | awk -F= '/IP/{print $2}')
+		WAN_NETMASK=$(echo "$T" | awk -F= '/NETMASK/{print $2}')
+	fi
+fi
+
 if echo "$WAN_DNS" | grep -q " "; then
 	WAN_DNS1=$(echo $WAN_DNS | cut -f1 -d" ")
 	WAN_DNS2=$(echo $WAN_DNS | cut -f2 -d" ")
@@ -233,6 +241,13 @@ else
 fi
 
 LAN_IPADDR=$(uci -q get network.lan.ipaddr)
+LAN_NETMASK=$(uci -q get network.lan.netmask)
+if echo "$LAN_IPADDR" | grep -q "/"; then
+	T=$(ipcalc.sh $LAN_IPADDR)
+	LAN_IPADDR=$(echo "$T" | awk -F= '/IP/{print $2}')
+	LAN_NETMASK=$(echo "$T" | awk -F= '/NETMASK/{print $2}')
+fi
+
 LAN_DHCP=$(uci -q get dhcp.lan.ignore)
 [ "x$LAN_DHCP" = "x1" ] && LAN_DHCP_ENABLED="false" || LAN_DHCP_ENABLED="true"
 
@@ -318,6 +333,7 @@ done
 echo "$O"'],'
 
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
+echo '"lan_netmask":"'$LAN_NETMASK'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}' | sort -u)
