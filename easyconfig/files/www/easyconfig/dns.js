@@ -2,7 +2,7 @@ var dns=[
 {"ip": ["8.8.8.8", "8.8.4.4"], "name": "Google", "url": "http://code.google.com/speed/public-dns/"},
 {"ip": ["208.67.222.222", "208.67.220.220"], "name": "OpenDNS", "url": "https://www.opendns.com/setupguide/"},
 {"ip": ["208.67.222.123", "208.67.220.123"], "name": "OpenDNS FamilyShield", "url": "https://www.opendns.com/setupguide/#familyshield"},
-{"ip": ["9.9.9.9"], "name": "Quad 9", "url": "https://www.quad9.net/"},
+{"ip": ["9.9.9.9", "149.112.112.112"], "name": "Quad 9", "url": "https://www.quad9.net/"},
 {"ip": ["94.140.14.14", "94.140.15.15"], "name": "AdGuard DNS Default", "url": "https://adguard.com/en/adguard-dns/overview.html"},
 {"ip": ["94.140.14.15", "94.140.15.16"], "name": "AdGuard DNS Family protection", "url": "https://adguard.com/en/adguard-dns/overview.html"},
 {"ip": ["8.26.56.26", "8.20.247.20"], "name": "Comodo Secure DNS", "url": "https://www.comodo.com/secure-dns/"},
