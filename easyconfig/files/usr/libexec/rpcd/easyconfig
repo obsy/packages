@@ -332,6 +332,12 @@ for tty in $ttys; do
 done
 echo "$O"'],'
 
+if uci -q get dhcp.lan.dhcp_option | grep -q ANDROID_METERED; then
+	echo '"wan_metered":true,'
+else
+	echo '"wan_metered":false,'
+fi
+
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_netmask":"'$LAN_NETMASK'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','

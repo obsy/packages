@@ -426,10 +426,10 @@ function enableWan(proto) {
 
 	var fields = [];
 	if (proto == "static") {
-		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2"];
+		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2","wan_metered"];
 	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
-		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode"];
+		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
 
 		removeOptions('wan_modem_mode');
 		var t;
@@ -454,7 +454,7 @@ function enableWan(proto) {
 		fields.push("wan_wanport");
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode","wan_wanport"];
+	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode","wan_wanport","wan_metered"];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -836,6 +836,7 @@ function showcallback(data) {
 	}
 	enableWan(getValue('wan_proto'));
 	setValue('wan_modem_mode', config.wan_modem_mode);
+	setValue('wan_metered', config.wan_metered);
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
@@ -1073,6 +1074,11 @@ function savesettings() {
 
 	if (wan_type == 'none') {
 		cmd.push('uci -q del firewall.dmz');
+	}
+
+	cmd.push('uci del_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
+	if (getValue('wan_metered')) {
+		cmd.push('uci add_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
 	}
 
 	// dns
