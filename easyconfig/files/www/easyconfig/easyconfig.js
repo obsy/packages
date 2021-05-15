@@ -257,6 +257,7 @@ function removeOptions(element) {
 	for (var idx = e.options.length - 1 ; idx >= 0 ; idx--) {
 		e.remove(idx);
 	}
+	return e;
 }
 
 function cleanField(element) {
@@ -431,7 +432,7 @@ function enableWan(proto) {
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
 
-		removeOptions('wan_modem_mode');
+		var e = removeOptions('wan_modem_mode');
 		var t;
 		if (proto == '3g') {
 			t = {"":"Wg ustawień modemu","umts":"Wybór automatyczny 3G/2G","umts_only":"Tylko 3G (HSPA/UMTS)","gprs_only":"Tylko 2G (EDGE/GSM)"};
@@ -442,7 +443,6 @@ function enableWan(proto) {
 		if (proto == 'ncm') {
 			t = {"":"Wg ustawień modemu","auto":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
 		}
-		e = document.getElementById('wan_modem_mode');
 		for (key in t) {
 			var opt = document.createElement('option');
 			opt.value = key;
@@ -780,8 +780,7 @@ function showcallback(data) {
 //console.log(config);
 
 	// wan
-	removeOptions('wan_proto');
-	var e = document.getElementById('wan_proto');
+	var e = removeOptions('wan_proto');
 	var arr = config.wan_protos;
 	arr.push('-');
 	arr.push('detect');
@@ -793,8 +792,7 @@ function showcallback(data) {
 		e.appendChild(opt);
 	}
 
-	removeOptions('wan_device');
-	e = document.getElementById('wan_device');
+	e = removeOptions('wan_device');
 	var arr = config.wan_devices;
 	for (var idx = 0; idx<arr.length; idx++) {
 		var opt = document.createElement('option');
@@ -803,14 +801,13 @@ function showcallback(data) {
 		e.appendChild(opt);
 	}
 
-	removeOptions('wan_dns');
+	e = removeOptions('wan_dns');
 	var sorteddns = [];
 	sorteddns = sortJSON(dns, 'name', 'asc');
 	sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
 	if (config.services.stubby) {
 		sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
 	}
-	e = document.getElementById('wan_dns');
 	for (var idx = 0; idx < sorteddns.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = (sorteddns[idx].ip).sort();
@@ -875,8 +872,7 @@ function showcallback(data) {
 	for (var i = 0; i < radios.length; i++) {
 		is_radio2 = false;
 		is_radio5 = false;
-		removeOptions('wlan_channel' + i);
-		select = document.getElementById('wlan_channel' + i);
+		select = removeOptions('wlan_channel' + i);
 		obj = config[radios[i]].wlan_channels;
 		var opt = document.createElement('option');
 		opt.value = '0';
@@ -916,8 +912,7 @@ function showcallback(data) {
 		setValue('wlan_txpower' + i, txpower);
 		setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
 
-		removeOptions('wlan_encryption' + i);
-		var select = document.getElementById('wlan_encryption' + i);
+		var select = removeOptions('wlan_encryption' + i);
 		for (var propt in enc) {
 			var opt = document.createElement('option');
 			opt.value = propt;
@@ -960,8 +955,7 @@ function showcallback(data) {
 
 	// button
 	if (config.button.code != '') {
-		removeOptions('system_button');
-		select = document.getElementById('system_button');
+		select = removeOptions('system_button');
 		var opt = document.createElement('option');
 		opt.value = 'none';
 		opt.innerHTML = 'Brak akcji';
@@ -3503,8 +3497,7 @@ function readussdshortcuts() {
 		var arr = data.shortcuts;
 		if (arr.length > 0) {
 			setElementEnabled('ussd_shortcuts', true, false);
-			removeOptions('ussd_shortcuts');
-			var select = document.getElementById('ussd_shortcuts');
+			var select = removeOptions('ussd_shortcuts');
 			var opt = document.createElement('option');
 			opt.value = 'own';
 			opt.innerHTML = 'wybierz kod USSD';
@@ -3663,8 +3656,7 @@ function showpptp() {
 		document.getElementById('btn_uppptp').disabled = (data.proto == '' || data.server == '');
 		document.getElementById('btn_downpptp').disabled = (data.proto == '' || data.server == '');
 
-		removeOptions('pptp_profile');
-		e = document.getElementById('pptp_profile');
+		e = removeOptions('pptp_profile');
 		var opt = document.createElement('option');
 		opt.value = '';
 		opt.innerHTML = 'brak';
@@ -3683,8 +3675,7 @@ function showpptp() {
 		setValue('pptp_profile', selected);
 		selectVpn(selected, false);
 
-		removeOptions('pptp_led');
-		e = document.getElementById('pptp_led');
+		e = removeOptions('pptp_led');
 		opt = document.createElement('option');
 		opt.value = '';
 		opt.innerHTML = 'brak';
