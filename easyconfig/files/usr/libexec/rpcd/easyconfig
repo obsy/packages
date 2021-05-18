@@ -197,6 +197,8 @@ fi
 WAN_IFNAME_HILINK=$(grep -EHi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
 [ -z "$WAN_IFNAME_HILINK" ] && WAN_IFNAME_HILINK=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
 
+[ "x$WAN_IFNAME_DEFAULT" = "x$WAN_IFNAME_HILINK" ] && WAN_IFNAME_DEFAULT=""
+
 if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	. /lib/functions/network.sh
 	network_get_physdev WAN_IFNAME wan
@@ -254,11 +256,17 @@ LAN_DHCP=$(uci -q get dhcp.lan.ignore)
 WAN_DASHBOARD_URL=""
 if [ -n "$WAN_IFNAME_HILINK" ]; then
 	if [ -n "$WAN_GATEWAY" ]; then
+		# Huawei
 		if grep -q "usb:v12D1p" /sys/class/net/$WAN_IFNAME_HILINK/device/modalias 2>/dev/null; then
 			WAN_DASHBOARD_URL="http://$WAN_GATEWAY"
 		fi
+		# ZTE
 		if grep -q "usb:v19D2p" /sys/class/net/$WAN_IFNAME_HILINK/device/modalias 2>/dev/null; then
 			WAN_DASHBOARD_URL="http://$WAN_GATEWAY"
+		fi
+		# TP-Link Archer MR200
+		if grep -q "usb:v2357p000D" /sys/class/net/$WAN_IFNAME_HILINK/device/modalias 2>/dev/null; then
+			WAN_DASHBOARD_URL="http://$WAN_GATEWAY/login.htm"
 		fi
 	fi
 fi
@@ -433,6 +441,7 @@ case $(cat /tmp/sysinfo/board_name) in
 		;;
 	"mr200"|\
 	"tl-mr3220-v2"|\
+	"tplink,archer-mr200"|\
 	"tplink,tl-mr3420-v5")
 		BUTTON_NAME="WIFI"
 		BUTTON="rfkill"
