@@ -429,6 +429,9 @@ function enableWan(proto) {
 	if (proto == "static") {
 		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2","wan_metered"];
 	}
+	if ((proto == 'dhcp') || (proto == 'dhcp_hilink')) {
+		fields = ['wan_metered'];
+	}
 	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
 
