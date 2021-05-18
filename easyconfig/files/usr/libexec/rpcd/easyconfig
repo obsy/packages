@@ -266,7 +266,7 @@ if [ -n "$WAN_IFNAME_HILINK" ]; then
 		fi
 		# TP-Link Archer MR200
 		if grep -q "usb:v2357p000D" /sys/class/net/$WAN_IFNAME_HILINK/device/modalias 2>/dev/null; then
-			WAN_DASHBOARD_URL="http://$WAN_GATEWAY/login.htm"
+			WAN_DASHBOARD_URL="http://$WAN_GATEWAY/login.html"
 		fi
 	fi
 fi
