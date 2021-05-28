@@ -14,6 +14,13 @@ else
 	TIMEISVALID="false"
 fi
 
+T=$(uci -q get network.loopback.device)
+if [ "x$T" = "xlo" ]; then
+	DEVICESECTION="true"
+else
+	DEVICESECTION="false"
+fi
+
 escapeJSON() {
 	ret=$1
 	ret="${ret//\\/\\\\}"
@@ -186,10 +193,18 @@ WAN_DNS_SOURCE="config"
 WAN_APN=$(uci -q get network.wan.apn)
 WAN_DEVICE=$(uci -q get network.wan.device)
 WAN_PINCODE=$(uci -q get network.wan.pincode)
-WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
+if $DEVICESECTION; then
+	WAN_IFNAME=$(uci -q get network.wan.device)
+else
+	WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
+fi
 
 if [ -e /etc/board.json ]; then
-	WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+	if $DEVICESECTION; then
+		WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.device')
+	else
+		WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+	fi
 elif [ -e /etc/gargoyle_default_ifs ]; then
 	WAN_IFNAME_DEFAULT=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 fi
@@ -284,11 +299,25 @@ fi
 
 WAN_WANPORT="none";
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then
-	case "$(uci -q get network.lan.ifname)" in
-		*$WAN_IFNAME_DEFAULT*)
-		WAN_WANPORT="bridge"
-		;;
-	esac
+	if $DEVICESECTION; then
+		T=$(uci -q get network.lan.device)
+		if [ -n "$T" ]; then
+			SEC=$(uci show network | awk -F. '/\.name=.*'$T'.*/{print $2}')
+			if [ -n "$SEC" ]; then
+				case "$(uci -q get network.$SEC.ports)" in
+					*$WAN_IFNAME_DEFAULT*)
+					WAN_WANPORT="bridge"
+					;;
+				esac
+			fi
+		fi
+	else
+		case "$(uci -q get network.lan.ifname)" in
+			*$WAN_IFNAME_DEFAULT*)
+			WAN_WANPORT="bridge"
+			;;
+		esac
+	fi
 fi
 
 echo '{'
@@ -1052,7 +1081,11 @@ detect_wan()
 
 # wan port
 	if [ -e /etc/board.json ]; then
-		T=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+		if $DEVICESECTION; then
+			T=$(jsonfilter -i /etc/board.json -e '@.network.wan.device')
+		else
+			T=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+		fi
 	elif [ -e /etc/gargoyle_default_ifs ]; then
 		T=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 	fi
