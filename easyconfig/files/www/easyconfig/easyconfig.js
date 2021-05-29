@@ -349,7 +349,11 @@ function okdetectwan() {
 	}
 	if (data.proto == 'dhcp_hilink' || data.proto == 'dhcp') {
 		cmd.push('uci set network.wan.proto=dhcp');
-		cmd.push('uci set network.wan.ifname=' + data.ifname);
+		if (config.devicesection) {
+			cmd.push('uci set network.wan.device=' + data.ifname);
+		} else {
+			cmd.push('uci set network.wan.ifname=' + data.ifname);
+		}
 	}
 
 	cmd.push('uci commit network');
@@ -1011,7 +1015,6 @@ function savesettings() {
 	cmd.push('uci -q del network.wan.apn');
 	cmd.push('uci -q del network.wan.device');
 	cmd.push('uci -q del network.wan.pincode');
-	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.proto');
 	cmd.push('uci -q del network.wan.service');
 	cmd.push('uci -q del network.wan.modes');
@@ -1028,7 +1031,11 @@ function savesettings() {
 		if (checkField('wan_ipaddr', validateIP)) {return;}
 		if (checkField('wan_gateway', validateIP)) {return;}
 
-		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
+		if (config.devicesection) {
+			cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
+		} else {
+			cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
+		}
 		cmd.push('uci set network.wan.ipaddr='+getValue('wan_ipaddr'));
 		cmd.push('uci set network.wan.netmask='+getValue('wan_netmask'));
 		cmd.push('uci set network.wan.gateway='+getValue('wan_gateway'));
@@ -1050,22 +1057,39 @@ function savesettings() {
 		cmd.push('uci set network.wan.mode=\\\"'+getValue('wan_modem_mode')+'\\\"');
 	}
 	if (wan_type == 'dhcp') {
-		cmd.push('uci set network.wan.ifname='+config.wan_ifname_default);
+		if (config.devicesection) {
+			cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
+		} else {
+			cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
+		}
 		use_wanport = false;
 	}
 	if (wan_type == 'dhcp_hilink') {
-		cmd.push('uci set network.wan.ifname='+config.wan_ifname_hilink);
+		if (config.devicesection) {
+			cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
+		} else {
+			cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
+		}
 		wan_type='dhcp';
 	}
 	cmd.push('uci set network.wan.proto='+wan_type);
 	config.wan_proto=wan_type;
 
 	if (config.wan_ifname_default !== '') {
-		cmd.push('T=$(uci -q get network.lan.ifname | sed \'s|' + config.wan_ifname_default + '||\' | xargs)');
-		if (use_wanport && getValue('wan_wanport')) {
-			cmd.push('uci set network.lan.ifname=\\\"$T ' + config.wan_ifname_default + '\\\"');
+		if (config.devicesection) {
+			cmd.push('T=$(uci -q get network.lan.device)');
+			cmd.push('SEC=$(uci show network | awk -F. \'/\.name=.*\'$T\'.*/{print $2}\')');
+			cmd.push('uci del_list network.$SEC.ports=' + config.wan_ifname_default);
+			if (use_wanport && getValue('wan_wanport')) {
+				cmd.push('uci add_list network.$SEC.ports=' + config.wan_ifname_default);
+			}
 		} else {
-			cmd.push('uci set network.lan.ifname=\\\"$T\\\"');
+			cmd.push('T=$(uci -q get network.lan.ifname | sed \'s|' + config.wan_ifname_default + '||\' | xargs)');
+			if (use_wanport && getValue('wan_wanport')) {
+				cmd.push('uci set network.lan.ifname=\\\"$T ' + config.wan_ifname_default + '\\\"');
+			} else {
+				cmd.push('uci set network.lan.ifname=\\\"$T\\\"');
+			}
 		}
 	}
 

@@ -321,6 +321,7 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 fi
 
 echo '{'
+echo '"devicesection":'$DEVICESECTION','
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
