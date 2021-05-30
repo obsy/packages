@@ -1079,7 +1079,7 @@ function savesettings() {
 		if (config.devicesection) {
 			cmd.push('T=$(uci -q get network.lan.device)');
 			cmd.push('SEC=$(uci show network | awk -F. \'/\.name=.*\'$T\'.*/{print $2}\')');
-			cmd.push('uci del_list network.$SEC.ports=' + config.wan_ifname_default);
+			cmd.push('uci -q del_list network.$SEC.ports=' + config.wan_ifname_default);
 			if (use_wanport && getValue('wan_wanport')) {
 				cmd.push('uci add_list network.$SEC.ports=' + config.wan_ifname_default);
 			}
@@ -1097,7 +1097,7 @@ function savesettings() {
 		cmd.push('uci -q del firewall.dmz');
 	}
 
-	cmd.push('uci del_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
+	cmd.push('uci -q del_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
 	if (getValue('wan_metered')) {
 		cmd.push('uci add_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
 	}
@@ -1562,7 +1562,11 @@ function showsystem() {
 
 function modemat() {
 	setDisplay('div_modemat', true);
-	document.getElementById('modemat_cmd').focus();
+	var e = document.getElementById('modemat_cmd')
+	e.focus();
+	var val = e.value;
+	e.value = '';
+	e.value = val;
 }
 
 function sendmodemat() {
@@ -3751,7 +3755,7 @@ function savepptp() {
 		cmd.push('uci -q del system.led_vpn');
 	}
 	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
-	cmd.push('uci del_list firewall.$ZONE.network=vpn');
+	cmd.push('uci -q del_list firewall.$ZONE.network=vpn');
 	cmd.push('uci add_list firewall.$ZONE.network=vpn');
 
 	// profile
