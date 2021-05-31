@@ -1078,7 +1078,7 @@ function savesettings() {
 	if (config.wan_ifname_default !== '') {
 		if (config.devicesection) {
 			cmd.push('T=$(uci -q get network.lan.device)');
-			cmd.push('SEC=$(uci show network | awk -F. \'/\.name=.*\'$T\'.*/{print $2}\')');
+			cmd.push('SEC=$(uci show network | awk -F. \'/\.name=.\'$T\'.$/{print $2}\')');
 			cmd.push('uci -q del_list network.$SEC.ports=' + config.wan_ifname_default);
 			if (use_wanport && getValue('wan_wanport')) {
 				cmd.push('uci add_list network.$SEC.ports=' + config.wan_ifname_default);

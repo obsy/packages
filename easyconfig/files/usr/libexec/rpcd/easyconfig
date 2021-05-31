@@ -302,7 +302,7 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 	if $DEVICESECTION; then
 		T=$(uci -q get network.lan.device)
 		if [ -n "$T" ]; then
-			SEC=$(uci show network | awk -F. '/\.name=.*'$T'.*/{print $2}')
+			SEC=$(uci show network | awk -F. '/\.name=.'$T'.$/{print $2}')
 			if [ -n "$SEC" ]; then
 				case "$(uci -q get network.$SEC.ports)" in
 					*$WAN_IFNAME_DEFAULT*)
