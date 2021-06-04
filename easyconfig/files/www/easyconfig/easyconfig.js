@@ -1066,9 +1066,9 @@ function savesettings() {
 	}
 	if (wan_type == 'dhcp_hilink') {
 		if (config.devicesection) {
-			cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
+			cmd.push('uci set network.wan.device=' + config.wan_ifname_hilink);
 		} else {
-			cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
+			cmd.push('uci set network.wan.ifname=' + config.wan_ifname_hilink);
 		}
 		wan_type='dhcp';
 	}
