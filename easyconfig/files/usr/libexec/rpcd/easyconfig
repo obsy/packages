@@ -193,7 +193,7 @@ WAN_DNS_SOURCE="config"
 WAN_APN=$(uci -q get network.wan.apn)
 WAN_DEVICE=$(uci -q get network.wan.device)
 WAN_PINCODE=$(uci -q get network.wan.pincode)
-WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
+WAN_IFNAME=$(ubus call network.interface.wan status 2>/dev/null | jsonfilter -q -e '@.l3_device')
 
 if [ -e /etc/board.json ]; then
 	if $DEVICESECTION; then
