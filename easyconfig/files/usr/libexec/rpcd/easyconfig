@@ -193,11 +193,7 @@ WAN_DNS_SOURCE="config"
 WAN_APN=$(uci -q get network.wan.apn)
 WAN_DEVICE=$(uci -q get network.wan.device)
 WAN_PINCODE=$(uci -q get network.wan.pincode)
-if $DEVICESECTION; then
-	WAN_IFNAME=$(uci -q get network.wan.device)
-else
-	WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
-fi
+WAN_IFNAME=$(uci -q -P /var/state get network.wan.ifname)
 
 if [ -e /etc/board.json ]; then
 	if $DEVICESECTION; then
