@@ -124,11 +124,6 @@ case $(cat /tmp/sysinfo/board_name) in
 			fi
 			BATTERY_LEVEL=$(ravpower-mcu battery-charge)
 			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
-		elif [ -e /usr/sbin/wd03-battery ]; then
-			T=$(/usr/sbin/wd03-battery)
-			CHARGING=$(echo "$T" | awk -F= '/charging/{if ($2 == "no") {print "Nie"} else {print "Tak"}}')
-			BATTERY_LEVEL=$(echo "$T" | awk -F= '/battery_level/{print $2}')
-			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		elif [ -f /usr/sbin/i2cset ] && [ -f /usr/sbin/i2cget ]; then
 			if [ $(i2cset -y 0 0x0a 0x0a 0x01 && i2cget -y 0 0x0a 0x0a) = 0x40 ]; then
 				CHARGING="Tak"
