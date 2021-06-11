@@ -204,6 +204,58 @@ if grep -q "Vendor=2020 ProdID=2033" /sys/kernel/debug/usb/devices; then
 	fi
 fi
 
+# Mikrotik R11e-LTE
+if grep -q "Vendor=2cd2 ProdID=0001" /sys/kernel/debug/usb/devices; then
+	# COPS numeric
+	COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: \(.,2/ {print $2}')
+	if [ "x$COPS_NUM" = "x" ]; then
+		COPS_NUM="-"
+		COPS_MCC="-"
+		COPS_MNC="-"
+	else
+		COPS_MCC=${COPS_NUM:0:3}
+		COPS_MNC=${COPS_NUM:3:3}
+		COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
+	fi
+	[ "x$COPS" = "x" ] && COPS=$COPS_NUM
+
+	if [ -z "$FORCE_PLMN" ]; then
+		# COPS alphanumeric
+		T=$(echo "$O" | awk -F[\"] '/^\+COPS: \(.,0/ {print $2}')
+		[ "x$T" != "x" ] && COPS="$T"
+	fi
+
+	O=$(sms_tool -d $DEVICE at "at+cesq")
+	T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $4}' | xargs)
+	if [ -n "$T" ]; then
+		if [ "$T" != "255" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSCP":"-'$T' dBm"}'
+		fi
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $5}' | xargs)
+	if [ -n "$T" ]; then
+		if [ "$T" != "255" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"ECNO":"-'$T' dB"}'
+		fi
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $6}' | xargs)
+	if [ -n "$T" ]; then
+		if [ "$T" != "255" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRQ":"-'$T' dB"}'
+		fi
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $7}' | xargs)
+	if [ -n "$T" ]; then
+		if [ "$T" != "255" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRP":"-'$T' dBm"}'
+		fi
+	fi
+fi
+
 # Quectel EC20/EC25/EP06/EM12
 QUECTEL=0
 grep -q "Vendor=05c6 ProdID=9215" /sys/kernel/debug/usb/devices && QUECTEL=1
