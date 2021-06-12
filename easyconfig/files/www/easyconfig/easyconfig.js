@@ -973,7 +973,7 @@ function showcallback(data) {
 		select.appendChild(opt);
 		if (is_radio2 || is_radio5) {
 			var opt = document.createElement('option');
-			opt.value = 'wifi';
+			opt.value = 'rfkill';
 			opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
 			select.appendChild(opt);
 		}
@@ -1308,41 +1308,7 @@ function savesettings() {
 		button = getValue('system_button');
 		if (config.button.code != button) {
 			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
-			if (button == 'leds') {
-				cmd.push('F=$(mktemp)');
-				cmd.push('cat <<EOF > $F');
-				cmd.push('#!/bin/sh');
-				cmd.push('[ \\\"\\\\${ACTION}\\\" = \\\"released\\\" ] || exit 0');
-				cmd.push('if [ -e /tmp/led_off ]; then')
-				cmd.push(' ubus call easyconfig leds \'{\\\"action\\\":\\\"on\\\"}\'');
-				cmd.push('else');
-				cmd.push(' ubus call easyconfig leds \'{\\\"action\\\":\\\"off\\\"}\'');
-				cmd.push('fi');
-				cmd.push('exit 0');
-				cmd.push('EOF');
-				cmd.push('chmod 755 $F');
-				cmd.push('mv $F /etc/rc.button/' + config.button.code);
-			}
-			if (button == 'wifi') {
-				cmd.push('[ -e /rom/etc/rc.button/rfkill ] && ln -s /rom/etc/rc.button/rfkill /etc/rc.button/' + config.button.code);
-			}
-			if (button == 'vpn') {
-				cmd.push('F=$(mktemp)');
-				cmd.push('cat <<EOF > $F');
-				cmd.push('#!/bin/sh');
-				cmd.push('[ \\\"\\\\${ACTION}\\\" = \\\"released\\\" ] || exit 0');
-				cmd.push('T=\\\\$(ifstatus vpn 2>/dev/null | jsonfilter -q -e @.up)');
-				cmd.push('if [ \\\"x\\\\$T\\\" = \\\"xfalse\\\" ]; then')
-				cmd.push(' ifup vpn');
-				cmd.push('else');
-				cmd.push(' ifdown vpn');
-				cmd.push(' ifup wan');
-				cmd.push('fi');
-				cmd.push('exit 0');
-				cmd.push('EOF');
-				cmd.push('chmod 755 $F');
-				cmd.push('mv $F /etc/rc.button/' + config.button.code);
-			}
+			cmd.push('[ -e /etc/easyconfig_rc.button/' + button + ' ] && ln -s /etc/easyconfig_rc.button/' + button + ' /etc/rc.button/' + config.button.code);
 		}
 	}
 

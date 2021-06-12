@@ -1,0 +1,10 @@
+#!/bin/sh
+[ "${ACTION}" = "released" ] || exit 0
+T=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e @.up)
+if [ "x$T" = "xfalse" ]; then
+	ifup vpn
+else
+	ifdown vpn
+	ifup wan
+fi
+exit 0

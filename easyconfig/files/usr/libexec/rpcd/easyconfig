@@ -469,11 +469,12 @@ case $(cat /tmp/sysinfo/board_name) in
 		;;
 esac
 if [ -n "$BUTTON" ]; then
+	[ -e /etc/easyconfig_rc.button/rfkill ] || cp /etc/rc.button/rfkill /etc/easyconfig_rc.button/rfkill
 	if grep -q leds /etc/rc.button/$BUTTON; then
 		ACTION="leds"
 	fi
 	if grep -q rfkill /etc/rc.button/$BUTTON; then
-		ACTION="wifi"
+		ACTION="rfkill"
 	fi
 	if grep -q "ifup vpn" /etc/rc.button/$BUTTON; then
 		ACTION="vpn"
