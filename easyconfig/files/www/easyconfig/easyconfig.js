@@ -1305,10 +1305,10 @@ function savesettings() {
 	}
 
 	if (config.button.code != '') {
-		button = getValue('system_button');
-		if (config.button.code != button) {
+		var action = getValue('system_button');
+		if (config.button.action != action) {
 			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
-			cmd.push('[ -e /etc/easyconfig_rc.button/' + button + ' ] && ln -s /etc/easyconfig_rc.button/' + button + ' /etc/rc.button/' + config.button.code);
+			cmd.push('[ -e /etc/easyconfig_rc.button/' + action + ' ] && ln -s /etc/easyconfig_rc.button/' + action + ' /etc/rc.button/' + config.button.code);
 		}
 	}
 

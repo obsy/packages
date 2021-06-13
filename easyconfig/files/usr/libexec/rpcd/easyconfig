@@ -444,30 +444,15 @@ echo '"datarec_period":'${T:-15}','
 BUTTON_NAME=""
 BUTTON=""
 ACTION="none"
-case $(cat /tmp/sysinfo/board_name) in
-	"cellc,rtl30vw"|\
-	"dlink,dwr-921-c1"|\
-	"tl-wr902ac-v1"|\
-	"tplink,tl-mr3020-v1"|\
-	"tplink,tl-mr3020-v3"|\
-	"tplink,tl-wr902ac-v3")
-		BUTTON_NAME="WPS"
-		BUTTON="wps"
-		;;
-	"tl-mr3220"|\
-	"tl-mr3420"|\
-	"tl-mr3420-v2")
-		BUTTON_NAME="QSS"
-		BUTTON="wps"
-		;;
-	"mr200"|\
-	"tl-mr3220-v2"|\
-	"tplink,archer-mr200"|\
-	"tplink,tl-mr3420-v5")
-		BUTTON_NAME="WIFI"
-		BUTTON="rfkill"
-		;;
-esac
+
+if [ -e /sys/firmware/devicetree/base/keys/rfkill ]; then
+	BUTTON_NAME="WiFi"
+	BUTTON="rfkill"
+elif [ -e /sys/firmware/devicetree/base/keys/wps ]; then
+	BUTTON_NAME="WPS"
+	BUTTON="wps"
+fi
+
 if [ -n "$BUTTON" ]; then
 	[ -e /etc/easyconfig_rc.button/rfkill ] || cp /etc/rc.button/rfkill /etc/easyconfig_rc.button/rfkill
 	if grep -q leds /etc/rc.button/$BUTTON; then
