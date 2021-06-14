@@ -949,10 +949,10 @@ function showcallback(data) {
 	setValue('firewall_dmz', config.firewall_dmz);
 
 	// stat
-	setDisplay('div_stat', (config.services.statistics.enabled != -1));
 	if (config.services.statistics.enabled != -1) {
 		setValue('stat_enabled', (config.services.statistics.enabled == 1));
 	}
+	setDisplay('div_stat', (config.services.statistics.enabled != -1));
 
 	// pptp
 	setDisplay('menu_pptp', config.services.pptp);
@@ -987,6 +987,12 @@ function showcallback(data) {
 		setValue('system_button', config.button.action);
 	}
 	setDisplay('div_button', config.button.code != '')
+
+	// button reset
+	if (config.button_reset != -1) {
+		setValue('system_button_reset', (config.button_reset == 1));
+	}
+	setDisplay('div_button_reset', (config.button_reset != -1))
 
 	setValue('datarec_period', config.datarec_period);
 
@@ -1309,6 +1315,14 @@ function savesettings() {
 		if (config.button.action != action) {
 			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
 			cmd.push('[ -e /etc/easyconfig_rc.button/' + action + ' ] && ln -s /etc/easyconfig_rc.button/' + action + ' /etc/rc.button/' + config.button.code);
+		}
+	}
+
+	if (config.button_reset > -1) {
+		if (getValue('system_button_reset')) {
+			cmd.push('[ -e /etc/rc.button/reset ] || cp /etc/easyconfig_rc.button/reset /etc/rc.button/reset');
+		} else {
+			cmd.push('[ -e /etc/rc.button/reset ] && rm /etc/rc.button/reset');
 		}
 	}
 

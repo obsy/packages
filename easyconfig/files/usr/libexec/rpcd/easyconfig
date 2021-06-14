@@ -467,6 +467,17 @@ if [ -n "$BUTTON" ]; then
 fi
 echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
 
+if [ -e /sys/firmware/devicetree/base/keys/reset ]; then
+	if [ -e /etc/rc.button/reset ]; then
+		[ -e /etc/easyconfig_rc.button/reset ] || cp /etc/rc.button/reset /etc/easyconfig_rc.button/reset
+		echo '"button_reset":1,'
+	else
+		echo '"button_reset":0,'
+	fi
+else
+	echo '"button_reset":-1,'
+fi
+
 echo '"services":{'
 
 echo '"statistics":{'
