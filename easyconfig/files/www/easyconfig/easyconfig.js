@@ -2427,6 +2427,20 @@ function wlanclientscallback(sortby) {
 			ctx.stroke();
 
 			var wlanclients_pie_tooltip = function (e) {
+				var eventDoc, doc, body;
+				e = e || window.event;
+				if (e.pageX == null && e.clientX != null) {
+					eventDoc = (e.target && e.target.ownerDocument) || document;
+					doc = eventDoc.documentElement;
+					body = eventDoc.body;
+					e.pageX = e.clientX +
+					  (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+					  (doc && doc.clientLeft || body && body.clientLeft || 0);
+					e.pageY = e.clientY +
+					  (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+					  (doc && doc.clientTop  || body && body.clientTop  || 0 );
+				}
+
 				const rect = this.getBoundingClientRect();
 				const x = e.clientX - rect.left;
 				const y = e.clientY - rect.top;
@@ -2437,9 +2451,9 @@ function wlanclientscallback(sortby) {
 				for (var idx = 0; idx < sorted.length; idx++) {
 					if (!sorted[idx].active) { continue; }
 					if (string2color(sorted[idx].mac) == hex) {
-						var e = document.getElementById('div_wlanclients_pie_tooltip');
-						e.style.top = (positionInfo.y + y + 15) + 'px';
-						e.style.left = (positionInfo.x + x + 15) + 'px';
+						var e1 = document.getElementById('div_wlanclients_pie_tooltip');
+						e1.style.top = (e.pageY + 15) + 'px';
+						e1.style.left = (e.pageX + 15) + 'px';
 						setValue('div_wlanclients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
 						setDisplay('div_wlanclients_pie_tooltip', true);
 						break;
