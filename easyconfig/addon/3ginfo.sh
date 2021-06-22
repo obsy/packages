@@ -256,13 +256,57 @@ if grep -q "Vendor=2cd2 ProdID=0001" /sys/kernel/debug/usb/devices; then
 	fi
 fi
 
+# Sierra MC7710
+if grep -q "Vendor=1199 ProdID=68a2" /sys/kernel/debug/usb/devices; then
+	O=$(sms_tool -d $DEVICE at "at!gstatus?")
+
+	T=$(echo "$O" | awk '/^LTE band:/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		case "$T" in
+			*"B1") MODE="LTE B1 (2100 MHz)";;
+			*"B3") MODE="LTE B3 (1800 MHz)";;
+			*"B7") MODE="LTE B7 (2600 MHz)";;
+			*"B8") MODE="LTE B8 (900 MHz)";;
+			*"B20") MODE="LTE B20 (800 MHz)";;
+			*) MODE="$T";;
+		esac
+	fi
+
+	T=$(echo "$O" | awk '/^RSSI/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+	fi
+	T=$(echo "$O" | awk '/^RSRP/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+	fi
+	T=$(echo "$O" | awk '/^RSRQ/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+	fi
+	T=$(echo "$O" | awk '/^SINR/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"SINR":"'$T' dB"}'
+	fi
+
+	T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+	fi
+fi
+
 # Quectel EC20/EC25/EP06/EM12
 QUECTEL=0
 grep -q "Vendor=05c6 ProdID=9215" /sys/kernel/debug/usb/devices && QUECTEL=1
 grep -q "Vendor=2c7c ProdID=0125" /sys/kernel/debug/usb/devices && QUECTEL=1
 grep -q "Vendor=2c7c ProdID=0306" /sys/kernel/debug/usb/devices && QUECTEL=1
 if [ "$QUECTEL" -eq 1 ]; then
-	O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qeng=\"servingcell\"";+qspn)
+	O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qeng=\"servingcell\";+qspn")
 
 	T=$(echo "$O" | awk -F[,:] '/^\+QTEMP/ {t=$2*1;if($3*1>t)t=$3*1;if($4*1>t)t=$4*1;printf "%d", t}')
 	if [ -n "$T" ]; then
