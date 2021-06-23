@@ -67,7 +67,7 @@ if [ -n "$T" ]; then
 		*"Band:1") MODE=$(band 1 "LTE ");;
 		*"Band:3") MODE=$(band 3 "LTE ");;
 		*"Band:7") MODE=$(band 7 "LTE ");;
-		*"Band:8") MODE=$(band 8 "LTE ")";;
+		*"Band:8") MODE=$(band 8 "LTE ");;
 		*"Band:20") MODE=$(band 20 "LTE ");;
 		*) MODE=${T:-$MODE};;
 	esac
