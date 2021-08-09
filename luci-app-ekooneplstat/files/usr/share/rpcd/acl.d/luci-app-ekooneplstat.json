@@ -1,0 +1,26 @@
+{
+	"luci-app-ekooneplstat": {
+		"description": "Grant UCI and file access for luci-app-ekooneplstat",
+		"read": {
+			"file": {
+				"/tmp/stat_time.txt": [
+					"read"
+				],
+				"/sbin/stat.sh *": [
+					"exec"
+				],
+				"/sbin/stat-cron.sh": [
+					"exec"
+				]
+			},
+			"uci": [
+				"system"
+			]
+		},
+		"write": {
+			"uci": [
+				"system"
+			]
+		}
+	}
+}

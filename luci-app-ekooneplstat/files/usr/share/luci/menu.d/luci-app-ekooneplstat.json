@@ -1,0 +1,14 @@
+{
+	"admin/services/ekooneplstat": {
+		"title": "Statistics",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "ekooneplstat"
+		},
+		"depends": {
+			"acl": [ "luci-app-ekooneplstat" ],
+			"uci": { "system": { "@system": true } }
+		}
+	}
+}
