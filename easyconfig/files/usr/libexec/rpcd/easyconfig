@@ -37,13 +37,11 @@ escapeForSed() {
 }
 
 show_status() {
-T=$(awk '{printf "%d\n", $1}' /proc/uptime)
+SYSTEM_UPTIME=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
-	SYSTEM_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - T))")
+	SYSTEM_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - SYSTEM_UPTIME))")
 	SYSTEM_TIME=$(date "+%Y%m%d%H%M")
 fi
-
-SYSTEM_UPTIME=$T
 
 SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
 
