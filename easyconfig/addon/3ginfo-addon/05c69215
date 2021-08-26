@@ -1,4 +1,4 @@
-# Quectel EC20
+# Quectel EC20/EC25
 
 O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qeng=\"servingcell\";+qspn")
 
@@ -32,7 +32,7 @@ if [ "x$T" = "xLTE" ]; then
 	RSRP=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
 	RSRQ=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
 	RSSI=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
-	SINR=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
+	SINR=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", $1*0.2-20}')
 #	SRXLEV=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $19}' | xargs)
 #	[ -n "$ADDON" ] && ADDON="$ADDON,"
 #	ADDON="$ADDON"'{"CELLID":"'$CELLID'"}'
