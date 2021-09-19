@@ -2351,10 +2351,14 @@ function wlanclientscallback(sortby) {
 		for (var idx = 0; idx < sorted.length; idx++) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
+				var limitations = '';
+				if (sorted[idx].qos.bwup > 0 || sorted[idx].qos.bwdown > 0 || sorted[idx].block > 0) {
+					limitations = '<span title="ograniczenia">&#9888;</span>&nbsp;';
+				}
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
+				html += '<div class="col-xs-12">' + limitations + 'Wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				html += '</div>';
 				any_active = true;
 			} else {
