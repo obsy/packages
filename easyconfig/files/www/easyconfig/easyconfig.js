@@ -1225,7 +1225,11 @@ function savesettings() {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
 			if (wlan_channel > 0) {
-				cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
+				if (config[radios[i]].wlan_band != '') {
+					cmd.push('uci set wireless.' + radios[i] + '.band=' + ((wlan_channel > 14) ? '5' : '2') + 'g');
+				} else {
+					cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
+				}
 			}
 		}
 		if (wlan_channel > 0) {

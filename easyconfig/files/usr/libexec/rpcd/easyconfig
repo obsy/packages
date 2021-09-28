@@ -382,6 +382,7 @@ for R in $RADIOS; do
 	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
 	WLAN_TXPOWER=$(uci -q get wireless.$R.txpower)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
+	WLAN_BAND=$(uci -q get wireless.$R.band)
 	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
 	T=$(uci -q show wireless | awk -F. '/device=.*'$R'/{print $2}')
 	if [ -n "$T" ]; then
@@ -407,6 +408,7 @@ for R in $RADIOS; do
 	echo '"wlan_txpower":"'$WLAN_TXPOWER'",'
 	echo '"wlan_ssid":"'$(escapeJSON "$WLAN_SSID")'",'
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
+	echo '"wlan_band":"'$WLAN_BAND'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
@@ -603,8 +605,9 @@ for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
 	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 	if [ -n "$IFNAME" ]; then
-		T1=$(echo "$T" | jsonfilter -q -e '@.*.config.hwmode')
-		[ "x$T1" = "x11a" ] && BAND=5 || BAND=2
+		eval $(echo "$T" | jsonfilter -q -e 'T1=@.*.config.hwmode' -e 'T2=@.*.config.band')
+		BAND=2
+		[ "x$T1" = "x11a" ] || [ "x$T2" = "x5g" ] && BAND=5
 		for i in $IFNAME; do
 			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}')
 		done
