@@ -1534,7 +1534,7 @@ function showsystem() {
 	ubus_call('"easyconfig", "system", {}', function(data) {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
-		setValue('model', data.model);
+		setValue('model', data.model == '' ? '-' : data.model);
 		setValue('darkmode_enabled', getCookie('easyconfig_darkmode') == '1' ? true : false);
 		setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
 		setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
