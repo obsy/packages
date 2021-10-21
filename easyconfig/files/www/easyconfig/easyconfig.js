@@ -1937,8 +1937,8 @@ function sitesurveycallback(sortby) {
 			html += '<h4><span class="wordbreak">' + ssid_new + '</span></h4>';
 			html += sorted[idx].mac + '<br>';
 
-			var key = (sorted[idx].mac).substring(0,8).toUpperCase();
-			if (key in manuf) {html += manuf[key] + '<br>';}
+			var manuf = getmanuf(sorted[idx].mac);
+			if (manuf != '-') { html += manuf + '<br>'; }
 			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatDuration(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
 			if (rogueap) {html += '<br>Wrogi AP';}
 			html += '</div>';
@@ -2027,6 +2027,18 @@ function sitesurveycallback(sortby) {
 		setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
 		sitesurveycallbackfilter(filterby);
 	}
+}
+
+function getmanuf(mac) {
+	var key = mac.substring(0,8).toUpperCase();
+	if (key in manuf) {
+		return manuf[key];
+	} else {
+		if ((parseInt(mac.substring(1,2), 16) & 1<<1) != 0) {
+			return '<i>Adres prywatny</i>';
+		}
+	}
+	return '-';
 }
 
 wifigraph = {
@@ -2599,13 +2611,9 @@ function hostinfo(id) {
 		}
 	}
 
-	var key = (host.mac).substring(0,8).toUpperCase();
-	if (key in manuf) {
-		vendor = manuf[key];
-	}
 	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
 	html += createRowForModal('MAC', host.mac);
-	html += createRowForModal('Producent', vendor);
+	html += createRowForModal('Producent', getmanuf(host.mac));
 	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 	if (host.active) {
 		html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
