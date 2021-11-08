@@ -1,8 +1,21 @@
 'use strict';
 'require form';
 'require fs';
+'require ui';
 'require uci';
 'require view';
+
+function handleAction(ev, token) {
+	if (ev === 'all') {
+		window.open('https://dl.eko.one.pl/stat.html');
+		return
+	}
+
+	if (ev === 'this') {
+		window.open('https://dl.eko.one.pl/cgi-bin/router.cgi?token=' + token);
+		return;
+	}
+}
 
 return view.extend({
 	load: function() {
@@ -17,13 +30,35 @@ return view.extend({
 		var token = data[0].stdout.replace(/(?:\r\n|\r|\n)/g, '');
 
 		var html = _('Sending information about the router for statistical purposes. More information on the') + ' <a href="https://eko.one.pl/forum/viewtopic.php?id=7708" target="_blank">' + _('eko.one.pl forum') + '</a>.';
-		html += '<div class="cbi-section">';
-		html += '<div class="cbi-value" style="margin-top:20px;margin-bottom:5px"><label class="cbi-value-title" style="padding-top:0rem">' + _('Last update') + '</label><div class="cbi-value-field" style="font-weight: bold;margin-bottom:5px;color:#37c">' + (data[1] ? data[1] : '-') + '</div></div>';
-		html += '<div class="right"><button class="btn cbi-button cbi-button-apply" style="margin-bottom:5px" onclick="window.open(\'https://dl.eko.one.pl/stat.html\')"/>' + _("See all statistics") + '</button>';
-		html += '<button class="btn cbi-button cbi-button-apply" style="margin-left:10px" onclick="window.open(\'https://dl.eko.one.pl/cgi-bin/router.cgi?token=' + token + '\')"/>' + _("This router statistics") + '</button></div>';
-		html += '</div>';
 
 		m = new form.Map('system', _('Statistics'), html);
+
+		s = m.section(form.NamedSection, 'global');
+		s.render = L.bind(function(view, section_id) {
+			return E('div', { 'class': 'cbi-section' }, [
+				E('h3', _('Information')),
+				E('div', { 'class': 'cbi-value' }, [
+					E('label', { 'class': 'cbi-value-title', 'style': 'padding-top:0rem' }, _('Last update')),
+					E('div', { 'class': 'cbi-value-field', 'id': 'status', 'style': 'color:#37c' }, data[1] ? data[1] : '-')
+				]),
+				E('div', { class: 'right' }, [
+					E('button', {
+					'class': 'btn cbi-button cbi-button-apply',
+					'click': ui.createHandlerFn(this, function() {
+						return handleAction('all', null);
+					})
+					}, [ _('See all statistics') ]),
+					'\xa0\xa0\xa0',
+					E('button', {
+					'class': 'btn cbi-button cbi-button-apply',
+					'id': 'btn_suspend',
+					'click': ui.createHandlerFn(this, function() {
+						return handleAction('this', token);
+					})
+					}, [ _('This router statistics') ])
+				])
+			]);
+		}, o, this);
 
 		s = m.section(form.TypedSection, 'system', _('Settings'));
 		s.anonymous = true;
