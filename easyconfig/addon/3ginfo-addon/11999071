@@ -1,4 +1,5 @@
 # Sierra Wireless EM7455
+# DW5811e Snapdragon X7 LTE (EM7455B)
 
 O=$(sms_tool -d $DEVICE at "at!gstatus?")
 
