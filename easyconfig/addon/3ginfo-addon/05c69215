@@ -1,4 +1,5 @@
-# Quectel EC20/EC25
+# Quectel EC20
+# Quectel EC25
 
 O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qeng=\"servingcell\";+qspn")
 
