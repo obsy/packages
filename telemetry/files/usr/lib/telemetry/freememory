@@ -7,7 +7,7 @@ BEGIN{f=0;b=0;c=0}
 /^MemFree:/ {f=($2*1024)}
 /^Buffers:/ {b=($2*1024)}
 /^Cached:/ {c=($2*1024)}
-END {printf "%d", f+b+c}
+END {printf "%s", f+b+c}
 ' /proc/meminfo
 fi
 exit 0
