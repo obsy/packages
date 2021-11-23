@@ -341,13 +341,13 @@ function okdetectwan() {
 	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
-	if (data.proto == '3g' || data.proto == 'qmi' || data.proto == 'ncm') {
+	if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'qmi') {
 		cmd.push('uci set network.wan.proto=' + data.proto);
 		cmd.push('uci set network.wan.device=\\\"' + data.device + '\\\"');
 		cmd.push('uci set network.wan.apn=\\\"' + data.apn + '\\\"');
 		cmd.push('uci set network.wan.pincode=' + data.pincode);
 	}
-	if (data.proto == 'dhcp_hilink' || data.proto == 'dhcp') {
+	if (data.proto == 'dhcp' || data.proto == 'dhcp_hilink') {
 		cmd.push('uci set network.wan.proto=dhcp');
 		if (config.devicesection) {
 			cmd.push('uci set network.wan.device=' + data.ifname);
@@ -401,7 +401,7 @@ function detectwan(pin) {
 			if (data.proto == 'dhcp' || data.proto == 'dhcp_hilink') {
 				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 			}
-			if (data.proto == '3g' || data.proto == 'qmi' || data.proto == 'ncm') {
+			if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'qmi') {
 				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 				msg += '</div>';
 				msg += '<div class="row space">';
@@ -430,13 +430,13 @@ function enableWan(proto) {
 	}
 
 	var fields = [];
-	if (proto == "static") {
+	if (proto == 'static') {
 		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2","wan_metered"];
 	}
-	if ((proto == 'dhcp') || (proto == 'dhcp_hilink')) {
+	if (proto == 'dhcp' || proto == 'dhcp_hilink') {
 		fields = ['wan_metered'];
 	}
-	if ((proto == "3g") || (proto == "qmi") || (proto == "ncm")) {
+	if (proto == '3g' || proto == 'ncm' || proto == 'qmi') {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
 
 		var e = removeOptions('wan_modem_mode');
@@ -444,11 +444,11 @@ function enableWan(proto) {
 		if (proto == '3g') {
 			t = {"":"Wg ustawień modemu","umts":"Wybór automatyczny 3G/2G","umts_only":"Tylko 3G (HSPA/UMTS)","gprs_only":"Tylko 2G (EDGE/GSM)"};
 		}
-		if (proto == 'qmi') {
-			t = {"":"Wg ustawień modemu","all":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE A/LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
-		}
 		if (proto == 'ncm') {
 			t = {"":"Wg ustawień modemu","auto":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
+		}
+		if (proto == 'qmi') {
+			t = {"":"Wg ustawień modemu","all":"Wybór automatyczny 4G/3G/2G","lte":"Tylko 4G (LTE A/LTE)","umts":"Tylko 3G (HSPA/UMTS)","gsm":"Tylko 2G (EDGE/GSM)"};
 		}
 		for (key in t) {
 			var opt = document.createElement('option');
@@ -775,10 +775,10 @@ wan['none'] = 'Brak';
 wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
 wan['3g'] = 'Modem USB (RAS)';
-wan['qmi'] = 'Modem USB (QMI)';
 wan['ncm'] = 'Modem USB (NCM)';
+wan['qmi'] = 'Modem USB (QMI)';
 wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
-wan['-'] = " ";
+wan['-'] = ' ';
 wan['detect'] = 'Wykryj...';
 
 function showcallback(data) {
@@ -1048,19 +1048,19 @@ function savesettings() {
 		use_dns = 'custom';
 		use_wanport = false;
 	}
-	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
-		cmd.push('uci set network.wan.apn=\\\"'+getValue('wan_apn')+'\\\"');
-		cmd.push('uci set network.wan.device=\\\"'+getValue('wan_device')+'\\\"');
-		cmd.push('uci set network.wan.pincode='+getValue('wan_pincode'));
+	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'qmi') {
+		cmd.push('uci set network.wan.apn=\\\"' + getValue('wan_apn') + '\\\"');
+		cmd.push('uci set network.wan.device=\\\"' + getValue('wan_device') + '\\\"');
+		cmd.push('uci set network.wan.pincode=' + getValue('wan_pincode'));
 	}
 	if (wan_type == '3g') {
-		cmd.push('uci set network.wan.service=\\\"'+getValue('wan_modem_mode')+'\\\"');
-	}
-	if (wan_type == 'qmi') {
-		cmd.push('uci set network.wan.modes=\\\"'+getValue('wan_modem_mode')+'\\\"');
+		cmd.push('uci set network.wan.service=\\\"' + getValue('wan_modem_mode') + '\\\"');
 	}
 	if (wan_type == 'ncm') {
-		cmd.push('uci set network.wan.mode=\\\"'+getValue('wan_modem_mode')+'\\\"');
+		cmd.push('uci set network.wan.mode=\\\"' + getValue('wan_modem_mode') + '\\\"');
+	}
+	if (wan_type == 'qmi') {
+		cmd.push('uci set network.wan.modes=\\\"' + getValue('wan_modem_mode') + '\\\"');
 	}
 	if (wan_type == 'dhcp') {
 		if (config.devicesection) {
@@ -1670,7 +1670,7 @@ function showmodem() {
 
 function showmodemsection() {
 	var wan_type = getValue('wan_proto');
-	if (wan_type == '3g' || wan_type == 'qmi' || wan_type == 'ncm') {
+	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'qmi') {
 		setDisplay('menu_ussdsms', config.services.ussdsms);
 		setDisplay('div_status_modem', true);
 		setDisplay('div_system_modem', true);

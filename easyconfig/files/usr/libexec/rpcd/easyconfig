@@ -279,11 +279,11 @@ WAN_MODEM_MODE=""
 if [ "x$WAN_PROTO" = "x3g" ]; then
 	WAN_MODEM_MODE=$(uci -q get network.wan.service)
 fi
-if [ "x$WAN_PROTO" = "xqmi" ]; then
-	WAN_MODEM_MODE=$(uci -q get network.wan.modes)
-fi
 if [ "x$WAN_PROTO" = "xncm" ]; then
 	WAN_MODEM_MODE=$(uci -q get network.wan.mode)
+fi
+if [ "x$WAN_PROTO" = "xqmi" ]; then
+	WAN_MODEM_MODE=$(uci -q get network.wan.modes)
 fi
 
 WAN_WANPORT="none";
@@ -337,13 +337,13 @@ tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
 if [ -n "$tty" ] ; then
 	echo ',"3g"'
 fi
-qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
-if [ -n "$qmi" ] ; then
-	echo ',"qmi"'
-fi
 ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
 if [ -n "$ncm" ] ; then
 	echo ',"ncm"'
+fi
+qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
+if [ -n "$qmi" ] ; then
+	echo ',"qmi"'
 fi
 if [ -n "$WAN_IFNAME_HILINK" ]; then
 	echo ',"dhcp_hilink"'
@@ -972,11 +972,11 @@ pincode()
 	json_load "$input"
 	json_get_vars proto device pincode
 
+	if [ "x$proto" = "x3g" ] || [ "x$proto" = "xncm" ]; then
+		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom >/dev/null 2>&1
+	fi
 	if [ "x$proto" = "xqmi" ]; then
 		uqmi -d $device --verify-pin1 $pincode >/dev/null 2>&1
-	fi
-	if [ "x$proto" = "xncm" ] || [ "x$proto" = "x3g" ]; then
-		PINCODE="$pincode" gcom -d "$device" -s /etc/gcom/setpin.gcom >/dev/null 2>&1
 	fi
 	echo '{}'
 }
