@@ -138,8 +138,9 @@ else
 	WRITETS=$((NOW - 1))
 fi
 if [ $WRITETS -le $NOW ]; then
-	gzip -c "$DB" > "$DB.gz"
+	gzip -k "$DB"
 	mv "$DB.gz" "$SDB"
+	sync
 fi
 
 exit 0
