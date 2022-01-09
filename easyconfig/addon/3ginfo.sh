@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2021 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2022 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 band() {

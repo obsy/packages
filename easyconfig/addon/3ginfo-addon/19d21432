@@ -1,6 +1,6 @@
 # ZTE MF286
 
-O=$(sms_tool -d $DEVICE at "at+zrssi;+zcainfo?")
+O=$(sms_tool -d $DEVICE at "at+zrssi;+zcainfo?;+zdon?")
 
 case "$MODE1" in
 	2*| \
@@ -54,3 +54,8 @@ case "$MODE1" in
 		fi
 		;;
 esac
+
+T=$(echo "$O" | awk -F[,:] '/^\+ZDON/ {print $2}' | xargs)
+if [ -n "$T" ]; then
+	COPS="$T"
+fi
