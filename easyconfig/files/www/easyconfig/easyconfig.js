@@ -1012,7 +1012,10 @@ function savesettings() {
 	var cmd = [];
 
 	// wan
-	cmd.push('[ -e /tmp/modem ] && rm /tmp/modem');
+	cmd.push('if [ -e /tmp/modem ]; then');
+	cmd.push(' MODEM=$(cat /tmp/modem)');
+	cmd.push(' rm /tmp/modem');
+	cmd.push('fi')
 	cmd.push('uci set network.wan=interface');
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.ipaddr');
@@ -1061,6 +1064,9 @@ function savesettings() {
 	}
 	if (wan_type == 'qmi') {
 		cmd.push('uci set network.wan.modes=\\\"' + getValue('wan_modem_mode') + '\\\"');
+		if (config.wan_apn != getValue('wan_apn')) {
+			cmd.push('[ -n \\\"$MODEM\\\" ] && easyconfig_setapn.sh \\\"$MODEM\\\"');
+		}
 	}
 	if (wan_type == 'dhcp') {
 		if (config.devicesection) {
