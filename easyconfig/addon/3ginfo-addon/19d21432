@@ -1,6 +1,6 @@
 # ZTE MF286
 
-O=$(sms_tool -d $DEVICE at "at+zrssi;+zcainfo?;+zdon?")
+O=$(sms_tool -d $DEVICE at "at+zrssi;+zcellinfo?;+zcainfo?;+zdon?")
 
 case "$MODE1" in
 	2*| \
@@ -18,6 +18,8 @@ case "$MODE1" in
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $3}' | xargs)
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"ECIO":"'$T' dB"}'
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		[ -n "$T" ] && MODE="$T"
 		;;
 	7*)
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
@@ -32,14 +34,14 @@ case "$MODE1" in
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $5}' | xargs)
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"SINR":"'$T' dB"}'
-		T=$(echo "$O" | awk -F[,:] '/^\+ZCAINFO/ {print $3}' | xargs)
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
 		case "$T" in
-			*"1") MODE=$(band 1 "LTE ");;
-			*"3") MODE=$(band 3 "LTE ");;
-			*"7") MODE=$(band 7 "LTE ");;
-			*"8") MODE=$(band 8 "LTE ");;
-			*"20") MODE=$(band 20 "LTE ");;
-			*) MODE="$MODE $BAND";;
+			*"LTE B1") MODE=$(band 1 "LTE ");;
+			*"LTE B3") MODE=$(band 3 "LTE ");;
+			*"LTE B7") MODE=$(band 7 "LTE ");;
+			*"LTE B8") MODE=$(band 8 "LTE ");;
+			*"LTE B20") MODE=$(band 20 "LTE ");;
+			*) MODE="$T";;
 		esac
 		T=$(echo "$O" | awk -F[,:] '/^\+ZCAINFO/ {print $8}' | xargs)
 		if [ -n "$T" ]; then
