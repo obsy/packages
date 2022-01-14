@@ -1,0 +1,28 @@
+_DEVICE=/dev/ttyUSB1
+_DEFAULT_LTE_BANDS="7FFFFFFFFFFFFFFF"
+
+getinfo() {
+	echo "Huawei E3272/E3276/E3372"
+}
+
+setbands() {
+	BANDS="$1"
+	[ -z "$BANDS" ] && return
+
+	if [ "x$BANDS" = "xdefault" ]; then
+		HEX="$_DEFAULT_LTE_BANDS"
+	else
+		SUM=0
+		for BAND in $BANDS; do
+			case $BAND in
+				''|*[!0-9]*) continue ;;
+			esac
+			B=$((BAND - 1))
+			POW=$((2 ** $B))
+			SUM=$((SUM + POW))
+		done
+		HEX=$(printf '%x' $SUM)
+	fi
+
+	[ "$HEX" != 0 ] && sms_tool -d $_DEVICE at "AT^SYSCFGEX=\"030201\",3FFFFFFF,2,4,$HEX,,"
+}
