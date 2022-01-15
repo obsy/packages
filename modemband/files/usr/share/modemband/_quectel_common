@@ -56,5 +56,5 @@ setbands() {
 		HEX=$(printf '%x%016x' $HSUM $SUM)
 	fi
 
-	[ "$HEX" != 0 ] && sms_tool -d $_DEVICE at "at+qcfg=\"band\",0,$HEX,0,1"
+	[ "$HEX" != "0" ] && sms_tool -d $_DEVICE at "at+qcfg=\"band\",0,$HEX,0,1"
 }
