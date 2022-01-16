@@ -1,0 +1,44 @@
+_DEVICE=/dev/ttyUSB1
+_DEFAULT_LTE_BANDS="1 3 7 8 20 28"
+
+getinfo() {
+	echo "ZTE MF286"
+}
+
+getsupportedbands() {
+	echo "$_DEFAULT_LTE_BANDS"
+}
+
+getbands() {
+# +ZNLOCKBAND: 80800c5,2000000680380
+
+	O=$(sms_tool -d $_DEVICE at "at+znlockband?")
+	HEX="0x"$(echo "$O" | awk -F[:,] '{print $2}' | xargs)
+
+	for B in $(seq 0 50); do
+		POW=$((2 ** $B))
+		T=$((HEX&$POW))
+		[ "x$T" = "x$POW" ] && BANDS="${BANDS}$((B + 1)) "
+	done
+
+	echo "$BANDS"
+}
+
+setbands() {
+	BANDS="$1"
+	[ "x$BANDS" = "xdefault" ] && BANDS="$_DEFAULT_LTE_BANDS"
+	[ -z "$BANDS" ] && return
+
+	SUM=0
+	for BAND in $BANDS; do
+		case $BAND in
+			''|*[!0-9]*) continue ;;
+		esac
+		B=$((BAND - 1))
+		POW=$((2 ** $B))
+		SUM=$((SUM + POW))
+	done
+	HEX=$(printf '%x' $SUM)
+
+	[ "$HEX" != "0" ] && sms_tool -d $_DEVICE at "at+znlockband=1,0,$HEX,0"
+}
