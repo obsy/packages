@@ -5,8 +5,10 @@ Supported devices:
 - Huawei E3272/E3276/E3372 in serial mode
 - Quectel EC20
 - Quectel EC25
-- Quectel EP06
-
+- Quectel EG06-E
+- Quectel EP06-E
+- ZTE MF286
+- ZTE MF286D
 
 ```
 root@MiFi:~# modemband.sh
