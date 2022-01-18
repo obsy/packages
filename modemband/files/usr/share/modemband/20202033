@@ -12,14 +12,7 @@ getsupportedbands() {
 getbands() {
 	O=$(sms_tool -d $_DEVICE at "at+bmbandpref?")
 	HEX=$(echo "$O" | awk -F[:,] '{print $3}' | xargs)
-
-	for B in $(seq 0 50); do
-		POW=$((2 ** $B))
-		T=$((HEX&$POW))
-		[ "x$T" = "x$POW" ] && BANDS="${BANDS}$((B + 1)) "
-	done
-
-	echo "$BANDS"
+	hextobands "$HEX"
 }
 
 setbands() {
@@ -27,16 +20,6 @@ setbands() {
 	[ "x$BANDS" = "xdefault" ] && BANDS="$_DEFAULT_LTE_BANDS"
 	[ -z "$BANDS" ] && return
 
-	SUM=0
-	for BAND in $BANDS; do
-		case $BAND in
-			''|*[!0-9]*) continue ;;
-		esac
-		B=$((BAND - 1))
-		POW=$((2 ** $B))
-		SUM=$((SUM + POW))
-	done
-	HEX=$(printf '%x' $SUM)
-
+	HEX=$(bandstohex "$BANDS")
 	[ "$HEX" != "0" ] && sms_tool -d $_DEVICE at "at+bmbandpref=,$HEX,"
 }

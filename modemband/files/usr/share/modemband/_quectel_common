@@ -5,28 +5,7 @@ getsupportedbands() {
 getbands() {
 	O=$(sms_tool -d $_DEVICE at "at+qcfg=\"band\"")
 	HEX=$(echo "$O" | awk -F[:,] '{print $4}' | xargs)
-
-	LEN=${#HEX}
-	if [ $LEN -gt 18 ]; then
-		CNT=$((LEN - 16))
-		HHEX=${HEX:0:CNT}
-		HEX="0x"${HEX:CNT}
-	fi
-
-	for B in $(seq 0 50); do
-		POW=$((2 ** $B))
-		T=$((HEX&$POW))
-		[ "x$T" = "x$POW" ] && BANDS="${BANDS}$((B + 1)) "
-	done
-	if [ -n "$HHEX" ]; then
-		for B in $(seq 0 50); do
-			POW=$((2 ** $B))
-			T=$((HHEX&$POW))
-			[ "x$T" = "x$POW" ] && BANDS="${BANDS}$((B + 1 + 64)) "
-		done
-	fi
-
-	echo "$BANDS"
+	hextobands "$HEX"
 }
 
 setbands() {
@@ -34,27 +13,6 @@ setbands() {
 	[ "x$BANDS" = "xdefault" ] && BANDS="$_DEFAULT_LTE_BANDS"
 	[ -z "$BANDS" ] && return
 
-	SUM=0
-	HSUM=0
-	for BAND in $BANDS; do
-		case $BAND in
-			''|*[!0-9]*) continue ;;
-		esac
-		if [ $BAND -gt 64 ]; then
-			B=$((BAND - 1 - 64))
-			POW=$((2 ** $B))
-			HSUM=$((HSUM + POW))
-		else
-			B=$((BAND - 1))
-			POW=$((2 ** $B))
-			SUM=$((SUM + POW))
-		fi
-	done
-	if [ $HSUM -eq 0 ]; then
-		HEX=$(printf '%x' $SUM)
-	else
-		HEX=$(printf '%x%016x' $HSUM $SUM)
-	fi
-
+	HEX=$(bandstohex "$BANDS")
 	[ "$HEX" != "0" ] && sms_tool -d $_DEVICE at "at+qcfg=\"band\",0,$HEX,0,1"
 }

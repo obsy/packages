@@ -11,14 +11,7 @@ getsupportedbands() {
 getbands() {
 	O=$(sms_tool -d $_DEVICE at "at^syscfgex?")
 	HEX="0x"$(echo "$O" | awk -F[:,] '{print $6}' | xargs)
-
-	for B in $(seq 0 50); do
-		POW=$((2 ** $B))
-		T=$((HEX&$POW))
-		[ "x$T" = "x$POW" ] && BANDS="${BANDS}$((B + 1)) "
-	done
-
-	echo "$BANDS"
+	hextobands "$HEX"
 }
 
 setbands() {
@@ -28,17 +21,7 @@ setbands() {
 	if [ "x$BANDS" = "xdefault" ]; then
 		HEX="7FFFFFFFFFFFFFFF"
 	else
-		SUM=0
-		for BAND in $BANDS; do
-			case $BAND in
-				''|*[!0-9]*) continue ;;
-			esac
-			B=$((BAND - 1))
-			POW=$((2 ** $B))
-			SUM=$((SUM + POW))
-		done
-		HEX=$(printf '%x' $SUM)
+		HEX=$(bandstohex "$BANDS")
 	fi
-
 	[ "$HEX" != "0" ] && sms_tool -d $_DEVICE at "at^syscfgex=\"030201\",3FFFFFFF,2,4,$HEX,,"
 }
