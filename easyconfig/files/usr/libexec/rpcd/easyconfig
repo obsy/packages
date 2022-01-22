@@ -132,6 +132,39 @@ case $(cat /tmp/sysinfo/board_name) in
 			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		fi
 		;;
+	"zte,mf286")
+		if [ -e /usr/bin/sms_tool ]; then
+			[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
+			DEVICE=$(cat /tmp/modem)
+			if [ -n "$DEVICE" ]; then
+				O=$(sms_tool -d $DEVICE at "AT+ZRTEMP")
+				BATT=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $2}' | xargs)
+				if [ "x$BATT" = "x" ]; then
+					echo '{"Bateria":"Brak odczytu"}'
+				fi
+				if [ "x$BATT" = "x0" ]; then
+					echo '{"Bateria":"Nie zainstalowana"}'
+				fi
+				if [ "x$BATT" = "x1" ]; then
+					echo '{"Bateria":"Obecna"}'
+					CHARGING=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $3}' | xargs)
+					if [ "x$CHARGING" = "x0" ]; then
+						echo ',{"Ładowanie":"Nie"}'
+					fi
+					if [ "x$CHARGING" = "x1" ]; then
+						echo ',{"Ładowanie":"Tak"}'
+					fi
+					if [ "x$CHARGING" = "x2" ]; then
+						echo ',{"Ładowanie":"W pełni naładowana"}'
+					fi
+					BATTERY_LEVEL=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $4}' | xargs)
+					echo ',{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+					BATTERY_TEMP=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $7}' | xargs)
+					echo ',{"Temperatura baterii":"'${BATTERY_TEMP}' &deg;C"}'
+				fi
+			fi
+		fi
+		;;
 esac
 echo ']'
 
