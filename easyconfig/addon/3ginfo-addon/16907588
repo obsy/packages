@@ -143,6 +143,6 @@ if [ -n "$T" ]; then
 fi
 
 T=$(echo "$O" | awk -F[,] '/^\+CGNWS/ {print $9}' | xargs)
-if [ -n "$T" ]; then
+if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
 	COPS="$T"
 fi

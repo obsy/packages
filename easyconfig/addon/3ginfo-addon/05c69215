@@ -62,6 +62,6 @@ if [ "x$T" = "xLTE" ]; then
 fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $4}' | xargs)
-if [ -n "$T" ]; then
+if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
 	COPS="$T"
 fi
