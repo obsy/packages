@@ -11,11 +11,29 @@ Supported devices:
 - ZTE MF286D
 
 ```
-root@MiFi:~# modemband.sh
+root@MiFi:~# modemband.sh help
+Available commands:
+ /usr/bin/modemband.sh getinfo
+ /usr/bin/modemband.sh getsupportedbands
+ /usr/bin/modemband.sh getsupportedbandsext
+ /usr/bin/modemband.sh getbands
+ /usr/bin/modemband.sh getbandsext
+ /usr/bin/modemband.sh setbands "<band list>"
 
+root@MiFi:~# # modemband.sh
 Modem: Quectel EC25
 Supported LTE bands: 1 3 5 7 8 20 38 40 41
 LTE bands: 1 3 5 7 8 20 38 40 41 
+
+ 1: FDD 2100 MHz
+ 3: FDD 1800 MHz
+ 5: FDD  850 MHz
+ 7: FDD 2600 MHz
+ 8: FDD  900 MHz
+20: FDD  800 MHz
+38: TDD 2600 MHz
+40: TDD 2300 MHz
+41: TDD 2300 MHz
 
 root@MiFi:~# modemband.sh getinfo
 Quectel EC25
@@ -23,20 +41,42 @@ Quectel EC25
 root@MiFi:~# modemband.sh getsupportedbands
 1 3 5 7 8 20 38 40 41
 
+root@MiFi:~# modemband.sh getsupportedbandsext
+ 1: FDD 2100 MHz
+ 3: FDD 1800 MHz
+ 5: FDD  850 MHz
+ 7: FDD 2600 MHz
+ 8: FDD  900 MHz
+20: FDD  800 MHz
+38: TDD 2600 MHz
+40: TDD 2300 MHz
+41: TDD 2300 MHz
+
 root@MiFi:~# modemband.sh getbands
-1 3 5 7 8 20 38 40 41 
+1 3 5 7 8 20 38 40 41
+
+root@MiFi:~# modemband.sh getbandsext
+ 1: FDD 2100 MHz
+ 3: FDD 1800 MHz
+ 5: FDD  850 MHz
+ 7: FDD 2600 MHz
+ 8: FDD  900 MHz
+20: FDD  800 MHz
+38: TDD 2600 MHz
+40: TDD 2300 MHz
+41: TDD 2300 MHz
 
 root@MiFi:~# modemband.sh setbands "1 3 5 40"
 at+qcfg="band",0,8000000015,0,1
 
 root@MiFi:~# modemband.sh getbands
-1 3 5 40 
+1 3 5 40
 
 root@MiFi:~# modemband.sh setbands default
 at+qcfg="band",0,1a0000800d5,0,1
 
 root@MiFi:~# modemband.sh getbands
-1 3 5 7 8 20 38 40 41 
+1 3 5 7 8 20 38 40 41
 ```
 
 See also [description in Polish](https://eko.one.pl/?p=openwrt-modemband).
