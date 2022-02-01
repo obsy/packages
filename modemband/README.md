@@ -6,6 +6,7 @@ Supported devices:
 - Quectel EC20
 - Quectel EC25
 - Quectel EG06-E
+- Quectel EM160R-GL
 - Quectel EP06-E
 - ZTE MF286
 - ZTE MF286D
@@ -19,6 +20,8 @@ Available commands:
  /usr/bin/modemband.sh getbands
  /usr/bin/modemband.sh getbandsext
  /usr/bin/modemband.sh setbands "<band list>"
+ /usr/bin/modemband.sh json
+ /usr/bin/modemband.sh help
 
 root@MiFi:~# # modemband.sh
 Modem: Quectel EC25
@@ -34,6 +37,9 @@ LTE bands: 1 3 5 7 8 20 38 40 41
 38: TDD 2600 MHz
 40: TDD 2300 MHz
 41: TDD 2300 MHz
+
+root@MiFi:~# modemband.sh json
+{ "modem": "Quectel EC25", "supported": [ { "band": 1, "txt": "FDD 2100 MHz" }, { "band": 3, "txt": "FDD 1800 MHz" }, { "band": 5, "txt": "FDD  850 MHz" }, { "band": 7, "txt": "FDD 2600 MHz" }, { "band": 8, "txt": "FDD  900 MHz" }, { "band": 20, "txt": "FDD  800 MHz" }, { "band": 38, "txt": "TDD 2600 MHz" }, { "band": 40, "txt": "TDD 2300 MHz" }, { "band": 41, "txt": "TDD 2300 MHz" } ], "enabled": [ 1, 3, 5, 7, 8, 20, 38, 40, 41 ] }
 
 root@MiFi:~# modemband.sh getinfo
 Quectel EC25

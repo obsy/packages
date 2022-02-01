@@ -54,7 +54,7 @@ bandstohex() {
 	echo "$HEX"
 }
 
-bandext() {
+bandtxt() {
 	BAND=$1
 
 # see https://en.wikipedia.org/wiki/LTE_frequency_bands
@@ -141,7 +141,7 @@ getsupportedbandsext() {
 	T=$(getsupportedbands)
 	[ "x$T" = "xUnsupported" ] && return
 	for BAND in $T; do
-		bandext "$BAND"
+		bandtxt "$BAND"
 	done
 }
 
@@ -154,7 +154,7 @@ getbandsext() {
 	T=$(getbands)
 	[ "x$T" = "xUnsupported" ] && return
 	for BAND in $T; do
-		bandext "$BAND"
+		bandtxt "$BAND"
 	done
 }
 
@@ -205,6 +205,32 @@ case $1 in
 	"setbands")
 		setbands "$2"
 		;;
+	"json")
+		. /usr/share/libubox/jshn.sh
+		json_init
+		json_add_string modem "$(getinfo)"
+		json_add_array supported
+		T=$(getsupportedbands)
+		if [ "x$T" != "xUnsupported" ]; then
+			for BAND in $T; do
+				json_add_object ""
+				json_add_int band $BAND
+				TXT="$(bandtxt $BAND)"
+				json_add_string txt "${TXT##*: }"
+				json_close_object
+			done
+		fi
+		json_close_array
+		json_add_array enabled
+		T=$(getbands)
+		if [ "x$T" != "xUnsupported" ]; then
+			for BAND in $T; do
+				json_add_int "" $BAND
+			done
+		fi
+		json_close_array
+		json_dump
+		;;
 	"help")
 		echo "Available commands:"
 		echo " $0 getinfo"
@@ -213,6 +239,8 @@ case $1 in
 		echo " $0 getbands"
 		echo " $0 getbandsext"
 		echo " $0 setbands \"<band list>\""
+		echo " $0 json"
+		echo " $0 help"
 		;;
 	*)
 		echo -n "Modem: "
