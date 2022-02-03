@@ -418,6 +418,11 @@ for R in $RADIOS; do
 	WLAN_BAND=$(uci -q get wireless.$R.band)
 	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
 	T=$(uci -q show wireless | awk -F. '/device=.*'$R'/{print $2}')
+	WLAN_SEC=""
+	WLAN_SSID=""
+	WLAN_ENCRYPTION=""
+	WLAN_KEY=""
+	WLAN_ISOLATE=0
 	if [ -n "$T" ]; then
 		for WLAN_SEC in $T; do
 			[ "x$(uci -q get wireless.$WLAN_SEC.network)" = "xlan" ] || continue
