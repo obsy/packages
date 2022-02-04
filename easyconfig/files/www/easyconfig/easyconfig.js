@@ -1207,22 +1207,17 @@ function savesettings() {
 			section = '@wifi-iface[-1]';
 			config[radios[i]].wlan_section = section;
 			cmd.push('uci set wireless.' + section + '.device=' + radios[i]);
-			if (!getValue('wlan_enabled' + i)) {
-				cmd.push('uci set wireless.' + section + '.disabled=1');
-			}
 		}
 
 		if (getValue('wlan_enabled' + i)) {
 			if (config[radios[i]].wlan_disabled == 1) {
 				wlan_restart_required = true;
 				cmd.push('uci -q del wireless.' + radios[i] + '.disabled');
-				cmd.push('uci -q del wireless.' + section + '.disabled');
 			}
 		} else {
 			if (config[radios[i]].wlan_disabled != 1) {
 				wlan_restart_required = true;
 				cmd.push('uci set wireless.' + radios[i] + '.disabled=1');
-				cmd.push('uci set wireless.' + section + '.disabled=1');
 			}
 		}
 
