@@ -42,8 +42,8 @@ if [ "x$DEVICE" = "x" ]; then
 	exit 0
 fi
 
-#O=$(gcom -d $DEVICE -s $RES/3ginfo.gcom 2>/dev/null)
 O=$(sms_tool -d $DEVICE at "AT+CSQ;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
+O="${O}$(sms_tool -d $DEVICE at "AT+CPIN?")"
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
