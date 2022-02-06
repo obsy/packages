@@ -1,0 +1,18 @@
+# WNC D18QC
+
+
+case "$MODE1" in
+	7*)
+		O=$(sms_tool -d $DEVICE at "at\$qcrsrp?;\$qcrsrq?")
+		T=$(echo "$O" | awk -F[,:] '/\$QCRSRP/ {gsub("\"","");printf "%.1f", $4 * 1}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/\$QCRSRQ/ {gsub("\"","");printf "%.1f", $4 * 1}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+		fi
+		;;
+esac
