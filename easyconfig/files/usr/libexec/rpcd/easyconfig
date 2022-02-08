@@ -573,6 +573,16 @@ else
 	echo '"sae":false,'
 fi
 
+if [ -e /usr/bin/modemband.sh ]; then
+	if /usr/bin/modemband.sh | grep -q '^Supported LTE bands: '; then
+		echo '"modemband":true,'
+	else
+		echo '"modemband":false,'
+	fi
+else
+	echo '"modemband":false,'
+fi
+
 echo '}'
 
 echo '}'

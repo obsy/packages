@@ -707,7 +707,12 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-6 col-xs-offset-6">
-			<a href="#" class="click" onclick="modemat();">polecenia AT</a>
+			<p><a href="#" class="click" onclick="modemat();">polecenia AT</a></p>
+			</div>
+		</div>
+		<div class="row">
+			<div id="menu_modemsettings" class="col-xs-6 col-xs-offset-6"  style="display:none;">
+			<p><a href="#" class="click" onclick="modemsettings();">pasma LTE</a></p>
 			</div>
 		</div>
 	</div>
@@ -730,7 +735,7 @@
 	<div class="row">
 		<label class="col-xs-6 text-right">Restart urządzenia</label>
 		<div class="col-xs-6">
-		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" />
+		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" title="Ponowne uruchomienie routera" />
 		</div>
 	</div>
 
@@ -802,12 +807,12 @@
 	<h3 class="section">Pomoc</h3>
 	<div class="row">
 		<div class="col-xs-6 col-xs-offset-6">
-			<a href="https://eko.one.pl/?p=easyconfig" class="click" target="_blank">opis funkcji &rarr;</a>
+			<p><a href="https://eko.one.pl/?p=easyconfig" class="click" target="_blank">opis funkcji &rarr;</a></p>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-xs-6 col-xs-offset-6">
-			<a href="https://eko.one.pl/forum" class="click" target="_blank">forum &rarr;</a>
+			<p><a href="https://eko.one.pl/forum" class="click" target="_blank">forum &rarr;</a></p>
 		</div>
 	</div>
 
@@ -1631,10 +1636,30 @@
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default" onclick="closemodemat();" value="Zamknij" />
-			<input type="button" class="btn btn-default" onclick="sendmodemat()" value="Wyślij" />
+			<input type="button" class="btn btn-default" onclick="sendmodemat();" value="Wyślij" />
 		</div>
 	</div>
 </div>
+
+<div id="div_modemsettings" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">Pasma LTE</div>
+		<form class="form-horizontal">
+			<div id="modemsettings_bands_lte"></div>
+		</form>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();" value="Zamknij" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();btn_system_reboot();" value="Restart" title="Ponowne uruchomienie routera" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart WAN" title="Ponowanie nawiązanie połączenia z internetem" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodemsettings();" value="Domyślne ust." title="Przywraca domyślnie ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="modemsettings();" value="Odśwież" />
+			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodemsettings();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
+
 
 <div class="text-center">&nbsp;</div>
 

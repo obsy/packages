@@ -302,6 +302,12 @@ h3 {
   }
 }
 
+@media (min-width: 578px) and (max-width: 976px) {
+  .modalmargintop {
+    margin-top: 5px;
+  }
+}
+
 .mmarginbottom {
   margin-bottom: 0px;
 }

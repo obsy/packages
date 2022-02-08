@@ -960,6 +960,9 @@ function showcallback(data) {
 	// nightmode / sunwait
 	setDisplay('div_nightmode_led_auto', config.services.sunwait);
 
+	// modemsettings
+	setDisplay('menu_modemsettings', config.services.modemband);
+
 	// button
 	if (config.button.code != '') {
 		select = removeOptions('system_button');
@@ -1591,6 +1594,72 @@ function sendmodemat() {
 
 function closemodemat() {
 	setDisplay('div_modemat', false);
+}
+
+function modemsettings() {
+	closemodemsettings();
+	ubus_call('"file", "exec", {"command":"modemband.sh","params":["json"]}', function(data) {
+		if (data.code == 0) {
+			var modem = JSON.parse(data.stdout);
+
+			var arr = sortJSON(modem.supported, 'band', 'asc');
+			var html = '<div class="form-group">';
+			for (var idx = 0; idx < arr.length; idx++) {
+				html += '<label for="modemsettings_band_lte_' + arr[idx].band + '"  class="col-xs-3 col-sm-2 control-label">B' + arr[idx].band + '</label> \
+						<div class="col-xs-9 col-sm-4"> \
+						<label class="switch"><input data-band=' + arr[idx].band + ' id="modemsettings_band_lte_' + arr[idx].band + '" type="checkbox" class="band_lte"><div class="slider round"></div></label> \
+						<span class="control-label labelleft">' + arr[idx].txt + '</span> \
+						</div>';
+			}
+			html += '</div>';
+			setValue('modemsettings_bands_lte', html);
+
+			arr = modem.enabled;
+			for (var idx = 0; idx < arr.length; idx++) {
+				var e = document.getElementById('modemsettings_band_lte_' + arr[idx]);
+				if (e) {
+					e.checked = 1;
+				}
+			}
+			setDisplay('div_modemsettings', true);
+		}
+	})
+}
+
+function savemodemsettings() {
+	closemodemsettings();
+	var bands = '';
+	(document.querySelectorAll('.band_lte')).forEach((e) => {
+		if (e.checked) {
+			bands += e.getAttribute('data-band') + ' ';
+		}
+	})
+	if (bands == '') {
+		bands = 'default';
+	}
+
+	var cmd = [];
+	cmd.push('modemband.sh setbands \\\"' + bands + '\\\"');
+	execute(cmd, modemsettings);
+}
+
+function defaultmodemsettings() {
+	closemodemsettings();
+	execute(['modemband.sh setbands default'], modemsettings);
+}
+
+function restartwan() {
+	closemodemsettings();
+
+	var cmd = [];
+	cmd.push('ifdown wan');
+	cmd.push('sleep 3');
+	cmd.push('ifup wan');
+	execute(cmd, modemsettings);
+}
+
+function closemodemsettings() {
+	setDisplay('div_modemsettings', false);
 }
 
 function showmodem() {
