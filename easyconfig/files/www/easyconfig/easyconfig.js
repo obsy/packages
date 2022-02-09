@@ -1662,6 +1662,8 @@ function closemodemsettings() {
 	setDisplay('div_modemsettings', false);
 }
 
+var arrmodemaddon = [];
+
 function showmodem() {
 	ubus_call('"easyconfig", "modem", {}', function(data) {
 		if (data.error)
@@ -1714,19 +1716,21 @@ function showmodem() {
 			setValue('modem_registration', data.registration == '' ? '-' : data.registration);
 		}
 
-		if (data.addon) {
-			var html = '';
-			for (var i in data.addon) {
-				for (var j in data.addon[i]) {
-					html += '<div class="row"><label class="col-xs-6 text-right">' + j + '</label>';
-					html += '<div class="col-xs-6"><p>' + data.addon[i][j] + '</p></div></div>';
-				}
-			}
-			setValue('div_status_modem_addon', html);
-			setDisplay('div_status_modem_addon', true);
-		} else {
-			setDisplay('div_status_modem_addon', false);
+		arrmodemaddon = [];
+		if (data.operator_mcc && data.operator_mcc != '-' &&
+			data.operator_mnc && data.operator_mnc != '-') {
+			arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
 		}
+		if (data.lac_dec && data.lac_dec > 0) {
+			arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
+		}
+		if (data.cid_dec && data.cid_dec > 0) {
+			arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
+		}
+		if (data.addon) {
+			arrmodemaddon = arrmodemaddon.concat(data.addon);
+		}
+		setDisplay('div_modem_addon', arrmodemaddon.length > 0);
 
 		if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
 			document.getElementById("modem_btsearch").setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
@@ -1736,6 +1740,16 @@ function showmodem() {
 		}
 
 	});
+}
+
+function modemaddon() {
+	var html = '';
+	for (var i in arrmodemaddon) {
+		for (var j in arrmodemaddon[i]) {
+			html += createRowForModal(j, arrmodemaddon[i][j]);
+		}
+	}
+	showMsg(html);
 }
 
 function showmodemsection() {
