@@ -738,7 +738,7 @@
 	<div class="row">
 		<label class="col-xs-6 text-right">Restart urządzenia</label>
 		<div class="col-xs-6">
-		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" title="Ponowne uruchomienie routera" />
+		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" title="Ponowne uruchomienie urządzenia" />
 		</div>
 	</div>
 
@@ -900,7 +900,7 @@
 			<label for="watchdog_action" class="col-xs-4 col-sm-3 control-label">Akcja</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="watchdog_action" class="form-control">
-			<option value='wan'>Restart połączenia z internetem</option>
+			<option value='wan'>Ponowne uruchomienie połączenia z internetem</option>
 			<option value='reboot'>Ponowne uruchomienie urządzenia</option>
 			</select>
 			</div>
@@ -1653,8 +1653,7 @@
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();" value="Zamknij" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();btn_system_reboot();" value="Restart" title="Ponowne uruchomienie routera" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart WAN" title="Ponowanie nawiązanie połączenia z internetem" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="Ponowne uruchomienie połączenia z internetem" />
 			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodemsettings();" value="Domyślne ust." title="Przywraca domyślnie ustawienia modemu" />
 			<input type="button" class="btn btn-default modalmargintop" onclick="modemsettings();" value="Odśwież" />
 			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodemsettings();" value="Zapisz zmiany" />
