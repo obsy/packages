@@ -1,6 +1,7 @@
-# ZTE MF286
+# ZTE MF286/MF286A
 
-O=$(sms_tool -d $DEVICE at "at+zrssi;+zcellinfo?;+zcainfo?;+zdon?")
+#O=$(sms_tool -d $DEVICE at "at+zrssi;+zcellinfo?;+zcainfo?;+zdon?")
+O=$(sms_tool -d $DEVICE at "at+zrssi;+zcellinfo?;+zcainfo?")
 
 case "$MODE1" in
 	3*)
@@ -57,7 +58,7 @@ case "$MODE1" in
 		;;
 esac
 
-T=$(echo "$O" | awk -F[,:] '/^\+ZDON/ {print $2}' | xargs)
-if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
-	COPS="$T"
-fi
+#T=$(echo "$O" | awk -F[,:] '/^\+ZDON/ {print $2}' | xargs)
+#if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
+#	COPS="$T"
+#fi
