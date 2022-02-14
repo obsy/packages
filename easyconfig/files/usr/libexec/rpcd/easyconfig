@@ -2,7 +2,7 @@
 
 ##############################################################################
 
-# (c) 2016-2021 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2022 Cezary Jackiewicz <cezary@eko.one.pl>
 
 ##############################################################################
 
@@ -108,7 +108,8 @@ echo '"vpn_up":'${VPN_UP:-false}','
 
 echo '"sensors":['
 case $(cat /tmp/sysinfo/board_name) in
-	"cellc,rtl30vw")
+	"cellc,rtl30vw"|\
+	"zte,mf286d")
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
 		;;
@@ -132,7 +133,9 @@ case $(cat /tmp/sysinfo/board_name) in
 			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		fi
 		;;
-	"zte,mf286")
+	"zte,mf286"|\
+	"zte,mf286a")
+		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		if [ -e /usr/bin/sms_tool ]; then
 			[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
 			DEVICE=$(cat /tmp/modem)
