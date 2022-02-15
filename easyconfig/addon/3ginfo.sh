@@ -42,8 +42,7 @@ if [ "x$DEVICE" = "x" ]; then
 	exit 0
 fi
 
-O=$(sms_tool -d $DEVICE at "AT+CSQ;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
-O="${O}$(sms_tool -d $DEVICE at "AT+CPIN?")"
+O=$(sms_tool -d $DEVICE at "AT+CSQ;+CPIN?;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
@@ -53,7 +52,7 @@ if [ $CSQ -ge 0 -a $CSQ -le 31 ]; then
 	CSQ_PER=$(($CSQ * 100/31))
 else
 	CSQ="-"
-	CSQ_PER="0"
+	CSQ_PER=0
 fi
 
 # COPS numeric
@@ -78,12 +77,32 @@ fi
 # CREG
 eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE1=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
-	0*) REG="0";;
-	1*) REG="1";;
-	2*) REG="2";;
-	3*) REG="3";;
-	5*) REG="5";;
-	 *) REG="-";;
+	0*)
+		REG="0"
+		CSQ="-"
+		CSQ_PER=0
+		;;
+	1*)
+		REG="1"
+		;;
+	2*)
+		REG="2"
+		CSQ="-"
+		CSQ_PER=0
+		;;
+	3*)
+		REG="3"
+		CSQ="-"
+		CSQ_PER=0
+		;;
+	5*)
+		REG="5"
+		;;
+	*)
+		REG="-"
+		CSQ="-"
+		CSQ_PER=0
+		;;
 esac
 
 # MODE
@@ -120,6 +139,10 @@ for _DEV in $_DEVS; do
 		break
 	fi
 done
+
+if [ "x$CSQ" = "x-" ] && [ "x$CSQ_PER" = "x0" ]; then
+	MODE="-"
+fi
 
 cat <<EOF
 {
