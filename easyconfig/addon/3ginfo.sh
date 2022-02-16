@@ -75,7 +75,7 @@ if [ -z "$FORCE_PLMN" ]; then
 fi
 
 # CREG
-eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE1=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
+eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
 	0*)
 		REG="0"
@@ -106,8 +106,10 @@ case "$T" in
 esac
 
 # MODE
-[ -z "$MODE1" -o "x$MODE1" = "x0" ] && MODE1=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4;exit}')
-case "$MODE1" in
+if [ -z "$MODE_NUM" ] || [ "x$MODE_NUM" = "x0" ]; then
+	MODE_NUM=$(echo "$O" | awk -F[,] '/^\+COPS/ {print $4;exit}')
+fi
+case "$MODE_NUM" in
 	2*) MODE="UMTS";;
 	3*) MODE="EDGE";;
 	4*) MODE="HSDPA";;

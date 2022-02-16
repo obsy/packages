@@ -1,7 +1,6 @@
 # WNC D18QC
 
-
-case "$MODE1" in
+case "$MODE_NUM" in
 	7*)
 		O=$(sms_tool -d $DEVICE at "at\$qcrsrp?;\$qcrsrq?")
 		T=$(echo "$O" | awk -F[,:] '/\$QCRSRP/ {gsub("\"","");printf "%.1f", $4 * 1}')
