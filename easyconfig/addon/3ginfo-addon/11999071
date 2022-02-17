@@ -3,6 +3,12 @@
 
 O=$(sms_tool -d $DEVICE at "at!gstatus?")
 
+T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
+if [ -n "$T" ]; then
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+fi
+
 T=$(echo "$O" | awk '/^LTE band:/ {print $3}' | xargs)
 if [ -n "$T" ]; then
 	case "$T" in
@@ -46,10 +52,4 @@ T=$(echo "$O" | awk '/^SINR/ {print $3}' | xargs)
 if [ -n "$T" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
 	ADDON="$ADDON"'{"SINR":"'$T' dB"}'
-fi
-
-T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
-if [ -n "$T" ]; then
-	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
 fi

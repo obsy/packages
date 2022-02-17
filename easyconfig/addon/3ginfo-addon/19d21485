@@ -66,6 +66,61 @@ case "$MODE_NUM" in
 				esac
 			fi
 		fi
+
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $4}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			T_HEX=$(printf "%d" $T)
+			ADDON="$ADDON"'{"TAC":"'$T' ('$T_HEX')"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"PCI":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $5}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"Bandwidth":"'$T' MHz"}'
+		fi
+
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $7}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S1) PCI":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $10}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S1) EARFCN":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S1) Bandwidth":"'$T' MHz"}'
+		fi
+
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $12}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S2) PCI":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $15}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S2) EARFCN":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $16}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S2) Bandwidth":"'$T' MHz"}'
+		fi
+
 		;;
 esac
 

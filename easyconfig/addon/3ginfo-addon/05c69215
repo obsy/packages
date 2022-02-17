@@ -23,45 +23,68 @@ fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $4}' | xargs)
 if [ "x$T" = "xLTE" ]; then
-#	CELLID=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $8}' | xargs)
-#	PCID=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
-#	EARFCN=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
-#	FREQ_BAND_IND=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $11}' | xargs)
-#	UL_BANDWIDTH=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
-#	DL_BANDWIDTH=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
-#	TAC=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
-	RSRP=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
-	RSRQ=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
-	RSSI=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
-	SINR=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", $1*0.2-20}')
-#	SRXLEV=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $19}' | xargs)
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"CELLID":"'$CELLID'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"PCID":"'$PCID'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"EARFCN":"'$EARFCN'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"FREQ_BAND_IND":"'$FREQ_BAND_IND'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"UL_BANDWIDTH":"'$UL_BANDWIDTH'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"DL_BANDWIDTH":"'$DL_BANDWIDTH'"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"TAC":"'$TAC'"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"RSRP":"'$RSRP' dBm"}'
+	ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"RSRQ":"'$RSRQ' dB"}'
+	ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"RSSI":"'$RSSI' dBm"}'
+	ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", $1*0.2-20}')
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"SINR":"'$SINR' dB"}'
-#	[ -n "$ADDON" ] && ADDON="$ADDON,"
-#	ADDON="$ADDON"'{"SRXLEV":"'$SRXLEV'"}'
+	ADDON="$ADDON"'{"SINR":"'$T' dB"}'
+
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		T_DEC=$(printf "%d" "0x$T")
+		ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"PCI":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
+	if [ -n "$T" ]; then
+		case $T in
+			0*) T1="1.4";;
+			1*) T1="3";;
+			2*) T1="5";;
+			3*) T1="10";;
+			4*) T1="15";;
+			5*) T1="20";;
+		esac
+		if [ -n "T1" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"Bandwidth UL":"'$T1' MHz"}'
+		fi
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
+	if [ -n "$T" ]; then
+		case $T in
+			0*) T1="1.4";;
+			1*) T1="3";;
+			2*) T1="5";;
+			3*) T1="10";;
+			4*) T1="15";;
+			5*) T1="20";;
+		esac
+		if [ -n "T1" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"Bandwidth DL":"'$T1' MHz"}'
+		fi
+	fi
 fi
 
-T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $4}' | xargs)
+T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $2}' | xargs)
 if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
 	COPS="$T"
 fi

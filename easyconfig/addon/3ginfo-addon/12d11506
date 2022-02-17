@@ -2,6 +2,12 @@
 
 O=$(sms_tool -d $DEVICE at "at^chiptemp?;^hcsq?")
 
+T=$(echo "$O" | awk -F[,:] '/^\^CHIPTEMP/ {gsub(/[ \r]/,"");t=0;for(i=2;i<=NF;i++)if($i!=65535){if($i>100){$i=$i/10};if($i>t){t=$i}};printf "%.1f", t}')
+if [ "x$T" != "x0.0" ]; then
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+fi
+
 T=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $2}' | xargs)
 if [ -n "$T" ]; then
 	MODE="$T"
@@ -32,10 +38,4 @@ if [ -n "$T" ]; then
 			ADDON="$ADDON"'{"RSRQ":"'$RSRQ' dB"}'
 			;;
 	esac
-fi
-
-T=$(echo "$O" | awk -F[,:] '/^\^CHIPTEMP/ {gsub(/[ \r]/,"");t=0;for(i=2;i<=NF;i++)if($i!=65535){if($i>100){$i=$i/10};if($i>t){t=$i}};printf "%.1f", t}')
-if [ "x$T" != "x0.0" ]; then
-	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
 fi

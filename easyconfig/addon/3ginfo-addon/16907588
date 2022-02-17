@@ -1,6 +1,13 @@
 # ASKEY WWHC050
 
 O=$(sms_tool -d $DEVICE at "at\$qcai?;+ccputemp;+cgcelli;+cgnws")
+
+T=$(echo "$O" | awk -F[:] '/^\+CCPUTEMP/ {print $2}' | xargs)
+if [ -n "$T" ]; then
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+fi
+
 T=$(echo "$O" | awk 'BEGIN{FS="BEARER:"}/^\+CGCELLI/{print $2}' | awk 'BEGIN{FS=","}{print $1}')
 
 case "$T" in
@@ -134,12 +141,6 @@ fi
 #	[ -n "$ADDON" ] && ADDON="$ADDON,"
 #	ADDON="$ADDON"'{"BW":"'$BW'"}'
 #fi
-
-T=$(echo "$O" | awk -F[:] '/^\+CCPUTEMP/ {print $2}' | xargs)
-if [ -n "$T" ]; then
-	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
-fi
 
 T=$(echo "$O" | awk -F[,] '/^\+CGNWS/ {print $9}' | xargs)
 if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
