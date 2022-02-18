@@ -23,6 +23,13 @@ fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $4}' | xargs)
 if [ "x$T" = "xLTE" ]; then
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		T_DEC=$(printf "%d" "0x$T")
+		ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+	fi
+
 	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
 	ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
@@ -36,12 +43,6 @@ if [ "x$T" = "xLTE" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
 	ADDON="$ADDON"'{"SINR":"'$T' dB"}'
 
-	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
-	if [ -n "$T" ]; then
-		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		T_DEC=$(printf "%d" "0x$T")
-		ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
-	fi
 	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"

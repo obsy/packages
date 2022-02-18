@@ -23,6 +23,13 @@ case "$MODE_NUM" in
 		[ -n "$T" ] && MODE="$T"
 		;;
 	7*)
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $4}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			T_HEX=$(printf "%d" $T)
+			ADDON="$ADDON"'{"TAC":"'$T' ('$T_HEX')"}'
+		fi
+
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
@@ -67,11 +74,11 @@ case "$MODE_NUM" in
 			fi
 		fi
 
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $4}' | xargs)
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $3}' | xargs)
 		if [ -n "$T" ]; then
+			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			T_HEX=$(printf "%d" $T)
-			ADDON="$ADDON"'{"TAC":"'$T' ('$T_HEX')"}'
+			ADDON="$ADDON"'{"Primary band":"'$(band $T "")', '$T1' MHz"}'
 		fi
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
 		if [ -n "$T" ]; then
@@ -83,12 +90,13 @@ case "$MODE_NUM" in
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"EARFCN":"'$T'"}'
 		fi
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"Bandwidth":"'$T' MHz"}'
-		fi
 
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $9}' | xargs)
+		if [ -n "$T" ]; then
+			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S1) band":"'$(band $T "")', '$T1' MHz"}'
+		fi
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $7}' | xargs)
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
@@ -99,12 +107,13 @@ case "$MODE_NUM" in
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S1) EARFCN":"'$T'"}'
 		fi
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S1) Bandwidth":"'$T' MHz"}'
-		fi
 
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $14}' | xargs)
+		if [ -n "$T" ]; then
+			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $16}' | xargs)
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S) band":"'$(band $T "")', '$T1' MHz"}'
+		fi
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $12}' | xargs)
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
@@ -114,11 +123,6 @@ case "$MODE_NUM" in
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S2) EARFCN":"'$T'"}'
-		fi
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $16}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S2) Bandwidth":"'$T' MHz"}'
 		fi
 
 		;;
