@@ -168,6 +168,9 @@ case $(cat /tmp/sysinfo/board_name) in
 			fi
 		fi
 		;;
+	"zte,mf286r")
+		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
+		;;
 esac
 echo ']'
 
