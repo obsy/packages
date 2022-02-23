@@ -70,12 +70,12 @@ fi
 T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $4}' | xargs)
 if [ -n "$T" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"EARRFN DL":"'$T'"}'
+	ADDON="$ADDON"'{"EARFCN DL":"'$T'"}'
 fi
 T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $8}' | xargs)
 if [ -n "$T" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"EARRFN UL":"'$T'"}'
+	ADDON="$ADDON"'{"EARFCN UL":"'$T'"}'
 fi
 
 T=$(echo "$O" | awk -F: '/^LTE CA state:.*ACTIVE/ {print $3}' | xargs)
@@ -90,6 +90,6 @@ if [ -n "$T" ]; then
 	T=$(echo "$O" | awk '/.*LTE Scell chan:/ {print $7}' | xargs)
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"(S) EARRFN":"'${T#chan:}'"}'
+		ADDON="$ADDON"'{"(S) EARFCN":"'${T#chan:}'"}'
 	fi
 fi
