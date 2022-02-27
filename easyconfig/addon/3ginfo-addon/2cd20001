@@ -20,31 +20,40 @@ if [ -z "$FORCE_PLMN" ]; then
 fi
 
 O=$(sms_tool -d $DEVICE at "at+cesq")
+T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $2}' | xargs)
+if [ -n "$T" ]; then
+	if [ "$T" != "99" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"RSSI":"'$((T - 111))' dBm"}'
+	fi
+fi
 T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $4}' | xargs)
 if [ -n "$T" ]; then
 	if [ "$T" != "255" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"RSCP":"-'$T' dBm"}'
+		ADDON="$ADDON"'{"RSCP":"'$((T - 121))' dBm"}'
 	fi
 fi
 T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $5}' | xargs)
 if [ -n "$T" ]; then
 	if [ "$T" != "255" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"ECNO":"-'$T' dB"}'
-	fi
-fi
-T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $6}' | xargs)
-if [ -n "$T" ]; then
-	if [ "$T" != "255" ]; then
-		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"RSRQ":"-'$T' dB"}'
+		T=$(echo "$T" | awk '{printf "%.1f", -1 * (24.5 - $1 * 0.5)}')
+		ADDON="$ADDON"'{"ECIO":"'$T' dB"}'
 	fi
 fi
 T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $7}' | xargs)
 if [ -n "$T" ]; then
 	if [ "$T" != "255" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"RSRP":"-'$T' dBm"}'
+		ADDON="$ADDON"'{"RSRP":"'$((T - 141))' dBm"}'
+	fi
+fi
+T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $6}' | xargs)
+if [ -n "$T" ]; then
+	if [ "$T" != "255" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		T=$(echo "$T" | awk '{printf "%.1f", -1 * (20 - $1 * 0.5)}')
+		ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
 	fi
 fi
