@@ -9,9 +9,9 @@ case "$MODE_NUM" in
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
 		;;
-	2*| \
-	4*| \
-	5*| \
+	2*|\
+	4*|\
+	5*|\
 	6*)
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
@@ -112,7 +112,7 @@ case "$MODE_NUM" in
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $16}' | xargs)
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S) band":"'$(band $T "")', '$T1' MHz"}'
+			ADDON="$ADDON"'{"(S2) band":"'$(band $T "")', '$T1' MHz"}'
 		fi
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $12}' | xargs)
 		if [ -n "$T" ]; then

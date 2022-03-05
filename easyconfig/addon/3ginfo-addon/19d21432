@@ -9,9 +9,9 @@ case "$MODE_NUM" in
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
 		;;
-	2*| \
-	4*| \
-	5*| \
+	2*|\
+	4*|\
+	5*|\
 	6*)
 		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
