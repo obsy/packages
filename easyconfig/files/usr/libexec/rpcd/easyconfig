@@ -823,8 +823,7 @@ show_modem()
 		T=$(uqmi -sd $D --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')
 
 		json_load "$T"
-
-		json_get_vars type plmn_description rssi registration roaming plmn_mcc plmn_mnc
+		json_get_vars type rssi rsrq rsrp snr ecio registration plmn_mcc plmn_mnc plmn_description roaming
 
 		MODE=$(echo $type | tr 'a-z' 'A-Z')
 
@@ -844,6 +843,7 @@ show_modem()
 		case "x$registration" in
 			"xnot_registered")
 				registration="0"
+				SIGNAL=0
 				;;
 			"xregistered")
 				registration="1"
@@ -852,18 +852,36 @@ show_modem()
 			"xsearching")
 				registration="2"
 				plmn_description=""
+				SIGNAL=0
 				;;
 			"xregistering_denied")
 				registration="3"
+				SIGNAL=0
 				;;
 			*)
-				registration="4"
+				registration=""
+				SIGNAL=0
 				;;
 		esac
 
-		echo "{\"signal\":\"$SIGNAL\",\"operator_name\":\"$plmn_description\",\"mode\":\"$MODE\",\"registration\":\"$registration\""
-#		echo ",\"addon\":[{\"RSSI\":\"$rssi\"}]"
-		echo "}"
+		echo "{"
+		echo "\"signal\":\"$SIGNAL\","
+		echo "\"operator_name\":\"$plmn_description\","
+		echo "\"operator_mcc\":\"$plmn_mcc\","
+		echo "\"operator_mnc\":\"$(printf "%02d" $plmn_mnc)\","
+		echo "\"mode\":\"$MODE\","
+		echo "\"registration\":\"$registration\","
+		echo "\"lac_dec\":\"\",\"lac_hex\":\"\",\"cid_dec\":\"\",\"cid_hex\":\"\",\"addon\":["
+		[ -n "$rssi" ] && echo "{\"RSSI\":\"$rssi dBm\"},"
+		if [ "x$MODE" = "xLTE" ]; then
+			[ -n "$rsrp" ] && echo "{\"RSRP\":\"$rsrp dBm\"},"
+			[ -n "$rsrq" ] && echo "{\"RSRQ\":\"$rsrq dB\"},"
+			[ -n "$snr" ] && echo "{\"SNR\":\"$(printf "%.1f" $snr) dB\"},"
+		fi
+		if [ "x$MODE" = "xWCDMA" ]; then
+			[ -n "$ecio" ] && echo "{\"ECIO\":\"$ecio dB\"},"
+		fi
+		echo "]}"
 	else
 		T=$(uci -q get easyconfig.modem.force_plmn)
 		[ "x$T" = "x1" ] || T=""
