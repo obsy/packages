@@ -1,24 +1,40 @@
 _DEVICE=/dev/ttyUSB1
 
 getinfo() {
-	echo "Huawei E3272/E3276/E3372"
+	O=$(sms_tool -d $_DEVICE at "at+cgmm")
+	_NAME=$(echo "$O" | awk '/^[a-zA-Z0-9]/ && !/at\+cgmm/{print $0}' | xargs)
+	echo "Huawei $_NAME"
 }
 
 getsupportedbands() {
-	echo "1 3 7 8 20"
+	O=$(sms_tool -d $_DEVICE at "at+cgmm")
+	_NAME=$(echo "$O" | awk '/^[a-zA-Z0-9]/ && !/at\+cgmm/{print $0}' | xargs)
+	case "$_NAME" in
+	"ME909s-120")
+		echo "1 2 3 4 5 7 8 20"
+		;;
+	"ME909s-821")
+		echo "1 3 8 38 39 40 41"
+		;;
+	"ME909s-821a")
+		echo "1 3 5 8 38 39 40 41"
+		;;
+	*)
+		echo "1 3 7 8 20"
+		;;
+	esac
 }
 
 getbands() {
 	O=$(sms_tool -d $_DEVICE at "at^syscfgex?")
-	HEX="0x"$(echo "$O" | awk -F[:,] '{print $6}' | xargs)
-	hextobands "$HEX"
+	HEX="0x"$(echo "$O" | awk -F[:,] '/^\^SYSCFGEX:/{print $6}' | xargs)
+	[ "$HEX" = "0x" ] || hextobands "$HEX"
 }
 
 setbands() {
 	BANDS="$1"
-	[ -z "$BANDS" ] && return
 
-	if [ "x$BANDS" = "xdefault" ]; then
+	if [ "$BANDS" = "default" ]; then
 		HEX="7FFFFFFFFFFFFFFF"
 	else
 		HEX=$(bandstohex "$BANDS")
