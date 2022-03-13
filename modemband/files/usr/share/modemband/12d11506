@@ -10,6 +10,9 @@ getsupportedbands() {
 	O=$(sms_tool -d $_DEVICE at "at+cgmm")
 	_NAME=$(echo "$O" | awk '/^[a-zA-Z0-9]/ && !/at\+cgmm/{print $0}' | xargs)
 	case "$_NAME" in
+	"ME906s"*)
+		echo "1 2 3 5 7 8 20 28"
+		;;
 	"ME909s-120")
 		echo "1 2 3 4 5 7 8 20"
 		;;
