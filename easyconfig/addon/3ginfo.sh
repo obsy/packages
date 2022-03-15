@@ -42,7 +42,7 @@ if [ "x$DEVICE" = "x" ]; then
 	exit 0
 fi
 
-O=$(sms_tool -d $DEVICE at "AT+CSQ;+CPIN?;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
+O=$(sms_tool -D -d $DEVICE at "AT+CSQ;+CPIN?;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
@@ -132,6 +132,11 @@ if [ -n "$T" ]; then
 	"+CME ERROR: 18"*) REG="SIM PUK2 required";;
 			*) REG=$(echo "$T" | cut -f2 -d: | xargs);;
 	esac
+fi
+
+T=$(echo "$O" | awk -F[,\ ] '/^\+CPIN:/ {print $0;exit}' | xargs)
+if [ -n "$T" ]; then
+	[ "$T" = "+CPIN: READY" ] || REG=$(echo "$T" | cut -f2 -d: | xargs)
 fi
 
 _DEVS=$(awk '/Vendor=/{gsub(/.*Vendor=| ProdID=| Rev.*/,"");print}' /sys/kernel/debug/usb/devices | sort -u)
