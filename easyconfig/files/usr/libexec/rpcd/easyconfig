@@ -580,10 +580,10 @@ else
 fi
 
 if [ -e /usr/bin/modemband.sh ]; then
-	if /usr/bin/modemband.sh | grep -q '^Supported LTE bands: '; then
-		echo '"modemband":true,'
-	else
+	if /usr/bin/modemband.sh getinfo | grep -q 'found'; then
 		echo '"modemband":false,'
+	else
+		echo '"modemband":true,'
 	fi
 else
 	echo '"modemband":false,'
