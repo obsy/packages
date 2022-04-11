@@ -89,6 +89,19 @@ for i in $IFACES; do
 	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 done
 
+LAN_CLIENTS=0
+BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
+if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+	for I in /sys/class/net/$BRIDGE/lower_*; do
+		if [ ! -e $I/wireless ]; then
+			IFNAME=${I##*lower_}
+			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
+			CNT=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
+		fi
+	done
+fi
+
 VPN_UP=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e '@.up')
 
 echo '{'
@@ -97,6 +110,7 @@ echo '"system_uptime":"'$SYSTEM_UPTIME'",'
 echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
 echo '"wlan_clients":'$WLAN_CLIENTS','
+echo '"lan_clients":'$LAN_CLIENTS','
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
@@ -663,7 +677,7 @@ for R in $RADIOS; do
 		BAND=2
 		[ "x$T1" = "x11a" ] || [ "x$T2" = "x5g" ] && BAND=5
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true ", w, tx[w], rx[w], signal[w], connected[w], band}}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true,\"type\":2 ", w, tx[w], rx[w], signal[w], connected[w], band}}')
 		done
 	fi
 done
@@ -688,12 +702,30 @@ for M in $WLAN_MAC; do
 	echo "{${M}${IP}${CONNECTED_SINCE}$(client_data $MAC)},"
 done
 
+BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
+if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+	for I in /sys/class/net/$BRIDGE/lower_*; do
+		if [ ! -e $I/wireless ]; then
+			IFNAME=${I##*lower_}
+			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
+			LAN_MACS=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+			for M in $LAN_MACS; do
+				IP=$(awk '/'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
+				[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
+				[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
+
+				echo "{\"mac\":\"$M\"${IP},\"active\":true,\"type\":1$(client_data $M)},"
+			done
+		fi
+	done
+fi
+
 if [ -e "/tmp/easyconfig_statistics.json" ]; then
 	eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'MACS=@')
 	for M in $MACS; do
 		[ "$M" = "wan" ] && continue
-		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname')
-		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\"$(client_data ${M//_/:})},"
+		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type')
+		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2}$(client_data ${M//_/:})},"
 	done
 fi
 
@@ -704,7 +736,7 @@ show_clientslogs() {
 echo '{"result":['
 T=$(zcat /tmp/easyconfig_wlanlogs.txt.gz 2>/dev/null | tail -n 3000 | awk '
 /AP-STA-CONNECTED/ {MAC[$1]=$6; WIFI[$6]=$1; EVENT[$1]="connect"; DESC[$1]=$4}
-/DHCPACK\(/ {if(WIFI[$6]!=0){DHCP[WIFI[$6]]=$7; NAME[$6]=$7}}
+/DHCPACK\(/ {if(WIFI[$6]!=0){DHCP[WIFI[$6]]=$7; NAME[$6]=$7}else{MAC[$1]=$6; EVENT[$1]="connect"; DHCP[$1]=$7; DESC[$1]=""}}
 /AP-STA-DISCONNECTED/ {MAC[$1]=$6; WIFI[$6]=0; EVENT[$1]="disconnect"; DHCP[$1]=NAME[$6]; NAME[$6]=""; DESC[$1]=$4}
 END { for (T in EVENT) {
 		printf "{\"id\":\"%s\",\"mac\":\"%s\",\"username\":\"\",\"dhcpname\":\"%s\",\"event\":\"%s\",\"desc\":\"%s\"},\n", T, MAC[T], DHCP[T], EVENT[T], DESC[T]

@@ -48,6 +48,7 @@ update_entry() {
 	RX=$4
 	CONNECTED=$5
 	DHCPNAME="$6"
+	TYPE=$7
 
 	local _json_no_warning=1
 	NEW_MAC=0
@@ -57,6 +58,7 @@ update_entry() {
 		json_add_string "first_seen" "$TS"
 	}
 	[ -n "$DHCPNAME" ] && json_add_string "dhcpname" "$DHCPNAME"
+	[ -n "$TYPE" ] && json_add_int "type" "$TYPE"
 
 	NEW_IFNAME=0
 	json_select "$IFNAME" || {
@@ -111,18 +113,36 @@ update_entry() {
 	fi
 }
 
+# wireless lan
 IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 for I in $IFNAMES; do
 	STATIONS=$(iw dev "$I" station dump | awk -v IFNAME="$I" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "%s;%s;%s;%s;%s\n", w, IFNAME, tx[w], rx[w], connected[w]}}')
 	for S in $STATIONS; do
 		DHCPNAME=$(awk '/'$(echo "$S" | cut -f1 -d";")'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
-		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";") "$DHCPNAME"
+		update_entry $(echo "$S" | cut -f1 -d";") $(echo "$S" | cut -f2 -d";") $(echo "$S" | cut -f3 -d";") $(echo "$S" | cut -f4 -d";") $(echo "$S" | cut -f5 -d";") "$DHCPNAME" 2
 	done
 done
 
+# wire lan
+BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
+if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+	for I in /sys/class/net/$BRIDGE/lower_*; do
+		if [ ! -e $I/wireless ]; then
+			IFNAME=${I##*lower_}
+			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
+			STATIONS=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+			for S in $STATIONS; do
+				DHCPNAME=$(awk '/'$S'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
+				update_entry "$S" "$IFNAME" 0 0 999 "$DHCPNAME" 1
+			done
+		fi
+	done
+fi
+
+# wan
 IFNAME=$(ifstatus wan | jsonfilter -q -e '@.l3_device')
 if [ -n "$IFNAME" ]; then
-	update_entry "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999 ""
+	update_entry "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999 "" 0
 fi
 
 json_dump > $DB
