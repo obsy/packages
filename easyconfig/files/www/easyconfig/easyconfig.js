@@ -1446,11 +1446,11 @@ function showbandwidth(mac) {
 					setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
 					setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
 				} else {
-					for (var idx = 0; idx < wlanclients.length; idx++) {
-						if (wlanclients[idx].mac == mac && wlanclients[idx].active) {
-							wlanclients[idx].tx = bandwidth_old['tx'];
-							wlanclients[idx].rx = bandwidth_old['rx'];
-							wlanclientscallback('');
+					for (var idx = 0; idx < clients.length; idx++) {
+						if (clients[idx].mac == mac && clients[idx].active) {
+							clients[idx].tx = bandwidth_old['tx'];
+							clients[idx].rx = bandwidth_old['rx'];
+							clientscallback('');
 							break;
 						}
 					}
@@ -2328,30 +2328,30 @@ function bytesToSize(bytes) {
 	return parseFloat((bytes / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-var wlanclients;
+var clients;
 
-function showwlanclients() {
+function showclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
-		wlanclients = data.result;
-		wlanclientscallback('');
+		clients = data.result;
+		clientscallback('');
 	});
 }
 
-function wlanclientscallbackfilter(filterby) {
+function clientscallbackfilter(filterby) {
 	var all = ['active', 'all'];
 	for (var idx = 0; idx < all.length; idx++) {
-		var e = document.getElementById('wlanclients_filter_' + all[idx]);
+		var e = document.getElementById('clients_filter_' + all[idx]);
 		e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
 	}
 }
 
-function wlanclientscallback(sortby) {
+function clientscallback(sortby) {
 
 	var all;
 	var filterby = 'active';
 	all = ['active', 'all'];
 	for (var idx = 0; idx < all.length; idx++) {
-		var e = document.getElementById('wlanclients_filter_' + all[idx]);
+		var e = document.getElementById('clients_filter_' + all[idx]);
 		if (e === null) {
 			break;
 		}
@@ -2369,7 +2369,7 @@ function wlanclientscallback(sortby) {
 			all = ['displayname', 'mac', 'last_seen'];
 		}
 		for (var idx = 0; idx < all.length; idx++) {
-			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
+			var e = document.getElementById('clients_sortby_' + all[idx]);
 			if (e === null) {
 				break;
 			}
@@ -2384,65 +2384,65 @@ function wlanclientscallback(sortby) {
 	var counter_all = 0;
 
 	var html = '';
-	if (wlanclients.length > 0) {
+	if (clients.length > 0) {
 		html += '<div class="row space"><div class="col-xs-12 space">';
 		html += '<span>Filtrowanie:</span>';
-		html += '<span class="click" onclick="wlanclientscallbackfilter(\'active\');wlanclientscallback(\'\');"><span id="wlanclients_filter_active"> aktywni (0) </span></span>|';
-		html += '<span class="click" onclick="wlanclientscallbackfilter(\'all\');wlanclientscallback(\'\');"><span id="wlanclients_filter_all"> wszyscy (0) </span></span>';
+		html += '<span class="click" onclick="clientscallbackfilter(\'active\');clientscallback(\'\');"><span id="clients_filter_active"> aktywni (0) </span></span>|';
+		html += '<span class="click" onclick="clientscallbackfilter(\'all\');clientscallback(\'\');"><span id="clients_filter_all"> wszyscy (0) </span></span>';
 		html += '</div><div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
-		html += '<span class="click" onclick="wlanclientscallback(\'displayname\');"><span id="wlanclients_sortby_displayname"> nazwie </span></span>|';
+		html += '<span class="click" onclick="clientscallback(\'displayname\');"><span id="clients_sortby_displayname"> nazwie </span></span>|';
 		if (filterby == 'active') {
-			html += '<span class="click" onclick="wlanclientscallback(\'tx\');"><span id="wlanclients_sortby_tx"> wysłano </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'rx\');"><span id="wlanclients_sortby_rx"> pobrano </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'percent\');"><span id="wlanclients_sortby_percent"> udziale w ruchu </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'connected\');"><span id="wlanclients_sortby_connected"> czasie połączenia </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'type\');"><span id="wlanclients_sortby_type"> typie połączenia </span></span>';
+			html += '<span class="click" onclick="clientscallback(\'tx\');"><span id="clients_sortby_tx"> wysłano </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'rx\');"><span id="clients_sortby_rx"> pobrano </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'percent\');"><span id="clients_sortby_percent"> udziale w ruchu </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'connected\');"><span id="clients_sortby_connected"> czasie połączenia </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'type\');"><span id="clients_sortby_type"> typie połączenia </span></span>';
 		} else {
-			html += '<span class="click" onclick="wlanclientscallback(\'mac\');"><span id="wlanclients_sortby_mac"> MAC </span></span>|';
-			html += '<span class="click" onclick="wlanclientscallback(\'last_seen\');"><span id="wlanclients_sortby_last_seen"> ostatniej widoczności </span></span>';
+			html += '<span class="click" onclick="clientscallback(\'mac\');"><span id="clients_sortby_mac"> MAC </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'last_seen\');"><span id="clients_sortby_last_seen"> ostatniej widoczności </span></span>';
 		}
 		html += '</div></div>';
 
 		if (filterby == 'active') {
-			html += '<div id="div_wlanclients_pie"><canvas id="wlanclients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu dla klientów bezprzewodowych</em></small></div></div>';
-			html += '<div id="div_wlanclients_pie_tooltip" class="tooltip"></div>';
+			html += '<div id="div_clients_pie"><canvas id="clients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu dla klientów bezprzewodowych</em></small></div></div>';
+			html += '<div id="div_clients_pie_tooltip" class="tooltip"></div>';
 		}
 
 		var total = 0;
-		for (var idx = 0; idx < wlanclients.length; idx++) {
-			if (!wlanclients[idx].active) {
-				wlanclients[idx].active_id = -1;
-				wlanclients[idx].ip = '';
-				wlanclients[idx].tx = 0;
-				wlanclients[idx].rx = 0;
-				wlanclients[idx].percent = 0;
-				wlanclients[idx].connected = 0;
+		for (var idx = 0; idx < clients.length; idx++) {
+			if (!clients[idx].active) {
+				clients[idx].active_id = -1;
+				clients[idx].ip = '';
+				clients[idx].tx = 0;
+				clients[idx].rx = 0;
+				clients[idx].percent = 0;
+				clients[idx].connected = 0;
 				continue;
 			} else {
-				wlanclients[idx].first_seen = '-';
-				wlanclients[idx].last_seen = '-';
-				if (wlanclients[idx].tx === undefined) {
-					wlanclients[idx].tx = 0
-					wlanclients[idx].rx = 0
+				clients[idx].first_seen = '-';
+				clients[idx].last_seen = '-';
+				if (clients[idx].tx === undefined) {
+					clients[idx].tx = 0
+					clients[idx].rx = 0
 				}
 			}
-			total += wlanclients[idx].tx + wlanclients[idx].rx;
+			total += clients[idx].tx + clients[idx].rx;
 		}
-		for (var idx = 0; idx < wlanclients.length; idx++) {
-			wlanclients[idx].percent = parseInt((wlanclients[idx].tx + wlanclients[idx].rx) * 100 / total);
-			if (wlanclients[idx].dhcpname == '*') { wlanclients[idx].dhcpname = ''; }
-			wlanclients[idx].displayname = (wlanclients[idx].username != '' ? wlanclients[idx].username : (wlanclients[idx].dhcpname != '' ? wlanclients[idx].dhcpname : wlanclients[idx].mac ));
-			wlanclients[idx].id = idx;
-			if (wlanclients[idx].active) {
+		for (var idx = 0; idx < clients.length; idx++) {
+			clients[idx].percent = parseInt((clients[idx].tx + clients[idx].rx) * 100 / total);
+			if (clients[idx].dhcpname == '*') { clients[idx].dhcpname = ''; }
+			clients[idx].displayname = (clients[idx].username != '' ? clients[idx].username : (clients[idx].dhcpname != '' ? clients[idx].dhcpname : clients[idx].mac ));
+			clients[idx].id = idx;
+			if (clients[idx].active) {
 				counter_active ++;
-				for (var idx1 = 0; idx1 < wlanclients.length; idx1++) {
-					if (!wlanclients[idx1].active) {
-						if (wlanclients[idx1].mac == wlanclients[idx].mac) {
-							wlanclients[idx1].active_id = wlanclients[idx].id;
-							wlanclients[idx1].ip = wlanclients[idx].ip;
-							wlanclients[idx].first_seen = wlanclients[idx1].first_seen;
-							wlanclients[idx].last_seen = wlanclients[idx1].last_seen;
+				for (var idx1 = 0; idx1 < clients.length; idx1++) {
+					if (!clients[idx1].active) {
+						if (clients[idx1].mac == clients[idx].mac) {
+							clients[idx1].active_id = clients[idx].id;
+							clients[idx1].ip = clients[idx].ip;
+							clients[idx].first_seen = clients[idx1].first_seen;
+							clients[idx].last_seen = clients[idx1].last_seen;
 							break;
 						}
 					}
@@ -2453,7 +2453,7 @@ function wlanclientscallback(sortby) {
 		}
 		var any_active = false;
 		var any_all = false;
-		var sorted = sortJSON(wlanclients, sortby, 'asc');
+		var sorted = sortJSON(clients, sortby, 'asc');
 		for (var idx = 0; idx < sorted.length; idx++) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
@@ -2492,12 +2492,12 @@ function wlanclientscallback(sortby) {
 			html += '<div class="alert alert-warning">Brak informacji o połączeniach klientów</div>';
 		}
 	}
-	setValue('div_wlanclients_content', html);
+	setValue('div_clients_content', html);
 
-	if (wlanclients.length > 0) {
+	if (clients.length > 0) {
 		all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type', 'mac', 'last_seen'];
 		for (var idx = 0; idx < all.length; idx++) {
-			var e = document.getElementById('wlanclients_sortby_' + all[idx]);
+			var e = document.getElementById('clients_sortby_' + all[idx]);
 			if (e === null) {
 				continue;
 			}
@@ -2505,15 +2505,15 @@ function wlanclientscallback(sortby) {
 		}
 		showicon();
 
-		setValue('wlanclients_filter_active', ' aktywni (' + counter_active + ') ');
-		setValue('wlanclients_filter_all', ' wszyscy (' + counter_all + ') ');
-		wlanclientscallbackfilter(filterby);
+		setValue('clients_filter_active', ' aktywni (' + counter_active + ') ');
+		setValue('clients_filter_all', ' wszyscy (' + counter_all + ') ');
+		clientscallbackfilter(filterby);
 
 		if (filterby == 'active') {
-			var canvas = document.getElementById('wlanclients_pie');
+			var canvas = document.getElementById('clients_pie');
 			var ctx = canvas.getContext('2d');
 			var previousRadian = 1.5 * Math.PI;
-			var positionInfo = document.getElementById('div_wlanclients_pie').getBoundingClientRect();
+			var positionInfo = document.getElementById('div_clients_pie').getBoundingClientRect();
 			canvas.width = positionInfo.width;
 			var middle = {
 				x: canvas.width / 2,
@@ -2541,7 +2541,7 @@ function wlanclientscallback(sortby) {
 			ctx.closePath();
 			ctx.stroke();
 
-			var wlanclients_pie_tooltip = function (e) {
+			var clients_pie_tooltip = function (e) {
 				var eventDoc, doc, body;
 				e = e || window.event;
 				if (e.pageX == null && e.clientX != null) {
@@ -2562,21 +2562,21 @@ function wlanclientscallback(sortby) {
 				var c = this.getContext('2d');
 				var p = c.getImageData(x, y, 1, 1).data;
 				var hex = rgb2hex('rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')');
-				setDisplay('div_wlanclients_pie_tooltip', false);
+				setDisplay('div_clients_pie_tooltip', false);
 				for (var idx = 0; idx < sorted.length; idx++) {
 					if (!sorted[idx].active) { continue; }
 					if (string2color(sorted[idx].mac) == hex) {
-						var e1 = document.getElementById('div_wlanclients_pie_tooltip');
+						var e1 = document.getElementById('div_clients_pie_tooltip');
 						e1.style.top = (e.pageY + 15) + 'px';
 						e1.style.left = (e.pageX + 15) + 'px';
-						setValue('div_wlanclients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
-						setDisplay('div_wlanclients_pie_tooltip', true);
+						setValue('div_clients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
+						setDisplay('div_clients_pie_tooltip', true);
 						break;
 					}
 				}
 			};
 
-			document.getElementById('wlanclients_pie').addEventListener('mousemove', wlanclients_pie_tooltip, false);
+			document.getElementById('clients_pie').addEventListener('mousemove', clients_pie_tooltip, false);
 		}
 	}
 }
@@ -2671,9 +2671,9 @@ function clientslogscallback(first, last) {
 
 function hostmenu(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -2703,9 +2703,9 @@ function hostinfo(id) {
 	var html = '';
 	var vendor = '-';
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -2732,9 +2732,9 @@ function hostinfo(id) {
 
 function hostblock(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -2831,7 +2831,7 @@ function okhostblock() {
 	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('sleep 1');
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function hostblock_toggle(evt) {
@@ -2857,9 +2857,9 @@ function hostblock_uncheckall() {
 
 function hostnameedit(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -2888,14 +2888,14 @@ function savehostname() {
 	cmd.push('uci set easyconfig.m' + nmac + '.name=\\\"' + escapeShell(name) +'\\\"');
 	cmd.push('uci commit easyconfig');
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function hostip(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -2934,7 +2934,7 @@ function removehostip() {
 		cmd.push('/etc/init.d/nft-qos restart');
 	}
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function savehostip() {
@@ -2973,14 +2973,14 @@ function savehostip() {
 		cmd.push('done');
 	}
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function hostqos(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -3009,7 +3009,7 @@ function removehostqos() {
 	cmd.push('uci commit nft-qos');
 	cmd.push('/etc/init.d/nft-qos restart');
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function savehostqos() {
@@ -3066,7 +3066,7 @@ function savehostqos() {
 		cmd.push('/etc/init.d/dnsmasq restart');
 	}
 
-	execute(cmd, showwlanclients);
+	execute(cmd, showclients);
 }
 
 function cancelhostqos() {
@@ -3075,9 +3075,9 @@ function cancelhostqos() {
 
 function hoststatistics(id, type, limit) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -3142,9 +3142,9 @@ function hoststatisticsmodal(mac, title, type, limit) {
 
 function hostremovedata(id) {
 	var host;
-	for (var i = 0; i < wlanclients.length; i++) {
-		if (wlanclients[i].id == id) {
-			host = wlanclients[i];
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
 			break;
 		}
 	}
@@ -3525,7 +3525,7 @@ function okremovetraffic() {
 	cmd.push('/usr/bin/easyconfig_statistics.sh');
 	cmd.push('fi');
 
-	execute(cmd, (mac == 'wan') ? showtraffic : showwlanclients);
+	execute(cmd, (mac == 'wan') ? showtraffic : showclients);
 }
 
 /*****************************************************************************/
@@ -4276,12 +4276,12 @@ function closenav() {
 
 function btn_pages(page) {
 	closenav();
-	setDisplay('div_status',   (page == 'status'));
+	setDisplay('div_status', (page == 'status'));
 	setDisplay('div_settings', (page == 'settings'));
-	setDisplay('div_system',   (page == 'system'));
+	setDisplay('div_system', (page == 'system'));
 	setDisplay('div_watchdog', (page == 'watchdog'));
 	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
-	setDisplay('div_wlanclients', (page == 'wlanclients'));
+	setDisplay('div_clients', (page == 'clients'));
 	setDisplay('div_clientslogs', (page == 'clientslogs'));
 	setDisplay('div_queries', (page == 'queries'));
 	setDisplay('div_traffic', (page == 'traffic'));
@@ -4311,8 +4311,8 @@ function btn_pages(page) {
 		showsitesurvey();
 	}
 
-	if (page == 'wlanclients') {
-		showwlanclients();
+	if (page == 'clients') {
+		showclients();
 	}
 
 	if (page == 'clientslogs') {
