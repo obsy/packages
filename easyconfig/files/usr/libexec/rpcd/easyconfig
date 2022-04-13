@@ -90,17 +90,48 @@ for i in $IFACES; do
 done
 
 LAN_CLIENTS=0
+TPORTS1=""
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	for I in /sys/class/net/$BRIDGE/lower_*; do
 		if [ ! -e $I/wireless ]; then
 			IFNAME=${I##*lower_}
+			TPORTS1="${TPORTS1} ${IFNAME}"
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 			CNT=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
 			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
 		fi
 	done
 fi
+
+PORTS=""
+PORTS_SWCONFIG=""
+for IFNAME in $TPORTS1; do
+	PORT=${IFNAME%%.*}
+	VLAN=${IFNAME##*.}
+	[ "$PORT" = "$VLAN" ] && VLAN=1
+
+	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "0")"},"
+	[ -e /sbin/swconfig ] || continue
+	T=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports[@.device="'$PORT'"]')
+	[ -z "$T" ] && continue
+	SWITCH=$(swconfig dev switch0 show)
+	TPORTS2=$(echo "$SWITCH" | awk '{if($0 ~ /^VLAN /){VLAN=$2};if($0 ~ /ports:/){gsub("ports: ", "");gsub(/[tu*]/,"");PORTS[VLAN]=$0}} END {for (v in PORTS)if(v == "'$VLAN':") {print PORTS[v]}}')
+	for T in $TPORTS2; do
+		ROLE=""
+		INDEX=""
+		eval $(jsonfilter -i /etc/board.json -e 'ROLE=@.switch.*.ports[@.num='$T'].role' -e 'INDEX=@.switch.*.ports[@.num='$T'].index')
+		[ -z "$ROLE" ] && continue
+		STATUS=$(echo "$SWITCH" | awk '/link: port:'$T' link:/{print $3" "$4}')
+		case "$STATUS" in
+			"link:up speed:1000baseT"*) SPEED="1000";;
+			"link:up speed:100baseT"*) SPEED="100";;
+			"link:up speed:10baseT"*) SPEED="10";;
+			*) SPEED="0";;
+		esac
+		PORTS_SWCONFIG="${PORTS_SWCONFIG}{\"port\":\"$IFNAME\",\"id\":${INDEX:-$T},\"role\":\"$ROLE\",\"speed\":$SPEED},"
+	done
+done
 
 VPN_UP=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e '@.up')
 
@@ -111,6 +142,8 @@ echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
 echo '"wlan_clients":'$WLAN_CLIENTS','
 echo '"lan_clients":'$LAN_CLIENTS','
+echo '"ports":['$PORTS'],'
+echo '"ports_swconfig":['$PORTS_SWCONFIG'],'
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'

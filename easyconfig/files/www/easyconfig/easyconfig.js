@@ -1532,7 +1532,49 @@ function showstatus() {
 		} else {
 			setDisplay('div_status_sensors', false);
 		}
+
+		if ((data.ports).length > 0) {
+			for (var idx = 0; idx < (data.ports_swconfig).length; idx++) {
+				var idx1 = (data.ports).findIndex(x => x.port === data.ports_swconfig[idx].port);
+				if (idx1 > -1) {
+					(data.ports).splice(idx1, 1);
+				}
+				(data.ports).push({'port': ((data.ports_swconfig[idx]).role == 'wan' ? 'wan' : (data.ports_swconfig[idx]).role + (data.ports_swconfig[idx]).id), 'speed': (data.ports_swconfig[idx]).speed});
+			}
+			if ((data.ports).length > 0) {
+				var sorted = sortJSON(data.ports, 'port', 'asc');
+				var html = '';
+				for (var idx = 0; idx < sorted.length; idx++) {
+					html += '<div class="row"><label class="col-xs-6 text-right">' + (sorted[idx].port).toUpperCase() + '</label><div class="col-xs-6"><p>' + networkspeed(sorted[idx].speed) + '</p></div></div>';
+				}
+				setValue('div_status_lan_ports', html);
+				setDisplay('div_status_lan_ports', true);
+			} else {
+				setDisplay('div_status_lan_ports', false);
+			}
+		} else {
+			setDisplay('div_status_lan_ports', false);
+		}
 	});
+}
+
+function networkspeed(speed) {
+	switch (speed) {
+		case 10000:
+			return 'podłączony, 10Gbps';
+			break;
+		case 1000:
+			return 'podłączony, 1Gbps';
+			break;
+		case 100:
+			return 'podłączony, 100Mbps';
+			break;
+		case 10:
+			return 'podłączony, 10Mbps';
+			break;
+		default:
+			return '-';
+	}
 }
 
 function showsystem() {
