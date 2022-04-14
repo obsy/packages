@@ -130,7 +130,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 		if [ ! -e $I/wireless ]; then
 			IFNAME=${I##*lower_}
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-			STATIONS=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+			STATIONS=$(brctl showmacs $BRIDGE 2>/dev/null | awk '/^\s*'$PORTID'\s.*no/{print $2}')
 			for S in $STATIONS; do
 				DHCPNAME=$(awk '/'$S'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
 				update_entry "$S" "$IFNAME" 0 0 999 "$DHCPNAME" 1

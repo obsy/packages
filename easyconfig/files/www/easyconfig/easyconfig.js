@@ -1543,11 +1543,15 @@ function showstatus() {
 			}
 			if ((data.ports).length > 0) {
 				var sorted = sortJSON(data.ports, 'port', 'asc');
-				var html = '';
+				var html = '<center><table><tr>';
 				for (var idx = 0; idx < sorted.length; idx++) {
-					html += '<div class="row"><label class="col-xs-6 text-right">' + (sorted[idx].port).toUpperCase() + '</label><div class="col-xs-6"><p>' + networkspeed(sorted[idx].speed) + '</p></div></div>';
+					html += '<td style="padding:5px;text-align:center"><i data-feather="wire' + (sorted[idx].speed > 0 ? '2' : '1')  + '">x</i><br>' + (sorted[idx].port).toUpperCase() + '<br>';
+					html += networkspeed(sorted[idx].speed);
+					html += '</td>';
 				}
+				html += '</tr></table></center>'
 				setValue('div_status_lan_ports', html);
+				feather.replace({'width':36, 'height':36});
 				setDisplay('div_status_lan_ports', true);
 			} else {
 				setDisplay('div_status_lan_ports', false);
@@ -1561,16 +1565,16 @@ function showstatus() {
 function networkspeed(speed) {
 	switch (speed) {
 		case 10000:
-			return 'podłączony, 10Gbps';
+			return '10Gbps';
 			break;
 		case 1000:
-			return 'podłączony, 1Gbps';
+			return '1Gbps';
 			break;
 		case 100:
-			return 'podłączony, 100Mbps';
+			return '100Mbps';
 			break;
 		case 10:
-			return 'podłączony, 10Mbps';
+			return '10Mbps';
 			break;
 		default:
 			return '-';

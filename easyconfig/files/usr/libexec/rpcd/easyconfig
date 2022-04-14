@@ -98,7 +98,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			IFNAME=${I##*lower_}
 			TPORTS1="${TPORTS1} ${IFNAME}"
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-			CNT=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+			CNT=$(brctl showmacs $BRIDGE 2>/dev/null | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
 			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
 		fi
 	done
@@ -116,7 +116,7 @@ for IFNAME in $TPORTS1; do
 	T=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports[@.device="'$PORT'"]')
 	[ -z "$T" ] && continue
 	SWITCH=$(swconfig dev switch0 show)
-	TPORTS2=$(echo "$SWITCH" | awk '{if($0 ~ /^VLAN /){VLAN=$2};if($0 ~ /ports:/){gsub("ports: ", "");gsub(/[tu*]/,"");PORTS[VLAN]=$0}} END {for (v in PORTS)if(v == "'$VLAN':") {print PORTS[v]}}')
+	TPORTS2=$(echo "$SWITCH" | awk '{if($0 ~ /^VLAN /){VLAN=$2};if($0 ~ /ports:/){gsub("ports: ", "");gsub(/[tu]/,"");PORTS[VLAN]=$0}} END {for (v in PORTS)if(v == "'$VLAN':") {print PORTS[v]}}')
 	for T in $TPORTS2; do
 		ROLE=""
 		INDEX=""
