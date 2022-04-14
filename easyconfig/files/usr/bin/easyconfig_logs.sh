@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LOGS=/tmp/easyconfig_wlanlogs.txt
+LOGS=/tmp/easyconfig_logs.txt
 T=$(mktemp)
 
 logread -t -e "AP-STA-.*CONNECTED\|DHCPACK(" | cut -c 27-40,42- >> $T
