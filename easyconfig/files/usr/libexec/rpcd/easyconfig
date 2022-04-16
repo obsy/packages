@@ -115,18 +115,17 @@ for IFNAME in $TPORTS1; do
 	[ -e /sbin/swconfig ] || continue
 	T=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports[@.device="'$PORT'"]')
 	[ -z "$T" ] && continue
-	SWITCH=$(swconfig dev switch0 show)
-	TPORTS2=$(echo "$SWITCH" | awk '{if($0 ~ /^VLAN /){VLAN=$2};if($0 ~ /ports:/){gsub("ports: ", "");gsub(/[tu]/,"");PORTS[VLAN]=$0}} END {for (v in PORTS)if(v == "'$VLAN':") {print PORTS[v]}}')
+	TPORTS2=$(swconfig dev switch0 vlan $VLAN get ports | sed 's/[^0-9 ]//g')
 	for T in $TPORTS2; do
 		ROLE=""
 		INDEX=""
 		eval $(jsonfilter -i /etc/board.json -e 'ROLE=@.switch.*.ports[@.num='$T'].role' -e 'INDEX=@.switch.*.ports[@.num='$T'].index')
 		[ -z "$ROLE" ] && continue
-		STATUS=$(echo "$SWITCH" | awk '/link: port:'$T' link:/{print $3" "$4}')
+		STATUS=$(swconfig dev switch0 port $T get link)
 		case "$STATUS" in
-			"link:up speed:1000baseT"*) SPEED="1000";;
-			"link:up speed:100baseT"*) SPEED="100";;
-			"link:up speed:10baseT"*) SPEED="10";;
+			*"link:up speed:1000baseT"*) SPEED="1000";;
+			*"link:up speed:100baseT"*) SPEED="100";;
+			*"link:up speed:10baseT"*) SPEED="10";;
 			*) SPEED="0";;
 		esac
 		PORTS_SWCONFIG="${PORTS_SWCONFIG}{\"port\":\"$IFNAME\",\"id\":${INDEX:-$T},\"role\":\"$ROLE\",\"speed\":$SPEED},"
