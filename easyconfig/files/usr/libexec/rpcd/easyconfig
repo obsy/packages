@@ -415,23 +415,28 @@ echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
 echo '"wan_wanport":"'$WAN_WANPORT'",'
 
 echo '"wan_protos":["none"'
-if [ -n "$WAN_IFNAME_DEFAULT" ]; then
-	echo ',"dhcp","static"'
-fi
-tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
-if [ -n "$tty" ] ; then
-	echo ',"3g"'
-fi
-ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
-if [ -n "$ncm" ] ; then
+if grep -q "Vendor=19d2 ProdID=1489" /sys/kernel/debug/usb/devices; then
+	# ZTE MF286R
 	echo ',"ncm"'
-fi
-qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
-if [ -n "$qmi" ] ; then
-	echo ',"qmi"'
-fi
-if [ -n "$WAN_IFNAME_HILINK" ]; then
-	echo ',"dhcp_hilink"'
+else
+	if [ -n "$WAN_IFNAME_DEFAULT" ]; then
+		echo ',"dhcp","static"'
+	fi
+	tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
+	if [ -n "$tty" ] ; then
+		echo ',"3g"'
+	fi
+	ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$ncm" ] ; then
+		echo ',"ncm"'
+	fi
+	qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$qmi" ] ; then
+		echo ',"qmi"'
+	fi
+	if [ -n "$WAN_IFNAME_HILINK" ]; then
+		echo ',"dhcp_hilink"'
+	fi
 fi
 echo '],'
 
@@ -1120,6 +1125,22 @@ pincode()
 
 detect_wan()
 {
+# ZTE MF286R
+	if grep -q "Vendor=19d2 ProdID=1489" /sys/kernel/debug/usb/devices; then
+		ifdown wan
+
+		D=/dev/ttyACM0
+		O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
+		if echo "$O" | grep -q "SIM PIN"; then
+			echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
+			exit 0
+		fi
+
+		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+		echo '{"proto":"ncm","device":"'$D'","apn":"'${APN:-internet}'"}'
+		exit 0
+	fi
+
 # modem usb qmi
 	T=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$T" ] ; then
