@@ -30,6 +30,8 @@ opengt
  gosub readatcmd
  let $c="AT!ICCID?^m"
  gosub readatcmd
+ let $c="AT*ICCID?^m"
+ gosub readatcmd
 
  exit 0
 
@@ -64,7 +66,6 @@ opengt
  if $mid($s,f,2) = "ER" goto loop4
  if $mid($s,f,2) = "OK" goto loop5
  if $mid($s,f,2) = "AT" goto loop5
- if $mid($s,f,1) = "+"  goto loop5
  if $mid($s,f,1) = "\^" goto loop5
  if $mid($s,f,1) = "#"  goto loop5
  let l=len($s)
