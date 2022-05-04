@@ -1322,13 +1322,13 @@ function savesettings() {
 		var action = getValue('system_button');
 		if (config.button.action != action) {
 			cmd.push('rm /etc/rc.button/' + config.button.code + '>/dev/null');
-			cmd.push('[ -e /etc/easyconfig_rc.button/' + action + ' ] && ln -s /etc/easyconfig_rc.button/' + action + ' /etc/rc.button/' + config.button.code);
+			cmd.push('[ -e /usr/share/easyconfig/rc.button/' + action + ' ] && ln -s /usr/share/easyconfig/rc.button/' + action + ' /etc/rc.button/' + config.button.code);
 		}
 	}
 
 	if (config.button_reset > -1) {
 		if (getValue('system_button_reset')) {
-			cmd.push('[ -e /etc/rc.button/reset ] || cp /etc/easyconfig_rc.button/reset /etc/rc.button/reset');
+			cmd.push('[ -e /etc/rc.button/reset ] || cp /usr/share/easyconfig/rc.button/reset /etc/rc.button/reset');
 		} else {
 			cmd.push('[ -e /etc/rc.button/reset ] && rm /etc/rc.button/reset');
 		}

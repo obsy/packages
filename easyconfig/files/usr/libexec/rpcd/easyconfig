@@ -549,7 +549,7 @@ elif [ -e /sys/firmware/devicetree/base/keys/wps ]; then
 fi
 
 if [ -n "$BUTTON" ]; then
-	[ -e /etc/easyconfig_rc.button/rfkill ] || cp /etc/rc.button/rfkill /etc/easyconfig_rc.button/rfkill
+	[ -e /usr/share/easyconfig/rc.button/rfkill ] || cp /etc/rc.button/rfkill /usr/share/easyconfig/rc.button/rfkill
 	if grep -q leds /etc/rc.button/$BUTTON; then
 		ACTION="leds"
 	fi
@@ -564,7 +564,7 @@ echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"}
 
 if [ -e /sys/firmware/devicetree/base/keys/reset ]; then
 	if [ -e /etc/rc.button/reset ]; then
-		[ -e /etc/easyconfig_rc.button/reset ] || cp /etc/rc.button/reset /etc/easyconfig_rc.button/reset
+		[ -e /usr/share/easyconfig/rc.button/reset ] || cp /etc/rc.button/reset /usr/share/easyconfig/rc.button/reset
 		echo '"button_reset":1,'
 	else
 		echo '"button_reset":0,'
