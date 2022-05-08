@@ -2881,11 +2881,13 @@ function okhostblock() {
 }
 
 function hostblock_toggle(evt) {
+	setValue('hostblock_temporary', true);
 	var e = evt.target;
 	e.style.backgroundColor = (e.style.backgroundColor == document.getElementById('hostblock_off').style.backgroundColor) ? document.body.style.backgroundColor : '#337ab7';
 }
 
 function hostblock_checkall() {
+	setValue('hostblock_temporary', true);
 	for (var i = 0; i < 24; i++) {
 		for (var j = 0; j < 7; j++) {
 			document.getElementById('t' + i + j).style.backgroundColor = '#337ab7';
