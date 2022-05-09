@@ -93,12 +93,13 @@ LAN_CLIENTS=0
 TPORTS1=""
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+	T=$(brctl showmacs $BRIDGE 2>/dev/null)
 	for I in /sys/class/net/$BRIDGE/lower_*; do
 		if [ ! -e $I/wireless ]; then
 			IFNAME=${I##*lower_}
 			TPORTS1="${TPORTS1} ${IFNAME}"
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-			CNT=$(brctl showmacs $BRIDGE 2>/dev/null | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+			CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
 			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
 		fi
 	done
