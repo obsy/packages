@@ -83,23 +83,20 @@ if [ -n "$IFNAME" ]; then
 fi
 
 WLAN_CLIENTS=0
-IFACES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
-for i in $IFACES; do
-	CNT=$(iw dev $i station dump | grep -c Station)
-	WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
-done
-
 LAN_CLIENTS=0
 TPORTS1=""
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	T=$(brctl showmacs $BRIDGE 2>/dev/null)
 	for I in /sys/class/net/$BRIDGE/lower_*; do
-		if [ ! -e $I/wireless ]; then
-			IFNAME=${I##*lower_}
-			TPORTS1="${TPORTS1} ${IFNAME}"
+		IFNAME=${I##*lower_}
+		if [ -e $I/wireless ]; then
+			CNT=$(iw dev $IFNAME station dump | grep -c Station)
+			WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
+		else
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 			CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+			TPORTS1="${TPORTS1} ${IFNAME};${CNT}"
 			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
 		fi
 	done
@@ -108,11 +105,13 @@ fi
 PORTS=""
 PORTS_SWCONFIG=""
 for IFNAME in $TPORTS1; do
+	CNT=${IFNAME##*;}
+	IFNAME=${IFNAME%%;*}
 	PORT=${IFNAME%%.*}
 	VLAN=${IFNAME##*.}
 	[ "$PORT" = "$VLAN" ] && VLAN=1
 
-	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "0")"},"
+	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "-1")",\"macs\":${CNT}},"
 	[ -e /sbin/swconfig ] || continue
 	T=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports[@.device="'$PORT'"]')
 	[ -z "$T" ] && continue
@@ -127,7 +126,7 @@ for IFNAME in $TPORTS1; do
 			*"link:up speed:1000baseT"*) SPEED="1000";;
 			*"link:up speed:100baseT"*) SPEED="100";;
 			*"link:up speed:10baseT"*) SPEED="10";;
-			*) SPEED="0";;
+			*) SPEED="-1";;
 		esac
 		PORTS_SWCONFIG="${PORTS_SWCONFIG}{\"port\":\"$IFNAME\",\"id\":${INDEX:-$T},\"role\":\"$ROLE\",\"speed\":$SPEED},"
 	done

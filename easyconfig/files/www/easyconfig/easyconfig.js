@@ -1539,14 +1539,14 @@ function showstatus() {
 				if (idx1 > -1) {
 					(data.ports).splice(idx1, 1);
 				}
-				(data.ports).push({'port': ((data.ports_swconfig[idx]).role == 'wan' ? 'wan' : (data.ports_swconfig[idx]).role + (data.ports_swconfig[idx]).id), 'speed': (data.ports_swconfig[idx]).speed});
+				(data.ports).push({'port': ((data.ports_swconfig[idx]).role == 'wan' ? 'wan' : (data.ports_swconfig[idx]).role + (data.ports_swconfig[idx]).id), 'speed': (data.ports_swconfig[idx]).speed, 'macs': -1});
 			}
 			if ((data.ports).length > 0) {
 				var sorted = sortJSON(data.ports, 'port', 'asc');
 				var html = '<center><table><tr>';
 				for (var idx = 0; idx < sorted.length; idx++) {
-					html += '<td style="padding:5px;text-align:center"><i data-feather="wire' + (sorted[idx].speed > 0 ? '2' : '1')  + '">x</i><br>' + (sorted[idx].port).toUpperCase() + '<br>';
-					html += networkspeed(sorted[idx].speed);
+					html += '<td style="padding:5px;text-align:center"' + (sorted[idx].macs > 0 ? ' title="Połączonych klientów: ' + sorted[idx].macs + '"' : '') + '><i data-feather="wire' + (sorted[idx].speed > 0 ? '2' : '1')  + '">x</i><br>' + (sorted[idx].port).toUpperCase();
+					html += '<br>' + networkspeed(sorted[idx].speed);
 					html += '</td>';
 				}
 				html += '</tr></table></center>'
