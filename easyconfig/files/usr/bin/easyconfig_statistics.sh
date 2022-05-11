@@ -3,7 +3,9 @@
 DB=/tmp/easyconfig_statistics.json
 SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz
 
-[ -e "$DB.lock" ] && exit 0
+LOCK=/var/lock/easyconfig_statistics.lock
+
+lock $LOCK
 
 FIRSTRUN=0
 if [ ! -e $DB ]; then
@@ -145,7 +147,10 @@ json_dump > $DB
 
 PERIOD=$(uci -q get easyconfig.global.datarec_period)
 [ -z "$PERIOD" ] && PERIOD=0
-[ "$PERIOD" = "0" ] && exit 0
+if [ "$PERIOD" = "0" ]; then
+	lock -u $LOCK
+	exit 0
+fi
 NOW=$(date +%s)
 if [ -e "$SDB" ]; then
 	DBTS=$(date +%s -r "$SDB")
@@ -158,5 +163,7 @@ if [ $WRITETS -le $NOW ]; then
 	mv "$DB.gz" "$SDB"
 	sync
 fi
+
+lock -u $LOCK
 
 exit 0
