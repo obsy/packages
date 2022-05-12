@@ -1504,6 +1504,8 @@ function showbandwidth(mac) {
 	}
 }
 
+var physicalports = [];
+
 function showstatus() {
 	ubus_call('"easyconfig", "status", {}', function(data) {
 		setValue('system_uptime', formatDuration(data.system_uptime, false));
@@ -1542,6 +1544,7 @@ function showstatus() {
 				(data.ports).push({'port': ((data.ports_swconfig[idx]).role == 'wan' ? 'wan' : (data.ports_swconfig[idx]).role + (data.ports_swconfig[idx]).id), 'speed': (data.ports_swconfig[idx]).speed, 'macs': -1});
 			}
 			if ((data.ports).length > 0) {
+				physicalports = data.ports;
 				var sorted = sortJSON(data.ports, 'port', 'asc');
 				var html = '<center><table><tr>';
 				for (var idx = 0; idx < sorted.length; idx++) {
@@ -2512,7 +2515,12 @@ function clientscallback(sortby) {
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">' + limitations;
 				if (sorted[idx].type == 1) {
-					html += 'przewodowo</div>';
+					html += 'przewodowo';
+					var obj = physicalports.find(o => o.port === sorted[idx].port);
+					if (obj) {
+						html += ' ' + (sorted[idx].port).toUpperCase();
+					}
+					html += '</div>';
 				} else {
 					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}

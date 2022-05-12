@@ -751,7 +751,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 				[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 				[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
 
-				echo "{\"mac\":\"$M\"${IP},\"active\":true,\"type\":1$(client_data $M)},"
+				echo "{\"mac\":\"$M\"${IP},\"active\":true,\"port\":\"${IFNAME}\",\"type\":1$(client_data $M)},"
 			done
 		fi
 	done
