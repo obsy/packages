@@ -109,7 +109,10 @@ for IFNAME in $TPORTS1; do
 	IFNAME=${IFNAME%%;*}
 	PORT=${IFNAME%%.*}
 	VLAN=${IFNAME##*.}
-	[ "$PORT" = "$VLAN" ] && VLAN=1
+	if [ "$PORT" = "$VLAN" ]; then
+		VLAN=$(jsonfilter -i /etc/board.json -e '@.switch.*.roles' | jsonfilter -e '@[*]' | awk '/"'$PORT'"/{print NR; exit}')
+		[ -z "$VLAN" ] && VLAN=1
+	fi
 
 	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "-1")",\"macs\":${CNT}},"
 	[ -e /sbin/swconfig ] || continue
