@@ -2696,8 +2696,6 @@ function clientslogscallback(first, last) {
 			var title = '';
 			if (filtered[idx].desc !== '' && typeof filtered[idx].desc.band !== 'undefined') {
 				title = 'Pasmo: ' + (filtered[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + filtered[idx].desc.ssid;
-			} else {
-				title = 'bezprzewodowo';
 			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(filtered[idx].id)) + '</div>';
@@ -2770,6 +2768,12 @@ function hostinfo(id) {
 	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
 	html += createRowForModal('Typ połączenia', (host.type == 1 ? 'przewodowo' : 'bezprzewodowo'));
 	if (host.active) {
+		if (host.type == 1) {
+			var obj = physicalports.find(o => o.port === host.port);
+			if (obj) {
+				html += createRowForModal('Port', (host.port).toUpperCase());
+			}
+		}
 		if (host.type == 2) {
 			html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
 			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
