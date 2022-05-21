@@ -2741,8 +2741,8 @@ function hostmenu(id) {
 	if (host.type == 2) {
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
-		html += '<hr><p><span class="click" onclick="closeMsg();hostremovedata(' + host.id + ');">usuwanie transferu</span></p>';
 	}
+	html += '<hr><p><span class="click" onclick="closeMsg();hostremovedata(' + host.id + ');">usuwanie danych</span></p>';
 	showMsg(html);
 }
 
@@ -3210,7 +3210,7 @@ function hostremovedata(id) {
 	}
 
 	setValue('dialog_val', (host.mac).replace(/:/g, '_'));
-	showDialog('Usunąć statystykę transferu dla "' + host.displayname + '"?', 'Anuluj', 'Usuń', okremovetraffic);
+	showDialog('Usunąć dane dla "' + host.displayname + '"?', 'Anuluj', 'Usuń', okremovetraffic);
 }
 
 /*****************************************************************************/
