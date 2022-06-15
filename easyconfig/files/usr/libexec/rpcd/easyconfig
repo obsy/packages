@@ -135,7 +135,8 @@ for IFNAME in $TPORTS1; do
 	done
 done
 
-VPN_UP=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e '@.up')
+T=$(ubus call network.interface dump | jsonfilter -q -e '@.interface[@.up=true && (@.proto="pptp" || @.proto="sstp" || @.proto="wireguard")]')
+[ -n "$T" ] && VPN_UP="true"
 
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
@@ -559,7 +560,7 @@ if [ -n "$BUTTON" ]; then
 	if grep -q rfkill /etc/rc.button/$BUTTON; then
 		ACTION="rfkill"
 	fi
-	if grep -q "ifup vpn" /etc/rc.button/$BUTTON; then
+	if grep -q "easyconfig.vpn" /etc/rc.button/$BUTTON; then
 		ACTION="vpn"
 	fi
 fi
@@ -601,11 +602,11 @@ else
 	echo '"ussdsms":false,'
 fi
 
-if [ -f /usr/lib/pppd/*/pptp.so ]; then
-	echo '"pptp":true,'
-else
-	echo '"pptp":false,'
-fi
+VPN=""
+[ -f /usr/lib/pppd/*/pptp.so ] && VPN=${VPN}'"pptp",'
+[ -e /lib/netifd/proto/sstp.sh ] && VPN=${VPN}'"sstp",'
+[ -e /lib/netifd/proto/wireguard.sh ] && VPN=${VPN}'"wireguard",'
+echo '"vpn":['$VPN'],'
 
 if [ -e /etc/config/adblock ]; then
 	echo '"adblock":true,'
@@ -1363,60 +1364,103 @@ upgrade() {
 
 ##############################################################################
 
-show_pptp()
+show_vpn()
 {
-	T=$(ifstatus vpn 2>/dev/null)
-
-	IP=$(echo "$T" | jsonfilter -q -e '@["ipv4-address"][0].address')
-
-	UP=$(echo "$T" | jsonfilter -q -e "@.up")
-	if [ "x$UP" = "xtrue" ]; then
-		UPTIME=$(echo "$T" | jsonfilter -q -e '@.uptime')
-		if $TIMEISVALID; then
-			UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
-		else
-			UPTIME_SINCE=""
+	echo '{"result":['
+	T=$(ubus call network.interface dump)
+	INTERFACES=$(echo "$T" | jsonfilter -q -e '@.interface[@.proto="pptp" || @.proto="sstp" || @.proto="wireguard"].interface')
+	for INTERFACE in $INTERFACES; do
+		UP=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].up')
+		UPTIME=""
+		UPTIME_SINCE=""
+		if [ "x$UP" = "xtrue" ]; then
+			UPTIME=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].uptime')
+			if $TIMEISVALID; then
+				UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
+			else
+				UPTIME_SINCE=""
+			fi
 		fi
-	fi
-
-	PROTO=$(uci -q get network.vpn.proto)
-	if [ "x$(uci -q get network.vpn)" = "xinterface" ]; then
-		NAME=$(uci -q get network.vpn.name)
-		AUTO=$(uci -q get network.vpn.auto)
-		SERVER=$(uci -q get network.vpn.server)
-		USERNAME=$(uci -q get network.vpn.username)
-		PASSWORD=$(uci -q get network.vpn.password)
-		MPPE=$(uci -q get network.vpn.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
-	fi
-	echo "{\"up\":${UP:-false},\"ip\":\"$IP\",\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"auto\":${AUTO:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":${MPPE:-1},"
-
-	echo '"profiles":['
-	T=$(uci show easyconfig | awk -F[=.] '/=vpn/{print $2}')
-	for i in $T; do
-		echo '{"proto":"'$(uci -q get easyconfig.$i.proto)'",'
-		echo '"name":"'$(escapeJSON "$(uci -q get easyconfig.$i.name)")'",'
-		echo '"auto":'$(uci -q get easyconfig.$i.auto)','
-		echo '"server":"'$(uci -q get easyconfig.$i.server)'",'
-		echo '"username":"'$(escapeJSON "$(uci -q get easyconfig.$i.username)")'",'
-		echo '"password":"'$(escapeJSON "$(uci -q get easyconfig.$i.password)")'",'
-		echo '"mppe":'$(uci -q get easyconfig.$i.mppe)'},'
+		PENDING=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].pending')
+		PROTO=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].proto')
+		case $PROTO in
+			"pptp" | "sstp")
+				NAME=$(uci -q get network.$INTERFACE.name)
+				[ -z "$NAME" ] && NAME=$(uci -q get network.$INTERFACE.server)
+				;;
+			"wireguard")
+				PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$INTERFACE'/{print $2}')
+				NAME=""
+				for PEER in $PEERS; do
+					T1=$(uci -q get network.$PEER.description)
+					[ -z "$T1" ] && T1="$(uci -q get network.$PEER.endpoint_host):$(uci -q get network.$PEER.endpoint_port)"
+					[ -n "$NAME" ] && NAME="${NAME},"
+					NAME="${NAME}${T1}"
+				done
+				;;
+		esac
+		echo "{\"interface\":\"$INTERFACE\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
 	done
-	echo '],'
+	echo "]}"
+}
 
-	VPNLED=$(uci -q get system.led_vpn.sysfs)
-	SYSTEM=$(uci show system)
-	T=$(ls -d /sys/class/leds/*:* 2>/dev/null | sed 's|/sys/class/leds/||g')
-	O=""
-	echo '"led":"'$VPNLED'","leds":['
-	for LED in $T; do
-		if ! echo "$SYSTEM" | grep -q "$LED" || [ "x$LED" = "x$VPNLED" ]; then
-			[ -n "$O" ] && O="$O,"
-			O="$O"'"'$LED'"'
-		fi
-	done
-	echo "$O"']'
+show_vpn_details()
+{
+	read input;
+	json_load "$input"
+	json_get_vars interface
 
-	echo "}"
+	[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
+	[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
+
+	PROTO=$(uci -q get network.$interface.proto)
+	if [ "x$PROTO" = "xpptp" ]; then
+		NAME=$(uci -q get network.$interface.name)
+		AUTOSTART=$(uci -q get network.$interface.auto)
+		SERVER=$(uci -q get network.$interface.server)
+		USERNAME=$(uci -q get network.$interface.username)
+		PASSWORD=$(uci -q get network.$interface.password)
+		MPPE=$(uci -q get network.$interface.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
+		echo "{\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":${MPPE:-1}}"
+	fi
+	if [ "x$PROTO" = "xsstp" ]; then
+		NAME=$(uci -q get network.$interface.name)
+		AUTOSTART=$(uci -q get network.$interface.auto)
+		SERVER=$(uci -q get network.$interface.server)
+		USERNAME=$(uci -q get network.$interface.username)
+		PASSWORD=$(uci -q get network.$interface.password)
+		echo "{\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\"}"
+	fi
+	if [ "x$PROTO" = "xwireguard" ]; then
+		AUTOSTART=$(uci -q get network.$interface.auto)
+		PRIVKEY=$(uci -q get network.$interface.private_key)
+		PUBKEY=$(echo "$PRIVKEY" | wg pubkey)
+		IPS=$(uci -q get network.$interface.addresses | sed 's/ /","/g')
+		PORT=$(uci -q get network.$interface.listen_port)
+		PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$interface'/{print $2}')
+		echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"privkey\":\"$PRIVKEY\",\"pubkey\":\"$PUBKEY\",\"listen_port\":\"$PORT\",\"ips\":[\"$IPS\"],\"peers\":["
+		for PEER in $PEERS; do
+			DISABLED=$(uci -q get network.$PEER.disabled)
+			ENDPOINTHOST=$(uci -q get network.$PEER.endpoint_host)
+			ENDPOINTPORT=$(uci -q get network.$PEER.endpoint_port)
+			PUBKEY=$(uci -q get network.$PEER.public_key)
+			DESCRIPTION=$(uci -q get network.$PEER.description)
+			[ -z "$DESCRIPTION" ] && DESCRIPTION="$ENDPOINTHOST:$ENDPOINTPORT"
+			ALLOWEDIPS=$(uci -q get network.$PEER.allowed_ips | sed 's/ /","/g')
+			echo "{\"button\":${BUTTON:-false},\"disabled\":${DISABLED:-0},\"description\":\"$DESCRIPTION\",\"pubkey\":\"$PUBKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":$ENDPOINTPORT,\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
+		done
+		echo "]}"
+	fi
+}
+
+get_wireguard_keys()
+{
+	read input;
+	json_load "$input"
+	json_get_vars privkey
+	[ "x$privkey" = "xgenkeys" ] && privkey=$(wg genkey)
+	PUBKEY=$(echo "$privkey" | wg pubkey)
+	echo "{\"privkey\":\"$privkey\",\"pubkey\":\"$PUBKEY\"}"
 }
 
 ##############################################################################
@@ -1624,7 +1668,9 @@ case "$1" in
 		echo '"pincode":{"proto":"string","device":"string","pincode":"string"},'
 		echo '"reboot":{},'
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
-		echo '"pptp":{},'
+		echo '"vpn":{}',
+		echo '"vpndetails":{"interface":"string"}',
+		echo '"getwireguardkeys":{"privkey":"string"}',
 		echo '"geolocation":{},'
 		echo '"adblock":{},'
 		echo '"nightmode":{},'
@@ -1690,8 +1736,14 @@ case "$1" in
 			upgrade)
 				upgrade
 				;;
-			pptp)
-				show_pptp
+			vpn)
+				show_vpn
+				;;
+			vpndetails)
+				show_vpn_details
+				;;
+			getwireguardkeys)
+				get_wireguard_keys
 				;;
 			geolocation)
 				show_geolocation

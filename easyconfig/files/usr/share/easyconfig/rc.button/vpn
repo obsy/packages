@@ -1,10 +1,14 @@
 #!/bin/sh
 [ "${ACTION}" = "released" ] || exit 0
-T=$(ifstatus vpn 2>/dev/null | jsonfilter -q -e @.up)
+
+VPN=$(uci -q get easyconfig.vpn.interface)
+[ -z "$VPN" ] && exit 0
+
+T=$(ubus call network.interface status "{\"interface\":\"${VPN}\"}" 2>/dev/null | jsonfilter -q -e @.up)
 if [ "x$T" = "xfalse" ]; then
-	ifup vpn
+	ifup ${VPN}
 else
-	ifdown vpn
+	ifdown ${VPN}
 	ifup wan
 fi
 exit 0

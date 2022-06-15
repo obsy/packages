@@ -456,3 +456,19 @@ h3 {
 .darkmode .tooltip {
   color: black;
 }
+
+.error {
+  color: red;
+}
+
+.input-group {
+  display: table;
+}
+
+.input-group-element {
+  padding-inline-start: 10px;
+  display: table-cell;
+  width: 1%;
+  text-align: end;
+  vertical-align: middle;
+}

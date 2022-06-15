@@ -2,10 +2,6 @@
 
 [ $ACTION = "ifup" ] || exit 0
 
-[ $INTERFACE = "vpn" ] && {
-	LED=$(uci -q get system.led_vpn.sysfs)
-	[ -n "$LED" ] && echo pptp-vpn > /sys/class/leds/$LED/device_name
-}
 [ $INTERFACE = "wan" ] && awk '{printf "%d\n", $1}' /proc/uptime >> /tmp/easyconfig_wan_up
 
 exit 0

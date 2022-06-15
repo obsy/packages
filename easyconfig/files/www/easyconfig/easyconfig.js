@@ -89,6 +89,10 @@ function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
 
+function proofreadIpWithMask(input) {
+	proofreadText(input, validateIPWithMask, 0);
+}
+
 function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
 		var e = input.closest('div');
@@ -147,6 +151,24 @@ function validateIP(address) {
 					errorCode = 1;
 				}
 			}
+		}
+	}
+	return errorCode;
+}
+
+function validateIPWithMask(address) {
+	var errorCode = 0;
+	var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/);
+	if (ipFields == null) {
+		errorCode = 1;
+	} else {
+		for (field=1; field <= 4; field++) {
+			if ((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
+				errorCode = 1;
+			}
+		}
+		if ((ipFields[5] < 0) || (ipFields[5] > 32)) {
+			errorCode = 1;
 		}
 	}
 	return errorCode;
@@ -954,8 +976,8 @@ function showcallback(data) {
 	}
 	setDisplay('div_stat', (config.services.statistics.enabled != -1));
 
-	// pptp
-	setDisplay('menu_pptp', config.services.pptp);
+	// vpn
+	setDisplay('menu_vpn', (config.services.vpn).length > 0);
 
 	// nightmode / sunwait
 	setDisplay('div_nightmode_led_auto', config.services.sunwait);
@@ -980,7 +1002,7 @@ function showcallback(data) {
 			opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
 			select.appendChild(opt);
 		}
-		if (config.services.pptp) {
+		if ((config.services.vpn).length > 0) {
 			var opt = document.createElement('option');
 			opt.value = 'vpn';
 			opt.innerHTML = 'Włącz/wyłącz VPN';
@@ -3841,166 +3863,604 @@ function upgrade_step3() {
 
 /*****************************************************************************/
 
-function showpptp() {
-	ubus_call('"easyconfig", "pptp", {}', function(data) {
-		setValue('pptp_up', data.up ? 'Uruchomiony' : 'Brak połączenia');
-		setValue('pptp_ip', (data.ip == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.ip + '</span>');
-		setValue('pptp_uptime', formatDuration(data.uptime, false));
-		setValue('pptp_uptime_since', data.uptime_since == '' ? '' : ' (od ' + formatDateTime(data.uptime_since) + ')');
-		setValue('pptp_auto', data.auto == '1');
-		setValue('pptp_name', data.name);
-		setValue('pptp_server', data.server);
-		setValue('pptp_username', data.username);
-		setValue('pptp_password', data.password);
-		setValue('pptp_mppe', data.mppe == '1');
-
-		document.getElementById('btn_uppptp').disabled = (data.proto == '' || data.server == '');
-		document.getElementById('btn_downpptp').disabled = (data.proto == '' || data.server == '');
-
-		e = removeOptions('pptp_profile');
-		var opt = document.createElement('option');
-		opt.value = '';
-		opt.innerHTML = 'brak';
-		e.appendChild(opt);
-		var arr = sortJSON(data.profiles, 'name', 'asc');
-		var selected = '';
-		for (var idx = 0; idx < arr.length; idx++) {
-			var opt = document.createElement('option');
-			opt.value = (JSON.stringify(arr[idx])).replace(/\"/g,"$")
-			opt.innerHTML = arr[idx].name;
-			e.appendChild(opt);
-			if (arr[idx].name == data.name) {
-				selected = opt.value;
-			}
-		}
-		setValue('pptp_profile', selected);
-		selectVpn(selected, false);
-
-		e = removeOptions('pptp_led');
-		opt = document.createElement('option');
-		opt.value = '';
-		opt.innerHTML = 'brak';
-		e.appendChild(opt);
-		arr = data.leds;
-		for (var idx = 0; idx < arr.length; idx++) {
-			var opt = document.createElement('option');
-			opt.value = arr[idx];
-			opt.innerHTML = arr[idx];
-			e.appendChild(opt);
-		}
-		setValue('pptp_led', data.led);
+function upvpn(interface) {
+	ubus_call('"network.interface", "up", {"interface":"' + interface + '"}', function(data) {
+		showvpn();
 	});
+}
+
+function downvpn(interface) {
+	ubus_call('"network.interface", "down", {"interface":"' + interface + '"}', function(data) {
+		ubus_call('"network.interface", "up", {"interface":"wan"}', function(data1) {
+			showvpn();
+		});
+	});
+}
+
+function showvpn() {
+	ubus_call('"easyconfig", "vpn", {}', function(data) {
+		var sorted = sortJSON(data.result, 'name', 'asc');
+		if (sorted.length > 0) {
+			var html = '<div class="row space">';
+			html += '<div class="col-xs-5">Nazwa</div>'
+			html += '<div class="col-xs-2">Typ</div>'
+			html += '<div class="col-xs-4">Status</div>'
+			html += '<div class="col-xs-1"></div>'
+			html += '</div>';
+			for (var idx = 0; idx < sorted.length; idx++) {
+				html += '<div class="row space"><div class="col-xs-5 click" onclick="vpndetails(\'' + sorted[idx].interface + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
+				html += '<div class="col-xs-2">' + sorted[idx].proto + '</div>';
+				if (sorted[idx].up) {
+					html += '<div class="col-xs-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + (sorted[idx].uptime_since == '' ? '' : ' (od ' + formatDateTime(sorted[idx].uptime_since) + ')') + '</div>';
+					html += '<div class="col-xs-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+				} else {
+					if (sorted[idx].pending) {
+						html += '<div class="col-xs-4">trwa nawiązywanie połączenia</div>';
+						html += '<div class="col-xs-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+					} else {
+						html += '<div class="col-xs-4">wyłączony</div>';
+						html += '<div class="col-xs-1 click" onclick="upvpn(\'' + sorted[idx].interface + '\');"><span title="połącz"><i data-feather="power"></i></span></div>';
+					}
+				}
+				html += '</div>';
+			}
+			setValue('div_vpn_content', html);
+			showicon();
+		}
+	})
+}
+
+function vpndetails(interface) {
+	ubus_call('"easyconfig", "vpndetails", {"interface":"' + interface + '"}', function(data) {
+		if (data.proto == 'pptp') {
+			setValue('vpn_pptp_error', '');
+			setValue('vpn_pptp_interface', interface);
+			setValue('vpn_pptp_name', data.name);
+			setValue('vpn_pptp_auto', data.autostart == 1);
+			setValue('vpn_pptp_button', (config.button.code != '') ? data.button : false);
+			setDisplay('div_vpn_pptp_button', config.button.code != '')
+			setValue('vpn_pptp_to_lan', data.tolan == 1);
+			setValue('vpn_pptp_server', data.server);
+			setValue('vpn_pptp_username', data.username);
+			setValue('vpn_pptp_password', data.password);
+			setValue('vpn_pptp_mppe', data.mppe == 1);
+			setDisplay('div_vpn_pptp', true);
+		}
+		if (data.proto == 'sstp') {
+			setValue('vpn_sstp_error', '');
+			setValue('vpn_sstp_interface', interface);
+			setValue('vpn_sstp_name', data.name);
+			setValue('vpn_sstp_auto', data.autostart == 1);
+			setValue('vpn_sstp_button', (config.button.code != '') ? data.button : false);
+			setDisplay('div_vpn_sstp_button', config.button.code != '')
+			setValue('vpn_sstp_to_lan', data.tolan == 1);
+			setValue('vpn_sstp_server', data.server);
+			setValue('vpn_sstp_username', data.username);
+			setValue('vpn_sstp_password', data.password);
+			setDisplay('div_vpn_sstp', true);
+		}
+		if (data.proto == 'wireguard') {
+			setValue('vpn_wireguard_error', '');
+			setValue('vpn_wireguard_interface', interface);
+			setValue('vpn_wireguard_auto', data.autostart == 1);
+			setValue('vpn_wireguard_button', (config.button.code != '') ? data.button : false);
+			setDisplay('div_vpn_wireguard_button', config.button.code != '')
+			setValue('vpn_wireguard_to_lan', data.tolan == 1);
+			setValue('vpn_wireguard_privkey', data.privkey);
+			setValue('vpn_wireguard_pubkey', data.pubkey);
+			setValue('vpn_wireguard_port', data.listen_port);
+
+			setValue('vpn_wireguard_ips_content', '')
+			setValue('vpn_wireguard_ips', 0);
+			for (var idx = 0; idx < data.ips.length; idx++) {
+				addwireguardips();
+				setValue('vpn_wireguard_ips_' + idx, data.ips[idx]);
+			}
+
+			setValue('vpn_wireguard_peers_content', '')
+			setValue('vpn_wireguard_peers', 0);
+			for (var idx = 0; idx < data.peers.length; idx++) {
+				addwireguardpeer(false);
+				setValue('vpn_wireguard_description_' + idx, data.peers[idx].description);
+				setValue('vpn_wireguard_disabled_' + idx, data.peers[idx].disabled);
+				setValue('vpn_wireguard_pubkey_' + idx, data.peers[idx].pubkey);
+				setValue('vpn_wireguard_endpoint_host_' + idx, data.peers[idx].endpoint_host);
+				setValue('vpn_wireguard_endpoint_port_' + idx, data.peers[idx].endpoint_port);
+
+				for (var idy = 0; idy < data.peers[idx].allowed_ips.length; idy++) {
+					addwireguardallowedips('_' + idx);
+					setValue('vpn_wireguard_allowed_ips_' + idx + '_' + idy, data.peers[idx].allowed_ips[idy]);
+				}
+			}
+
+			setDisplay('div_vpn_wireguard', true);
+		}
+	})
+}
+
+function addvpn() {
+	var e = removeOptions('vpn_new');
+	var arr = config.services.vpn;
+	for (var idx = 0; idx < arr.length; idx++) {
+		var opt = document.createElement('option');
+		opt.value = arr[idx];
+		opt.innerHTML = arr[idx];
+		e.appendChild(opt);
+	}
+
+	setDisplay('div_vpn_new', true);
+}
+
+function savevpnnew() {
+	setDisplay('div_vpn_new', false);
+
+	if (getValue('vpn_new') == 'pptp') {
+		setValue('vpn_pptp_error', '');
+		setValue('vpn_pptp_interface', Math.random().toString(36).substr(2,8));
+		setValue('vpn_pptp_name', '');
+		setValue('vpn_pptp_auto', true);
+		setValue('vpn_pptp_button', false);
+		setValue('vpn_pptp_to_lan', false);
+		setValue('vpn_pptp_server', '');
+		setValue('vpn_pptp_username', '');
+		setValue('vpn_pptp_password', '');
+		setValue('vpn_pptp_mppe', true);
+		setDisplay('div_vpn_pptp', true);
+	}
+	if (getValue('vpn_new') == 'sstp') {
+		setValue('vpn_sstp_error', '');
+		setValue('vpn_sstp_interface', Math.random().toString(36).substr(2,8));
+		setValue('vpn_sstp_name', '');
+		setValue('vpn_sstp_auto', true);
+		setValue('vpn_sstp_button', false);
+		setValue('vpn_sstp_to_lan', false);
+		setValue('vpn_sstp_server', '');
+		setValue('vpn_sstp_username', '');
+		setValue('vpn_sstp_password', '');
+		setDisplay('div_vpn_sstp', true);
+	}
+	if (getValue('vpn_new') == 'wireguard') {
+		setValue('vpn_wireguard_error', '');
+		setValue('vpn_wireguard_interface', Math.random().toString(36).substr(2,8));
+		setValue('vpn_wireguard_auto', true);
+		setValue('vpn_wireguard_button', false);
+		setValue('vpn_wireguard_to_lan', false);
+		setValue('vpn_wireguard_privkey', '');
+		setValue('vpn_wireguard_pubkey', '');
+		setValue('vpn_wireguard_port', '');
+
+		setValue('vpn_wireguard_ips_content', '')
+		setValue('vpn_wireguard_ips', 0);
+		addwireguardips();
+
+		setValue('vpn_wireguard_peers_content', '')
+		setValue('vpn_wireguard_peers', 0);
+		addwireguardpeer(true);
+
+		setDisplay('div_vpn_wireguard', true);
+	}
+}
+
+function closevpnnew() {
+	setDisplay('div_vpn_new', false);
+}
+
+function cancelpptp() {
+	setDisplay('div_vpn_pptp', false);
+}
+
+function removepptp() {
+	cancelpptp();
+	setValue('dialog_val', getValue('vpn_pptp_interface'));
+	showDialog('Usunąć VPN "' + getValue('vpn_pptp_name') + '" (typu pptp)?', 'Anuluj', 'Usuń', okremovevpn);
+}
+
+function okremovevpn() {
+	var cmd = [];
+	var interface = getValue('dialog_val');
+	cmd.push('ifdown ' + interface);
+	cmd.push('uci -q del network.' + interface);
+	cmd.push('uci -q del firewall.' + interface);
+	cmd.push('uci -q del firewall.f1' + interface);
+	cmd.push('uci -q del firewall.f2' + interface);
+	cmd.push('uci commit');
+	cmd.push('reload_config');
+	cmd.push('ubus call network reload');
+
+	execute(cmd, showvpn);
 }
 
 function savepptp() {
 	var cmd = [];
 
-	var pptp_name = getValue('pptp_name');
-	if (pptp_name == '') {
-		showMsg('Błąd w polu ' + getLabelText('pptp_name'), true);
+	setValue('vpn_pptp_error', '');
+	if (getValue('vpn_pptp_name') == '') {
+		setValue('vpn_pptp_error', 'Błąd w polu ' + getLabelText('vpn_pptp_name'));
 		return;
 	}
-	if (checkField('pptp_server', validateHost)) {return;}
+	if (validateHost(getValue('vpn_pptp_server')) != 0) {
+		setValue('vpn_pptp_error', 'Błąd w polu ' + getLabelText('vpn_pptp_server'));
+		return;
+	}
 
-	cmd.push('uci set network.vpn=interface');
-	cmd.push('uci set network.vpn.proto=pptp');
-	cmd.push('uci set network.vpn.name=\\\"' + escapeShell(getValue('pptp_name')) + '\\\"');
-	cmd.push('uci set network.vpn.server=\\\"' + getValue('pptp_server') + '\\\"');
-	cmd.push('uci set network.vpn.username=\\\"' + escapeShell(getValue('pptp_username')) + '\\\"');
-	cmd.push('uci set network.vpn.password=\\\"' + escapeShell(getValue('pptp_password')) + '\\\"');
-	if (getValue('pptp_mppe')) {
-		cmd.push('uci -q del network.vpn.pppd_options');
+	cancelpptp();
+
+	var interface = getValue('vpn_pptp_interface');
+	cmd.push('uci set network.' + interface + '=interface');
+	cmd.push('uci set network.' + interface + '.proto=pptp');
+	cmd.push('uci set network.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_pptp_name')) + '\\\"');
+	cmd.push('uci set network.' + interface + '.server=\\\"' + getValue('vpn_pptp_server') + '\\\"');
+	cmd.push('uci set network.' + interface + '.username=\\\"' + escapeShell(getValue('vpn_pptp_username')) + '\\\"');
+	cmd.push('uci set network.' + interface + '.password=\\\"' + escapeShell(getValue('vpn_pptp_password')) + '\\\"');
+	if (getValue('vpn_pptp_mppe')) {
+		cmd.push('uci -q del network.' + interface + '.pppd_options');
 	} else {
-		cmd.push('uci set network.vpn.pppd_options=\\\"nomppe\\\"');
+		cmd.push('uci set network.' + interface + '.pppd_options=\\\"nomppe\\\"');
 	}
-	var led = getValue('pptp_led');
-	if (led != '') {
-		cmd.push('uci set system.led_vpn=led');
-		cmd.push('uci set system.led_vpn.name=VPN');
-		cmd.push('uci set system.led_vpn.sysfs=\\\"' + led + '\\\"');
-		cmd.push('uci set system.led_vpn.trigger=netdev');
-		cmd.push('uci set system.led_vpn.dev=pptp-vpn');
-		cmd.push('uci set system.led_vpn.mode=link');
+
+	if (getValue('vpn_pptp_to_lan')) {
+		cmd.push('uci set firewall.' + interface + '=zone');
+		cmd.push('uci set firewall.' + interface + '.name=' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.network');
+		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+		cmd.push('uci set firewall.' + interface + '.input=REJECT');
+		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
+		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.f1' + interface + '=forwarding');
+		cmd.push('uci set firewall.f1' + interface + '.src=lan');
+		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
+		cmd.push('uci set firewall.f2' + interface + '=forwarding');
+		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
+		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
 	} else {
-		cmd.push('uci -q del system.led_vpn');
-	}
-	cmd.push('ZONE=$(uci show firewall | awk -F. \'/name=.wan.$/{print $2}\')');
-	cmd.push('uci -q del_list firewall.$ZONE.network=vpn');
-	cmd.push('uci add_list firewall.$ZONE.network=vpn');
-
-	// profile
-	if (getValue('pptp_name') != '') {
-		var section = 'v' + (getValue('pptp_name').toLowerCase().replace(/[^a-z0-9_]/g, ''));
-		cmd.push('uci -q del easyconfig.' + section);
-		cmd.push('uci set easyconfig.' + section + '=vpn');
-		cmd.push('uci set easyconfig.' + section + '.proto=pptp');
-		cmd.push('uci set easyconfig.' + section + '.name=\\\"' + escapeShell(getValue('pptp_name')) + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.server=\\\"' + getValue('pptp_server') + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.username=\\\"' + escapeShell(getValue('pptp_username')) + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.password=\\\"' + escapeShell(getValue('pptp_password')) + '\\\"');
-		cmd.push('uci set easyconfig.' + section + '.mppe=' + (getValue('pptp_mppe') ? '1' : '0'));
-		cmd.push('uci set easyconfig.' + section + '.auto=' + (getValue('pptp_auto') ? '1' : '0'));
+		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.f1' + interface);
+		cmd.push('uci -q del firewall.f2' + interface);
 	}
 
-	if (getValue('pptp_auto')) {
-		cmd.push('uci set network.vpn.auto=1');
+	if (getValue('vpn_pptp_button')) {
+		cmd.push('uci set easyconfig.vpn=button');
+		cmd.push('uci set easyconfig.vpn.interface=' + interface);
+	} else {
+		cmd.push('T=$(uci -q get easyconfig.vpn.interface)');
+		cmd.push('if [ \\\"x$T\\\" = \\\"x' + interface + '\\\" ]; then');
+		cmd.push(' uci -q del easyconfig.vpn.interface');
+		cmd.push('fi');
+	}
+
+	if (getValue('vpn_pptp_auto')) {
+		cmd.push('uci -q del network.' + interface + '.auto');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
-		cmd.push('ifup vpn');
+		cmd.push('ifup ' + interface);
 	} else {
-		cmd.push('uci set network.vpn.auto=0');
+		cmd.push('uci set network.' + interface + '.auto=0');
 		cmd.push('uci commit');
 		cmd.push('ubus call network reload');
-		cmd.push('ifdown vpn');
+		cmd.push('ifdown ' + interface );
 	}
-	cmd.push('/etc/init.d/led restart');
 
-	execute(cmd, showpptp);
+	execute(cmd, showvpn);
 }
 
-function uppptp() {
-	ubus_call('"network.interface", "up", {"interface":"vpn"}', function(data) {
+function cancelsstp() {
+	setDisplay('div_vpn_sstp', false);
+}
+
+function removesstp() {
+	cancelsstp();
+	setValue('dialog_val', getValue('vpn_sstp_interface'));
+	showDialog('Usunąć VPN "' + getValue('vpn_sstp_name') + '" (typu sstp)?', 'Anuluj', 'Usuń', okremovevpn);
+}
+
+function savesstp() {
+	var cmd = [];
+
+	setValue('vpn_sstp_error', '');
+	if (getValue('vpn_sstp_name') == '') {
+		setValue('vpn_sstp_error', 'Błąd w polu ' + getLabelText('vpn_sstp_name'));
+		return;
+	}
+	if (validateHost(getValue('vpn_sstp_server')) != 0) {
+		setValue('vpn_sstp_error', 'Błąd w polu ' + getLabelText('vpn_sstp_server'));
+		return;
+	}
+
+	cancelsstp();
+
+	var interface = getValue('vpn_sstp_interface');
+	cmd.push('uci set network.' + interface + '=interface');
+	cmd.push('uci set network.' + interface + '.proto=sstp');
+	cmd.push('uci set network.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_sstp_name')) + '\\\"');
+	cmd.push('uci set network.' + interface + '.server=\\\"' + getValue('vpn_sstp_server') + '\\\"');
+	cmd.push('uci set network.' + interface + '.username=\\\"' + escapeShell(getValue('vpn_sstp_username')) + '\\\"');
+	cmd.push('uci set network.' + interface + '.password=\\\"' + escapeShell(getValue('vpn_sstp_password')) + '\\\"');
+
+	if (getValue('vpn_sstp_to_lan')) {
+		cmd.push('uci set firewall.' + interface + '=zone');
+		cmd.push('uci set firewall.' + interface + '.name=' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.network');
+		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+		cmd.push('uci set firewall.' + interface + '.input=REJECT');
+		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
+		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.f1' + interface + '=forwarding');
+		cmd.push('uci set firewall.f1' + interface + '.src=lan');
+		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
+		cmd.push('uci set firewall.f2' + interface + '=forwarding');
+		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
+		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
+	} else {
+		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.f1' + interface);
+		cmd.push('uci -q del firewall.f2' + interface);
+	}
+
+	if (getValue('vpn_sstp_button')) {
+		cmd.push('uci set easyconfig.vpn=button');
+		cmd.push('uci set easyconfig.vpn.interface=' + interface);
+	} else {
+		cmd.push('T=$(uci -q get easyconfig.vpn.interface)');
+		cmd.push('if [ \\\"x$T\\\" = \\\"x' + interface + '\\\" ]; then');
+		cmd.push(' uci -q del easyconfig.vpn.interface');
+		cmd.push('fi');
+	}
+
+	if (getValue('vpn_sstp_auto')) {
+		cmd.push('uci -q del network.' + interface + '.auto');
+		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
+		cmd.push('ifup ' + interface);
+	} else {
+		cmd.push('uci set network.' + interface + '.auto=0');
+		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
+		cmd.push('ifdown ' + interface );
+	}
+
+	execute(cmd, showvpn);
+}
+
+function addwireguardkeys(privkey) {
+	ubus_call('"easyconfig", "getwireguardkeys", {"privkey":"' + privkey + '"}', function(data) {
+		setValue('vpn_wireguard_privkey', data.privkey);
+		setValue('vpn_wireguard_pubkey', data.pubkey);
 	});
 }
 
-function downpptp() {
-	ubus_call('"network.interface", "down", {"interface":"vpn"}', function(data) {
-		ubus_call('"network.interface", "up", {"interface":"wan"}', function(data) {
-		});
-	});
+function cancelwireguard() {
+	setDisplay('div_vpn_wireguard', false);
 }
 
-function selectVpn(data, copydatafromprofile) {
-	if (data == '') {
-		document.getElementById('btn_removepptp').disabled = true;
-	} else {
-		document.getElementById('btn_removepptp').disabled = false;
-		if (copydatafromprofile) {
-			var profile = JSON.parse((data).replace(/\$/g,'"'));
-			setValue('pptp_auto', profile.auto == '1');
-			setValue('pptp_name', profile.name);
-			setValue('pptp_server', profile.server);
-			setValue('pptp_username', profile.username);
-			setValue('pptp_password', profile.password);
-			setValue('pptp_mppe', profile.mppe == '1');
+function addwireguardips() {
+	var idx = getValue('vpn_wireguard_ips');
+	if (idx == '') { idx = 0; }
+	var html = ('<div id="div_vpn_wireguard_ips_idx">' + document.getElementById('div_vpn_wireguard_ips_template').innerHTML + '</div>').replaceAll('_idx', '_' + idx);
+	document.getElementById('vpn_wireguard_ips_content').insertAdjacentHTML('beforeend', html);
+	idx++;
+	setValue('vpn_wireguard_ips', idx);
+}
+
+function removewireguardips(idx) {
+	document.getElementById('div_vpn_wireguard_ips' + idx).remove();
+}
+
+function addwireguardpeer(withallowedip) {
+	var idx = getValue('vpn_wireguard_peers');
+	if (idx == '') { idx = 0; }
+	var html = ('<div id="div_vpn_wireguard_peer_idx">' + document.getElementById('div_vpn_wireguard_peer_template').innerHTML + '</div>').replaceAll('_idx', "_" + idx);
+	document.getElementById('vpn_wireguard_peers_content').insertAdjacentHTML('beforeend', html);
+	if (withallowedip) { addwireguardallowedips('_' + idx); }
+	idx++;
+	setValue('vpn_wireguard_peers', idx);
+}
+
+function removewireguardpeer(idx) {
+	document.getElementById('div_vpn_wireguard_peer' + idx).remove();
+}
+
+function addwireguardallowedips(idx) {
+	var idy = getValue('vpn_wireguard_allowed_ips' + idx);
+	if (idy == '') { idy = 0; }
+	var html = ('<div id="div_vpn_wireguard_allowed_ips' + idx + '_' + idy + '">' + document.getElementById('div_vpn_wireguard_allowed_ips_idx_template').innerHTML + '</div>').replaceAll('_idx', idx).replaceAll('_idy', '_' + idy);
+	document.getElementById('vpn_wireguard_allowed_ips' + idx + '_content').insertAdjacentHTML('beforeend', html);
+	setValue('vpn_wireguard_allowed_ips' + idx + '_' + idy, '0.0.0.0/0');
+	idy++;
+	setValue('vpn_wireguard_allowed_ips' + idx, idy);
+}
+
+function removewireguardallowedips(idx) {
+	document.getElementById('div_vpn_wireguard_allowed_ips' + idx).remove();
+}
+
+function removewireguard() {
+	cancelwireguard();
+	setValue('dialog_val', getValue('vpn_wireguard_interface'));
+	showDialog('Usunąć ten VPN typu wireguard?', 'Anuluj', 'Usuń', okremovewireguard);
+}
+
+function okremovewireguard() {
+	var cmd = [];
+
+	var interface = getValue('dialog_val');
+	cmd.push('ifdown ' + interface);
+	cmd.push('uci -q del network.' + interface);
+	cmd.push('T=$(uci show network | awk -F [=.] \'/=wireguard_' + interface + '/{print $2}\' | sort -r)');
+	cmd.push('for i in $T; do uci -q del network.$i; done');
+	cmd.push('uci -q del firewall.' + interface);
+	cmd.push('uci -q del firewall.f1' + interface);
+	cmd.push('uci -q del firewall.f2' + interface);
+	cmd.push('uci -q del firewall.r' + interface);
+	cmd.push('uci commit');
+	cmd.push('reload_config');
+	cmd.push('ubus call network reload');
+
+	execute(cmd, showvpn);
+}
+
+function savewireguard() {
+	var cmd = [];
+
+	setValue('vpn_wireguard_error', '');
+	if (validateLengthRange(getValue('vpn_wireguard_privkey'), 44, 44) != 0) {
+		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_privkey'));
+		return;
+	}
+	var port = getValue('vpn_wireguard_port');
+	if (port != '') {
+		if (validateNumericRange(port, 0, 65535) != 0){
+			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_port'));
+			return;
 		}
 	}
-}
 
-function removepptp() {
-	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
-	showDialog('Usunąć profil "' + profile.name + '"?', 'Anuluj', 'Usuń', okremovevpnprofile);
-}
+	var cnt = getValue('vpn_wireguard_ips');
+	for (var idx = 0; idx < cnt; idx++) {
+		e = document.getElementById('vpn_wireguard_ips_' + idx);
+		if (e) {
+			if (validateIPWithMask(e.value) != 0) {
+				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx));
+				return;
+			}
+		}
+	}
 
-function okremovevpnprofile() {
-	var cmd = [];
-	var profile = JSON.parse(getValue('pptp_profile').replace(/\$/g,'"'));
-	var section = 'v' + ((profile.name).toLowerCase().replace(/[^a-z0-9_]/g, ''));
-	cmd.push('uci -q del easyconfig.' + section);
-	cmd.push('[ \\\"x$(uci -q get network.vpn.name)\\\" = \\\"x' + profile.name + '\\\" ] && uci -q del network.vpn');
-	cmd.push('uci commit');
+	cnt = getValue('vpn_wireguard_peers');
+	for (var idx = 0; idx < cnt; idx++) {
+		e = document.getElementById('vpn_wireguard_description_' + idx);
+		if (!e) { continue; }
 
-	execute(cmd, showpptp);
+		if (validateLengthRange(e.value, 1, 255) != 0) {
+			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_description_' + idx));
+			return;
+		}
+		if (validateLengthRange(getValue('vpn_wireguard_pubkey_' + idx), 44, 44) != 0) {
+			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey_' + idx));
+			return;
+		}
+		if (validateHost(getValue('vpn_wireguard_endpoint_host_' + idx)) != 0) {
+			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_host_' + idx));
+			return;
+		}
+		if (validateNumericRange(getValue('vpn_wireguard_endpoint_port_' + idx, 0, 65535)) != 0) {
+			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_port_' + idx));
+			return;
+		}
+
+		var cnt1 = getValue('vpn_wireguard_allowed_ips_' + idx);
+		for (var idy = 0; idy < cnt1; idy++) {
+			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
+			if (e) {
+				if (validateIPWithMask(e.value) != 0) {
+					setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy));
+					return;
+				}
+			}
+		}
+	}
+
+	cancelwireguard();
+
+	var interface = getValue('vpn_wireguard_interface');
+	cmd.push('uci set network.' + interface + '=interface');
+	cmd.push('uci set network.' + interface + '.proto=wireguard');
+	cmd.push('uci set network.' + interface + '.private_key=\\\"' + getValue('vpn_wireguard_privkey') + '\\\"');
+	var port = getValue('vpn_wireguard_port');
+	if (port != '') {
+		cmd.push('uci set network.' + interface + '.listen_port=' + port);
+		cmd.push('uci set firewall.r' + interface + '=rule');
+		cmd.push('uci set firewall.r' + interface + '.name=' + interface);
+		cmd.push('uci set firewall.r' + interface + '.src=wan');
+		cmd.push('uci set firewall.r' + interface + '.target=ACCEPT');
+		cmd.push('uci set firewall.r' + interface + '.proto=udp');
+		cmd.push('uci set firewall.r' + interface + '.dest_port=' + port);
+	} else {
+		cmd.push('uci -q del firewall.r' + interface);
+	}
+	cmd.push('uci -q del network.' + interface + '.addresses');
+
+	cnt = getValue('vpn_wireguard_ips');
+	for (var idx = 0; idx < cnt; idx++) {
+		e = document.getElementById('vpn_wireguard_ips_' + idx);
+		if (e) {
+			cmd.push('uci add_list network.' + interface + '.addresses=' + getValue('vpn_wireguard_ips_' + idx));
+		}
+	}
+
+	cmd.push('T=$(uci show network | awk -F [=.] \'/=wireguard_' + interface + '/{print $2}\' | sort -r)');
+	cmd.push('for i in $T; do uci -q del network.$i; done');
+
+	cnt = getValue('vpn_wireguard_peers');
+	for (var idx = 0; idx < cnt; idx++) {
+		e = document.getElementById('vpn_wireguard_description_' + idx);
+		if (!e) { continue; }
+
+		cmd.push('uci add network wireguard_' + interface);
+		if (getValue('vpn_wireguard_disabled_' + idx)) {
+			cmd.push('uci set network.@wireguard_' + interface + '[-1].disabled=1');
+		}
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].description=\\\"' + escapeShell(getValue('vpn_wireguard_description_' + idx)) + '\\\"');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].public_key=\\\"' + getValue('vpn_wireguard_pubkey_' + idx) + '\\\"');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].endpoint_host=\\\"' + getValue('vpn_wireguard_endpoint_host_' + idx) + '\\\"');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].endpoint_port=\\\"' + getValue('vpn_wireguard_endpoint_port_' + idx) + '\\\"');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].persistent_keepalive=25');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].route_allowed_ips=1');
+
+		cnt1 = getValue('vpn_wireguard_allowed_ips_' + idx);
+		for (var idy = 0; idy < cnt1; idy++) {
+			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
+			if (e) {
+				cmd.push('uci add_list network.@wireguard_' + interface + '[-1].allowed_ips=' + e.value);
+			}
+		}
+	}
+
+	if (getValue('vpn_wireguard_to_lan')) {
+		cmd.push('uci set firewall.' + interface + '=zone');
+		cmd.push('uci set firewall.' + interface + '.name=' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.network');
+		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+		cmd.push('uci set firewall.' + interface + '.input=REJECT');
+		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
+		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.f1' + interface + '=forwarding');
+		cmd.push('uci set firewall.f1' + interface + '.src=lan');
+		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
+		cmd.push('uci set firewall.f2' + interface + '=forwarding');
+		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
+		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
+	} else {
+		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.f1' + interface);
+		cmd.push('uci -q del firewall.f2' + interface);
+	}
+
+	if (getValue('vpn_wireguard_button')) {
+		cmd.push('uci set easyconfig.vpn=button');
+		cmd.push('uci set easyconfig.vpn.interface=' + interface);
+	} else {
+		cmd.push('T=$(uci -q get easyconfig.vpn.interface)');
+		cmd.push('if [ \\\"x$T\\\" = \\\"x' + interface + '\\\" ]; then');
+		cmd.push(' uci -q del easyconfig.vpn.interface');
+		cmd.push('fi');
+	}
+
+	if (getValue('vpn_wireguard_auto')) {
+		cmd.push('uci -q del network.' + interface + '.auto');
+		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
+		cmd.push('ifup ' + interface);
+	} else {
+		cmd.push('uci set network.' + interface + '.auto=0');
+		cmd.push('uci commit');
+		cmd.push('ubus call network reload');
+		cmd.push('ifdown ' + interface );
+	}
+
+	execute(cmd, showvpn);
 }
 
 /*****************************************************************************/
@@ -4346,7 +4806,7 @@ function btn_pages(page) {
 	setDisplay('div_queries', (page == 'queries'));
 	setDisplay('div_traffic', (page == 'traffic'));
 	setDisplay('div_ussdsms', (page == 'ussdsms'));
-	setDisplay('div_pptp', (page == 'pptp'));
+	setDisplay('div_vpn', (page == 'vpn'));
 	setDisplay('div_adblock', (page == 'adblock'));
 	setDisplay('div_nightmode', (page == 'nightmode'));
 
@@ -4392,8 +4852,8 @@ function btn_pages(page) {
 		readussdshortcuts();
 	}
 
-	if (page == 'pptp') {
-		showpptp();
+	if (page == 'vpn') {
+		showvpn();
 	}
 
 	if (page == 'adblock') {
