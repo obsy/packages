@@ -3882,24 +3882,24 @@ function showvpn() {
 		var sorted = sortJSON(data.result, 'name', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
-			html += '<div class="col-xs-5">Nazwa</div>'
-			html += '<div class="col-xs-2">Typ</div>'
-			html += '<div class="col-xs-4">Status</div>'
-			html += '<div class="col-xs-1"></div>'
+			html += '<div class="col-xs-12 col-sm-4">Nazwa</div>'
+			html += '<div class="col-xs-3 col-sm-3">Typ</div>'
+			html += '<div class="col-xs-7 col-sm-4">Status</div>'
+			html += '<div class="col-xs-2 col-sm-1"></div>'
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
-				html += '<div class="row space"><div class="col-xs-5 click" onclick="vpndetails(\'' + sorted[idx].interface + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
-				html += '<div class="col-xs-2">' + sorted[idx].proto + '</div>';
+				html += '<hr><div class="row space"><div class="col-xs-12 col-sm-4 click" onclick="vpndetails(\'' + sorted[idx].interface + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
+				html += '<div class="col-xs-3 col-sm-3">' + sorted[idx].proto + '</div>';
 				if (sorted[idx].up) {
-					html += '<div class="col-xs-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + (sorted[idx].uptime_since == '' ? '' : ' (od ' + formatDateTime(sorted[idx].uptime_since) + ')') + '</div>';
-					html += '<div class="col-xs-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+					html += '<div class="col-xs-7 col-sm-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + (sorted[idx].uptime_since == '' ? '' : ' (od ' + formatDateTime(sorted[idx].uptime_since) + ')') + '</div>';
+					html += '<div class="col-xs-2 col-sm-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
 				} else {
 					if (sorted[idx].pending) {
-						html += '<div class="col-xs-4">trwa nawiązywanie połączenia</div>';
-						html += '<div class="col-xs-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+						html += '<div class="col-xs-7 col-sm-4">trwa nawiązywanie połączenia</div>';
+						html += '<div class="col-xs-2 col-sm-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
 					} else {
-						html += '<div class="col-xs-4">wyłączony</div>';
-						html += '<div class="col-xs-1 click" onclick="upvpn(\'' + sorted[idx].interface + '\');"><span title="połącz"><i data-feather="power"></i></span></div>';
+						html += '<div class="col-xs-7 col-sm-4">wyłączony</div>';
+						html += '<div class="col-xs-2 col-sm-1 click" onclick="upvpn(\'' + sorted[idx].interface + '\');"><span title="połącz"><i data-feather="power"></i></span></div>';
 					}
 				}
 				html += '</div>';

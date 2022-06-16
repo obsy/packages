@@ -1572,8 +1572,8 @@
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();" value="Zamknij" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="Ponowne uruchomienie połączenia z internetem" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodemsettings();" value="Domyślne ust." title="Przywraca domyślne ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="ponowne uruchomienie połączenia z internetem" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodemsettings();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
 			<input type="button" class="btn btn-default modalmargintop" onclick="modemsettings();" value="Odśwież" />
 			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodemsettings();" value="Zapisz zmiany" />
 		</div>
@@ -1809,7 +1809,7 @@
 		<div class="form-group">
 			<label for="vpn_wireguard_pubkey" class="col-xs-4 col-sm-3 control-label">Klucz publiczny</label>
 			<div class="col-xs-8 col-sm-9">
-				<span id="vpn_wireguard_pubkey" class="form-control"></span>
+				<input id="vpn_wireguard_pubkey" class="form-control" disabled>
 			</div>
 		</div>
 
@@ -1830,7 +1830,7 @@
 			<label for="vpn_wireguard_ips_idx" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9 input-group">
 				<input id="vpn_wireguard_ips_idx" type="text" class="form-control" onkeyup="proofreadIpWithMask(this);">
-				<span class="click input-group-element" title="Usuń adres IP" onclick="removewireguardips('_idx');"><i data-feather="trash-2"></i></span>
+				<span class="click input-group-element" title="usuń adres IP" onclick="removewireguardips('_idx');"><i data-feather="trash-2"></i></span>
 			</div>
 		</div>
 		</div>
@@ -1846,7 +1846,7 @@
 				<label for="vpn_wireguard_description_idx" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
 				<div class="col-xs-8 col-sm-9 input-group">
 					<input id="vpn_wireguard_description_idx" class="form-control" onkeyup="proofreadLengthRange(this,1,255);">
-					<span class="click input-group-element" title="Usuń tunel" onclick="removewireguardpeer('_idx');"><i data-feather="trash-2"></i></span>
+					<span class="click input-group-element" title="usuń tunel" onclick="removewireguardpeer('_idx');"><i data-feather="trash-2"></i></span>
 				</div>
 			</div>
 
@@ -1887,7 +1887,7 @@
 				<label for="vpn_wireguard_allowed_ips_idx_idy" class="col-xs-4 col-sm-3 control-label">Dozwolone adresy IP</label>
 				<div class="col-xs-8 col-sm-9 input-group">
 					<input id="vpn_wireguard_allowed_ips_idx_idy" class="form-control" onkeyup="proofreadIpWithMask(this);">
-					<span class="click input-group-element" title="Usuń dozwolone adresy IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
+					<span class="click input-group-element" title="usuń dozwolone adresy IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
 				</div>
 			</div>
 			</div>
