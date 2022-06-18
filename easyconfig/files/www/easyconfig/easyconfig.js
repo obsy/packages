@@ -4107,6 +4107,7 @@ function savepptp() {
 		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
 		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
 		cmd.push('uci set firewall.f1' + interface + '.src=lan');
 		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
@@ -4186,6 +4187,7 @@ function savesstp() {
 		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
 		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
 		cmd.push('uci set firewall.f1' + interface + '.src=lan');
 		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
@@ -4308,6 +4310,10 @@ function savewireguard() {
 		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_privkey'));
 		return;
 	}
+	if (validateLengthRange(getValue('vpn_wireguard_pubkey'), 44, 44) != 0) {
+		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey') + '<br>Klucz prywatny ma nieprawidłową długość lub format');
+		return;
+	}
 	var port = getValue('vpn_wireguard_port');
 	if (port != '') {
 		if (validateNumericRange(port, 0, 65535) != 0){
@@ -4426,6 +4432,7 @@ function savewireguard() {
 		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
 		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
 		cmd.push('uci set firewall.f1' + interface + '.src=lan');
 		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
