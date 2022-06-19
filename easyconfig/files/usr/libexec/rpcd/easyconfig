@@ -1412,33 +1412,31 @@ show_vpn_details()
 
 	[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
 	[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
-
+	AUTOSTART=$(uci -q get network.$interface.auto)
 	PROTO=$(uci -q get network.$interface.proto)
+	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},"
 	if [ "x$PROTO" = "xpptp" ]; then
 		NAME=$(uci -q get network.$interface.name)
-		AUTOSTART=$(uci -q get network.$interface.auto)
 		SERVER=$(uci -q get network.$interface.server)
 		USERNAME=$(uci -q get network.$interface.username)
 		PASSWORD=$(uci -q get network.$interface.password)
 		MPPE=$(uci -q get network.$interface.pppd_options | grep -q "nomppe" && echo "0" || echo "1")
-		echo "{\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":${MPPE:-1}}"
+		echo "\"name\":\""$(escapeJSON "$NAME")"\",\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"mppe\":${MPPE:-1}}"
 	fi
 	if [ "x$PROTO" = "xsstp" ]; then
 		NAME=$(uci -q get network.$interface.name)
-		AUTOSTART=$(uci -q get network.$interface.auto)
 		SERVER=$(uci -q get network.$interface.server)
 		USERNAME=$(uci -q get network.$interface.username)
 		PASSWORD=$(uci -q get network.$interface.password)
-		echo "{\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "$NAME")"\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\"}"
+		echo "\"name\":\""$(escapeJSON "$NAME")"\",\"server\":\"$SERVER\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\"}"
 	fi
 	if [ "x$PROTO" = "xwireguard" ]; then
-		AUTOSTART=$(uci -q get network.$interface.auto)
 		PRIVKEY=$(uci -q get network.$interface.private_key)
 		PUBKEY=$(echo "$PRIVKEY" | wg pubkey)
 		IPS=$(uci -q get network.$interface.addresses | sed 's/ /","/g')
 		PORT=$(uci -q get network.$interface.listen_port)
 		PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$interface'/{print $2}')
-		echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"privkey\":\"$PRIVKEY\",\"pubkey\":\"$PUBKEY\",\"listen_port\":\"$PORT\",\"ips\":[\"$IPS\"],\"peers\":["
+		echo "\"privkey\":\"$PRIVKEY\",\"pubkey\":\"$PUBKEY\",\"listen_port\":\"$PORT\",\"ips\":[\"$IPS\"],\"peers\":["
 		for PEER in $PEERS; do
 			DISABLED=$(uci -q get network.$PEER.disabled)
 			ENDPOINTHOST=$(uci -q get network.$PEER.endpoint_host)
@@ -1447,7 +1445,7 @@ show_vpn_details()
 			DESCRIPTION=$(uci -q get network.$PEER.description)
 			[ -z "$DESCRIPTION" ] && DESCRIPTION="$ENDPOINTHOST:$ENDPOINTPORT"
 			ALLOWEDIPS=$(uci -q get network.$PEER.allowed_ips | sed 's/ /","/g')
-			echo "{\"button\":${BUTTON:-false},\"disabled\":${DISABLED:-0},\"description\":\"$DESCRIPTION\",\"pubkey\":\"$PUBKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":$ENDPOINTPORT,\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
+			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
 		done
 		echo "]}"
 	fi
