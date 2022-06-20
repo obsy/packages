@@ -1413,8 +1413,9 @@ show_vpn_details()
 	[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
 	[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
 	AUTOSTART=$(uci -q get network.$interface.auto)
+	TRIGGER=$(uci -q get network.$interface.trigger)
 	PROTO=$(uci -q get network.$interface.proto)
-	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},"
+	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"trigger\":\"$TRIGGER\","
 	if [ "x$PROTO" = "xpptp" ]; then
 		NAME=$(uci -q get network.$interface.name)
 		SERVER=$(uci -q get network.$interface.server)

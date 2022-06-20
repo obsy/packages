@@ -3916,7 +3916,8 @@ function vpndetails(interface) {
 			setValue('vpn_pptp_error', '');
 			setValue('vpn_pptp_interface', interface);
 			setValue('vpn_pptp_name', data.name);
-			setValue('vpn_pptp_auto', data.autostart == 1);
+			setValue('vpn_pptp_auto', data.autostart);
+			if (data.trigger == 'wan') { setValue('vpn_pptp_auto', 2); }
 			setValue('vpn_pptp_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_pptp_button', config.button.code != '')
 			setValue('vpn_pptp_to_lan', data.tolan == 1);
@@ -3930,7 +3931,8 @@ function vpndetails(interface) {
 			setValue('vpn_sstp_error', '');
 			setValue('vpn_sstp_interface', interface);
 			setValue('vpn_sstp_name', data.name);
-			setValue('vpn_sstp_auto', data.autostart == 1);
+			setValue('vpn_sstp_auto', data.autostart);
+			if (data.trigger == 'wan') { setValue('vpn_sstp_auto', 2); }
 			setValue('vpn_sstp_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_sstp_button', config.button.code != '')
 			setValue('vpn_sstp_to_lan', data.tolan == 1);
@@ -3942,7 +3944,8 @@ function vpndetails(interface) {
 		if (data.proto == 'wireguard') {
 			setValue('vpn_wireguard_error', '');
 			setValue('vpn_wireguard_interface', interface);
-			setValue('vpn_wireguard_auto', data.autostart == 1);
+			setValue('vpn_wireguard_auto', data.autostart);
+			if (data.trigger == 'wan') { setValue('vpn_wireguard_auto', 2); }
 			setValue('vpn_wireguard_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_wireguard_button', config.button.code != '')
 			setValue('vpn_wireguard_to_lan', data.tolan == 1);
@@ -3998,7 +4001,7 @@ function savevpnnew() {
 		setValue('vpn_pptp_error', '');
 		setValue('vpn_pptp_interface', Math.random().toString(36).substr(2,8));
 		setValue('vpn_pptp_name', '');
-		setValue('vpn_pptp_auto', true);
+		setValue('vpn_pptp_auto', 0);
 		setValue('vpn_pptp_button', false);
 		setValue('vpn_pptp_to_lan', false);
 		setValue('vpn_pptp_server', '');
@@ -4011,7 +4014,7 @@ function savevpnnew() {
 		setValue('vpn_sstp_error', '');
 		setValue('vpn_sstp_interface', Math.random().toString(36).substr(2,8));
 		setValue('vpn_sstp_name', '');
-		setValue('vpn_sstp_auto', true);
+		setValue('vpn_sstp_auto', 0);
 		setValue('vpn_sstp_button', false);
 		setValue('vpn_sstp_to_lan', false);
 		setValue('vpn_sstp_server', '');
@@ -4022,7 +4025,7 @@ function savevpnnew() {
 	if (getValue('vpn_new') == 'wireguard') {
 		setValue('vpn_wireguard_error', '');
 		setValue('vpn_wireguard_interface', Math.random().toString(36).substr(2,8));
-		setValue('vpn_wireguard_auto', true);
+		setValue('vpn_wireguard_auto', 0);
 		setValue('vpn_wireguard_button', false);
 		setValue('vpn_wireguard_to_lan', false);
 		setValue('vpn_wireguard_privkey', '');
@@ -4130,16 +4133,30 @@ function savepptp() {
 		cmd.push('fi');
 	}
 
-	if (getValue('vpn_pptp_auto')) {
-		cmd.push('uci -q del network.' + interface + '.auto');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifup ' + interface);
-	} else {
-		cmd.push('uci set network.' + interface + '.auto=0');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifdown ' + interface );
+	switch (parseInt(getValue('vpn_pptp_auto'))) {
+		case 0:
+			console.log("jest 0");
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
+		case 1:
+			console.log("jest 1");
+			cmd.push('uci -q del network.' + interface + '.auto');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifup ' + interface);
+			break;
+		case 2:
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci set network.' + interface + '.trigger=wan');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
 	}
 
 	execute(cmd, showvpn);
@@ -4210,16 +4227,30 @@ function savesstp() {
 		cmd.push('fi');
 	}
 
-	if (getValue('vpn_sstp_auto')) {
-		cmd.push('uci -q del network.' + interface + '.auto');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifup ' + interface);
-	} else {
-		cmd.push('uci set network.' + interface + '.auto=0');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifdown ' + interface );
+	switch (parseInt(getValue('vpn_sstp_auto'))) {
+		case 0:
+			console.log("jest 0");
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
+		case 1:
+			console.log("jest 1");
+			cmd.push('uci -q del network.' + interface + '.auto');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifup ' + interface);
+			break;
+		case 2:
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci set network.' + interface + '.trigger=wan');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
 	}
 
 	execute(cmd, showvpn);
@@ -4455,16 +4486,30 @@ function savewireguard() {
 		cmd.push('fi');
 	}
 
-	if (getValue('vpn_wireguard_auto')) {
-		cmd.push('uci -q del network.' + interface + '.auto');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifup ' + interface);
-	} else {
-		cmd.push('uci set network.' + interface + '.auto=0');
-		cmd.push('uci commit');
-		cmd.push('ubus call network reload');
-		cmd.push('ifdown ' + interface );
+	switch (parseInt(getValue('vpn_wireguard_auto'))) {
+		case 0:
+			console.log("jest 0");
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
+		case 1:
+			console.log("jest 1");
+			cmd.push('uci -q del network.' + interface + '.auto');
+			cmd.push('uci -q del network.' + interface + '.trigger');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifup ' + interface);
+			break;
+		case 2:
+			cmd.push('uci set network.' + interface + '.auto=0');
+			cmd.push('uci set network.' + interface + '.trigger=wan');
+			cmd.push('uci commit');
+			cmd.push('ubus call network reload');
+			cmd.push('ifdown ' + interface );
+			break;
 	}
 
 	execute(cmd, showvpn);

@@ -2,6 +2,18 @@
 
 [ $ACTION = "ifup" ] || exit 0
 
-[ $INTERFACE = "wan" ] && awk '{printf "%d\n", $1}' /proc/uptime >> /tmp/easyconfig_wan_up
+if [ $INTERFACE = "wan" ]; then
+	awk '{printf "%d\n", $1}' /proc/uptime >> /tmp/easyconfig_wan_up
+
+	VPNS=$(uci show network | awk -F. '/trigger=.*wan.*/{print $2}')
+	if [ -n "$VPNS" ]; then
+		sleep 5
+		for VPN in $VPNS; do
+			if [ "x$(uci -q get network.$VPN.auto)" = "x0" ]; then
+				ifup $VPN
+			fi
+		done
+	fi
+fi
 
 exit 0
