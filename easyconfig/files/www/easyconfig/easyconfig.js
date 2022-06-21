@@ -2536,6 +2536,7 @@ function clientscallback(sortby) {
 				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">' + limitations;
+				html += 'MAC: ' + sorted[idx].mac + (sorted[idx].ip == '' ? '' : ', IP: ' + sorted[idx].ip) + ', ';
 				if (sorted[idx].type == 1) {
 					html += 'przewodowo';
 					var obj = physicalports.find(o => o.port === sorted[idx].port);
