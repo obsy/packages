@@ -2475,11 +2475,6 @@ function clientscallback(sortby) {
 		}
 		html += '</div></div>';
 
-		if (filterby == 'active') {
-			html += '<div id="div_clients_pie"><canvas id="clients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu dla klientów bezprzewodowych</em></small></div></div>';
-			html += '<div id="div_clients_pie_tooltip" class="tooltip"></div>';
-		}
-
 		var total = 0;
 		for (var idx = 0; idx < clients.length; idx++) {
 			if (!clients[idx].active) {
@@ -2500,6 +2495,12 @@ function clientscallback(sortby) {
 			}
 			total += clients[idx].tx + clients[idx].rx;
 		}
+
+		if (filterby == 'active' && total > 0) {
+			html += '<div id="div_clients_pie"><canvas id="clients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu dla klientów bezprzewodowych</em></small></div></div>';
+			html += '<div id="div_clients_pie_tooltip" class="tooltip"></div>';
+		}
+
 		for (var idx = 0; idx < clients.length; idx++) {
 			clients[idx].percent = parseInt((clients[idx].tx + clients[idx].rx) * 100 / total);
 			if (clients[idx].dhcpname == '*') { clients[idx].dhcpname = ''; }
@@ -2586,7 +2587,7 @@ function clientscallback(sortby) {
 		setValue('clients_filter_all', ' wszyscy (' + counter_all + ') ');
 		clientscallbackfilter(filterby);
 
-		if (filterby == 'active') {
+		if (filterby == 'active' && total > 0) {
 			var canvas = document.getElementById('clients_pie');
 			var ctx = canvas.getContext('2d');
 			var previousRadian = 1.5 * Math.PI;
