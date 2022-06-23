@@ -1404,6 +1404,69 @@ show_vpn()
 	echo "]}"
 }
 
+show_vpn_status()
+{
+	read input;
+	json_load "$input"
+	json_get_vars interface
+
+
+	json_load "$(ubus call network.interface.$interface status)"
+	json_get_var PROTO proto
+	json_get_var UPTIME uptime
+	json_get_var IFNAME l3_device
+
+	. /lib/functions/network.sh
+	network_get_ipaddr IPADDR $interface
+
+	if [ -z "$IPADDR" ]; then
+		if [ "x$PROTO" = "xsstp" ]; then
+			IPADDR=$(ifconfig $IFNAME | awk -F: '/inet addr/{gsub(/\s*P-t-P/,"");print $2}')
+		fi
+	fi
+
+	if [ -n "UPTIME" ]; then
+		if $TIMEISVALID; then
+			UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - WAN_UPTIME))")
+		fi
+	fi
+
+	if [ -n "$IFNAME" ]; then
+		RX=$(cat /sys/class/net/$IFNAME/statistics/rx_bytes)
+		TX=$(cat /sys/class/net/$IFNAME/statistics/tx_bytes)
+	fi
+
+	echo "{"
+	echo '"proto":"'$PROTO'",'
+	echo '"rx":"'$RX'",'
+	echo '"tx":"'$TX'",'
+	echo '"uptime_since":"'$UPTIME_SINCE'",'
+	echo '"uptime":"'$UPTIME'",'
+	echo '"ipaddr":"'$IPADDR'"'
+
+	if [ "x$PROTO" = "xwireguard" ]; then
+		echo ',"peers":['
+		T=$(wg show $interface dump)
+		PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$interface'/{print $2}')
+		for PEER in $PEERS; do
+			PUBKEY=$(uci -q get network.$PEER.public_key)
+			T1=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $5}')
+			NOW=$(date +%s)
+			HANDSHAKE=""
+			HANDSHAKE_SINCE=""
+			[ -n "$T1" ] && HANDSHAKE=$((NOW - T1))
+			[ -n "$T1" ] && HANDSHAKE_SINCE=$(date -d @${T1} +%Y%m%d%H%M%S)
+			RX=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $6}')
+			TX=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $7}')
+			NAME=$(uci -q get network.$PEER.description)
+			[ -z "$NAME" ] && NAME="$(uci -q get network.$PEER.endpoint_host):$(uci -q get network.$PEER.endpoint_port)"
+			echo "{\"name\":\""$(escapeJSON "$NAME")"\",\"handshake\":\"$HANDSHAKE\",\"handshake_since\":\"$HANDSHAKE_SINCE\",\"rx\":\"$RX\",\"tx\":\"$TX\"},"
+		done
+		echo "]"
+	fi
+	echo "}"
+}
+
 show_vpn_details()
 {
 	read input;
@@ -1668,6 +1731,7 @@ case "$1" in
 		echo '"reboot":{},'
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
 		echo '"vpn":{}',
+		echo '"vpnstatus":{"interface":"string"}',
 		echo '"vpndetails":{"interface":"string"}',
 		echo '"getwireguardkeys":{"privkey":"string"}',
 		echo '"geolocation":{},'
@@ -1737,6 +1801,9 @@ case "$1" in
 				;;
 			vpn)
 				show_vpn
+				;;
+			vpnstatus)
+				show_vpn_status
 				;;
 			vpndetails)
 				show_vpn_details

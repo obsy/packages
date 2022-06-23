@@ -3894,14 +3894,21 @@ function showvpn() {
 				html += '<div class="col-xs-3 col-sm-3">' + sorted[idx].proto + '</div>';
 				if (sorted[idx].up) {
 					html += '<div class="col-xs-7 col-sm-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + (sorted[idx].uptime_since == '' ? '' : ' (od ' + formatDateTime(sorted[idx].uptime_since) + ')') + '</div>';
-					html += '<div class="col-xs-2 col-sm-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+					html += '<div class="col-xs-2 col-sm-1">';
+					html += '<span class="click" onclick="vpnstatus(\'' + sorted[idx].interface + '\');" title="status"><i data-feather="info"></i></span>&nbsp;';
+					html += '<span class="click" onclick="downvpn(\'' + sorted[idx].interface + '\');" title="rozłącz"><i data-feather="power"></i></span>';
+					html += '</div>';
 				} else {
 					if (sorted[idx].pending) {
 						html += '<div class="col-xs-7 col-sm-4">trwa nawiązywanie połączenia</div>';
-						html += '<div class="col-xs-2 col-sm-1 click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span></div>';
+						html += '<div class="col-xs-2 col-sm-1">';
+						html += '<span class="click" onclick="downvpn(\'' + sorted[idx].interface + '\');"><span title="rozłącz"><i data-feather="power"></i></span>';
+						html += '</div>';
 					} else {
 						html += '<div class="col-xs-7 col-sm-4">wyłączony</div>';
-						html += '<div class="col-xs-2 col-sm-1 click" onclick="upvpn(\'' + sorted[idx].interface + '\');"><span title="połącz"><i data-feather="power"></i></span></div>';
+						html += '<div class="col-xs-2 col-sm-1">';
+						html += '<span class="click" onclick="upvpn(\'' + sorted[idx].interface + '\');" title="połącz"><i data-feather="power"></i></span>';
+						html += '</div>';
 					}
 				}
 				html += '</div>';
@@ -3910,6 +3917,34 @@ function showvpn() {
 			showicon();
 		}
 	})
+}
+
+function vpnstatus(interface) {
+	ubus_call('"easyconfig", "vpnstatus", {"interface":"' + interface + '"}', function(data) {
+		var html = '';
+		var t = formatDuration(data.uptime, false);
+		if (data.uptime_since != '') {
+			t += ' (od ' + formatDateTime(data.uptime_since) + ')';
+		}
+		html += createRowForModal('Czas połączenia', t);
+		html += createRowForModal('Wysłano', bytesToSize(data.tx));
+		html += createRowForModal('Pobrano', bytesToSize(data.rx));
+		html += createRowForModal('Adres IP', data.ipaddr);
+		if (data.proto == 'wireguard') {
+			for (var idx = 0; idx < data.peers.length; idx++) {
+				html += '<br>';
+				html += createRowForModal(data.peers[idx].name, '');
+				html += createRowForModal('Wysłano', bytesToSize(data.peers[idx].tx));
+				html += createRowForModal('Pobrano', bytesToSize(data.peers[idx].rx));
+				t = formatDuration(data.peers[idx].handshake, true);
+				if (data.peers[idx].handshake_since != '') {
+					t += ' temu (od ' + formatDateTime(data.peers[idx].handshake_since) + ')';
+				}
+				html += createRowForModal('Ostatni kontakt', t);
+			}
+		}
+		showMsg(html);
+	});
 }
 
 function vpndetails(interface) {
