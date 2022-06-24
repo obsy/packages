@@ -3936,9 +3936,9 @@ function vpnstatus(interface) {
 				html += createRowForModal(data.peers[idx].name, '');
 				html += createRowForModal('Wysłano', bytesToSize(data.peers[idx].tx));
 				html += createRowForModal('Pobrano', bytesToSize(data.peers[idx].rx));
-				t = formatDuration(data.peers[idx].handshake, true);
-				if (data.peers[idx].handshake_since != '') {
-					t += ' temu (od ' + formatDateTime(data.peers[idx].handshake_since) + ')';
+				t = '-';
+				if (data.peers[idx].handshake != '') {
+					t = formatDateTime(data.peers[idx].handshake) + ' (' + formatDuration(data.peers[idx].handshake_ago, true) + ' temu)';
 				}
 				html += createRowForModal('Ostatni kontakt', t);
 			}
@@ -4172,7 +4172,6 @@ function savepptp() {
 
 	switch (parseInt(getValue('vpn_pptp_auto'))) {
 		case 0:
-			console.log("jest 0");
 			cmd.push('uci set network.' + interface + '.auto=0');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
@@ -4180,7 +4179,6 @@ function savepptp() {
 			cmd.push('ifdown ' + interface );
 			break;
 		case 1:
-			console.log("jest 1");
 			cmd.push('uci -q del network.' + interface + '.auto');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
