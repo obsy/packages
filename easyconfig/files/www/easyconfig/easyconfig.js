@@ -4264,7 +4264,6 @@ function savesstp() {
 
 	switch (parseInt(getValue('vpn_sstp_auto'))) {
 		case 0:
-			console.log("jest 0");
 			cmd.push('uci set network.' + interface + '.auto=0');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
@@ -4272,7 +4271,6 @@ function savesstp() {
 			cmd.push('ifdown ' + interface );
 			break;
 		case 1:
-			console.log("jest 1");
 			cmd.push('uci -q del network.' + interface + '.auto');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
@@ -4523,7 +4521,6 @@ function savewireguard() {
 
 	switch (parseInt(getValue('vpn_wireguard_auto'))) {
 		case 0:
-			console.log("jest 0");
 			cmd.push('uci set network.' + interface + '.auto=0');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
@@ -4531,7 +4528,6 @@ function savewireguard() {
 			cmd.push('ifdown ' + interface );
 			break;
 		case 1:
-			console.log("jest 1");
 			cmd.push('uci -q del network.' + interface + '.auto');
 			cmd.push('uci -q del network.' + interface + '.trigger');
 			cmd.push('uci commit');
