@@ -137,6 +137,8 @@ done
 
 T=$(ubus call network.interface dump | jsonfilter -q -e '@.interface[@.up=true && (@.proto="pptp" || @.proto="sstp" || @.proto="wireguard")]')
 [ -n "$T" ] && VPN_UP="true"
+T=$(pidof openvpn)
+[ -n "$T" ] && VPN_UP="true"
 
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
@@ -606,6 +608,7 @@ VPN=""
 [ -f /usr/lib/pppd/*/pptp.so ] && VPN=${VPN}'"pptp",'
 [ -e /lib/netifd/proto/sstp.sh ] && VPN=${VPN}'"sstp",'
 [ -e /lib/netifd/proto/wireguard.sh ] && VPN=${VPN}'"wireguard",'
+[ -e /etc/config/openvpn ] && VPN=${VPN}'"openvpn",'
 echo '"vpn":['$VPN'],'
 
 if [ -e /etc/config/adblock ]; then
@@ -1369,7 +1372,34 @@ show_vpn()
 	echo '{"result":['
 	T=$(ubus call network.interface dump)
 	INTERFACES=$(echo "$T" | jsonfilter -q -e '@.interface[@.proto="pptp" || @.proto="sstp" || @.proto="wireguard"].interface')
+
+	if [ -e /etc/config/openvpn ]; then
+		OVPNS=$(uci show openvpn | awk -F[.=] '/\.config=/{print $2}')
+		for OVPN in $OVPNS; do
+			INTERFACE=""
+			TUN=$(uci -q get openvpn.$OVPN.dev)
+			NAME=$(uci -q get openvpn.$OVPN.name)
+			[ -z "$TUN" ] && TUN=$(awk '/^tun/{print $2}' $(uci -q get openvpn.$OVPN.config) 2>/dev/null)
+			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device=.*'$TUN'.*/{print $2}')
+			if [ -n "$INTERFACE" ]; then
+				INTERFACES="${INTERFACES} ${INTERFACE}:openvpn:${OVPN}"
+			else
+				[ -z "$NAME" ] && NAME=$OVPN
+				UP="false"
+				if [ -n "$TUN" ]; then
+					[ -e /sys/class/net/$TUN ] && UP="true"
+				fi
+				echo "{\"interface\":\"\",\"section\":\"$OVPN\",\"up\":${UP:-false},\"pending\":false,\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"openvpn\",\"name\":\""$(escapeJSON "$NAME")"\"},"
+			fi
+		done
+	fi
+
 	for INTERFACE in $INTERFACES; do
+		if echo "$INTERFACE" | grep -q ":"; then
+			TPROTO=$(echo "$INTERFACE" | cut -f2 -d:)
+			SEC=$(echo "$INTERFACE" | cut -f3 -d:)
+			INTERFACE=$(echo "$INTERFACE" | cut -f1 -d:)
+		fi
 		UP=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].up')
 		UPTIME=""
 		UPTIME_SINCE=""
@@ -1383,7 +1413,15 @@ show_vpn()
 		fi
 		PENDING=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].pending')
 		PROTO=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].proto')
+		if [ "x$PROTO" = "xnone" ]; then
+			[ -n "$TPROTO" ] && PROTO=$TPROTO
+		fi
+		CUSTOM=""
 		case $PROTO in
+			"openvpn")
+				NAME=$(uci -q get openvpn.$SEC.name)
+				CUSTOM=",\"section\":\"$SEC\""
+				;;
 			"pptp" | "sstp")
 				NAME=$(uci -q get network.$INTERFACE.name)
 				[ -z "$NAME" ] && NAME=$(uci -q get network.$INTERFACE.server)
@@ -1399,7 +1437,7 @@ show_vpn()
 				done
 				;;
 		esac
-		echo "{\"interface\":\"$INTERFACE\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
+		echo "{\"interface\":\"$INTERFACE\"${CUSTOM},\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
 	done
 	echo "]}"
 }
@@ -1409,7 +1447,6 @@ show_vpn_status()
 	read input;
 	json_load "$input"
 	json_get_vars interface
-
 
 	json_load "$(ubus call network.interface.$interface status)"
 	json_get_var PROTO proto
@@ -1468,14 +1505,44 @@ show_vpn_details()
 {
 	read input;
 	json_load "$input"
-	json_get_vars interface
+	json_get_vars proto interface section
 
-	[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
-	[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
-	AUTOSTART=$(uci -q get network.$interface.auto)
-	TRIGGER=$(uci -q get network.$interface.trigger)
-	PROTO=$(uci -q get network.$interface.proto)
+	if [ -n "$interface" ]; then
+		[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
+		[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
+		AUTOSTART=$(uci -q get network.$interface.auto)
+		TRIGGER=$(uci -q get network.$interface.trigger)
+		PROTO=$(uci -q get network.$interface.proto)
+		if [ "x$proto" = "xopenvpn" ]; then
+			PROTO="openvpn"
+		fi
+	else
+		if [ "x$proto" = "xopenvpn" ]; then
+			TOLAN=0
+			BUTTON="false"
+			AUTOSTART="false"
+			TRIGGER=""
+			PROTO="openvpn"
+		fi
+	fi
 	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"trigger\":\"$TRIGGER\","
+	if [ "x$PROTO" = "xopenvpn" ]; then
+		NAME=$(uci -q get openvpn.$section.name)
+		if [ -z "$NAME" ]; then
+			if [ -n "$interface" ]; then
+				NAME=$interface
+			else
+				NAME=$section
+			fi
+		fi
+		ENABLED=$(uci -q get openvpn.$section.enabled)
+		USERNAME=$(uci -q get openvpn.$section.username)
+		PASSWORD=$(uci -q get openvpn.$section.password)
+		json_init
+		json_add_string config "$(cat $(uci -q get openvpn.$section.config) 2>/dev/null)"
+		json_get_var config config
+		echo "\"section\":\"$section\",\"name\":\""$(escapeJSON "${NAME}")"\",\"enabled\":${ENABLED:-0},\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"configtext\":\"$config\"}"
+	fi
 	if [ "x$PROTO" = "xpptp" ]; then
 		NAME=$(uci -q get network.$interface.name)
 		SERVER=$(uci -q get network.$interface.server)
@@ -1729,7 +1796,7 @@ case "$1" in
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
 		echo '"vpn":{}',
 		echo '"vpnstatus":{"interface":"string"}',
-		echo '"vpndetails":{"interface":"string"}',
+		echo '"vpndetails":{"proto":"string","interface":"string","section":"string"}',
 		echo '"getwireguardkeys":{"privkey":"string"}',
 		echo '"geolocation":{},'
 		echo '"adblock":{},'

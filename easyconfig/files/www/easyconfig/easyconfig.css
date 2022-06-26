@@ -472,3 +472,9 @@ h3 {
   text-align: end;
   vertical-align: middle;
 }
+
+@media (max-width: 768px) {
+  .col-xs-12-text-left {
+    text-align: left;
+  }
+}

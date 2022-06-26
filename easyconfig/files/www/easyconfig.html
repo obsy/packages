@@ -1528,6 +1528,7 @@
 			<span id="dialog_msg"></span>
 		</div>
 		<input id="dialog_val" type="hidden">
+		<input id="dialog_val1" type="hidden">
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" id="dialog_btn_default" class="btn btn-default" value="?" />
@@ -1599,6 +1600,82 @@
 			<input type="button" class="btn btn-default modalmargintop" onclick="closevpnnew();" value="Anuluj" />
 			<input type="button" class="btn btn-primary modalmargintop" onclick="savevpnnew();" value="Dalej" />
 		</div>
+	</div>
+</div>
+
+<div id="div_vpn_openvpn" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">VPN OpenVPN</div>
+		<input id="vpn_openvpn_interface" type="hidden">
+		<input id="vpn_openvpn_section" type="hidden">
+		<div class="error text-center space"><span id="vpn_openvpn_error"></span></div>
+
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="vpn_openvpn_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="vpn_openvpn_name" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_vpn_openvpn_enabled">
+			<label for="vpn_openvpn_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_openvpn_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_vpn_openvpn_button">
+			<label for="vpn_openvpn_button" class="col-xs-4 col-sm-3 control-label">Sterowanie przyciskiem</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_openvpn_button" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_openvpn_to_lan" class="col-xs-4 col-sm-3 control-label">Ruch do sieci lokalnej</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_openvpn_to_lan" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_openvpn_username" class="col-xs-4 col-sm-3 control-label">Nazwa użytkownika</label>
+			<div class="col-xs-8 col-sm-9">
+				<input id="vpn_openvpn_username" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_openvpn_password" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('vpn_openvpn_password');">Hasło</label>
+			<div class="col-xs-8 col-sm-9">
+				<input id="vpn_openvpn_password" type="password" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_openvpn_configtext" class="col-xs-12 col-sm-3 control-label col-xs-12-text-left">Zawartość pliku konfiguracyjnego</label>
+			<div class="col-xs-12 col-sm-9">
+				<textarea id="vpn_openvpn_configtext" class="form-control" rows="20"></textarea>
+			</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelopenvpn();" value="Anuluj" />
+			<input type="button" class="btn btn-default" onclick="removeopenvpn();" value="Usuń" />
+			<input type="button" class="btn btn-primary" onclick="saveopenvpn();" value="Zapisz zmiany" />
+		</div>
+		</form>
 	</div>
 </div>
 
@@ -1766,7 +1843,7 @@
 
 <div id="div_vpn_wireguard" class="modal">
 	<div class="row modal-content">
-		<div class="text-center space">VPN Wireguard</div>
+		<div class="text-center space">VPN WireGuard</div>
 		<input id="vpn_wireguard_interface" type="hidden">
 		<div class="error text-center space"><span id="vpn_wireguard_error"></span></div>
 
@@ -1854,10 +1931,10 @@
 			</div>
 
 			<div class="form-group">
-				<label for="vpn_wireguard_disabled_idx" class="col-xs-4 col-sm-3 control-label">Wyłączony</label>
+				<label for="vpn_wireguard_enabled_idx" class="col-xs-4 col-sm-3 control-label">Włączony</label>
 				<div class="col-xs-8 col-sm-9">
 				<label class="switch">
-					<input id="vpn_wireguard_disabled_idx" type="checkbox">
+					<input id="vpn_wireguard_enabled_idx" type="checkbox">
 					<div class="slider round"></div>
 				</label>
 				</div>
