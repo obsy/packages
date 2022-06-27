@@ -4,6 +4,21 @@
 VPN=$(uci -q get easyconfig.vpn.interface)
 [ -z "$VPN" ] && exit 0
 
+if [ -e /etc/config/openvpn ]; then
+	OVPN=$(uci show openvpn | awk -F. '/\.dev=.*'${VPN}'.*/{print $2}' | head -n1)
+	if [ -n "$OVPN" ]; then
+		T=$(ubus call network.interface status "{\"interface\":\"${VPN}\"}" 2>/dev/null | jsonfilter -q -e @.up)
+		if [ "x$T" = "xfalse" ]; then
+			uci set openvpn.$OVPN.enabled=1
+		else
+			uci set openvpn.$OVPN.enabled=0
+		fi
+		/etc/init.d/openvpn reload
+		uci revert openvpn
+		exit 0
+	fi
+fi
+
 T=$(ubus call network.interface status "{\"interface\":\"${VPN}\"}" 2>/dev/null | jsonfilter -q -e @.up)
 if [ "x$T" = "xfalse" ]; then
 	ifup ${VPN}

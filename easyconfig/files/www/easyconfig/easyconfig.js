@@ -4217,6 +4217,9 @@ function saveopenvpn() {
 
 	var interface = getValue('vpn_openvpn_interface');
 	var section = getValue('vpn_openvpn_section');
+	if (interface == '') {
+		interface = Math.random().toString(36).substr(2,8);
+	}
 	cmd.push('uci set network.' + interface + '=interface');
 	cmd.push('uci set network.' + interface + '.proto=none');
 	cmd.push('uci set network.' + interface + '.device=' + interface);
