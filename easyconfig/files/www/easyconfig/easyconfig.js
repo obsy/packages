@@ -4222,7 +4222,11 @@ function saveopenvpn() {
 	}
 	cmd.push('uci set network.' + interface + '=interface');
 	cmd.push('uci set network.' + interface + '.proto=none');
-	cmd.push('uci set network.' + interface + '.device=' + interface);
+	if (config.devicesection) {
+		cmd.push('uci set network.' + interface + '.device=' + interface);
+	} else {
+		cmd.push('uci set network.' + interface + '.ifname=' + interface);
+	}
 
 	cmd.push('uci set openvpn.' + section + '=openvpn');
 	cmd.push('uci set openvpn.' + section + '.name=\\\"' + escapeShell(getValue('vpn_openvpn_name')) + '\\\"');
