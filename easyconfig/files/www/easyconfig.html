@@ -1993,6 +1993,55 @@
 	</div>
 </div>
 
+<div id="div_vpn_zerotier" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">VPN ZeroTier</div>
+		<input id="vpn_zerotier_section" type="hidden">
+		<div class="error text-center space"><span id="vpn_zerotier_error"></span></div>
+
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="vpn_zerotier_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="vpn_zerotier_name" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_vpn_zerotier_enabled">
+			<label for="vpn_zerotier_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_zerotier_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<input id="vpn_zerotier_network" type="hidden">
+		<div id="div_vpn_zerotier_network_template" style="display:none">
+		<div class="form-group">
+			<label for="vpn_zerotier_network_idx" class="col-xs-4 col-sm-3 control-label">Sieć</label>
+			<div class="col-xs-8 col-sm-9 input-group">
+				<input id="vpn_zerotier_network_idx" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 16, 16);"">
+				<span class="click input-group-element" title="usuń sieć" onclick="removezerotiernetwork('_idx');"><i data-feather="trash-2"></i></span>
+			</div>
+		</div>
+		</div>
+		<div id="vpn_zerotier_network_content"></div>
+		<div class="text-right">
+			<input type="button" class="btn btn-default" onclick="addzerotiernetwork();" value="Nowa sieć" />
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelzerotier();" value="Anuluj" />
+			<input type="button" class="btn btn-default" onclick="removezerotier();" value="Usuń" />
+			<input type="button" class="btn btn-primary" onclick="savezerotier();" value="Zapisz zmiany" />
+		</div>
+		</form>
+	</div>
+</div>
+
 <div class="text-center">&nbsp;</div>
 
 </body>

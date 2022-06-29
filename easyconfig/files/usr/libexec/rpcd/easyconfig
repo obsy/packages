@@ -139,6 +139,8 @@ T=$(ubus call network.interface dump | jsonfilter -q -e '@.interface[@.up=true &
 [ -n "$T" ] && VPN_UP="true"
 T=$(pidof openvpn)
 [ -n "$T" ] && VPN_UP="true"
+T=$(pidof zerotier-one)
+[ -n "$T" ] && VPN_UP="true"
 
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
@@ -609,6 +611,7 @@ VPN=""
 [ -e /lib/netifd/proto/sstp.sh ] && VPN=${VPN}'"sstp",'
 [ -e /lib/netifd/proto/wireguard.sh ] && VPN=${VPN}'"wireguard",'
 [ -e /etc/config/openvpn ] && VPN=${VPN}'"openvpn",'
+[ -e /etc/config/zerotier ] && VPN=${VPN}'"zerotier",'
 echo '"vpn":['$VPN'],'
 
 if [ -e /etc/config/adblock ]; then
@@ -1370,6 +1373,24 @@ upgrade() {
 show_vpn()
 {
 	echo '{"result":['
+
+	if [ -e /etc/config/zerotier ]; then
+		LN=$(zerotier-cli -j listnetworks)
+		ZTS=$(uci show zerotier | awk -F[.=] '/=zerotier/{print $2}')
+		for ZT in $ZTS; do
+			NAME=$(uci -q get zerotier.$ZT.name)
+			UP="false"
+			PENDING="false"
+			JOINS=$(uci get zerotier.$ZT.join)
+			for JOIN in $JOINS; do
+				T=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$JOIN'"].status')
+				[ "x$T" = "xOK" ] && UP="true"
+				[ "x$T" = "xREQUESTING_CONFIGURATION" ] && PENDING="true"
+			done
+			echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"zerotier\",\"name\":\""$(escapeJSON "${NAME:-$ZT}")"\"},"
+		done
+	fi
+
 	T=$(ubus call network.interface dump)
 	INTERFACES=$(echo "$T" | jsonfilter -q -e '@.interface[@.proto="pptp" || @.proto="sstp" || @.proto="wireguard"].interface')
 
@@ -1501,6 +1522,23 @@ show_vpn_status()
 	echo "}"
 }
 
+show_vpn_status_zerotier()
+{
+	read input;
+	json_load "$input"
+	json_get_vars section
+
+	echo "{\"networks\":["
+
+	LN=$(zerotier-cli -j listnetworks)
+	JOINS=$(uci get zerotier.$section.join)
+	for JOIN in $JOINS; do
+		eval $(echo "$LN" | jsonfilter -q -e 'IPADDR=@[@.id="'$JOIN'"].assignedAddresses[0]' -e 'NAME=@[@.id="'$JOIN'"].name' -e 'STATUS=@[@.id="'$JOIN'"].status' -e 'TYPE=@[@.id="'$JOIN'"].type')
+		echo "{\"id\":\"$JOIN\",\"name\":\""$(escapeJSON "$NAME")"\",\"ipaddr\":\"$IPADDR\",\"status\":\"$STATUS\",\"type\":\"$TYPE\"},"
+	done
+	echo "]}"
+}
+
 show_vpn_details()
 {
 	read input;
@@ -1523,6 +1561,13 @@ show_vpn_details()
 			AUTOSTART="false"
 			TRIGGER=""
 			PROTO="openvpn"
+		fi
+		if [ "x$proto" = "xzerotier" ]; then
+			TOLAN=0
+			BUTTON="false"
+			AUTOSTART="false"
+			TRIGGER=""
+			PROTO="zerotier"
 		fi
 	fi
 	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"trigger\":\"$TRIGGER\","
@@ -1576,6 +1621,15 @@ show_vpn_details()
 			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
 		done
 		echo "]}"
+	fi
+	if [ "x$PROTO" = "xzerotier" ]; then
+		ZTS=$(uci show zerotier | awk -F[.=] '/'$section'=zerotier/{print $2}')
+		for ZT in $ZTS; do
+			NAME=$(uci -q get zerotier.$ZT.name)
+			ENABLED=$(uci -q get zerotier.$ZT.enabled)
+			NETWORKS=$(uci -q get zerotier.$ZT.join | sed 's/ /","/g')
+			echo "\"name\":\""$(escapeJSON "${NAME:-$section}")"\",\"enabled\":${ENABLED:-0},\"join\":[\"$NETWORKS\"]}"
+		done
 	fi
 }
 
@@ -1796,6 +1850,7 @@ case "$1" in
 		echo '"upgrade":{"step":"string","arg1":"string","arg2":"string"},'
 		echo '"vpn":{}',
 		echo '"vpnstatus":{"interface":"string"}',
+		echo '"vpnstatuszerotier":{"section":"string"}',
 		echo '"vpndetails":{"proto":"string","interface":"string","section":"string"}',
 		echo '"getwireguardkeys":{"privkey":"string"}',
 		echo '"geolocation":{},'
@@ -1868,6 +1923,9 @@ case "$1" in
 				;;
 			vpnstatus)
 				show_vpn_status
+				;;
+			vpnstatuszerotier)
+				show_vpn_status_zerotier
 				;;
 			vpndetails)
 				show_vpn_details
