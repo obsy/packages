@@ -1531,8 +1531,12 @@ show_vpn_status_zerotier()
 	echo "{\"networks\":["
 
 	LN=$(zerotier-cli -j listnetworks)
-	JOINS=$(uci get zerotier.$section.join)
+	JOINS=$(uci -q get zerotier.$section.join)
 	for JOIN in $JOINS; do
+		IPADDR=""
+		NAME=""
+		STATUS=""
+		TYPE=""
 		eval $(echo "$LN" | jsonfilter -q -e 'IPADDR=@[@.id="'$JOIN'"].assignedAddresses[0]' -e 'NAME=@[@.id="'$JOIN'"].name' -e 'STATUS=@[@.id="'$JOIN'"].status' -e 'TYPE=@[@.id="'$JOIN'"].type')
 		echo "{\"id\":\"$JOIN\",\"name\":\""$(escapeJSON "$NAME")"\",\"ipaddr\":\"$IPADDR\",\"status\":\"$STATUS\",\"type\":\"$TYPE\"},"
 	done
@@ -1627,8 +1631,8 @@ show_vpn_details()
 		for ZT in $ZTS; do
 			NAME=$(uci -q get zerotier.$ZT.name)
 			ENABLED=$(uci -q get zerotier.$ZT.enabled)
-			NETWORKS=$(uci -q get zerotier.$ZT.join | sed 's/ /","/g')
-			echo "\"name\":\""$(escapeJSON "${NAME:-$section}")"\",\"enabled\":${ENABLED:-0},\"join\":[\"$NETWORKS\"]}"
+			JOINS=$(uci -q get zerotier.$ZT.join | sed 's/ /","/g')
+			echo "\"name\":\""$(escapeJSON "${NAME:-$section}")"\",\"enabled\":${ENABLED:-0},\"join\":[\"$JOINS\"]}"
 		done
 	fi
 }

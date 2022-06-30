@@ -4006,7 +4006,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_openvpn_name', data.name);
 			setValue('vpn_openvpn_enabled', data.enabled == 1);
 			setValue('vpn_openvpn_button', (config.button.code != '') ? data.button : false);
-			setDisplay('div_vpn_openvpn_button', config.button.code != '')
+			setDisplay('div_vpn_openvpn_button', config.button.code != '');
 			setValue('vpn_openvpn_to_lan', data.tolan == 1);
 			setValue('vpn_openvpn_username', data.username);
 			setValue('vpn_openvpn_password', data.password);
@@ -4020,7 +4020,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_pptp_auto', data.autostart);
 			if (data.trigger == 'wan') { setValue('vpn_pptp_auto', 2); }
 			setValue('vpn_pptp_button', (config.button.code != '') ? data.button : false);
-			setDisplay('div_vpn_pptp_button', config.button.code != '')
+			setDisplay('div_vpn_pptp_button', config.button.code != '');
 			setValue('vpn_pptp_to_lan', data.tolan == 1);
 			setValue('vpn_pptp_server', data.server);
 			setValue('vpn_pptp_username', data.username);
@@ -4035,7 +4035,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_sstp_auto', data.autostart);
 			if (data.trigger == 'wan') { setValue('vpn_sstp_auto', 2); }
 			setValue('vpn_sstp_button', (config.button.code != '') ? data.button : false);
-			setDisplay('div_vpn_sstp_button', config.button.code != '')
+			setDisplay('div_vpn_sstp_button', config.button.code != '');
 			setValue('vpn_sstp_to_lan', data.tolan == 1);
 			setValue('vpn_sstp_server', data.server);
 			setValue('vpn_sstp_username', data.username);
@@ -4048,7 +4048,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_wireguard_auto', data.autostart);
 			if (data.trigger == 'wan') { setValue('vpn_wireguard_auto', 2); }
 			setValue('vpn_wireguard_button', (config.button.code != '') ? data.button : false);
-			setDisplay('div_vpn_wireguard_button', config.button.code != '')
+			setDisplay('div_vpn_wireguard_button', config.button.code != '');
 			setValue('vpn_wireguard_to_lan', data.tolan == 1);
 			setValue('vpn_wireguard_privkey', data.privkey);
 			setValue('vpn_wireguard_pubkey', data.pubkey);
@@ -4229,10 +4229,8 @@ function okremoveopenvpn() {
 		cmd.push('uci -q del firewall.f1' + interface);
 		cmd.push('uci -q del firewall.f2' + interface);
 	}
-	if (section != '') {
-		cmd.push('rm $(uci -q get openvpn.' + section + '.config)');
-		cmd.push('uci -q del openvpn.' + section);
-	}
+	cmd.push('rm $(uci -q get openvpn.' + section + '.config)');
+	cmd.push('uci -q del openvpn.' + section);
 	cmd.push('uci commit');
 	cmd.push('reload_config');
 	cmd.push('ubus call network reload');
@@ -4830,8 +4828,7 @@ function removezerotier() {
 function okremovezerotier() {
 	var cmd = [];
 
-	var section = getValue('dialog_val');
-	cmd.push('uci -q del zerotier.' + section);
+	cmd.push('uci -q del zerotier.' + getValue('dialog_val'));
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/zerotier restart');
 
@@ -4842,7 +4839,6 @@ function savezerotier() {
 	var cmd = [];
 
 	setValue('vpn_zerotier_error', '');
-	setValue('vpn_sstp_error', '');
 	if (getValue('vpn_zerotier_name') == '') {
 		setValue('vpn_zerotier_error', 'Błąd w polu ' + getLabelText('vpn_zerotier_name'));
 		return;
@@ -4857,7 +4853,6 @@ function savezerotier() {
 				}
 		}
 	}
-
 
 	cancelzerotier();
 
