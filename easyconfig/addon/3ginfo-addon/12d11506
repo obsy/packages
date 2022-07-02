@@ -1,4 +1,5 @@
 # Huawei E3272/E3276
+# Hauwei ME906E/HP lt4112 Gobi 4G Module
 
 O=$(sms_tool -d $DEVICE at "at^chiptemp?;^hcsq?")
 
