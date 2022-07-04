@@ -4281,6 +4281,10 @@ function saveopenvpn() {
 	if (interface == '') {
 		interface = Math.random().toString(36).substr(2,8);
 	}
+
+	ubus_call('"file", "write", {"path":"/tmp/' + interface + '","data":"' + escapeShell(configtext) + '"}', function(data) {
+	});
+
 	cmd.push('uci set network.' + interface + '=interface');
 	cmd.push('uci set network.' + interface + '.proto=none');
 	if (config.devicesection) {
@@ -4296,11 +4300,14 @@ function saveopenvpn() {
 	cmd.push('uci set openvpn.' + section + '.password=\\\"' + escapeShell(getValue('vpn_openvpn_password')) + '\\\"');
 	cmd.push('uci set openvpn.' + section + '.dev=' + interface);
 	cmd.push('uci set openvpn.' + section + '.dev_type=tun');
-	cmd.push('mkdir -p /etc/openvpn/');
-	cmd.push('uci set openvpn.' + section + '.config=/etc/openvpn/' + interface);
-
-	ubus_call('"file", "write", {"path":"/etc/openvpn/' + interface + '","data":"' + escapeShell(configtext) + '"}', function(data) {
-	});
+	cmd.push('CFG=$(uci -q get openvpn.' + section + '.config)');
+	cmd.push('if [ ! -e \\\"$CFG\\\" ]; then');
+	cmd.push(' mkdir -p /etc/openvpn/');
+	cmd.push(' CFG=\\\"/etc/openvpn/' + interface + '\\\"');
+	cmd.push('fi');
+	cmd.push('uci set openvpn.' + section + '.config=$CFG');
+	cmd.push('cat /tmp/' + interface + ' > $CFG');
+	cmd.push('rm /tmp/' + interface);
 
 	if (getValue('vpn_openvpn_to_lan')) {
 		cmd.push('uci set firewall.' + interface + '=zone');
