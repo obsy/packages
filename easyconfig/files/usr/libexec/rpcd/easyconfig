@@ -720,6 +720,8 @@ for R in $RADIOS; do
 	T=$(ubus call network.wireless status '{"device":"'$R'"}')
 	IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
 	if [ -n "$IFNAME" ]; then
+		T1=""
+		T2=""
 		eval $(echo "$T" | jsonfilter -q -e 'T1=@.*.config.hwmode' -e 'T2=@.*.config.band')
 		BAND=2
 		[ "x$T1" = "x11a" ] || [ "x$T2" = "x5g" ] && BAND=5
@@ -771,6 +773,10 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 	eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'MACS=@')
 	for M in $MACS; do
 		[ "$M" = "wan" ] && continue
+		FIRST_SEEN=""
+		LAST_SEEN=""
+		DHCPNAME=""
+		TYPE=""
 		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type')
 		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2}$(client_data ${M//_/:})},"
 	done
