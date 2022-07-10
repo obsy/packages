@@ -2808,8 +2808,8 @@ function hostinfo(id) {
 		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));
 	}
 	html += createRowForModal('Pierwszy raz widziany', formatDateTime(host.first_seen));
-	if (host.last_seen == '-') {
-		html += createRowForModal('Ostatni raz widziany', '-');
+	if (host.active) {
+		html += createRowForModal('Ostatni raz widziany', 'teraz');
 	} else {
 		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><small><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span></small>');
 	}
