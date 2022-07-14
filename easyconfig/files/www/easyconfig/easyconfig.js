@@ -363,7 +363,7 @@ function okdetectwan() {
 	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
-	if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'qmi') {
+	if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'mbim' || data.proto == 'qmi') {
 		cmd.push('uci set network.wan.proto=' + data.proto);
 		cmd.push('uci set network.wan.device=\\\"' + data.device + '\\\"');
 		cmd.push('uci set network.wan.apn=\\\"' + data.apn + '\\\"');
@@ -457,6 +457,9 @@ function enableWan(proto) {
 	}
 	if (proto == 'dhcp' || proto == 'dhcp_hilink') {
 		fields = ['wan_metered'];
+	}
+	if (proto == 'mbim') {
+		fields=['wan_apn', 'wan_device', 'wan_pincode', 'wan_metered'];
 	}
 	if (proto == '3g' || proto == 'ncm' || proto == 'qmi') {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
@@ -798,6 +801,7 @@ wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
 wan['3g'] = 'Modem USB (RAS)';
 wan['ncm'] = 'Modem USB (NCM)';
+wan['mbim'] = 'Modem USB (MBIM)';
 wan['qmi'] = 'Modem USB (QMI)';
 wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
 wan['-'] = ' ';
@@ -1076,7 +1080,7 @@ function savesettings() {
 		use_dns = 'custom';
 		use_wanport = false;
 	}
-	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'qmi') {
+	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'mbim' || wan_type == 'qmi') {
 		cmd.push('uci set network.wan.apn=\\\"' + getValue('wan_apn') + '\\\"');
 		cmd.push('uci set network.wan.device=\\\"' + getValue('wan_device') + '\\\"');
 		cmd.push('uci set network.wan.pincode=' + getValue('wan_pincode'));
@@ -1826,7 +1830,7 @@ function modemaddon() {
 
 function showmodemsection() {
 	var wan_type = getValue('wan_proto');
-	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'qmi') {
+	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'mbim' || wan_type == 'qmi') {
 		setDisplay('menu_ussdsms', config.services.ussdsms);
 		setDisplay('div_status_modem', true);
 		setDisplay('div_system_modem', true);

@@ -442,6 +442,10 @@ else
 	if [ -n "$qmi" ] ; then
 		echo ',"qmi"'
 	fi
+	mbim=$(grep cdc_mbim /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$mbim" ] ; then
+		echo ',"mbim"'
+	fi
 	if [ -n "$WAN_IFNAME_HILINK" ]; then
 		echo ',"dhcp_hilink"'
 	fi
