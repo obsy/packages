@@ -431,19 +431,19 @@ else
 		echo ',"dhcp","static"'
 	fi
 	tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
-	if [ -n "$tty" ] ; then
+	if [ -n "$tty" ]; then
 		echo ',"3g"'
 	fi
 	ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$ncm" ] ; then
+	if [ -n "$ncm" ]; then
 		echo ',"ncm"'
 	fi
 	qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$qmi" ] ; then
+	if [ -n "$qmi" ]; then
 		echo ',"qmi"'
 	fi
 	mbim=$(grep cdc_mbim /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$mbim" ] ; then
+	if [ -n "$mbim" ]; then
 		echo ',"mbim"'
 	fi
 	if [ -n "$WAN_IFNAME_HILINK" ]; then
@@ -1163,7 +1163,7 @@ detect_wan()
 
 # modem usb qmi
 	T=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$T" ] ; then
+	if [ -n "$T" ]; then
 		F=$(mktemp)
 		DEVICE=""
 		DEVICES=$(ls /dev/cdc-wdm*)
@@ -1196,7 +1196,7 @@ detect_wan()
 
 # modem usb ncm
 	T=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$T" ] ; then
+	if [ -n "$T" ]; then
 		ifdown wan
 		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm*)
 
@@ -1219,7 +1219,7 @@ detect_wan()
 
 # modem usb, generic
 	T=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
-	if [ -n "$T" ] ; then
+	if [ -n "$T" ]; then
 		ifdown wan
 
 		for D in $T; do
@@ -1257,7 +1257,7 @@ detect_wan()
 	elif [ -e /etc/gargoyle_default_ifs ]; then
 		T=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 	fi
-	if [ -n "$T" ] ; then
+	if [ -n "$T" ]; then
 		echo '{"proto":"dhcp","ifname":"'$T'"}'
 		exit 0
 	fi
