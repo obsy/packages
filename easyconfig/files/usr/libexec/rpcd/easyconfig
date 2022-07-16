@@ -8,11 +8,9 @@
 
 . /usr/share/libubox/jshn.sh
 
-if grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null; then
-	TIMEISVALID="true"
-else
-	TIMEISVALID="false"
-fi
+TIMEISVALID="false"
+grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null && TIMEISVALID="true"
+[ -e /dev/rtc0 ] && TIMEISVALID="true"
 
 T=$(uci -q get network.loopback.device)
 if [ "x$T" = "xlo" ]; then

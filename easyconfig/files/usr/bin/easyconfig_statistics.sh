@@ -1,6 +1,9 @@
 #!/bin/sh
 
-grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null || exit 0
+TIMEISVALID=""
+grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null && TIMEISVALID="yes"
+[ -e /dev/rtc0 ] && TIMEISVALID="yes"
+[ -z "$TIMEISVALID" ] && exit 0
 
 DB=/tmp/easyconfig_statistics.json
 SDB=/usr/lib/easyconfig/easyconfig_statistics.json.gz
