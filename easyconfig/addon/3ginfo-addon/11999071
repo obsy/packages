@@ -1,5 +1,6 @@
 # Sierra Wireless EM7455
 # DW5811e Snapdragon X7 LTE (EM7455B)
+# DW5809e Dell Wireless 5809e Gobi 4G LTE Mobile Broadband Card (EM7305)
 
 O=$(sms_tool -d $DEVICE at "at!gstatus?")
 
