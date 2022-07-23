@@ -2697,6 +2697,10 @@ function clientslogscallback(first, last) {
 	if (e != null) {
 		selected = e.options[e.selectedIndex].value;
 	}
+	var tmp = getValue('clientslogs_mac');
+	if (tmp != '') { selected = tmp; }
+	setValue('clientslogs_mac', '');
+
 	var filtered = [];
 	if (selected == 'all') {
 		filtered = logs;
@@ -2768,6 +2772,7 @@ function hostmenu(id) {
 	if (config.lan_dhcp_enabled) {
 		html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
 	}
+	html += '<p><span class="click" onclick="closeMsg();hostlogs(' + host.id + ');">historia połączeń</span></p>';
 	if (host.type == 2) {
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
@@ -3245,6 +3250,19 @@ function hostremovedata(id) {
 
 	setValue('dialog_val', (host.mac).replace(/:/g, '_'));
 	showDialog('Usunąć dane dla "' + host.displayname + '"?', 'Anuluj', 'Usuń', okremovetraffic);
+}
+
+function hostlogs(id) {
+	var host;
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
+			break;
+		}
+	}
+
+	setValue('clientslogs_mac', host.mac);
+	btn_pages('clientslogs');
 }
 
 /*****************************************************************************/
