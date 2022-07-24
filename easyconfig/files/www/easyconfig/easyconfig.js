@@ -2772,7 +2772,8 @@ function hostmenu(id) {
 	if (config.lan_dhcp_enabled) {
 		html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
 	}
-	html += '<p><span class="click" onclick="closeMsg();hostlogs(' + host.id + ');">historia połączeń</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostlogs(' + host.id + ');">historia połączeń &rarr;</span></p>';
+	html += '<p><span class="click" onclick="closeMsg();hostqueries(' + host.id + ');">zapytania DNS &rarr;</span></p>';
 	if (host.type == 2) {
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
@@ -3265,6 +3266,19 @@ function hostlogs(id) {
 	btn_pages('clientslogs');
 }
 
+function hostqueries(id) {
+	var host;
+	for (var i = 0; i < clients.length; i++) {
+		if (clients[i].id == id) {
+			host = clients[i];
+			break;
+		}
+	}
+
+	setValue('queries_host', host.displayname);
+	btn_pages('queries');
+}
+
 /*****************************************************************************/
 
 var queries;
@@ -3294,6 +3308,10 @@ function queriescallback(sortby, order) {
 	if (e != null) {
 		selected = e.options[e.selectedIndex].value;
 	}
+	var tmp = getValue('queries_host');
+	if (tmp != '') { selected = tmp; }
+	setValue('queries_host', '');
+
 	var filtered = [];
 	if (selected == 'all') {
 		filtered = queries;
@@ -3349,7 +3367,7 @@ function queriescallback(sortby, order) {
 	}
 	setValue('div_queries_content', html);
 
-	if (queries.length > 0) {
+	if (filtered.length > 0) {
 		var all = ['time', 'query', 'host'];
 		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('queries_sortby_' + all[idx]);
