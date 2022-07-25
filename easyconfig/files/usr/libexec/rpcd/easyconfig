@@ -133,12 +133,7 @@ for IFNAME in $TPORTS1; do
 	done
 done
 
-T=$(ubus call network.interface dump | jsonfilter -q -e '@.interface[@.up=true && (@.proto="pptp" || @.proto="sstp" || @.proto="wireguard")]')
-[ -n "$T" ] && VPN_UP="true"
-T=$(pidof openvpn)
-[ -n "$T" ] && VPN_UP="true"
-T=$(pidof zerotier-one)
-[ -n "$T" ] && VPN_UP="true"
+show_vpn_up | jsonfilter -q -e '@.result[*].up' | grep -q "true" && VPN_UP="true"
 
 echo '{'
 echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
@@ -1377,6 +1372,56 @@ upgrade() {
 }
 
 ##############################################################################
+
+show_vpn_up()
+{
+	echo '{"result":['
+
+	if [ -e /etc/config/zerotier ]; then
+		LN=$(zerotier-cli -j listnetworks)
+		ZTS=$(uci show zerotier | awk -F[.=] '/=zerotier/{print $2}')
+		for ZT in $ZTS; do
+			UP="false"
+			JOINS=$(uci get zerotier.$ZT.join)
+			for JOIN in $JOINS; do
+				T=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$JOIN'"].status')
+				[ "x$T" = "xOK" ] && UP="true"
+			done
+			echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false}},"
+		done
+	fi
+
+	T=$(ubus call network.interface dump)
+	INTERFACES=$(echo "$T" | jsonfilter -q -e '@.interface[@.proto="pptp" || @.proto="sstp" || @.proto="wireguard"].interface')
+
+	if [ -e /etc/config/openvpn ]; then
+		OVPNS=$(uci show openvpn | awk -F[.=] '/\.config=/{print $2}')
+		for OVPN in $OVPNS; do
+			INTERFACE=""
+			TUN=$(uci -q get openvpn.$OVPN.dev)
+			[ -z "$TUN" ] && TUN=$(awk '/^tun/{print $2}' $(uci -q get openvpn.$OVPN.config) 2>/dev/null)
+			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device=.*'$TUN'.*/{print $2}')
+			if [ -n "$INTERFACE" ]; then
+				INTERFACES="${INTERFACES} ${INTERFACE}:openvpn:${OVPN}"
+			else
+				UP="false"
+				if [ -n "$TUN" ]; then
+					[ -e /sys/class/net/$TUN ] && UP="true"
+				fi
+				echo "{\"interface\":\"\",\"section\":\"$OVPN\",\"up\":${UP:-false}},"
+			fi
+		done
+	fi
+
+	for INTERFACE in $INTERFACES; do
+		if echo "$INTERFACE" | grep -q ":"; then
+			INTERFACE=$(echo "$INTERFACE" | cut -f1 -d:)
+		fi
+		UP=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].up')
+		echo "{\"interface\":\"$INTERFACE\",\"up\":${UP:-false}},"
+	done
+	echo "]}"
+}
 
 show_vpn()
 {
