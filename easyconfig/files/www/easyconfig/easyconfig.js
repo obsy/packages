@@ -2559,7 +2559,7 @@ function clientscallback(sortby) {
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + sorted[idx].displayname + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) + ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen) + (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : '') + '</div>';
+				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) +  (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen)) + '</div>';
 				html += '</div>';
 				any_all = true;
 			}
@@ -2820,9 +2820,7 @@ function hostinfo(id) {
 		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));
 	}
 	html += createRowForModal('Pierwszy raz widziany', formatDateTime(host.first_seen));
-	if (host.active) {
-		html += createRowForModal('Ostatni raz widziany', 'teraz');
-	} else {
+	if (!host.active) {
 		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><small><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span></small>');
 	}
 	showMsg(html, false);
