@@ -29,7 +29,7 @@ return view.extend({
 		var m, s, o;
 		var token = data[0].stdout.replace(/(?:\r\n|\r|\n)/g, '');
 
-		var html = _('Sending information about the router for statistical purposes. More information on the') + ' <a href="https://eko.one.pl/forum/viewtopic.php?id=7708" target="_blank">' + _('eko.one.pl forum') + '</a>.';
+		var html = _('Sending information about the router for statistical purposes. More information on the %seko.one.pl forum%s.').format('<a href="https://eko.one.pl/forum/viewtopic.php?id=7708" target="_blank">', '</a>');
 
 		m = new form.Map('system', _('Statistics'), html);
 
