@@ -799,11 +799,11 @@ var wan = [];
 wan['none'] = 'Brak';
 wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
-wan['3g'] = 'Modem USB (RAS)';
-wan['ncm'] = 'Modem USB (NCM)';
-wan['mbim'] = 'Modem USB (MBIM)';
-wan['qmi'] = 'Modem USB (QMI)';
-wan['dhcp_hilink'] = 'Modem USB (HiLink lub RNDIS)';
+wan['3g'] = 'Modem komórkowy (RAS)';
+wan['ncm'] = 'Modem komórkowy (NCM)';
+wan['mbim'] = 'Modem komórkowy (MBIM)';
+wan['qmi'] = 'Modem komórkowy (QMI)';
+wan['dhcp_hilink'] = 'Modem komórkowy (HiLink lub RNDIS)';
 wan['-'] = ' ';
 wan['detect'] = 'Wykryj...';
 
