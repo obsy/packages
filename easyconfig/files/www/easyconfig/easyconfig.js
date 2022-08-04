@@ -3993,6 +3993,8 @@ function showvpn() {
 			}
 			setValue('div_vpn_content', html);
 			showicon();
+		} else {
+			setValue('div_vpn_content', '<div class="alert alert-warning">Brak sieci VPN</div>');
 		}
 	})
 }
