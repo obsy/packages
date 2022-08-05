@@ -26,7 +26,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $4}' | xargs)
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			T_HEX=$(printf "%d" $T)
+			T_HEX=$(printf "%X" $T)
 			ADDON="$ADDON"'{"TAC":"'$T' ('$T_HEX')"}'
 		fi
 
