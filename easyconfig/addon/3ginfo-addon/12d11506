@@ -1,7 +1,7 @@
 # Huawei E3272/E3276
 # HP lt4112 Gobi 4G Module (Huawei ME906E)
 
-O=$(sms_tool -d $DEVICE at "at^chiptemp?;^hcsq?")
+O=$(sms_tool -d $DEVICE at "at^chiptemp?;^hcsq?;^sysinfoex")
 
 T=$(echo "$O" | awk -F[,:] '/^\^CHIPTEMP/ {gsub(/[ \r]/,"");t=0;for(i=2;i<=NF;i++)if($i!=65535){if($i>100){$i=$i/10};if($i>t){t=$i}};printf "%.1f", t}')
 if [ "x$T" != "x0.0" ]; then
@@ -39,4 +39,6 @@ if [ -n "$T" ]; then
 			ADDON="$ADDON"'{"RSRQ":"'$RSRQ' dB"}'
 			;;
 	esac
+	T=$(echo "$O" | awk -F[,:] '/^\^SYSINFOEX:/ {print $10}' | xargs)
+	[ -n "$T" ] && MODE="$T"
 fi
