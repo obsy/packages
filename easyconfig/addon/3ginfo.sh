@@ -142,7 +142,14 @@ fi
 _DEVS=$(awk '/Vendor=/{gsub(/.*Vendor=| ProdID=| Rev.*/,"");print}' /sys/kernel/debug/usb/devices | sort -u)
 for _DEV in $_DEVS; do
 	if [ -e "$RES/3ginfo-addon/$_DEV" ]; then
-		. "$RES/3ginfo-addon/$_DEV"
+		case $(cat /tmp/sysinfo/board_name) in
+		"zte,mf289f")
+			. "$RES/3ginfo-addon/19d21485"
+			;;
+		*)
+			. "$RES/3ginfo-addon/$_DEV"
+			;;
+		esac
 		break
 	fi
 done
