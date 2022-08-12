@@ -1,6 +1,7 @@
 # Huawei E3272/E3276
 # Huawei ME906s-158
 # HP lt4112 Gobi 4G Module (Huawei ME906E)
+# HP lt4132 LTE/HSPA+ 4G Module (Huawei ME906s)
 
 O=$(sms_tool -d $DEVICE at "at^chiptemp?;^hcsq?;^sysinfoex")
 
