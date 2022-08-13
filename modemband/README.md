@@ -7,6 +7,7 @@ Supported devices:
 - Fibocom L850-GL in mbim mode
 - Fibocom L860-GL
 - HP lt4112 (Huawei ME906E)
+- HP lt4132 LTE/HSPA+ 4G Module (Huawei ME906s-158)
 - HP lt4220 (Foxconn T77W676)
 - HP lt4220 (Foxconn T77W676) in mbim mode
 - Huawei (various models) in serial mode
