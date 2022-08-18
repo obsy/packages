@@ -1596,6 +1596,9 @@ function networkspeed(speed) {
 		case 10000:
 			return '10Gbps';
 			break;
+		case 2500:
+			return '2.5Gbps';
+			break;
 		case 1000:
 			return '1Gbps';
 			break;
