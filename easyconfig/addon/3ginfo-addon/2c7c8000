@@ -1,0 +1,74 @@
+# Quectel RG502Q-EA
+
+band5g() {
+	case "$1" in
+		1) echo "${2}n1 (2100 MHz)";;
+		3) echo "${2}n3 (1800 MHz)";;
+		7) echo "${2}n7 (2600 MHz)";;
+		8) echo "${2}n8 (900 MHz)";;
+		20) echo "${2}n20 (800 MHz)";;
+		*) echo "$1";;
+	esac
+}
+
+O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qcainfo;+qeng=\"servingcell\";+qspn")
+
+T=$(echo "$O" | awk -F[,:] '/^\+QTEMP/ {print $3}' | sort -r | head -n1 | xargs)
+if [ -n "$T" ]; then
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+fi
+
+T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $2}' | xargs)
+if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
+	COPS="$T"
+fi
+
+case "$MODE_NUM" in
+	7*)
+		if echo "$O" | grep -q "+QCAINFO.*SCC"; then
+			MODE="LTE_A"
+		fi
+		;;
+	13*)
+		if echo "$O" | grep -q "+QNWINFO.*NR5G"; then
+			MODE="5G-NSA"
+		fi
+		;;
+esac
+
+T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $5}')
+if [ -n "$T" ]; then
+	case $T in
+		*"LTE BAND 1"*) MODE="${MODE} "$(band 1 "");;
+		*"LTE BAND 3"*) MODE="${MODE} "$(band 3 "");;
+		*"LTE BAND 7"*) MODE="${MODE} "$(band 7 "");;
+		*"LTE BAND 8"*) MODE="${MODE} "$(band 8 "");;
+		*"LTE BAND 20"*) MODE="${MODE} "$(band 20 "");;
+		*"NR5G BAND 1"*) MODE="${MODE} "$(band5g 1 "");;
+		*"NR5G BAND 3"*) MODE="${MODE} "$(band5g 3 "");;
+		*"NR5G BAND 7"*) MODE="${MODE} "$(band5g 7 "");;
+		*"NR5G BAND 8"*) MODE="${MODE} "$(band5g 8 "");;
+		*"NR5G BAND 20"*) MODE="${MODE} "$(band5g 20 "");;
+		*) MODE="${MODE} ${T}";;
+	esac
+
+	T1=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "SCC"/{gsub(" ", "-");print $5}')
+	if [ -n "$T1" ]; then
+		for T in $T1; do
+			case $T in
+				*"LTE-BAND-1"*) MODE="${MODE} / "$(band 1 "");;
+				*"LTE-BAND-3"*) MODE="${MODE} / "$(band 3 "");;
+				*"LTE-BAND-7"*) MODE="${MODE} / "$(band 7 "");;
+				*"LTE-BAND-8"*) MODE="${MODE} / "$(band 8 "");;
+				*"LTE-BAND-20"*) MODE="${MODE} / "$(band 20 "");;
+				*"NR5G-BAND-1"*) MODE="${MODE} / "$(band5g 1 "");;
+				*"NR5G-BAND-3"*) MODE="${MODE} / "$(band5g 3 "");;
+				*"NR5G-BAND-7"*) MODE="${MODE} / "$(band5g 7 "");;
+				*"NR5G-BAND-8"*) MODE="${MODE} / "$(band5g 8 "");;
+				*"NR5G-BAND-20"*) MODE="${MODE} / "$(band5g 20 "");;
+				*) MODE="${MODE} / ${T}";;
+			esac
+		done
+	fi
+fi
