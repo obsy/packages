@@ -72,3 +72,278 @@ if [ -n "$T" ]; then
 		done
 	fi
 fi
+
+if [ "x$MODE_NUM" = "x7" ]; then
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $4}' | xargs)
+	if [ "x$T" = "xLTE" ]; then
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			T_DEC=$(printf "%d" "0x$T")
+			ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+		fi
+
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"SINR":"'$T' dB"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"PCI":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
+		if [ -n "$T" ]; then
+			case $T in
+				0*) T1="1.4";;
+				1*) T1="3";;
+				2*) T1="5";;
+				3*) T1="10";;
+				4*) T1="15";;
+				5*) T1="20";;
+				*) T1="";;
+			esac
+			if [ -n "T1" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"Bandwidth UL":"'$T1' MHz"}'
+			fi
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
+		if [ -n "$T" ]; then
+			case $T in
+				0*) T1="1.4";;
+				1*) T1="3";;
+				2*) T1="5";;
+				3*) T1="10";;
+				4*) T1="15";;
+				5*) T1="20";;
+				*) T1="";;
+			esac
+			if [ -n "T1" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"Bandwidth DL":"'$T1' MHz"}'
+			fi
+		fi
+	fi
+fi
+
+IFS="
+"
+
+if [ "x$MODE_NUM" = "x13" ]; then
+	LINES=$(echo "$O" | grep "+QENG")
+	for LINE in $LINES; do
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/{print $2}' | xargs)
+		if [ "x$T" = "xLTE" ]; then
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				T_DEC=$(printf "%d" "0x$T")
+				ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+			fi
+
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"SINR":"'$T' dB"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $7}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"PCI":"'$T'"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $8}' | xargs)
+			if [ -n "$T" ]; then
+				[ -n "$ADDON" ] && ADDON="$ADDON,"
+				ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
+			if [ -n "$T" ]; then
+				case $T in
+					0*) T1="1.4";;
+					1*) T1="3";;
+					2*) T1="5";;
+					3*) T1="10";;
+					4*) T1="15";;
+					5*) T1="20";;
+					*) T1="";;
+				esac
+				if [ -n "T1" ]; then
+					[ -n "$ADDON" ] && ADDON="$ADDON,"
+					ADDON="$ADDON"'{"Bandwidth UL":"'$T1' MHz"}'
+				fi
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $11}' | xargs)
+			if [ -n "$T" ]; then
+				case $T in
+					0*) T1="1.4";;
+					1*) T1="3";;
+					2*) T1="5";;
+					3*) T1="10";;
+					4*) T1="15";;
+					5*) T1="20";;
+					*) T1="";;
+				esac
+				if [ -n "T1" ]; then
+					[ -n "$ADDON" ] && ADDON="$ADDON,"
+					ADDON="$ADDON"'{"Bandwidth DL":"'$T1' MHz"}'
+				fi
+			fi
+		fi
+	done
+fi
+
+T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $5}')
+if [ -n "$T" ]; then
+	case $T in
+		*"LTE BAND 1"*) T2=$(band 1 "");;
+		*"LTE BAND 3"*) T2=$(band 3 "");;
+		*"LTE BAND 7"*) T2=$(band 7 "");;
+		*"LTE BAND 8"*) T2=$(band 8 "");;
+		*"LTE BAND 20"*) T2=$(band 20 "");;
+		*"NR5G BAND 1"*) T2=$(band5g 1 "");;
+		*"NR5G BAND 3"*) T2=$(band5g 3 "");;
+		*"NR5G BAND 7"*) T2=$(band5g 7 "");;
+		*"NR5G BAND 8"*) T2=$(band5g 8 "");;
+		*"NR5G BAND 20"*) T2=$(band5g 20 "");;
+		*) T2="${T}";;
+	esac
+	T3=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $4}')
+	case $T3 in
+		6*) T4="1.4";;
+		15*) T4="3";;
+		25*) T4="5";;
+		50*) T4="10";;
+		75*) T4="15";;
+		100*) T4="20";;
+		*) T4="";;
+	esac
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	if [ -z "$T4" ]; then
+		ADDON="$ADDON"'{"Primary band":"'$T2'"}'
+	else
+		ADDON="$ADDON"'{"Primary band":"'$T2', '$T4' MHz"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $3}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) EARFCN":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $7}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) PCI":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $10}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) RSSI":"'$T' dBm"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $8}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) RSRP":"'$T' dBm"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $9}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) RSRQ":"'$T' dB"}'
+	fi
+	IDX=1
+	LINES=$(echo "$O" | grep "+QCAINFO: \"SCC\"")
+	for LINE in $LINES; do
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $5}' | xargs)
+		case $T in
+			*"LTE BAND 1"*) T2=$(band 1 "");;
+			*"LTE BAND 3"*) T2=$(band 3 "");;
+			*"LTE BAND 7"*) T2=$(band 7 "");;
+			*"LTE BAND 8"*) T2=$(band 8 "");;
+			*"LTE BAND 20"*) T2=$(band 20 "");;
+			*"NR5G BAND 1"*) T2=$(band5g 1 "");;
+			*"NR5G BAND 3"*) T2=$(band5g 3 "");;
+			*"NR5G BAND 7"*) T2=$(band5g 7 "");;
+			*"NR5G BAND 8"*) T2=$(band5g 8 "");;
+			*"NR5G BAND 20"*) T2=$(band5g 20 "");;
+			*) T2="${T}";;
+		esac
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		T3=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $4}')
+		case $T3 in
+			6*) T4="1.4";;
+			15*) T4="3";;
+			25*) T4="5";;
+			50*) T4="10";;
+			75*) T4="15";;
+			100*) T4="20";;
+			*) T4="";;
+		esac
+		if [ -z "$T4" ]; then
+			ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2'"}'
+		else
+			ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2', '$T4' MHz"}'
+		fi
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $3}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') EARFCN":"'$T'"}'
+		fi
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $7}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') PCI":"'$T'"}'
+		fi
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $10}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') RSSI":"'$T' dBm"}'
+		fi
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $8}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') RSRP":"'$T' dBm"}'
+		fi
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $9}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') RSRQ":"'$T' dB"}'
+		fi
+
+		IDX=$((IDX + 1))
+	done
+fi

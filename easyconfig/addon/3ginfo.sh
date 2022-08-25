@@ -45,7 +45,7 @@ fi
 O=$(sms_tool -D -d $DEVICE at "AT+CSQ;+CPIN?;+COPS=3,0;+COPS?;+COPS=3,2;+COPS?;+CREG=2;+CREG?")
 
 # CSQ
-CSQ=$(echo "$O" | awk -F[,\ ] '/^\+CSQ/ {print $2}')
+CSQ=$(echo "$O" | awk -F[,\ ] '/^\+(csq|CSQ)/ {print $2}')
 
 [ "x$CSQ" = "x" ] && CSQ=-1
 if [ $CSQ -ge 0 -a $CSQ -le 31 ]; then
