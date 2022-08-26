@@ -5088,7 +5088,9 @@ function checkdomain() {
 	if (checkField('adblock_domain', validateHost)) {return;}
 
 	ubus_call('"file", "exec", {"command":"/etc/init.d/adblock","params":["query","' + getValue('adblock_domain') + '"]}', function(data) {
-		showMsg((data.stdout).replace(/\n/g,'<br>'));
+		if (data.stdout) {
+			showMsg((data.stdout).replace(/\n/g,'<br>'));
+		}
 	});
 }
 
