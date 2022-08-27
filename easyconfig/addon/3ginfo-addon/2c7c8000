@@ -26,18 +26,18 @@ fi
 
 case "$MODE_NUM" in
 	7*)
-		if echo "$O" | grep -q "+QCAINFO.*SCC"; then
+		if echo "$O" | grep -q -i "+QCAINFO.*SCC"; then
 			MODE="LTE_A"
 		fi
 		;;
 	13*)
-		if echo "$O" | grep -q "+QNWINFO.*NR5G"; then
+		if echo "$O" | grep -q -i "+QNWINFO.*NR5G"; then
 			MODE="5G-NSA"
 		fi
 		;;
 esac
 
-T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $5}')
+T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $5}')
 if [ -n "$T" ]; then
 	case $T in
 		*"LTE BAND 1"*) MODE="${MODE} "$(band 1 "");;
@@ -53,7 +53,7 @@ if [ -n "$T" ]; then
 		*) MODE="${MODE} ${T}";;
 	esac
 
-	T1=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "SCC"/{gsub(" ", "-");print $5}')
+	T1=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{gsub(" ", "-");print $5}')
 	if [ -n "$T1" ]; then
 		for T in $T1; do
 			case $T in
@@ -83,36 +83,36 @@ if [ "x$MODE_NUM" = "x7" ]; then
 			ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
 		fi
 
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
-		fi
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
-		fi
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
-		fi
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
+#		if [ -n "$T" ]; then
+#			[ -n "$ADDON" ] && ADDON="$ADDON,"
+#			ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+#		fi
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
+#		if [ -n "$T" ]; then
+#			[ -n "$ADDON" ] && ADDON="$ADDON,"
+#			ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+#		fi
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
+#		if [ -n "$T" ]; then
+#			[ -n "$ADDON" ] && ADDON="$ADDON,"
+#			ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+#		fi
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"SINR":"'$T' dB"}'
 		fi
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"PCI":"'$T'"}'
-		fi
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"EARFCN":"'$T'"}'
-		fi
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
+#		if [ -n "$T" ]; then
+#			[ -n "$ADDON" ] && ADDON="$ADDON,"
+#			ADDON="$ADDON"'{"PCI":"'$T'"}'
+#		fi
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
+#		if [ -n "$T" ]; then
+#			[ -n "$ADDON" ] && ADDON="$ADDON,"
+#			ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+#		fi
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
 		if [ -n "$T" ]; then
 			case $T in
@@ -163,36 +163,36 @@ if [ "x$MODE_NUM" = "x13" ]; then
 				ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
 			fi
 
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
-			fi
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
-			fi
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
-			fi
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
+#			if [ -n "$T" ]; then
+#				[ -n "$ADDON" ] && ADDON="$ADDON,"
+#				ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+#			fi
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
+#			if [ -n "$T" ]; then
+#				[ -n "$ADDON" ] && ADDON="$ADDON,"
+#				ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+#			fi
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+#			if [ -n "$T" ]; then
+#				[ -n "$ADDON" ] && ADDON="$ADDON,"
+#				ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+#			fi
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 			if [ -n "$T" ]; then
 				[ -n "$ADDON" ] && ADDON="$ADDON,"
 				ADDON="$ADDON"'{"SINR":"'$T' dB"}'
 			fi
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $7}' | xargs)
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"PCI":"'$T'"}'
-			fi
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $8}' | xargs)
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"EARFCN":"'$T'"}'
-			fi
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $7}' | xargs)
+#			if [ -n "$T" ]; then
+#				[ -n "$ADDON" ] && ADDON="$ADDON,"
+#				ADDON="$ADDON"'{"PCI":"'$T'"}'
+#			fi
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $8}' | xargs)
+#			if [ -n "$T" ]; then
+#				[ -n "$ADDON" ] && ADDON="$ADDON,"
+#				ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+#			fi
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
 			if [ -n "$T" ]; then
 				case $T in
@@ -229,7 +229,7 @@ if [ "x$MODE_NUM" = "x13" ]; then
 	done
 fi
 
-T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $5}')
+T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $5}')
 if [ -n "$T" ]; then
 	case $T in
 		*"LTE BAND 1"*) T2=$(band 1 "");;
@@ -244,7 +244,7 @@ if [ -n "$T" ]; then
 		*"NR5G BAND 20"*) T2=$(band5g 20 "");;
 		*) T2="${T}";;
 	esac
-	T3=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $4}')
+	T3=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $4}')
 	case $T3 in
 		6*) T4="1.4";;
 		15*) T4="3";;
@@ -260,35 +260,35 @@ if [ -n "$T" ]; then
 	else
 		ADDON="$ADDON"'{"Primary band":"'$T2', '$T4' MHz"}'
 	fi
-	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $3}')
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $3}')
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"(P) EARFCN":"'$T'"}'
 	fi
-	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $7}')
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $7}')
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"(P) PCI":"'$T'"}'
 	fi
-	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $10}')
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $10}')
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"(P) RSSI":"'$T' dBm"}'
 	fi
-	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $8}')
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $8}')
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"(P) RSRP":"'$T' dBm"}'
 	fi
-	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "PCC"/{print $9}')
+	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $9}')
 	if [ -n "$T" ]; then
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
 		ADDON="$ADDON"'{"(P) RSRQ":"'$T' dB"}'
 	fi
 	IDX=1
-	LINES=$(echo "$O" | grep "+QCAINFO: \"SCC\"")
+	LINES=$(echo "$O" | grep -E "^\+QCAINFO: \"(scc|SCC)\"")
 	for LINE in $LINES; do
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $5}' | xargs)
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $5}' | xargs)
 		case $T in
 			*"LTE BAND 1"*) T2=$(band 1 "");;
 			*"LTE BAND 3"*) T2=$(band 3 "");;
@@ -303,7 +303,7 @@ if [ -n "$T" ]; then
 			*) T2="${T}";;
 		esac
 		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		T3=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $4}')
+		T3=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $4}')
 		case $T3 in
 			6*) T4="1.4";;
 			15*) T4="3";;
@@ -318,27 +318,27 @@ if [ -n "$T" ]; then
 		else
 			ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2', '$T4' MHz"}'
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $3}')
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S'${IDX}') EARFCN":"'$T'"}'
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $7}')
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S'${IDX}') PCI":"'$T'"}'
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $10}')
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $10}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S'${IDX}') RSSI":"'$T' dBm"}'
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $8}')
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S'${IDX}') RSRP":"'$T' dBm"}'
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "SCC"/{print $9}')
+		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}')
 		if [ -n "$T" ]; then
 			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			ADDON="$ADDON"'{"(S'${IDX}') RSRQ":"'$T' dB"}'
