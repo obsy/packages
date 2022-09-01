@@ -14,7 +14,7 @@ fi
 T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
 if [ -n "$T" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+	ADDON="$ADDON"'{"Temperature":"'$T' &deg;C"}'
 fi
 
 T=$(echo "$O" | awk '/^LTE band:/ {print $3}' | xargs)

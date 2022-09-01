@@ -16,7 +16,7 @@ O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qcainfo;+qeng=\"servingcell\";+qs
 T=$(echo "$O" | awk -F[,:] '/^\+QTEMP/ {print $3}' | sort -r | head -n1 | xargs)
 if [ -n "$T" ]; then
 	[ -n "$ADDON" ] && ADDON="$ADDON,"
-	ADDON="$ADDON"'{"Temperatura":"'$T' &deg;C"}'
+	ADDON="$ADDON"'{"Temperature":"'$T' &deg;C"}'
 fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $2}' | xargs)

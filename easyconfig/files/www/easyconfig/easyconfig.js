@@ -1825,7 +1825,7 @@ function modemaddon() {
 	var html = '';
 	for (var i in arrmodemaddon) {
 		for (var j in arrmodemaddon[i]) {
-			html += createRowForModal(j, arrmodemaddon[i][j]);
+			html += createRowForModal((j == 'Temperature' ? 'Temperatura' : j), arrmodemaddon[i][j]);
 		}
 	}
 	showMsg(html);
