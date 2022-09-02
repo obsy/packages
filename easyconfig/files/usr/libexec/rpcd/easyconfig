@@ -218,6 +218,19 @@ case $(cat /tmp/sysinfo/board_name) in
 	"zte,mf286r")
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		;;
+	"zyxel,nr7101")
+		if [ -e /usr/bin/sms_tool ]; then
+			[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
+			DEVICE=$(cat /tmp/modem)
+			if [ -n "$DEVICE" ]; then
+				O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
+				T=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
+				if [ -n "$T" ]; then
+					echo ',{"Aktywny slot SIM":"'$T'"}'
+				fi
+			fi
+		fi
+		;;
 esac
 echo ']'
 
