@@ -2463,11 +2463,13 @@ function clientscallback(sortby) {
 
 	var html = '';
 	if (clients.length > 0) {
-		html += '<div class="row space"><div class="col-xs-12 space">';
+		html += '<div class="row space"><div class="col-xs-9 space">';
 		html += '<span>Filtrowanie:</span>';
 		html += '<span class="click" onclick="clientscallbackfilter(\'active\');clientscallback(\'\');"><span id="clients_filter_active"> aktywni (0) </span></span>|';
 		html += '<span class="click" onclick="clientscallbackfilter(\'all\');clientscallback(\'\');"><span id="clients_filter_all"> wszyscy (0) </span></span>';
-		html += '</div><div class="col-xs-12">';
+		html += '</div>';
+		html += '<div class="col-xs-3 text-right"><span class="click" onclick="clientsstats();"><i data-feather="bar-chart-2"></i></span></div>';
+		html += '<div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="clientscallback(\'displayname\');"><span id="clients_sortby_displayname"> nazwie </span></span>|';
 		if (filterby == 'active') {
@@ -2664,6 +2666,43 @@ function clientscallback(sortby) {
 			document.getElementById('clients_pie').addEventListener('mousemove', clients_pie_tooltip, false);
 		}
 	}
+}
+
+function clientsstats() {
+	var html = 'Nowi klienci<br><br><div class="text-left">';
+	var html1;
+	var now = new Date();
+	var countdownYear = now.getFullYear();
+	var countdownMonth = now.getMonth();
+	var cnt;
+	var sorted = sortJSON(clients, 'first_seen', 'desc');
+
+	const monthNames = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
+
+	for (var idx = 0; idx < 12; idx++) {
+		var day = new Date(countdownYear, countdownMonth, 1)
+		var toDate = formatDateWithoutDay(day);
+		var toHumanReadableDate = monthNames[day.getMonth()];
+		countdownMonth -= 1;
+		if (countdownMonth == -1) {
+			countdownMonth = 11;
+			countdownYear -= 1;
+		}
+
+		cnt = 0;
+		html1 = '';
+		for (var idx1 = 0; idx1 < sorted.length; idx1++) {
+			if (sorted[idx1].active) { continue; }
+			if ((sorted[idx1].first_seen).startsWith(toDate)) {
+				cnt += 1;
+				html1 += createRowForModal(sorted[idx1].displayname, formatDateTime(sorted[idx1].first_seen));
+			}
+		}
+		html += formatDateTime(toDate) + ' (' + toHumanReadableDate + '): ' + cnt  + '<br>';
+		html += html1 + '<hr>';
+	}
+	html += '</div>';
+	showMsg(html);
 }
 
 var logs;
@@ -3444,6 +3483,11 @@ function lastPeriod(start) {
 function formatDate(d) {
 	function z(n){return (n<10?'0':'')+ +n;}
 	return d.getFullYear() + '' + z(d.getMonth() + 1) + '' + z(d.getDate());
+}
+
+function formatDateWithoutDay(d) {
+	function z(n){return (n<10?'0':'')+ +n;}
+	return d.getFullYear() + '' + z(d.getMonth() + 1);
 }
 
 function showtraffic() {
