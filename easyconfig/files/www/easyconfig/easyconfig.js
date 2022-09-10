@@ -2764,6 +2764,10 @@ function clientslogscallback(first, last) {
 		}
 		html += '</select></div></div>';
 
+		if (selected != 'all') {
+			html += '<div class="row space" id="div_timelinelogs"><div class="col-xs-12"><canvas id="timelinelogs" height="100"></canvas></div></div>';
+		}
+
 		if (first < 0) { first = 0; }
 		if (filtered.length - 1 < last) { last = filtered.length - 1; }
 		for (var idx = first; idx <= last; idx++) {
@@ -2792,6 +2796,16 @@ function clientslogscallback(first, last) {
 	setValue('div_clientslogs_content', html);
 	if (filtered.length > 0) {
 		setValue('clientslogs_hosts', selected);
+		if (selected != 'all') {
+			var timelinelogs_arr = []; timelinelogs_arr[0] = [];
+			var min = filtered[filtered.length - 1].id * 1 - 86400;
+			for (var idx = filtered.length - 1; idx > -1; idx--) {
+				if (filtered[idx].id * 1 > min) {
+					timelinelogs_arr[0].push([filtered[idx].id * 1000, (filtered[idx].event == 'connect' ? 1 : 0)]);
+				}
+			}
+			staticgraph.draw({element: 'timelinelogs', data: timelinelogs_arr, legend: [{color:'blue'}]});
+		}
 	}
 }
 
@@ -5524,5 +5538,112 @@ livegraph = {
 			}
 		}
 		livegraph.plot(graph);
+	}
+};
+
+staticgraph = {
+	axisTop: 10,
+	axisRight: 2,
+	axisBottom: 40,
+	axisLeft: 0,
+
+	getX: function (graph, tick) {
+		return (((86400 - (graph.time - tick) / 1000) * graph.width) / 86400) + staticgraph.axisLeft;
+	},
+
+	getY: function(graph, tick) {
+		return (((1 - tick) * graph.height)) + staticgraph.axisTop;
+	},
+
+	plot: function (graph) {
+		var ctx = graph.context;
+		var data = graph.data;
+		ctx.strokeStyle = '#c0c0c0';
+		ctx.lineWidth = 0.5;
+		ctx.beginPath();
+		ctx.moveTo(staticgraph.axisLeft, staticgraph.axisTop);
+		ctx.lineTo(staticgraph.axisLeft + graph.width, staticgraph.axisTop);
+		ctx.lineTo(staticgraph.axisLeft + graph.width, staticgraph.axisTop + graph.height);
+		ctx.lineTo(staticgraph.axisLeft, staticgraph.axisTop + graph.height);
+		ctx.lineTo(staticgraph.axisLeft, staticgraph.axisTop);
+		ctx.stroke();
+		ctx.fillStyle = rgb2hex(window.getComputedStyle(document.body,null).getPropertyValue('color'));
+
+		var oldwidth = 0;
+		ctx.textAlign = 'center';
+		if (data.length > 0) {
+			if (data[0].length > 0) {
+				graph.time = data[0][data[0].length - 1][0];
+			}
+			for (var i = 0; i < data[0].length; i++) {
+				var x = staticgraph.getX(graph, data[0][i][0]);
+				if (oldwidth < x) {
+					var t = new Date(data[0][i][0]);
+					var t0 = t.getFullYear() + '-' + ((t.getMonth() + 1) < 10 ? '0' : '') + (t.getMonth() + 1)  + '-' + (t.getDate() < 10 ? '0' : '') + t.getDate();
+					var t1 = (t.getHours() < 10 ? '0' : '') + t.getHours()  + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() + ':' + (t.getSeconds() < 10 ? '0' : '') + t.getSeconds();
+					ctx.fillText(t0, x, staticgraph.axisTop + graph.height + 15);
+					ctx.fillText(t1, x, staticgraph.axisTop + graph.height + 35);
+					oldwidth = x + ctx.measureText(t0).width + 10;
+				}
+			}
+		}
+
+		function plot1(idx, fill) {
+			ctx.beginPath();
+			var x = staticgraph.getX(graph, data[idx][0][0]);
+			var y = staticgraph.getY(graph, data[idx][0][1]);
+			if (fill) {
+				ctx.moveTo(x, staticgraph.axisTop + graph.height)
+				ctx.lineTo(x, y);
+			} else {
+				ctx.moveTo(x, y);
+			}
+			for (var i = 1; i < data[idx].length; i++) {
+				x = staticgraph.getX(graph, data[idx][i][0]);
+				y = staticgraph.getY(graph, data[idx][i][1]);
+				ctx.lineTo(x, staticgraph.getY(graph, data[idx][i - 1][1]));
+				ctx.lineTo(x, y);
+			}
+			if (fill) {
+				ctx.lineTo(x, staticgraph.axisTop + graph.height);
+				ctx.fill();
+			} else {
+				ctx.stroke();
+			}
+		}
+
+		ctx.lineWidth = 1.5;
+		for (var i = 0; i < (graph.data).length; i++) {
+			if (data[i].length == 0) { continue; }
+			ctx.fillStyle = (graph.legend)[i].color;
+			ctx.strokeStyle = ctx.fillStyle;
+			ctx.globalAlpha = 0.2;
+			plot1(i, true);
+			ctx.globalAlpha = 1;
+			plot1(i, false);
+		}
+	},
+
+	draw: function (graph) {
+		var canvas = document.getElementById(graph.element);
+		if (canvas == null) {
+			return;
+		}
+
+		var ctx = canvas.getContext('2d');
+		if (ctx == null) {
+			return;
+		}
+
+		var positionInfo = document.getElementById('div_' + graph.element).getBoundingClientRect();
+		canvas.width = positionInfo.width - 30;
+
+		graph.width = canvas.width - staticgraph.axisRight - staticgraph.axisLeft;
+		graph.height = canvas.height - staticgraph.axisTop - staticgraph.axisBottom;
+
+		ctx.font = window.getComputedStyle(document.body,null).getPropertyValue('font-size') + ' ' + window.getComputedStyle(document.body,null).getPropertyValue('font-family');
+		graph.context = ctx;
+
+		staticgraph.plot(graph);
 	}
 };
