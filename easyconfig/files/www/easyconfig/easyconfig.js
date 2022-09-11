@@ -2798,7 +2798,7 @@ function clientslogscallback(first, last) {
 		setValue('clientslogs_hosts', selected);
 		if (selected != 'all') {
 			var timelinelogs_arr = []; timelinelogs_arr[0] = [];
-			var min = filtered[filtered.length - 1].id * 1 - 86400;
+			var min = filtered[0].id * 1 - 86400;
 			for (var idx = filtered.length - 1; idx > -1; idx--) {
 				if (filtered[idx].id * 1 > min) {
 					timelinelogs_arr[0].push([filtered[idx].id * 1000, (filtered[idx].event == 'connect' ? 1 : 0)]);
@@ -5542,10 +5542,10 @@ livegraph = {
 };
 
 staticgraph = {
-	axisTop: 10,
-	axisRight: 2,
+	axisTop: 4,
+	axisRight: 40,
 	axisBottom: 40,
-	axisLeft: 0,
+	axisLeft: 40,
 
 	getX: function (graph, tick) {
 		return (((86400 - (graph.time - tick) / 1000) * graph.width) / 86400) + staticgraph.axisLeft;
@@ -5592,12 +5592,8 @@ staticgraph = {
 			ctx.beginPath();
 			var x = staticgraph.getX(graph, data[idx][0][0]);
 			var y = staticgraph.getY(graph, data[idx][0][1]);
-			if (fill) {
-				ctx.moveTo(x, staticgraph.axisTop + graph.height)
-				ctx.lineTo(x, y);
-			} else {
-				ctx.moveTo(x, y);
-			}
+			ctx.moveTo(x, staticgraph.axisTop + graph.height)
+			ctx.lineTo(x, y);
 			for (var i = 1; i < data[idx].length; i++) {
 				x = staticgraph.getX(graph, data[idx][i][0]);
 				y = staticgraph.getY(graph, data[idx][i][1]);
