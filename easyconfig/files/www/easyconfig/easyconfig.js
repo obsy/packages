@@ -363,7 +363,7 @@ function okdetectwan() {
 	cmd.push('uci -q del network.wan');
 	cmd.push('uci set network.wan=interface');
 
-	if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'mbim' || data.proto == 'qmi') {
+	if (data.proto == '3g' || data.proto == 'mbim' || data.proto == 'ncm' || data.proto == 'qmi') {
 		cmd.push('uci set network.wan.proto=' + data.proto);
 		cmd.push('uci set network.wan.device=\\\"' + data.device + '\\\"');
 		cmd.push('uci set network.wan.apn=\\\"' + data.apn + '\\\"');
@@ -800,8 +800,8 @@ wan['none'] = 'Brak';
 wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
 wan['3g'] = 'Modem komórkowy (RAS)';
-wan['ncm'] = 'Modem komórkowy (NCM)';
 wan['mbim'] = 'Modem komórkowy (MBIM)';
+wan['ncm'] = 'Modem komórkowy (NCM)';
 wan['qmi'] = 'Modem komórkowy (QMI)';
 wan['dhcp_hilink'] = 'Modem komórkowy (HiLink lub RNDIS)';
 wan['-'] = ' ';
@@ -1080,7 +1080,7 @@ function savesettings() {
 		use_dns = 'custom';
 		use_wanport = false;
 	}
-	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'mbim' || wan_type == 'qmi') {
+	if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'ncm' || wan_type == 'qmi') {
 		cmd.push('uci set network.wan.apn=\\\"' + getValue('wan_apn') + '\\\"');
 		cmd.push('uci set network.wan.device=\\\"' + getValue('wan_device') + '\\\"');
 		cmd.push('uci set network.wan.pincode=' + getValue('wan_pincode'));
@@ -1833,7 +1833,7 @@ function modemaddon() {
 
 function showmodemsection() {
 	var wan_type = getValue('wan_proto');
-	if (wan_type == '3g' || wan_type == 'ncm' || wan_type == 'mbim' || wan_type == 'qmi') {
+	if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'ncm' || wan_type == 'qmi') {
 		setDisplay('menu_ussdsms', config.services.ussdsms);
 		setDisplay('div_status_modem', true);
 		setDisplay('div_system_modem', true);
