@@ -117,22 +117,12 @@ for IFNAME in $TPORTS1; do
 	T=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports[@.device="'$PORT'"]')
 	[ -z "$T" ] && continue
 
-	T1=$(jsonfilter -i /etc/board.json -e '@.switch.*.ports' | jsonfilter -e '@[*]')
-	IDX2=$(echo "$T1" | awk '/"device":\s"'$PORT'"/{print NR; exit}')
-	[ -z "$IDX2" ] && continue
-	IDX3=$(echo "$T1" | awk '/"device":/{if(NR>'$IDX2'){print NR; exit}}')
-	[ -z "$IDX3" ] && IDX3=9999
-
 	TPORTS2=$(swconfig dev switch0 vlan $VLAN get ports | sed 's/[^0-9 ]//g')
 	for T in $TPORTS2; do
 		ROLE=""
 		INDEX=""
 		eval $(jsonfilter -i /etc/board.json -e 'ROLE=@.switch.*.ports[@.num='$T'].role' -e 'INDEX=@.switch.*.ports[@.num='$T'].index')
 		[ -z "$ROLE" ] && continue
-
-		IDX1=$(echo "$T1" | awk '/"num":\s'$T'/{print NR; exit}')
-		[ -z "$IDX1" ] && continue
-		[ $IDX1 -le $IDX2 ] || [ $IDX1 -ge $IDX3 ] && continue
 
 		STATUS=$(swconfig dev switch0 port $T get link)
 		case "$STATUS" in
