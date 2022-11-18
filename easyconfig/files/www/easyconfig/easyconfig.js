@@ -4375,10 +4375,6 @@ function saveopenvpn() {
 			setValue('vpn_openvpn_error', 'Plik konfiguracyjny nie zawiera opcji "dev"');
 			return;
 		}
-		if (configtext.indexOf('proto') == -1) {
-			setValue('vpn_openvpn_error', 'Plik konfiguracyjny nie zawiera opcji "proto"');
-			return;
-		}
 	}
 
 	cancelopenvpn();
