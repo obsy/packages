@@ -1368,6 +1368,8 @@ function savesettings() {
 	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('ifup wan');
 	if (wlan_restart_required) {
+		cmd.push('wifi down');
+		cmd.push('sleep 2');
 		cmd.push('wifi');
 	}
 
