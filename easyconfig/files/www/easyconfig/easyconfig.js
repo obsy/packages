@@ -4246,6 +4246,7 @@ function savevpnnew() {
 		setValue('vpn_openvpn_name', '');
 		setValue('vpn_openvpn_enabled', true);
 		setValue('vpn_openvpn_button', false);
+		setDisplay('div_vpn_openvpn_button', config.button.code != '');
 		setValue('vpn_openvpn_to_lan', false);
 		setValue('vpn_openvpn_username', '');
 		setValue('vpn_openvpn_password', '');
@@ -4258,6 +4259,7 @@ function savevpnnew() {
 		setValue('vpn_pptp_name', '');
 		setValue('vpn_pptp_auto', 0);
 		setValue('vpn_pptp_button', false);
+		setDisplay('div_vpn_pptp_button', config.button.code != '');
 		setValue('vpn_pptp_to_lan', false);
 		setValue('vpn_pptp_server', '');
 		setValue('vpn_pptp_username', '');
@@ -4271,6 +4273,7 @@ function savevpnnew() {
 		setValue('vpn_sstp_name', '');
 		setValue('vpn_sstp_auto', 0);
 		setValue('vpn_sstp_button', false);
+		setDisplay('div_vpn_sstp_button', config.button.code != '');
 		setValue('vpn_sstp_to_lan', false);
 		setValue('vpn_sstp_server', '');
 		setValue('vpn_sstp_username', '');
@@ -4282,6 +4285,7 @@ function savevpnnew() {
 		setValue('vpn_wireguard_interface', Math.random().toString(36).substr(2,8));
 		setValue('vpn_wireguard_auto', 0);
 		setValue('vpn_wireguard_button', false);
+		setDisplay('div_vpn_wireguard_button', config.button.code != '');
 		setValue('vpn_wireguard_to_lan', false);
 		setValue('vpn_wireguard_privkey', '');
 		setValue('vpn_wireguard_pubkey', '');
