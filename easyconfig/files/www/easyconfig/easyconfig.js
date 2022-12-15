@@ -461,6 +461,9 @@ function enableWan(proto) {
 	if (proto == 'mbim') {
 		fields=['wan_apn', 'wan_device', 'wan_pincode', 'wan_metered'];
 	}
+	if (proto == 'modemmanager') {
+		fields=['wan_apn', 'wan_device_mm', 'wan_pincode', 'wan_metered'];
+	}
 	if (proto == '3g' || proto == 'ncm' || proto == 'qmi') {
 		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
 
@@ -486,7 +489,7 @@ function enableWan(proto) {
 		fields.push("wan_wanport");
 	}
 
-	var all = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns","wan_dns_url","wan_dns1","wan_dns2","wan_pincode","wan_device","wan_apn","wan_dashboard_url","wan_modem_mode","wan_wanport","wan_metered"];
+	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_wanport', 'wan_metered'];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -801,6 +804,7 @@ wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
 wan['3g'] = 'Modem komórkowy (RAS)';
 wan['mbim'] = 'Modem komórkowy (MBIM)';
+wan['modemmanager'] = 'Modem komórkowy';
 wan['ncm'] = 'Modem komórkowy (NCM)';
 wan['qmi'] = 'Modem komórkowy (QMI)';
 wan['dhcp_hilink'] = 'Modem komórkowy (HiLink lub RNDIS)';
@@ -834,6 +838,15 @@ function showcallback(data) {
 		e.appendChild(opt);
 	}
 
+	e = removeOptions('wan_device_mm');
+	var arr = config.wan_devices_mm;
+	for (var idx = 0; idx < arr.length; idx++) {
+		var opt = document.createElement('option');
+		opt.value = arr[idx][0];
+		opt.innerHTML = arr[idx][1] + ' ' + arr[idx][2];
+		e.appendChild(opt);
+	}
+
 	e = removeOptions('wan_dns');
 	var sorteddns = [];
 	sorteddns = sortJSON(dns, 'name', 'asc');
@@ -854,6 +867,7 @@ function showcallback(data) {
 	setValue('wan_gateway', config.wan_gateway);
 	setValue('wan_apn', config.wan_apn);
 	setValue('wan_device', config.wan_device);
+	setValue('wan_device_mm', config.wan_device);
 	setValue('wan_pincode', config.wan_pincode);
 	setValue('wan_dns1', config.wan_dns1);
 	setValue('wan_dns2', config.wan_dns2);
@@ -1080,9 +1094,9 @@ function savesettings() {
 		use_dns = 'custom';
 		use_wanport = false;
 	}
-	if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'ncm' || wan_type == 'qmi') {
+	if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'modemmanager' || wan_type == 'ncm' || wan_type == 'qmi') {
 		cmd.push('uci set network.wan.apn=\\\"' + getValue('wan_apn') + '\\\"');
-		cmd.push('uci set network.wan.device=\\\"' + getValue('wan_device') + '\\\"');
+		cmd.push('uci set network.wan.device=\\\"' + getValue('wan_device' + (wan_type == 'modemmanager' ? '_mm' : '')) + '\\\"');
 		cmd.push('uci set network.wan.pincode=' + getValue('wan_pincode'));
 	}
 	if (wan_type == '3g') {

@@ -442,6 +442,13 @@ else
 	if [ -n "$tty" ]; then
 		echo ',"3g"'
 	fi
+	mbim=$(grep cdc_mbim /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$mbim" ]; then
+		echo ',"mbim"'
+	fi
+	if [ -e /lib/netifd/proto/modemmanager.sh ]; then
+		echo ',"modemmanager"'
+	fi
 	ncm=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$ncm" ]; then
 		echo ',"ncm"'
@@ -449,10 +456,6 @@ else
 	qmi=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$qmi" ]; then
 		echo ',"qmi"'
-	fi
-	mbim=$(grep cdc_mbim /sys/kernel/debug/usb/devices 2>/dev/null)
-	if [ -n "$mbim" ]; then
-		echo ',"mbim"'
 	fi
 	if [ -n "$WAN_IFNAME_HILINK" ]; then
 		echo ',"dhcp_hilink"'
@@ -468,6 +471,21 @@ for tty in $ttys; do
 	O="$O"'"'$tty'"'
 done
 echo "$O"'],'
+
+echo '"wan_devices_mm":['
+if [ -e /lib/netifd/proto/modemmanager.sh ]; then
+	T=$(mmcli -J -L | jsonfilter -q -e '@["modem-list"]' | jsonfilter -q -e '@.*')
+	for M in $T; do
+		DEVICE=""
+		MANUFACTURER=""
+		MODEL=""
+		eval $(mmcli -J -m $M | jsonfilter -q -e 'DEVICE=@.modem.generic.device' -e 'MANUFACTURER=@.modem.generic.manufacturer' -e 'MODEL=@.modem.generic.model')
+		if [ -n "$DEVICE" ]; then
+			echo "[\"$DEVICE\",\"$MANUFACTURER\",\"$MODEL\"],"
+		fi
+	done
+fi
+echo '],'
 
 if uci -q get dhcp.lan.dhcp_option | grep -q ANDROID_METERED; then
 	echo '"wan_metered":true,'
