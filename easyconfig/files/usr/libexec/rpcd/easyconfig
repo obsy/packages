@@ -246,7 +246,7 @@ show_system() {
 	VERSION=$(awk -F\' '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release)
 	MODEL=$(cat /tmp/sysinfo/model)
 
-	if [ -e /tmp/modem ]; then
+	if [ -s /tmp/modem ]; then
 		DEVICE=$(cat /tmp/modem)
 		O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
 		T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
@@ -480,9 +480,7 @@ if [ -e /lib/netifd/proto/modemmanager.sh ]; then
 		MANUFACTURER=""
 		MODEL=""
 		eval $(mmcli -J -m $M | jsonfilter -q -e 'DEVICE=@.modem.generic.device' -e 'MANUFACTURER=@.modem.generic.manufacturer' -e 'MODEL=@.modem.generic.model')
-		if [ -n "$DEVICE" ]; then
-			echo "[\"$DEVICE\",\"$MANUFACTURER\",\"$MODEL\"],"
-		fi
+		[ -n "$DEVICE" ] && echo "[\"$DEVICE\",\"$MANUFACTURER\",\"$MODEL\"],"
 	done
 fi
 echo '],'
