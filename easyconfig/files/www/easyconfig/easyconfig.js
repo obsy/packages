@@ -1003,6 +1003,9 @@ function showcallback(data) {
 	// modemsettings
 	setDisplay('menu_modemsettings', config.services.modemband);
 
+	// gps
+	setDisplay('menu_gps', config.services.gps);
+
 	// button
 	if (config.button.code != '') {
 		select = removeOptions('system_button');
@@ -5331,6 +5334,80 @@ function btn_nightmode_getlocation() {
 
 /*****************************************************************************/
 
+function getDD2DMS(dms, type) {
+	function z(n){return (n<10?'0':'')+ +n;}
+	var sign = 1, Abs=0;
+	var days, minutes, secounds, direction;
+
+	if(dms < 0)  { sign = -1; }
+	Abs = Math.abs( Math.round(dms * 1000000.));
+	if(type == "lat" && Abs > (90 * 1000000)){
+		return false;
+	} else if(type == "lon" && Abs > (180 * 1000000)){
+		return false;
+	}
+
+	days = Math.floor(Abs / 1000000);
+	minutes = Math.floor(((Abs/1000000) - days) * 60);
+	secounds = ( Math.floor((( ((Abs/1000000) - days) * 60) - minutes) * 100000) *60/100000 ).toFixed();
+	days = days * sign;
+	if(type == 'lat') direction = days<0 ? 'S' : 'N';
+	if(type == 'lon') direction = days<0 ? 'W' : 'E';
+	return (days * sign) + 'º' + z(minutes) + "'" + z(secounds) + "'' " + direction;
+}
+
+function showgps() {
+	var map = L.map('gps_map').setView([52.114339, 19.423672], 6);
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	}).addTo(map);
+
+	var marker = null;
+	var first = 1;
+	gpsID = setInterval(function() {
+		var e = document.getElementById('gps_fixtime');
+		if (!e || e.offsetParent === null) {
+			clearInterval(gpsID);
+			return;
+		}
+		ubus_call_nomsg('"gps", "info", {}', function(data) {
+			if (data.age == 'undefined') {
+				setValue('gps_fixtime', 'brak sygnału GPS');
+				setValue('gps_latitude', '-');
+				setValue('gps_longitude', '-');
+				setValue('gps_elevation', '-');
+				setValue('gps_course', '-');
+				setValue('gps_speed', '-');
+			} else {
+				fixtime = formatDuration(data.age, true) + ' temu';
+				if (data.age > 3) {
+					ts = Date.now()/1000;
+					since = ts - data.age;
+					fixtime += ' (' + formatDateTime(timestampToDate(since)) +  ')';
+				}
+				setValue('gps_fixtime', fixtime);
+				setValue('gps_latitude', data.latitude + ' (' + getDD2DMS(data.latitude, 'lat') + ')');
+				setValue('gps_longitude', data.longitude + ' (' + getDD2DMS(data.longitude, 'lon') + ')');
+				setValue('gps_elevation', data.elevation + ' m');
+				setValue('gps_course', data.course == '' ? '-' : data.course + 'º');
+				setValue('gps_speed', data.speed == '' ? '-' : data.speed + ' km/h');
+				
+				if (marker !== null) {
+					map.removeLayer(marker);
+				}
+				marker = L.marker([data.latitude, data.longitude]).addTo(map);
+				map.setView([data.latitude, data.longitude]);
+				if (first == 1) {
+					map.setZoom(16);
+					first = 0;
+				}
+			}
+			});
+	}, 1000);
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = '250px';
 }
@@ -5354,6 +5431,7 @@ function btn_pages(page) {
 	setDisplay('div_vpn', (page == 'vpn'));
 	setDisplay('div_adblock', (page == 'adblock'));
 	setDisplay('div_nightmode', (page == 'nightmode'));
+	setDisplay('div_gps', (page == 'gps'));
 
 	if (page == 'status') {
 		showstatus();
@@ -5407,6 +5485,10 @@ function btn_pages(page) {
 
 	if (page == 'nightmode') {
 		shownightmode();
+	}
+
+	if (page == 'gps') {
+		showgps();
 	}
 }
 

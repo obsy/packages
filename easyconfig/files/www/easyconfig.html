@@ -43,8 +43,10 @@
 	</div>
 	<a href="#" onclick="btn_pages('adblock');"><i data-feather="globe" class="iconwithtext"></i>Blokada domen</a>
 	<a href="#" onclick="btn_pages('nightmode');"><i data-feather="moon" class="iconwithtext"></i>Tryb nocny</a>
+	<div id="menu_gps" style="display:none;">
+		<a href="#" onclick="btn_pages('gps');"><i data-feather="globe" class="iconwithtext"></i>GPS</a>
+	</div>
 </div>
-
 
 <div class="container">
 
@@ -1378,6 +1380,49 @@
 	</div>
 	</div>
 
+	</div>
+
+	<div id="div_gps" style="display:none;">
+		<h3 class="section">Pozycja GPS</h3>
+		<div class="row">
+			<label class="col-xs-6 text-right">Czas odczytu</label>
+			<div class="col-xs-6">
+			<p id="gps_fixtime">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Szerokość</label>
+			<div class="col-xs-6">
+			<p id="gps_latitude">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Długość</label>
+			<div class="col-xs-6">
+			<p id="gps_longitude">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Wysokość</label>
+			<div class="col-xs-6">
+			<p id="gps_elevation">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Kierunek</label>
+			<div class="col-xs-6">
+			<p id="gps_course">-</p>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-xs-6 text-right">Szybkość</label>
+			<div class="col-xs-6">
+			<p id="gps_speed">-</p>
+			</div>
+		</div>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+		<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+		<div id="gps_map"></div>
 	</div>
 
 </div>

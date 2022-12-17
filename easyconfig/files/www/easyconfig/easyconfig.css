@@ -478,3 +478,9 @@ h3 {
     text-align: left;
   }
 }
+
+#gps_map {
+  width: 100%;
+  height: 400px;
+  z-index: 0;
+}

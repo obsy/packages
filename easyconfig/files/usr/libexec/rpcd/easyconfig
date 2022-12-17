@@ -678,6 +678,12 @@ else
 	echo '"modemband":false,'
 fi
 
+if ubus list | grep -q gps; then
+	echo '"gps":true,'
+else
+	echo '"gps":false,'
+fi
+
 echo '}'
 
 echo '}'
