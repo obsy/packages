@@ -5371,7 +5371,7 @@ function showgps() {
 			return;
 		}
 		ubus_call_nomsg('"gps", "info", {}', function(data) {
-			if (data.age == 'undefined') {
+			if (data.age == undefined) {
 				setValue('gps_fixtime', 'brak sygnału GPS');
 				setValue('gps_latitude', '-');
 				setValue('gps_longitude', '-');
@@ -5388,10 +5388,22 @@ function showgps() {
 				setValue('gps_fixtime', fixtime);
 				setValue('gps_latitude', data.latitude + ' (' + getDD2DMS(data.latitude, 'lat') + ')');
 				setValue('gps_longitude', data.longitude + ' (' + getDD2DMS(data.longitude, 'lon') + ')');
-				setValue('gps_elevation', data.elevation + ' m');
-				setValue('gps_course', data.course == '' ? '-' : data.course + 'º');
+				setValue('gps_elevation', data.elevation + ' m n.p.m.');
+
+				var direction = '';
+				if (data.course != '') {
+					if (data.course >= 0 && data.course < 22.50) {direction = 'północ';}
+					if (data.course >= 22.50 && data.course < 67.50) {direction = 'północny wschód';}
+					if (data.course >= 67.50 && data.course < 112.50) {direction = 'wschód';}
+					if (data.course >= 112.50 && data.course < 157.50) {direction = 'południowy wschód';}
+					if (data.course >= 157.50 && data.course < 202.50) {direction = 'południe';}
+					if (data.course >= 202.50 && data.course < 247.50) {direction = 'południowy zachód';}
+					if (data.course >= 247.50 && data.course < 337.50) {direction = 'północny zachód';}
+					if (data.course >= 337.50 && data.course <= 360) {direction = 'północ';}
+				}
+				setValue('gps_course', data.course == '' ? '-' : data.course + 'º' + (direction == '' ? '' : ' (' + direction + ')'));
 				setValue('gps_speed', data.speed == '' ? '-' : data.speed + ' km/h');
-				
+
 				if (marker !== null) {
 					map.removeLayer(marker);
 				}
@@ -5402,7 +5414,7 @@ function showgps() {
 					first = 0;
 				}
 			}
-			});
+		});
 	}, 1000);
 }
 
