@@ -1393,13 +1393,13 @@
 		<div class="row">
 			<label class="col-xs-6 text-right">Szerokość</label>
 			<div class="col-xs-6">
-			<p id="gps_latitude">-</p>
+			<p><span id="gps_latitude">-</span><span class="visible-xs oneline"></span><span id="gps_latitudedms"></span></p>
 			</div>
 		</div>
 		<div class="row">
 			<label class="col-xs-6 text-right">Długość</label>
 			<div class="col-xs-6">
-			<p id="gps_longitude">-</p>
+				<p><span id="gps_longitude">-</span><span class="visible-xs oneline"></span><span id="gps_longitudedms"></span></p>
 			</div>
 		</div>
 		<div class="row">
@@ -1420,8 +1420,6 @@
 			<p id="gps_speed">-</p>
 			</div>
 		</div>
-		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
-		<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 		<div id="gps_map"></div>
 	</div>
 

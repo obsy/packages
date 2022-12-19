@@ -5356,14 +5356,23 @@ function getDD2DMS(dms, type) {
 	return (days * sign) + 'º' + z(minutes) + "'" + z(secounds) + "'' " + direction;
 }
 
-function showgps() {
-	var map = L.map('gps_map').setView([52.114339, 19.423672], 6);
-	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-	}).addTo(map);
-
+var gpsID = null;
+var map = null;
+function readgps() {
 	var marker = null;
-	var first = 1;
+	var first = true;
+
+	if (map) {
+		map.eachLayer(function (layer) {
+			if (layer.options.alt) {
+				if (layer.options.alt == 'Marker') {
+					map.removeLayer(layer);
+				}
+			}
+		});
+	}
+
+	if (gpsID) { clearInterval(gpsID); }
 	gpsID = setInterval(function() {
 		var e = document.getElementById('gps_fixtime');
 		if (!e || e.offsetParent === null) {
@@ -5374,20 +5383,23 @@ function showgps() {
 			if (data.age == undefined) {
 				setValue('gps_fixtime', 'brak sygnału GPS');
 				setValue('gps_latitude', '-');
+				setValue('gps_latitudedms', '');
 				setValue('gps_longitude', '-');
+				setValue('gps_longitudedms', '');
 				setValue('gps_elevation', '-');
 				setValue('gps_course', '-');
 				setValue('gps_speed', '-');
+				first = true;
 			} else {
 				fixtime = formatDuration(data.age, true) + ' temu';
 				if (data.age > 3) {
-					ts = Date.now()/1000;
-					since = ts - data.age;
-					fixtime += ' (' + formatDateTime(timestampToDate(since)) +  ')';
+					fixtime += ' (' + formatDateTime(timestampToDate(Date.now()/1000 - data.age)) +  ')';
 				}
 				setValue('gps_fixtime', fixtime);
-				setValue('gps_latitude', data.latitude + ' (' + getDD2DMS(data.latitude, 'lat') + ')');
-				setValue('gps_longitude', data.longitude + ' (' + getDD2DMS(data.longitude, 'lon') + ')');
+				setValue('gps_latitude', data.latitude);
+				setValue('gps_latitudedms', ' ' + getDD2DMS(data.latitude, 'lat'));
+				setValue('gps_longitude', data.longitude);
+				setValue('gps_longitudedms', ' ' + getDD2DMS(data.longitude, 'lon') );
 				setValue('gps_elevation', data.elevation + ' m n.p.m.');
 
 				var direction = '';
@@ -5402,20 +5414,54 @@ function showgps() {
 					if (data.course >= 337.50 && data.course <= 360) {direction = 'północ';}
 				}
 				setValue('gps_course', data.course == '' ? '-' : data.course + 'º' + (direction == '' ? '' : ' (' + direction + ')'));
-				setValue('gps_speed', data.speed == '' ? '-' : data.speed + ' km/h');
-
-				if (marker !== null) {
-					map.removeLayer(marker);
+				var speed = '-';
+				if (data.speed != '') {
+					if (parseFloat(data.speed) < 6.0) {
+						speed = parseFloat(data.speed * 1000 / 3600).toFixed(2) + ' m/s';
+					} else {
+						speed = data.speed + ' km/h';
+					}
 				}
-				marker = L.marker([data.latitude, data.longitude]).addTo(map);
-				map.setView([data.latitude, data.longitude]);
-				if (first == 1) {
-					map.setZoom(16);
-					first = 0;
+				setValue('gps_speed', speed);
+
+				if (map) {
+					if (marker !== null) {
+						map.removeLayer(marker);
+					}
+					marker = L.marker([data.latitude, data.longitude]).addTo(map);
+					map.setView([data.latitude, data.longitude]);
+					if (first) {
+						map.setZoom(16);
+						first = false;
+					}
 				}
 			}
 		});
 	}, 1000);
+}
+
+function showgps() {
+	var url = 'https://unpkg.com/leaflet@1.9.3/dist/leaflet.js';
+	if (!Boolean(document.querySelector('script[src="' + url + '"]'))) {
+		var css = document.createElement('link');
+		css.rel = 'stylesheet';
+		css.type = 'text/css';
+		css.href = 'https://unpkg.com/leaflet@1.9.3/dist/leaflet.css';
+		document.getElementsByTagName("head")[0].appendChild(css);
+
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = url;
+		document.getElementsByTagName("head")[0].appendChild(script);
+
+		script.onload = function() {
+			map = L.map('gps_map').setView([52.114339, 19.423672], 6);
+			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			}).addTo(map);
+		}
+	}
+	readgps();
 }
 
 /*****************************************************************************/
