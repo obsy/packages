@@ -1,0 +1,26 @@
+{
+	"05c69215": {
+		"name": "Quectel EC20",
+		"start": [
+			"AT+QGPS=1"
+		],
+		"cmd_tty": "/dev/ttyUSB2",
+		"nmea_tty": "/dev/ttyUSB1"
+	},
+	"2c7c0125": {
+		"name": "Quectel EC25",
+		"start": [
+			"AT+QGPS=1"
+		],
+		"cmd_tty": "/dev/ttyUSB2",
+		"nmea_tty": "/dev/ttyUSB1"
+	},
+	"2c7c0306": {
+		"name": "Quectel EP06/EG06",
+		"start": [
+			"AT+QGPS=1"
+		],
+		"cmd_tty": "/dev/ttyUSB2",
+		"nmea_tty": "/dev/ttyUSB1"
+	}
+}
