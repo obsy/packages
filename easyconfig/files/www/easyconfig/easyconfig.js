@@ -5383,9 +5383,9 @@ function readgps() {
 			if (data.age == undefined) {
 				setValue('gps_fixtime', 'brak sygnału GPS');
 				setValue('gps_latitude', '-');
-				setValue('gps_latitudedms', '');
+				setValue('gps_latitudedms', '-');
 				setValue('gps_longitude', '-');
-				setValue('gps_longitudedms', '');
+				setValue('gps_longitudedms', '-');
 				setValue('gps_elevation', '-');
 				setValue('gps_course', '-');
 				setValue('gps_speed', '-');
@@ -5397,9 +5397,9 @@ function readgps() {
 				}
 				setValue('gps_fixtime', fixtime);
 				setValue('gps_latitude', data.latitude);
-				setValue('gps_latitudedms', ' ' + getDD2DMS(data.latitude, 'lat'));
+				setValue('gps_latitudedms', getDD2DMS(data.latitude, 'lat'));
 				setValue('gps_longitude', data.longitude);
-				setValue('gps_longitudedms', ' ' + getDD2DMS(data.longitude, 'lon') );
+				setValue('gps_longitudedms', getDD2DMS(data.longitude, 'lon') );
 				setValue('gps_elevation', data.elevation + ' m n.p.m.');
 
 				var direction = '';
