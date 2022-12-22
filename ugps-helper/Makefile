@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ugps-helper
-PKG_VERSION:=20221218
+PKG_VERSION:=20221221
 
 include $(INCLUDE_DIR)/package.mk
 

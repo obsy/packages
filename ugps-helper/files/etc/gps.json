@@ -7,6 +7,14 @@
 		"cmd_tty": "/dev/ttyUSB2",
 		"nmea_tty": "/dev/ttyUSB1"
 	},
+	"119968a2": {
+		"name": "Sierra Wireless MC7710",
+		"start": [
+			"$GPS_START"
+		],
+		"cmd_tty": "/dev/ttyUSB1",
+		"nmea_tty": "/dev/ttyUSB1"
+	},
 	"2c7c0125": {
 		"name": "Quectel EC25",
 		"start": [
