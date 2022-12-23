@@ -2,6 +2,9 @@
 if [ "x$1" = "xinfo" ]; then
 	echo "GPS"
 else
-	ubus call gps info | jsonfilter -e '@.latitude' -e '@.longitide'
+	T=$(ubus call gps info)
+	AGE=$(echo "$T" | jsonfilter -q -e '@.age')
+	[ -z "$AGE" ] && AGE=9999
+	[ "$AGE" -le 5 ] && echo "$T" | jsonfilter -e '@.latitude' -e '@.longitude'
 fi
 exit 0

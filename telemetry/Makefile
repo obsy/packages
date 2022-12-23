@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=telemetry
-PKG_RELEASE:=20201010
+PKG_RELEASE:=20221222
 
 include $(INCLUDE_DIR)/package.mk
 
