@@ -15,6 +15,16 @@
 		"cmd_tty": "/dev/ttyUSB1",
 		"nmea_tty": "/dev/ttyUSB1"
 	},
+	"1bc71040": {
+		"name": "elit LM940-CP",
+		"start": [
+			"AT$GPSANTPORT=1",
+			"AT$GPSNMUN=1,1,1,1,1,1,1",
+			"AT$GPSP=1"
+		],
+		"cmd_tty": "/dev/ttyUSB2",
+		"nmea_tty": "/dev/ttyUSB3"
+	},
 	"2c7c0125": {
 		"name": "Quectel EC25",
 		"start": [
