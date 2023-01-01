@@ -1607,6 +1607,77 @@ function showstatus() {
 		} else {
 			setDisplay('div_status_lan_ports', false);
 		}
+
+		if (data.mwan3_use_policy) {
+			ubus_call('"mwan3", "status", {}', function(data1) {
+				var html = '';
+				for (var i in data1.interfaces) {
+					html += '<div class="row"><label class="col-xs-6 text-right">' + i + '</label>';
+					html += '<div class="col-xs-6">';
+					var css = '';
+					var status = '';
+					var status1 = '';
+					switch (data1.interfaces[i].status) {
+						case 'online':
+							css = ' style="color:green";';
+							status = 'Dostępny';
+							status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].online, true) + ')';
+							break;
+						case 'offline':
+							css = ' style="color:red";';
+							status = 'Niedostępny';
+							status1 = ' (przestój ' + formatDuration(data1.interfaces[i].offline, true) + ')';
+							break;
+						case 'notracking':
+							status = 'Bez śledzenia';
+							if (data1.interfaces[i].uptime > 0) {
+								css = ' style="color:green";';
+								status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].uptime, true) + ')';
+							} else {
+								css = '';
+								status1 = '';
+							}
+							break;
+						default:
+							css = '';
+							status = 'Wyłączony';
+							status1 = '';
+							break;
+					}
+					html += '<p><span' + css + '>' + status + '</span><span class="visible-xs oneline"></span><span>' + status1 + '</span></p></div></div>';
+				}
+				for (var i in data1.policies.ipv4) {
+					if (data.mwan3_use_policy == i) {
+						html += '<div class="row"><label class="col-xs-6 text-right">Polityka domyślna</label>';
+						html += '<div class="col-xs-6"><p>';
+						switch (i) {
+							case 'balanced':
+								html += 'Równoważenie obciążenia';
+								break;
+							case 'wan_wanb':
+								html += 'Przełączanie awaryjne WAN -> WANB';
+								break;
+							case 'wanb_wan':
+								html += 'Przełączanie awaryjne WANB -> WAN';
+							default:
+								html += i;
+								break;
+						}
+						html += '</p></div></div>';
+						var sorted = sortJSON(data1.policies.ipv4[i], 'interface', 'asc');
+						for (var j in sorted) {
+							html += '<div class="row"><div class="col-xs-6 col-xs-offset-6"><p>' + sorted[j].interface + ': ' + sorted[j].percent + '%</p></div></div>';
+						}
+						break;
+					}
+				}
+				setValue('div_status_mwan3_content', html);
+				setDisplay('div_status_mwan3', true);
+
+			})
+		} else {
+			setDisplay('div_status_mwan3', false);
+		}
 	});
 }
 

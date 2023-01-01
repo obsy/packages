@@ -236,6 +236,10 @@ case $(cat /tmp/sysinfo/board_name) in
 esac
 echo ']'
 
+if [ -e /etc/config/mwan3 ]; then
+	echo ',"mwan3_use_policy":"'$(uci get mwan3.default_rule_v4.use_policy)'"'
+fi
+
 echo '}'
 }
 
