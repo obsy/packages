@@ -1621,18 +1621,18 @@ function showstatus() {
 						case 'online':
 							css = ' style="color:green";';
 							status = 'Dostępny';
-							status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].online, true) + ')';
+							status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].online, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].online)) +  ')';
 							break;
 						case 'offline':
 							css = ' style="color:red";';
 							status = 'Niedostępny';
-							status1 = ' (przestój ' + formatDuration(data1.interfaces[i].offline, true) + ')';
+							status1 = ' (przestój ' + formatDuration(data1.interfaces[i].offline, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].offline)) +  ')';
 							break;
 						case 'notracking':
 							status = 'Bez śledzenia';
 							if (data1.interfaces[i].uptime > 0) {
 								css = ' style="color:green";';
-								status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].uptime, true) + ')';
+								status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].uptime, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].uptime)) +  ')';
 							} else {
 								css = '';
 								status1 = '';
