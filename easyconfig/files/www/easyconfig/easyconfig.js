@@ -5100,7 +5100,6 @@ function showgeolocation() {
 
 /*****************************************************************************/
 
-var adblock_compressed_lists = false;
 var adblock_lists;
 
 function showadblock() {
@@ -5117,7 +5116,6 @@ function showadblock() {
 			setValue('adblock_forcedns', data.forcedns);
 
 			adblock_lists = data.lists;
-			adblock_compressed_lists = data.compressed_lists;
 			var html = '';
 			if (adblock_lists.length > 0) {
 				html += '<h3 class="section">Źródła</h3>';
@@ -5130,13 +5128,8 @@ function showadblock() {
 				html += '<input id="adblock_' + adblock_lists[i].section + '" type="checkbox">';
 				html += '<div class="slider round"></div>';
 				html += '</label>';
-				if (adblock_compressed_lists) {
-					html += '<span class="hidden-xs control-label labelleft">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></span>';
-					html += '<div class="visible-xs">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></div>';
-				} else {
-					html += '<span class="hidden-xs control-label labelleft">' + adblock_lists[i].desc + '</span>';
-					html += '<div class="visible-xs">' + adblock_lists[i].desc + '</div>';
-				}
+				html += '<span class="hidden-xs control-label labelleft">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></span>';
+				html += '<div class="visible-xs">Kategoria: ' + adblock_lists[i].focus + ', wielkość: ' + adblock_lists[i].size + ', <a href="' + adblock_lists[i].descurl + '" class="click" target="_blank">opis &rarr;</a></div>';
 				html += '</div>';
 				if (adblock_lists[i].section == 'blacklist') {
 					if (!adblock_lists[i].enabled) {
@@ -5193,18 +5186,11 @@ function saveadblock() {
 	var cmd = [];
 
 	cmd.push('uci set adblock.global.adb_enabled=' + (getValue('adblock_enabled') ? '1' : '0'));
-	if (adblock_compressed_lists) {
-		cmd.push('uci set adblock.global.adb_forcedns=' + (getValue('adblock_forcedns') ? '1' : '0'));
-		cmd.push('uci -q del adblock.global.adb_sources');
-		for (var idx in adblock_lists) {
-			if (getValue('adblock_' + adblock_lists[idx].section)) {
-				cmd.push('uci add_list adblock.global.adb_sources=' + adblock_lists[idx].section);
-			}
-		}
-	} else {
-		cmd.push('uci set adblock.extra.adb_forcedns=' + (getValue('adblock_forcedns') ? '1' : '0'));
-		for (var idx in adblock_lists) {
-			cmd.push('uci set adblock.' + adblock_lists[idx].section + '.enabled=' + (getValue('adblock_' + adblock_lists[idx].section) ? '1' : '0'));
+	cmd.push('uci set adblock.global.adb_forcedns=' + (getValue('adblock_forcedns') ? '1' : '0'));
+	cmd.push('uci -q del adblock.global.adb_sources');
+	for (var idx in adblock_lists) {
+		if (getValue('adblock_' + adblock_lists[idx].section)) {
+			cmd.push('uci add_list adblock.global.adb_sources=' + adblock_lists[idx].section);
 		}
 	}
 	cmd.push('uci commit adblock');
