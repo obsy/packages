@@ -2,7 +2,7 @@
 
 ##############################################################################
 
-# (c) 2016-2022 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2023 Cezary Jackiewicz <cezary@eko.one.pl>
 
 ##############################################################################
 
@@ -46,7 +46,6 @@ SYSTEM_LOAD=$(awk '{printf "%s %s %s\n", $1, $2, $3}' /proc/loadavg)
 json_load "$(ubus call network.interface.wan status)"
 json_get_var WAN_UPTIME uptime
 json_get_var IFNAME l3_device
-json_get_var PROTO proto
 
 . /lib/functions/network.sh
 if [ -n "$(ubus list network.interface.wan_4 2>/dev/null)" ]; then
