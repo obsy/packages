@@ -1,6 +1,7 @@
 #!/bin/sh
 MODEM=$1
-[ -z "$MODEM" ] && MODEM=$(cat /tmp/modem 2>/dev/null)
+[ -z "$MODEM" ] && MODEM=$(/usr/share/easyconfig/modem/detect.sh)
+[ -z "$MODEM" ] && exit 0
 [ -e "$MODEM" ] || exit 0
 [ -z $(command -v chat) ] && exit 0
 APN=$(uci -q get network.wan.apn)

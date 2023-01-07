@@ -1058,10 +1058,9 @@ function savesettings() {
 	var cmd = [];
 
 	// wan
-	cmd.push('if [ -e /tmp/modem ]; then');
-	cmd.push(' MODEM=$(cat /tmp/modem)');
-	cmd.push(' rm /tmp/modem');
-	cmd.push('fi')
+	cmd.push('MODEM=$(/usr/share/easyconfig/modem/detect.sh)');
+	cmd.push('uci -c /var/etc/config -q del easyconfig.modem.device');
+	cmd.push('uci -c /var/etc/config commit easyconfig');
 	cmd.push('uci set network.wan=interface');
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.ipaddr');
@@ -1738,7 +1737,7 @@ function sendmodemat() {
 
 	var cmd = [];
 	cmd.push('#!/bin/sh');
-	cmd.push('MODEM=$(cat /tmp/modem)');
+	cmd.push('MODEM=$(/usr/share/easyconfig/modem/detect.sh)');
 	cmd.push('ATLOCK=\\\"flock -x /tmp/at_cmd_lock\\\"');
 	cmd.push('$ATLOCK chat -t 3 -e ABORT \\\"ERROR\\\" \'\' \\\"' + atcmd + '\\\" OK >> $MODEM < $MODEM');
 	cmd.push('RET=$?');

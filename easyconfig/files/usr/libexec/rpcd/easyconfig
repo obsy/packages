@@ -185,8 +185,7 @@ case $(cat /tmp/sysinfo/board_name) in
 	"zte,mf286a")
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		if [ -e /usr/bin/sms_tool ]; then
-			[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
-			DEVICE=$(cat /tmp/modem)
+			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 			if [ -n "$DEVICE" ]; then
 				O=$(sms_tool -d $DEVICE at "AT+ZRTEMP")
 				BATT=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $2}' | xargs)
@@ -221,8 +220,7 @@ case $(cat /tmp/sysinfo/board_name) in
 		;;
 	"zyxel,nr7101")
 		if [ -e /usr/bin/sms_tool ]; then
-			[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
-			DEVICE=$(cat /tmp/modem)
+			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 			if [ -n "$DEVICE" ]; then
 				O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
 				T=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
@@ -249,8 +247,8 @@ show_system() {
 	VERSION=$(awk -F\' '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release)
 	MODEL=$(cat /tmp/sysinfo/model)
 
-	if [ -s /tmp/modem ]; then
-		DEVICE=$(cat /tmp/modem)
+	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+	if [ -n "$DEVICE" ]; then
 		O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
 		T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
 		[ -n "$T" ] && VENDOR="$T"
@@ -1025,8 +1023,7 @@ show_ussd() {
 		[ "x$T" = "x1" ] && OPT="$OPT -R"
 		T=$(uci -q get easyconfig.ussd.raw_output)
 		[ "x$T" = "x1" ] && OPT="$OPT -r"
-		[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
-		DEVICE=$(cat /tmp/modem)
+		DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 		if [ -n "$DEVICE" ]; then
 			T=$(sms_tool -d $DEVICE $OPT ussd "$code" 2>/dev/null)
 		else
@@ -1059,8 +1056,7 @@ show_sms() {
 	json_get_var arg1 arg1
 	json_get_var arg2 arg2
 
-	[ -e /tmp/modem ] || /usr/share/3ginfo-lite/3ginfo.sh >/dev/null 2>&1
-	DEVICE=$(cat /tmp/modem)
+	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 	if [ -z "$DEVICE" ]; then
 		echo '{"response":"Device not found"}'
 		exit 0
