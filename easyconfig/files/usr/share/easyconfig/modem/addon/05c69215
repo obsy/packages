@@ -1,0 +1,91 @@
+# Quectel EC20
+# Quectel EC25
+
+O=$(sms_tool -d $DEVICE at "at+qtemp;+qnwinfo;+qeng=\"servingcell\";+qspn")
+
+T=$(echo "$O" | awk -F[,:] '/^\+QTEMP/ {t=$2*1;if($3*1>t)t=$3*1;if($4*1>t)t=$4*1;printf "%d", t}')
+if [ -n "$T" ]; then
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"Temperature":"'$T' &deg;C"}'
+fi
+
+T=$(echo "$O" | awk -F[,:] '/^\+QNWINFO/ {print $2"/"$4}' | xargs)
+if [ -n "$T" ]; then
+	case "$T" in
+		*"LTE BAND 1") MODE=$(band 1 "LTE ");;
+		*"LTE BAND 3") MODE=$(band 3 "LTE ");;
+		*"LTE BAND 7") MODE=$(band 7 "LTE ");;
+		*"LTE BAND 8") MODE=$(band 8 "LTE ");;
+		*"LTE BAND 20") MODE=$(band 20 "LTE ");;
+		*) MODE="$T";;
+	esac
+fi
+
+T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $4}' | xargs)
+if [ "x$T" = "xLTE" ] || [ "x$T" = "x4G" ]; then
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		T_DEC=$(printf "%d" "0x$T")
+		ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+	fi
+
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $17}' | xargs)
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"RSSI":"'$T' dBm"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $15}' | xargs)
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"RSRP":"'$T' dBm"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"RSRQ":"'$T' dB"}'
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs | awk '{printf "%.1f\n", $1*0.2-20}')
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"SINR":"'$T' dB"}'
+
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"PCI":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $10}' | xargs)
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"EARFCN":"'$T'"}'
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}' | xargs)
+	if [ -n "$T" ]; then
+		case $T in
+			0*) T1="1.4";;
+			1*) T1="3";;
+			2*) T1="5";;
+			3*) T1="10";;
+			4*) T1="15";;
+			5*) T1="20";;
+		esac
+		if [ -n "T1" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"Bandwidth UL":"'$T1' MHz"}'
+		fi
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}' | xargs)
+	if [ -n "$T" ]; then
+		case $T in
+			0*) T1="1.4";;
+			1*) T1="3";;
+			2*) T1="5";;
+			3*) T1="10";;
+			4*) T1="15";;
+			5*) T1="20";;
+		esac
+		if [ -n "T1" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"Bandwidth DL":"'$T1' MHz"}'
+		fi
+	fi
+fi
+
+T=$(echo "$O" | awk -F[,:] '/^\+QSPN/ {print $2}' | xargs)
+if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
+	COPS="$T"
+fi

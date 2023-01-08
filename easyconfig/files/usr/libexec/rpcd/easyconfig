@@ -949,7 +949,7 @@ show_modem()
 
 		if [ "x$(uci -q get easyconfig.modem.force_plmn)" = "x1" ]; then
 			COPS_NUM="$plmn_mcc"$(printf %02d $plmn_mnc)
-			T=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/3ginfo-lite/mccmnc.dat)
+			T=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/easyconfig/modem/mccmnc.dat)
 			[ "x$T" = "x" ] || plmn_description=$T
 		fi
 
@@ -1005,7 +1005,7 @@ show_modem()
 	else
 		T=$(uci -q get easyconfig.modem.force_plmn)
 		[ "x$T" = "x1" ] || T=""
-		FORCE_PLMN=$T /usr/share/3ginfo-lite/3ginfo.sh
+		FORCE_PLMN=$T /usr/share/easyconfig/modem/info.sh
 	fi
 }
 
