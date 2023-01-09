@@ -48,7 +48,7 @@ if [ -e "$WAN" ]; then
 	DEVICES="$DEVICESFOUND"
 fi
 for DEVICE in $DEVICES; do
-	DEVICE=$DEVICE gcom -s /usr/share/easyconfig/modem/probeport.gcom > /dev/null 2>&1
+	DEVICE=$DEVICE gcom -s /usr/share/easyconfig/modem/check.gcom > /dev/null 2>&1
 	if [ $? = 0 ]; then
 		echo "$DEVICE" > $MODEMFILE
 		echo "$DEVICE"

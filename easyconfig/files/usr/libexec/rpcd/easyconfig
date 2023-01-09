@@ -249,7 +249,7 @@ show_system() {
 
 	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 	if [ -n "$DEVICE" ]; then
-		O=$(gcom -d $DEVICE -s /etc/gcom/modeminfo.gcom)
+		O=$(gcom -d $DEVICE -s /usr/share/easyconfig/modem/vendorproduct.gcom)
 		T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
 		[ -n "$T" ] && VENDOR="$T"
 		T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
@@ -1179,7 +1179,7 @@ detect_wan()
 		ifdown wan
 
 		D=/dev/ttyACM0
-		O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
+		O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
 		if echo "$O" | grep -q "SIM PIN"; then
 			echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
 			exit 0
@@ -1230,7 +1230,7 @@ detect_wan()
 		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm*)
 
 		for D in $DEVICES; do
-			O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
+			O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
 			if echo "$O" | grep -q "SIM PIN"; then
 				echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
 				exit 0
@@ -1252,7 +1252,7 @@ detect_wan()
 		ifdown wan
 
 		for D in $T; do
-			O=$(gcom -d $D -s /etc/gcom/checkmodem.gcom)
+			O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
 			if echo "$O" | grep -q "SIM PIN"; then
 				echo '{"proto":"3g","device":"'$D'","action":"pinrequired"}'
 				exit 0
