@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
+
+VENDOR=""
+PRODUCT=""
+
+log() {
+	logger -t "ugps-helper" "$@"
+}
+
+find_usb_attrs() {
+	local usb_dir="/sys/$DEVPATH"
+	[ -f "$usb_dir/idVendor" ] || usb_dir="${usb_dir%/*}"
+
+	VENDOR=$(cat "$usb_dir/idVendor")
+	PRODUCT=$(cat "$usb_dir/idProduct")
+}
+
+if [ "$ACTION" = "add" ] && [ "$DEVTYPE" = "usb_interface" ]; then
+	case "$DEVICENAME" in
+		*-*:*.*) : ;;
+		*) exit 0 ;;
+	esac
+
+	find_usb_attrs
+
+	PORT=${DEVICENAME##*\.}
+	log "$DEVICENAME: Vendor=${VENDOR:-?} Product=${PRODUCT:-?} Port=${PORT:-?}"
+
+	. /usr/share/libubox/jshn.sh
+	json_load "$(cat /etc/gps.json)"
+	json_select "${VENDOR}${PRODUCT}" && {
+		json_get_vars name cmd_tty start
+		CMDPORT=${cmd_tty##*[^0-9]}
+		if [ $CMDPORT = $PORT ]; then
+			log "Found GPS: ${name}, cmd port: ${cmd_tty}"
+
+			TTY=$(find /sys${DEVPATH} -maxdepth 1 -type d -name "tty*${PORT}")
+			TTY=${TTY##*/}
+			json_select "start"
+			idx="1"
+			while json_get_type atcmd $idx && [ "$atcmd" = string ]; do
+				json_get_var atcmd "$((idx++))"
+				sms_tool -d /dev/$TTY at ${atcmd}
+				log "sms_tool -d /dev/$TTY at ${atcmd}"
+			done
+		fi
+	}
+fi
+
+exit 0
