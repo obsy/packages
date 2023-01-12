@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ugps-helper
-PKG_VERSION:=20221231
+PKG_VERSION:=20230112
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -11,7 +11,7 @@ define Package/ugps-helper
 	TITLE:=ugps helper
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
-	DEPENDS:=+sms-tool +ugps
+	DEPENDS:=+sms-tool
 endef
 
 define Build/Compile
