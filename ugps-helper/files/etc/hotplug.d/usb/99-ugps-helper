@@ -26,7 +26,7 @@ if [ "$ACTION" = "add" ] && [ "$DEVTYPE" = "usb_interface" ]; then
 	find_usb_attrs
 
 	PORT=${DEVICENAME##*\.}
-	log "$DEVICENAME: Vendor=${VENDOR:-?} Product=${PRODUCT:-?} Port=${PORT:-?}"
+#	log "$DEVICENAME: Vendor=${VENDOR:-?} Product=${PRODUCT:-?} Port=${PORT:-?}"
 
 	. /usr/share/libubox/jshn.sh
 	json_load "$(cat /etc/gps.json)"
@@ -43,7 +43,6 @@ if [ "$ACTION" = "add" ] && [ "$DEVTYPE" = "usb_interface" ]; then
 			while json_get_type atcmd $idx && [ "$atcmd" = string ]; do
 				json_get_var atcmd "$((idx++))"
 				sms_tool -d /dev/$TTY at ${atcmd}
-				log "sms_tool -d /dev/$TTY at ${atcmd}"
 			done
 		fi
 	}
