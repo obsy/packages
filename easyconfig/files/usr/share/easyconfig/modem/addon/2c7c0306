@@ -1,6 +1,6 @@
 # Quectel EP06
 
-. "$RES/3ginfo-addon/05c69215"
+. "$RES/addon/05c69215"
 
 O=$(sms_tool -d $DEVICE at "AT+QCAINFO")
 T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "pss"/{print $4}')
