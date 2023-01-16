@@ -34,10 +34,10 @@ if [ "$ACTION" = "add" ] && [ "$DEVTYPE" = "usb_interface" ]; then
 		json_get_vars name cmd_tty start
 		CMDPORT=${cmd_tty##*[^0-9]}
 		if [ $CMDPORT = $PORT ]; then
-			log "Found GPS: ${name}, cmd port: ${cmd_tty}"
-
 			TTY=$(find /sys${DEVPATH} -maxdepth 1 -type d -name "tty*${PORT}")
 			TTY=${TTY##*/}
+			log "Found GPS: ${name}, cmd port: /dev/${TTY}"
+
 			json_select "start"
 			idx="1"
 			while json_get_type atcmd $idx && [ "$atcmd" = string ]; do
