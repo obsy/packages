@@ -1608,71 +1608,72 @@ function showstatus() {
 		}
 
 		if (data.mwan3_use_policy) {
+			switch (data.mwan3_use_policy) {
+				case 'balanced':
+					setValue('mwan3_policy', 'Równoważenie obciążenia');
+					break;
+				case 'wan_wanb':
+					setValue('mwan3_policy', 'Przełączanie awaryjne WAN -> WANB');
+					break;
+				case 'wanb_wan':
+					setValue('mwan3_policy', 'Przełączanie awaryjne WANB -> WAN');
+					break;
+				default:
+					setValue('mwan3_policy', data.mwan3_use_policy);
+					break;
+			}
+
 			ubus_call('"mwan3", "status", {}', function(data1) {
-				var html = '';
-				for (var i in data1.interfaces) {
-					html += '<div class="row"><label class="col-xs-6 text-right">' + i + '</label>';
-					html += '<div class="col-xs-6">';
-					var css = '';
-					var status = '';
-					var status1 = '';
-					switch (data1.interfaces[i].status) {
-						case 'online':
-							css = ' style="color:green";';
-							status = 'Dostępny';
-							status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].online, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].online)) +  ')';
-							break;
-						case 'offline':
-							css = ' style="color:red";';
-							status = 'Niedostępny';
-							status1 = ' (przestój ' + formatDuration(data1.interfaces[i].offline, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].offline)) +  ')';
-							break;
-						case 'notracking':
-							status = 'Bez śledzenia';
-							if (data1.interfaces[i].uptime > 0) {
-								css = ' style="color:green";';
-								status1 = ' (czas pracy ' + formatDuration(data1.interfaces[i].uptime, true) + ', od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].uptime)) +  ')';
-							} else {
-								css = '';
-								status1 = '';
-							}
-							break;
-						default:
-							css = '';
-							status = 'Wyłączony';
-							status1 = '';
-							break;
-					}
-					html += '<p><span' + css + '>' + status + '</span><span class="visible-xs oneline"></span><span>' + status1 + '</span></p></div></div>';
-				}
-				for (var i in data1.policies.ipv4) {
-					if (data.mwan3_use_policy == i) {
-						html += '<div class="row"><label class="col-xs-6 text-right">Polityka domyślna</label>';
-						html += '<div class="col-xs-6"><p>';
-						switch (i) {
-							case 'balanced':
-								html += 'Równoważenie obciążenia';
-								break;
-							case 'wan_wanb':
-								html += 'Przełączanie awaryjne WAN -> WANB';
-								break;
-							case 'wanb_wan':
-								html += 'Przełączanie awaryjne WANB -> WAN';
-							default:
-								html += i;
-								break;
-						}
-						html += '</p></div></div>';
-						var sorted = sortJSON(data1.policies.ipv4[i], 'interface', 'asc');
-						for (var j in sorted) {
-							html += '<div class="row"><div class="col-xs-6 col-xs-offset-6"><p>' + sorted[j].interface + ': ' + sorted[j].percent + '%</p></div></div>';
+				var interfaces = new Object();
+				for (var policy in data1.policies.ipv4) {
+					if (data.mwan3_use_policy == policy) {
+						for (var idx in data1.policies.ipv4[policy]) {
+							interfaces[data1.policies.ipv4[policy][idx].interface] = data1.policies.ipv4[policy][idx].percent;
 						}
 						break;
 					}
 				}
+
+				html = '';
+				for (var i in data1.interfaces) {
+					html += '<div class="row"><label class="col-xs-3 text-right">' + i + '</label>';
+					var css = '';
+					var status1 = '';
+					var status2 = '';
+					var status3 = (interfaces[i] === undefined ? '-' : interfaces[i] + '%');
+					switch (data1.interfaces[i].status) {
+						case 'online':
+							css = ' style="color:green";';
+							status1 = 'Dostępny';
+							status2 = formatDuration(data1.interfaces[i].online, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].online)) +  ')</small>';
+							break;
+						case 'offline':
+							css = ' style="color:red";';
+							status1 = 'Niedostępny';
+							status2 = 'przestój ' + formatDuration(data1.interfaces[i].offline, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].offline)) +  ')</small>';
+							break;
+						case 'notracking':
+							status1 = 'Bez śledzenia';
+							if (data1.interfaces[i].uptime > 0) {
+								css = ' style="color:green";';
+								status2 = formatDuration(data1.interfaces[i].uptime, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].uptime)) +  ')</small>';
+							} else {
+								css = '';
+								status2 = '-';
+							}
+							break;
+						default:
+							css = '';
+							status1 = 'Wyłączony';
+							status2 = '-';
+					}
+					html += '<div class="col-xs-3"><p><span' + css + '>' + status1 + '</span></p></div>';
+					html += '<div class="col-xs-3"><p>' + status2 + '</p></div>';
+					html += '<div class="col-xs-3"><p>' + status3 + '</p></div>';
+					html += '</div>';
+				}
 				setValue('div_status_mwan3_content', html);
 				setDisplay('div_status_mwan3', true);
-
 			})
 		} else {
 			setDisplay('div_status_mwan3', false);
