@@ -4452,7 +4452,7 @@ function saveopenvpn() {
 			return;
 		}
 	}
-	var configtext = getValue('vpn_openvpn_configtext');
+	var configtext = getValue('vpn_openvpn_configtext').replaceAll('$','');
 	if (configtext == '') {
 		setValue('vpn_openvpn_error', 'Błąd w polu ' + getLabelText('vpn_openvpn_configtext'));
 		return;
