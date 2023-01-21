@@ -4452,7 +4452,7 @@ function saveopenvpn() {
 			return;
 		}
 	}
-	var configtext = getValue('vpn_openvpn_configtext').replaceAll('$','');
+	var configtext = getValue('vpn_openvpn_configtext');
 	if (configtext == '') {
 		setValue('vpn_openvpn_error', 'Błąd w polu ' + getLabelText('vpn_openvpn_configtext'));
 		return;
@@ -4479,7 +4479,7 @@ function saveopenvpn() {
 		interface = Math.random().toString(36).substr(2,8);
 	}
 
-	ubus_call('"file", "write", {"path":"/tmp/' + interface + '","data":"' + escapeShell(configtext) + '"}', function(data) {
+	ubus_call('"file", "write", {"path":"/tmp/' + interface + '","data":"' + configtext.replace(/\\/g,'\\\\').replace(/"/g, '\\"') + '"}', function(data) {
 	});
 
 	cmd.push('uci set network.' + interface + '=interface');

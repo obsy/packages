@@ -1677,7 +1677,7 @@ show_vpn_details()
 		USERNAME=$(uci -q get openvpn.$section.username)
 		PASSWORD=$(uci -q get openvpn.$section.password)
 		json_init
-		json_add_string config "$(cat $(uci -q get openvpn.$section.config) 2>/dev/null)"
+		json_add_string config "$(escapeJSON "$(cat $(uci -q get openvpn.$section.config) 2>/dev/null)")"
 		json_get_var config config
 		echo "\"section\":\"$section\",\"name\":\""$(escapeJSON "${NAME}")"\",\"enabled\":${ENABLED:-0},\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"configtext\":\"$config\"}"
 	fi
