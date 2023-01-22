@@ -191,6 +191,11 @@
 			<a href="#" class="click" onclick="btn_pages('vpn');"><p>aktywny</p></a>
 			</div>
 		</div>
+		<div class="row" id="div_lan_to_wan_status" style="display:none;">
+			<div class="col-xs-6 col-xs-offset-6">
+			<p>wyłączony dostęp sieci lokalnej do internetu</p></a>
+			</div>
+		</div>
 	</div>
 
 	<div id="div_status_wlan">
@@ -472,6 +477,18 @@
 				<input id="wan_wanport" type="checkbox">
 				<div class="slider round"></div>
 			</label>
+			</div>
+		</div>
+
+		<div class="form-group mmarginbottom">
+			<label for="lan_to_wan" class="col-xs-4 col-sm-3 control-label">Dostęp do internetu</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="lan_to_wan" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu</small></em></span>
+			<div class="visible-xs"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu</small></em></div>
 			</div>
 		</div>
 	</form>
@@ -1706,7 +1723,7 @@
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_openvpn_to_lan" class="col-xs-4 col-sm-3 control-label">Ruch do sieci lokalnej</label>
+			<label for="vpn_openvpn_to_lan" class="col-xs-4 col-sm-3 control-label">Dostęp do sieci lokalnej</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="vpn_openvpn_to_lan" type="checkbox">
@@ -1782,7 +1799,7 @@
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_pptp_to_lan" class="col-xs-4 col-sm-3 control-label">Ruch do sieci lokalnej</label>
+			<label for="vpn_pptp_to_lan" class="col-xs-4 col-sm-3 control-label">Dostęp do sieci lokalnej</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="vpn_pptp_to_lan" type="checkbox">
@@ -1868,7 +1885,7 @@
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_sstp_to_lan" class="col-xs-4 col-sm-3 control-label">Ruch do sieci lokalnej</label>
+			<label for="vpn_sstp_to_lan" class="col-xs-4 col-sm-3 control-label">Dostęp do sieci lokalnej</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="vpn_sstp_to_lan" type="checkbox">
@@ -1937,7 +1954,7 @@
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_wireguard_to_lan" class="col-xs-4 col-sm-3 control-label">Ruch do sieci lokalnej</label>
+			<label for="vpn_wireguard_to_lan" class="col-xs-4 col-sm-3 control-label">Dostęp do sieci lokalnej</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="vpn_wireguard_to_lan" type="checkbox">

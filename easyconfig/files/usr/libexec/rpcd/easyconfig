@@ -570,6 +570,20 @@ T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
 [ "x$T" = "x1" ] && T="true" || T="false"
 echo '"dhcp_logqueries":'$T','
 
+T=""
+RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+for RULE in $RULES; do
+	T2=$(uci -q get firewall.${RULE}.dest)
+	if [ "x$T2" = "xwan" ]; then
+		T2=$(uci -q get firewall.$RULE)
+		if [ "x$T2" = "xforwarding" ]; then
+			T="$RULE"
+			break
+		fi
+	fi
+done
+echo '"lan_to_wan":"'$T'",'
+
 T=$(uci -q get easyconfig.global.datarec_period)
 echo '"datarec_period":'${T:-15}','
 

@@ -888,6 +888,8 @@ function showcallback(data) {
 	setValue('lan_forcedns', config.lan_forcedns);
 	setValue('dhcp_logqueries', config.dhcp_logqueries);
 	setDisplay('menu_queries', config.dhcp_logqueries);
+	setValue('lan_to_wan', config.lan_to_wan != '');
+	setDisplay('div_lan_to_wan_status', config.lan_to_wan == '');
 
 	// wlan
 	var t = '';
@@ -1237,6 +1239,18 @@ function savesettings() {
 	} else {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].logqueries');
 		setDisplay('menu_queries', false);
+	}
+
+	if (getValue('lan_to_wan')) {
+		if (config.lan_to_wan == '') {
+			cmd.push('uci add firewall forwarding');
+			cmd.push('uci set firewall.@forwarding[-1].src=lan');
+			cmd.push('uci set firewall.@forwarding[-1].dest=wan');
+		}
+	} else {
+		if (config.lan_to_wan != '') {
+			cmd.push('uci -q del firewall.' + config.lan_to_wan);
+		}
 	}
 
 	// wlan
