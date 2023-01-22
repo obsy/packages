@@ -4215,7 +4215,8 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_openvpn_interface', interface);
 			setValue('vpn_openvpn_section', data.section);
 			setValue('vpn_openvpn_name', data.name);
-			setValue('vpn_openvpn_enabled', data.enabled == 1);
+			setValue('vpn_openvpn_auto', data.autostart);
+			if (data.trigger == 'wan') { setValue('vpn_openvpn_auto', 2); }
 			setValue('vpn_openvpn_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_openvpn_button', config.button.code != '');
 			setValue('vpn_openvpn_to_lan', data.tolan == 1);
@@ -4346,7 +4347,7 @@ function savevpnnew() {
 		setValue('vpn_openvpn_interface', interface);
 		setValue('vpn_openvpn_section', interface);
 		setValue('vpn_openvpn_name', '');
-		setValue('vpn_openvpn_enabled', true);
+		setValue('vpn_openvpn_auto', 0);
 		setValue('vpn_openvpn_button', false);
 		setDisplay('div_vpn_openvpn_button', config.button.code != '');
 		setValue('vpn_openvpn_to_lan', false);
@@ -4506,7 +4507,6 @@ function saveopenvpn() {
 
 	cmd.push('uci set openvpn.' + section + '=openvpn');
 	cmd.push('uci set openvpn.' + section + '.name=\\\"' + escapeShell(getValue('vpn_openvpn_name')) + '\\\"');
-	cmd.push('uci set openvpn.' + section + '.enabled=' + (getValue('vpn_openvpn_enabled') ? '1' : '0'));
 	cmd.push('uci set openvpn.' + section + '.username=\\\"' + escapeShell(getValue('vpn_openvpn_username')) + '\\\"');
 	cmd.push('uci set openvpn.' + section + '.password=\\\"' + escapeShell(getValue('vpn_openvpn_password')) + '\\\"');
 	cmd.push('uci set openvpn.' + section + '.dev=' + interface);
@@ -4550,6 +4550,21 @@ function saveopenvpn() {
 		cmd.push('if [ \\\"x$T\\\" = \\\"x' + interface + '\\\" ]; then');
 		cmd.push(' uci -q del easyconfig.vpn.interface');
 		cmd.push('fi');
+	}
+
+	switch (parseInt(getValue('vpn_openvpn_auto'))) {
+		case 0:
+			cmd.push('uci set openvpn.' + section + '.enabled=0');
+			cmd.push('uci -q del openvpn.' + section + '.trigger');
+			break;
+		case 1:
+			cmd.push('uci set openvpn.' + section + '.enabled=1');
+			cmd.push('uci -q del openvpn.' + section + '.trigger');
+			break;
+		case 2:
+			cmd.push('uci set openvpn.' + section + '.enabled=0');
+			cmd.push('uci set openvpn.' + section + '.trigger=wan');
+			break;
 	}
 
 	cmd.push('uci commit');

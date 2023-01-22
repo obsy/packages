@@ -13,7 +13,7 @@ if [ -e /etc/config/openvpn ]; then
 		else
 			uci set openvpn.$OVPN.enabled=0
 		fi
-		/etc/init.d/openvpn reload
+		/etc/init.d/openvpn restart
 		uci revert openvpn
 		exit 0
 	fi

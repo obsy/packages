@@ -14,6 +14,16 @@ if [ $INTERFACE = "wan" ]; then
 			fi
 		done
 	fi
+
+	OVPNS=$(uci show openvpn | awk -F. '/trigger=.*wan.*/{print $2}')
+	if [ -n "$OVPNS" ]; then
+		sleep 5
+		for OVPN in $OVPNS; do
+			uci set openvpn.$OVPN.enabled=1
+		done
+		/etc/init.d/openvpn restart
+		uci revert openvpn
+	fi
 fi
 
 exit 0

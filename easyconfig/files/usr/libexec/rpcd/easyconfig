@@ -1659,20 +1659,22 @@ show_vpn_details()
 		TRIGGER=$(uci -q get network.$interface.trigger)
 		PROTO=$(uci -q get network.$interface.proto)
 		if [ "x$proto" = "xopenvpn" ]; then
+			AUTOSTART=$(uci -q get openvpn.$section.enabled)
+			TRIGGER=$(uci -q get openvpn.$section.trigger)
 			PROTO="openvpn"
 		fi
 	else
 		if [ "x$proto" = "xopenvpn" ]; then
 			TOLAN=0
 			BUTTON="false"
-			AUTOSTART="false"
-			TRIGGER=""
+			AUTOSTART=$(uci -q get openvpn.$section.enabled)
+			TRIGGER=$(uci -q get openvpn.$section.trigger)
 			PROTO="openvpn"
 		fi
 		if [ "x$proto" = "xzerotier" ]; then
 			TOLAN=0
 			BUTTON="false"
-			AUTOSTART="false"
+			AUTOSTART="0"
 			TRIGGER=""
 			PROTO="zerotier"
 		fi
@@ -1687,13 +1689,12 @@ show_vpn_details()
 				NAME=$section
 			fi
 		fi
-		ENABLED=$(uci -q get openvpn.$section.enabled)
 		USERNAME=$(uci -q get openvpn.$section.username)
 		PASSWORD=$(uci -q get openvpn.$section.password)
 		json_init
 		json_add_string config "$(escapeJSON "$(cat $(uci -q get openvpn.$section.config) 2>/dev/null)")"
 		json_get_var config config
-		echo "\"section\":\"$section\",\"name\":\""$(escapeJSON "${NAME}")"\",\"enabled\":${ENABLED:-0},\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"configtext\":\"$config\"}"
+		echo "\"section\":\"$section\",\"name\":\""$(escapeJSON "${NAME}")"\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"configtext\":\"$config\"}"
 	fi
 	if [ "x$PROTO" = "xpptp" ]; then
 		NAME=$(uci -q get network.$interface.name)

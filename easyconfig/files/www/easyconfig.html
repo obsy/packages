@@ -1702,13 +1702,14 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_vpn_openvpn_enabled">
-			<label for="vpn_openvpn_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
+		<div class="form-group">
+			<label for="vpn_openvpn_auto" class="col-xs-4 col-sm-3 control-label">Uruchamianie</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="vpn_openvpn_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
+				<select id="vpn_openvpn_auto" class="form-control">
+				<option value="0">Manualne</option>
+				<option value="1">Po starcie systemu</option>
+				<option value="2">Po połączeniu do internetu</option>
+				</select>
 			</div>
 		</div>
 
@@ -1781,9 +1782,9 @@
 			<label for="vpn_pptp_auto" class="col-xs-4 col-sm-3 control-label">Uruchamianie</label>
 			<div class="col-xs-8 col-sm-9">
 				<select id="vpn_pptp_auto" class="form-control">
-					<option value="0">Manualne</option>
-					<option value="1">Po starcie systemu</option>
-					<option value="2">Po połączeniu do internetu</option>
+				<option value="0">Manualne</option>
+				<option value="1">Po starcie systemu</option>
+				<option value="2">Po połączeniu do internetu</option>
 				</select>
 			</div>
 		</div>
@@ -1867,9 +1868,9 @@
 			<label for="vpn_sstp_auto" class="col-xs-4 col-sm-3 control-label">Uruchamianie</label>
 			<div class="col-xs-8 col-sm-9">
 				<select id="vpn_sstp_auto" class="form-control">
-					<option value="0">Manualne</option>
-					<option value="1">Po starcie systemu</option>
-					<option value="2">Po połączeniu do internetu</option>
+				<option value="0">Manualne</option>
+				<option value="1">Po starcie systemu</option>
+				<option value="2">Po połączeniu do internetu</option>
 				</select>
 			</div>
 		</div>
@@ -1936,9 +1937,9 @@
 			<label for="vpn_wireguard_auto" class="col-xs-4 col-sm-3 control-label">Uruchamianie</label>
 			<div class="col-xs-8 col-sm-9">
 				<select id="vpn_wireguard_auto" class="form-control">
-					<option value="0">Manualne</option>
-					<option value="1">Po starcie systemu</option>
-					<option value="2">Po połączeniu do internetu</option>
+				<option value="0">Manualne</option>
+				<option value="1">Po starcie systemu</option>
+				<option value="2">Po połączeniu do internetu</option>
 				</select>
 			</div>
 		</div>
@@ -2000,7 +2001,7 @@
 		</div>
 		<div id="vpn_wireguard_ips_content"></div>
 		<div class="text-right">
-			<input type="button" class="btn btn-default" onclick="addwireguardips();" value="Nowe adresy IP" />
+			<input type="button" class="btn btn-default" onclick="addwireguardips();" value="Nowy adres IP" />
 		</div>
 
 		<h3>Tunele</h3>
@@ -2048,16 +2049,16 @@
 			<input id="vpn_wireguard_allowed_ips_idx" type="hidden">
 			<div id="div_vpn_wireguard_allowed_ips_idx_template" style="display:none">
 			<div class="form-group">
-				<label for="vpn_wireguard_allowed_ips_idx_idy" class="col-xs-4 col-sm-3 control-label">Dozwolone adresy IP</label>
+				<label for="vpn_wireguard_allowed_ips_idx_idy" class="col-xs-4 col-sm-3 control-label">Dozwolony adres IP</label>
 				<div class="col-xs-8 col-sm-9 input-group">
 					<input id="vpn_wireguard_allowed_ips_idx_idy" class="form-control" onkeyup="proofreadIpWithMask(this);">
-					<span class="click input-group-element" title="usuń dozwolone adresy IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
+					<span class="click input-group-element" title="usuń dozwolony adres IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
 				</div>
 			</div>
 			</div>
 			<div id="vpn_wireguard_allowed_ips_idx_content"></div>
 			<div class="text-right">
-				<input type="button" class="btn btn-default" onclick="addwireguardallowedips('_idx');" value="Nowe adresy IP" />
+				<input type="button" class="btn btn-default" onclick="addwireguardallowedips('_idx');" value="Nowy adres IP" />
 			</div>
 
 			<hr>
