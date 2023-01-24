@@ -351,7 +351,7 @@ function enableDns(value) {
 	setElementEnabled("wan_dns2", (value === "custom"), false);
 
 	var e1 = document.getElementById("wan_dns");
-	var url = e1.options[e1.selectedIndex].getAttribute("data-url")
+	var url = e1.options[e1.selectedIndex].getAttribute("data-url");
 	document.getElementById("wan_dns_url").setAttribute("href", url);
 	setElementEnabled("wan_dns_url", (url!=""), false);
 }
@@ -971,7 +971,7 @@ function showcallback(data) {
 		setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
 
 		setValue('wlan_key' + i, config[radios[i]].wlan_key);
-		enableWlanEncryption(config[radios[i]].wlan_encryption, i)
+		enableWlanEncryption(config[radios[i]].wlan_encryption, i);
 		setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate == 1);
 		setDisplay('div_radio' + i, true);
 	}
@@ -1034,13 +1034,13 @@ function showcallback(data) {
 		setValue('system_button_name', config.button.name);
 		setValue('system_button', config.button.action);
 	}
-	setDisplay('div_button', config.button.code != '')
+	setDisplay('div_button', config.button.code != '');
 
 	// button reset
 	if (config.button_reset != -1) {
 		setValue('system_button_reset', (config.button_reset == 1));
 	}
-	setDisplay('div_button_reset', (config.button_reset != -1))
+	setDisplay('div_button_reset', (config.button_reset != -1));
 
 	setValue('datarec_period', config.datarec_period);
 
@@ -1053,7 +1053,7 @@ function copywireless() {
 	setValue('wlan_encryption1', getValue('wlan_encryption0'));
 	setValue('wlan_key1', getValue('wlan_key0'));
 	setValue('wlan_isolate1', getValue('wlan_isolate0'));
-	enableWlanEncryption(getValue('wlan_encryption0'), 1)
+	enableWlanEncryption(getValue('wlan_encryption0'), 1);
 }
 
 function savesettings() {
@@ -1488,7 +1488,7 @@ function showbandwidth(mac) {
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_tx">Szybkość wysyłania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_tx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_tx">-</p></div></div>';
 	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_rx">Szybkość pobierania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_rx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_rx">-</p></div></div>';
 	html += '<div class="row" id="div_bandwidth"><div class="col-xs-12"><canvas id="bandwidth" height="400"></canvas></div></div>';
-	showMsg(html)
+	showMsg(html);
 	var bandwidth_arr = []; bandwidth_arr[0] = []; bandwidth_arr[1] = [];
 	var bandwidth_old = []; bandwidth_old['tx'] = -1;
 	var bandwidth_max = []; bandwidth_max['tx'] = 0; bandwidth_max['rx'] = 0;
@@ -1733,7 +1733,7 @@ function showsystem() {
 
 function modemat() {
 	setDisplay('div_modemat', true);
-	var e = document.getElementById('modemat_cmd')
+	var e = document.getElementById('modemat_cmd');
 	e.focus();
 	var val = e.value;
 	e.value = '';
@@ -2784,7 +2784,7 @@ function clientsstats() {
 	const monthNames = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
 
 	for (var idx = 0; idx < 12; idx++) {
-		var day = new Date(countdownYear, countdownMonth, 1)
+		var day = new Date(countdownYear, countdownMonth, 1);
 		var toDate = formatDateWithoutDay(day);
 		var toHumanReadableDate = monthNames[day.getMonth()];
 		countdownMonth -= 1;
@@ -3339,7 +3339,7 @@ function hoststatistics(id, type, limit) {
 			break;
 		}
 	}
-	hoststatisticsmodal(host.mac, 'Statystyka transferu dla "' + host.displayname + '"', type, limit)
+	hoststatisticsmodal(host.mac, 'Statystyka transferu dla "' + host.displayname + '"', type, limit);
 }
 
 function hoststatisticsmodal(mac, title, type, limit) {
@@ -3855,10 +3855,10 @@ function sendsms() {
 	msg = removeDiacritics(msg);
 
 	ubus_call('"easyconfig", "sms", {"action":"send","arg1":"' + tnumber + '","arg2":"' + msg + '"}', function(data) {
-		if ((data.response).match(/sms sent sucessfully/) == null)
-			showMsg("Wystąpił problem z wysłaniem wiadomości")
-		else {
-			showMsg("Wysłano wiadomość")
+		if ((data.response).match(/sms sent sucessfully/) == null) {
+			showMsg('Wystąpił problem z wysłaniem wiadomości');
+		} else {
+			showMsg('Wysłano wiadomość');
 		}
 	});
 }
@@ -3898,9 +3898,9 @@ function okremovesms() {
 	var index = getValue('dialog_val');
 
 	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
-		if ((data.response).match(/Deleted message/) == null)
-			showMsg('Wystąpił problem z usunięciem wiadomości')
-		else {
+		if ((data.response).match(/Deleted message/) == null) {
+			showMsg('Wystąpił problem z usunięciem wiadomości');
+		} else {
 			readsms();
 		}
 	});
@@ -4266,14 +4266,14 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_wireguard_pubkey', data.pubkey);
 			setValue('vpn_wireguard_port', data.listen_port);
 
-			setValue('vpn_wireguard_ips_content', '')
+			setValue('vpn_wireguard_ips_content', '');
 			setValue('vpn_wireguard_ips', 0);
 			for (var idx = 0; idx < data.ips.length; idx++) {
 				addwireguardips();
 				setValue('vpn_wireguard_ips_' + idx, data.ips[idx]);
 			}
 
-			setValue('vpn_wireguard_peers_content', '')
+			setValue('vpn_wireguard_peers_content', '');
 			setValue('vpn_wireguard_peers', 0);
 			for (var idx = 0; idx < data.peers.length; idx++) {
 				addwireguardpeer(false);
@@ -4297,7 +4297,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_zerotier_name', data.name);
 			setValue('vpn_zerotier_enabled', data.enabled);
 
-			setValue('vpn_zerotier_network_content', '')
+			setValue('vpn_zerotier_network_content', '');
 			setValue('vpn_zerotier_network', 0);
 			for (var idx = 0; idx < data.join.length; idx++) {
 				addzerotiernetwork();
@@ -4343,7 +4343,7 @@ function savevpnnew() {
 
 	if (getValue('vpn_new') == 'openvpn') {
 		setValue('vpn_openvpn_error', '');
-		var interface = Math.random().toString(36).substr(2,8)
+		var interface = Math.random().toString(36).substr(2,8);
 		setValue('vpn_openvpn_interface', interface);
 		setValue('vpn_openvpn_section', interface);
 		setValue('vpn_openvpn_name', '');
@@ -4394,11 +4394,11 @@ function savevpnnew() {
 		setValue('vpn_wireguard_pubkey', '');
 		setValue('vpn_wireguard_port', '');
 
-		setValue('vpn_wireguard_ips_content', '')
+		setValue('vpn_wireguard_ips_content', '');
 		setValue('vpn_wireguard_ips', 0);
 		addwireguardips();
 
-		setValue('vpn_wireguard_peers_content', '')
+		setValue('vpn_wireguard_peers_content', '');
 		setValue('vpn_wireguard_peers', 0);
 		addwireguardpeer(true);
 
@@ -4410,7 +4410,7 @@ function savevpnnew() {
 		setValue('vpn_zerotier_name', '');
 		setValue('vpn_zerotier_enabled', true);
 
-		setValue('vpn_zerotier_network_content', '')
+		setValue('vpn_zerotier_network_content', '');
 		setValue('vpn_zerotier_network', 0);
 		addzerotiernetwork();
 
@@ -5722,7 +5722,7 @@ livegraph = {
 			var x = livegraph.getX(graph, data[idx][0][0]);
 			var y = livegraph.getY(graph, data[idx][0][1]);
 			if (fill) {
-				ctx.moveTo(x, livegraph.axisTop + graph.height)
+				ctx.moveTo(x, livegraph.axisTop + graph.height);
 				ctx.lineTo(x, y);
 			} else {
 				ctx.moveTo(x, y);
@@ -5834,7 +5834,7 @@ staticgraph = {
 			ctx.beginPath();
 			var x = staticgraph.getX(graph, data[idx][0][0]);
 			var y = staticgraph.getY(graph, data[idx][0][1]);
-			ctx.moveTo(x, staticgraph.axisTop + graph.height)
+			ctx.moveTo(x, staticgraph.axisTop + graph.height);
 			ctx.lineTo(x, y);
 			for (var i = 1; i < data[idx].length; i++) {
 				x = staticgraph.getX(graph, data[idx][i][0]);
