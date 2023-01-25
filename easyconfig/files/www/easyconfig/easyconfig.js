@@ -444,8 +444,8 @@ function detectwan(pin) {
 
 function enableWan(proto) {
 
-	if (proto == "detect") {
-		var proto = document.getElementById('wan_proto').getAttribute("data-prev");
+	if (proto == 'detect') {
+		var proto = document.getElementById('wan_proto').getAttribute('data-prev');
 		setValue('wan_proto', proto);
 		detectwan('');
 		return;
@@ -453,19 +453,16 @@ function enableWan(proto) {
 
 	var fields = [];
 	if (proto == 'static') {
-		fields = ["wan_ipaddr","wan_netmask","wan_gateway","wan_dns1","wan_dns2","wan_metered"];
-	}
-	if (proto == 'dhcp' || proto == 'dhcp_hilink') {
-		fields = ['wan_metered'];
+		fields = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns1', 'wan_dns2'];
 	}
 	if (proto == 'mbim') {
-		fields=['wan_apn', 'wan_device', 'wan_pincode', 'wan_metered'];
+		fields = ['wan_apn', 'wan_device', 'wan_pincode'];
 	}
 	if (proto == 'modemmanager') {
-		fields=['wan_apn', 'wan_device_mm', 'wan_pincode', 'wan_metered'];
+		fields = ['wan_apn', 'wan_device_mm', 'wan_pincode'];
 	}
 	if (proto == '3g' || proto == 'ncm' || proto == 'qmi') {
-		fields=["wan_apn","wan_device","wan_pincode","wan_modem_mode","wan_metered"];
+		fields = ['wan_apn', 'wan_device', 'wan_pincode', 'wan_modem_mode'];
 
 		var e = removeOptions('wan_modem_mode');
 		var t;
@@ -485,11 +482,21 @@ function enableWan(proto) {
 			e.appendChild(opt);
 		}
 	}
-	if (proto != "static" && proto != "dhcp" && config.wan_ifname_default !== "") {
-		fields.push("wan_wanport");
+	if (proto != 'static' && proto != 'dhcp' && config.wan_ifname_default !== '') {
+		fields.push('wan_wanport');
+	}
+	if (proto != 'none') {
+		fields.push('wan_metered');
+		fields.push('wan_lanto');
+		fields.push('firewall_dmz');
+
+		var e = document.getElementById('wan_proto');
+		var tmp = e.options[e.selectedIndex].text;
+		setValue('wan_lanto_interface1', tmp);
+		setValue('wan_lanto_interface2', tmp);
 	}
 
-	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_wanport', 'wan_metered'];
+	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_wanport', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -517,15 +524,13 @@ function enableWan(proto) {
 		enableDns(getValue('wan_dns'));
 	}
 
-	setElementEnabled("firewall_dmz", (proto != "none"), false);
+	setDisplay('div_status_wan', (proto != 'none'));
+	setCookie('easyconfig_status_wan', (proto != 'none' ? '1' : '0'));
+	document.getElementById('wan_proto').setAttribute('data-prev', getValue('wan_proto'));
 
-	setDisplay("div_status_wan", (proto != "none"));
-	setCookie("easyconfig_status_wan", (proto != "none"?"1":"0"));
-	document.getElementById("wan_proto").setAttribute("data-prev", getValue("wan_proto"));
-
-	if (proto == "dhcp_hilink" && config.wan_ifname == config.wan_ifname_hilink && config.wan_dashboard_url) {
-		document.getElementById("wan_dashboard_url").setAttribute("href", config.wan_dashboard_url);
-		setElementEnabled("wan_dashboard_url", true, false);
+	if (proto == 'dhcp_hilink' && config.wan_ifname == config.wan_ifname_hilink && config.wan_dashboard_url) {
+		document.getElementById('wan_dashboard_url').setAttribute('href', config.wan_dashboard_url);
+		setElementEnabled('wan_dashboard_url', true, false);
 	}
 }
 
@@ -881,6 +886,8 @@ function showcallback(data) {
 	enableWan(getValue('wan_proto'));
 	setValue('wan_modem_mode', config.wan_modem_mode);
 	setValue('wan_metered', config.wan_metered);
+	setValue('wan_lanto', config.wan_lanto != '');
+	setDisplay('div_wan_lanto_status', config.wan_lanto == '');
 
 	// lan
 	setValue('lan_ipaddr', config.lan_ipaddr);
@@ -888,8 +895,6 @@ function showcallback(data) {
 	setValue('lan_forcedns', config.lan_forcedns);
 	setValue('dhcp_logqueries', config.dhcp_logqueries);
 	setDisplay('menu_queries', config.dhcp_logqueries);
-	setValue('lan_to_wan', config.lan_to_wan != '');
-	setDisplay('div_lan_to_wan_status', config.lan_to_wan == '');
 
 	// wlan
 	var t = '';
@@ -1161,6 +1166,18 @@ function savesettings() {
 		cmd.push('uci add_list dhcp.lan.dhcp_option=\'43,ANDROID_METERED\'');
 	}
 
+	if (getValue('wan_lanto')) {
+		if (config.wan_lanto == '') {
+			cmd.push('uci add firewall forwarding');
+			cmd.push('uci set firewall.@forwarding[-1].src=lan');
+			cmd.push('uci set firewall.@forwarding[-1].dest=wan');
+		}
+	} else {
+		if (config.wan_lanto != '') {
+			cmd.push('uci -q del firewall.' + config.wan_lanto);
+		}
+	}
+
 	// dns
 	if (use_dns != 'none') {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].noresolv');
@@ -1239,18 +1256,6 @@ function savesettings() {
 	} else {
 		cmd.push('uci -q del dhcp.@dnsmasq[0].logqueries');
 		setDisplay('menu_queries', false);
-	}
-
-	if (getValue('lan_to_wan')) {
-		if (config.lan_to_wan == '') {
-			cmd.push('uci add firewall forwarding');
-			cmd.push('uci set firewall.@forwarding[-1].src=lan');
-			cmd.push('uci set firewall.@forwarding[-1].dest=wan');
-		}
-	} else {
-		if (config.lan_to_wan != '') {
-			cmd.push('uci -q del firewall.' + config.lan_to_wan);
-		}
 	}
 
 	// wlan

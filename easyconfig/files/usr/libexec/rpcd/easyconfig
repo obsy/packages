@@ -582,7 +582,7 @@ for RULE in $RULES; do
 		fi
 	fi
 done
-echo '"lan_to_wan":"'$T'",'
+echo '"wan_lanto":"'$T'",'
 
 T=$(uci -q get easyconfig.global.datarec_period)
 echo '"datarec_period":'${T:-15}','

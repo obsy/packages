@@ -191,7 +191,7 @@
 			<a href="#" class="click" onclick="btn_pages('vpn');"><p>aktywny</p></a>
 			</div>
 		</div>
-		<div class="row" id="div_lan_to_wan_status" style="display:none;">
+		<div class="row" id="div_wan_lanto_status" style="display:none;">
 			<div class="col-xs-6 col-xs-offset-6">
 			<p>wyłączony dostęp sieci lokalnej do internetu</p></a>
 			</div>
@@ -420,7 +420,18 @@
 			</div>
 		</div>
 
-		<p>&nbsp;</p>
+		<div class="form-group" id="div_wan_lanto">
+			<label for="wan_lanto" class="col-xs-4 col-sm-3 control-label">Dostęp z sieci lokalnej</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="wan_lanto" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu przez <span id="wan_lanto_interface1"></span></small></em></span>
+			<div class="visible-xs"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu przez <span id="wan_lanto_interface2"></span></small></em></div>
+			</div>
+		</div>
+
 		<div class="form-group" id="div_firewall_dmz">
 			<label for="firewall_dmz" class="col-xs-4 col-sm-3 control-label">Adres IP w DMZ</label>
 			<div class="col-xs-8 col-sm-9">
@@ -428,7 +439,6 @@
 			<em><small class="form-text text-muted">musi być z tej samej klasy co sieć lokalna</small></em>
 			</div>
 		</div>
-
 	</form>
 
 	<h3 class="section">Sieć lokalna</h3>
@@ -477,18 +487,6 @@
 				<input id="wan_wanport" type="checkbox">
 				<div class="slider round"></div>
 			</label>
-			</div>
-		</div>
-
-		<div class="form-group mmarginbottom">
-			<label for="lan_to_wan" class="col-xs-4 col-sm-3 control-label">Dostęp do internetu</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="lan_to_wan" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu</small></em></span>
-			<div class="visible-xs"><em><small class="form-text text-muted">umożliwia dostęp sieci lokalnej do internetu</small></em></div>
 			</div>
 		</div>
 	</form>
