@@ -1065,9 +1065,6 @@ function savesettings() {
 	var cmd = [];
 
 	// wan
-	cmd.push('MODEM=$(/usr/share/easyconfig/modem/detect.sh)');
-	cmd.push('uci -c /var/etc/config -q del easyconfig.modem.device');
-	cmd.push('uci -c /var/etc/config commit easyconfig');
 	cmd.push('uci set network.wan=interface');
 	cmd.push('uci -q del network.wan.ifname');
 	cmd.push('uci -q del network.wan.ipaddr');
@@ -1116,8 +1113,9 @@ function savesettings() {
 	}
 	if (wan_type == 'qmi') {
 		cmd.push('uci set network.wan.modes=\\\"' + getValue('wan_modem_mode') + '\\\"');
-		if (config.wan_apn != getValue('wan_apn')) {
-			cmd.push('[ -n \\\"$MODEM\\\" ] && easyconfig_setapn.sh \\\"$MODEM\\\"');
+		if (config.wan_proto != wan_type || config.wan_device != getValue('wan_device') || config.wan_apn != getValue('wan_apn')) {
+			cmd.push('rm /var/state/easyconfig_modem 2>/dev/null');
+			cmd.push('easyconfig_setapn.sh');
 		}
 	}
 	if (wan_type == 'dhcp') {
