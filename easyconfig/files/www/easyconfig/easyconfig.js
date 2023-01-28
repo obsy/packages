@@ -1237,15 +1237,15 @@ function savesettings() {
 	}
 
 	if (getValue('lan_forcedns')) {
-		cmd.push('uci set firewall.adblock_dns_53=redirect');
-		cmd.push('uci set firewall.adblock_dns_53.name=\\\"Adblock DNS, port 53\\\"');
-		cmd.push('uci set firewall.adblock_dns_53.src=lan');
-		cmd.push('uci set firewall.adblock_dns_53.proto=\\\"tcp udp\\\"');
-		cmd.push('uci set firewall.adblock_dns_53.src_dport=53');
-		cmd.push('uci set firewall.adblock_dns_53.dest_port=53');
-		cmd.push('uci set firewall.adblock_dns_53.target=DNAT');
+		cmd.push('uci set firewall.dns_53_redirect=redirect');
+		cmd.push('uci set firewall.dns_53_redirect.name=\\\"Adblock DNS, port 53\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src=lan');
+		cmd.push('uci set firewall.dns_53_redirect.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
+		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
+		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
 	} else {
-		cmd.push('uci -q del firewall.adblock_dns_53');
+		cmd.push('uci -q del firewall.dns_53_redirect');
 	}
 
 	if (getValue('dhcp_logqueries')) {
@@ -5218,14 +5218,27 @@ function saveadblock() {
 	var cmd = [];
 
 	cmd.push('uci set adblock.global.adb_enabled=' + (getValue('adblock_enabled') ? '1' : '0'));
-	cmd.push('uci set adblock.global.adb_forcedns=' + (getValue('adblock_forcedns') ? '1' : '0'));
 	cmd.push('uci -q del adblock.global.adb_sources');
 	for (var idx in adblock_lists) {
 		if (getValue('adblock_' + adblock_lists[idx].section)) {
 			cmd.push('uci add_list adblock.global.adb_sources=' + adblock_lists[idx].section);
 		}
 	}
-	cmd.push('uci commit adblock');
+
+	if (getValue('adblock_forcedns')) {
+		cmd.push('uci set firewall.dns_53_redirect=redirect');
+		cmd.push('uci set firewall.dns_53_redirect.name=\\\"Adblock DNS, port 53\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src=lan');
+		cmd.push('uci set firewall.dns_53_redirect.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
+		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
+		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
+	} else {
+		cmd.push('uci -q del firewall.dns_53_redirect');
+	}
+
+	cmd.push('uci commit');
+	cmd.push('/etc/init.d/firewall restart');
 	cmd.push('/etc/init.d/adblock restart');
 
 	execute(cmd, showadblock);

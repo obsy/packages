@@ -562,7 +562,7 @@ done
 T=$(uci -q get firewall.dmz.dest_ip)
 echo '"firewall_dmz":"'$T'",'
 
-T=$(uci -q get firewall.adblock_dns_53)
+T=$(uci -q get firewall.dns_53_redirect)
 [ "x$T" = "xredirect" ] && T="true" || T="false"
 echo '"lan_forcedns":'$T','
 
@@ -1812,8 +1812,9 @@ show_adblock()
 			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${SIZE}\",\"descurl\":\"${DESCURL}\",\"focus\":\"${FOCUS}\"}"
 		done
 	fi
-	FORCEDNS=$(uci -q get adblock.global.adb_forcedns)
 	ENABLED=$(uci -q get adblock.global.adb_enabled)
+	T=$(uci -q get firewall.dns_53_redirect)
+	[ "x$T" = "xredirect" ] && FORCEDNS="1" || FORCEDNS="0"
 
 	rtfile="$(uci -q get adblock.extra.adb_rtfile)"
 	rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
