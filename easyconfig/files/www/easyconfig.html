@@ -757,12 +757,17 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-6 col-xs-offset-6">
+			<p><a href="#" class="click" onclick="modemsettings();">ustawienia dodatkowe</a></p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 col-xs-offset-6">
 			<p><a href="#" class="click" onclick="modemat();">polecenia AT</a></p>
 			</div>
 		</div>
 		<div class="row">
-			<div id="menu_modemsettings" class="col-xs-6 col-xs-offset-6"  style="display:none;">
-			<p><a href="#" class="click" onclick="modemsettings();">pasma LTE</a></p>
+			<div id="menu_modembands" class="col-xs-6 col-xs-offset-6"  style="display:none;">
+			<p><a href="#" class="click" onclick="modembands();">pasma LTE</a></p>
 			</div>
 		</div>
 	</div>
@@ -1633,6 +1638,74 @@
 	</div>
 </div>
 
+<div id="div_modemsettings" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">Ustawienia modemu</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="modemsettings_modem_device" class="hidden-xs col-sm-6 control-label">Interfejs diagnostyczny modemu</label>
+				<label for="modemsettings_modem_device" class="visible-xs col-xs-12 control-label text-left">Interfejs diagnostyczny modemu</label>
+				<div class="col-xs-12 col-sm-6">
+				<select id="modemsettings_modem_device" class="form-control">
+				</select>
+				</div>
+			</div>
+			<div class="form-group mmarginbottom">
+				<label for="modemsettings_modem_force_qmi" class="col-xs-6 control-label">Wymuszenie odczytu dancyh przez QMI</label>
+				<div class="col-xs-6">
+				<label class="switch">
+					<input id="modemsettings_modem_force_qmi" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
+			</div>
+			<div class="form-group mmarginbottom">
+				<label for="modemsettings_modem_force_plmn" class="col-xs-6 control-label">Wymuszenie odczytu nazwy operatora z pliku</label>
+				<div class="col-xs-6">
+				<label class="switch">
+					<input id="modemsettings_modem_force_plmn" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="modemsettings_sms_storage" class="hidden-xs col-sm-6 control-label">Miejsce przechowywania SMS</label>
+				<label for="modemsettings_sms_storage" class="visible-xs col-xs-12 control-label text-left">Miejsce przechowywania SMS</label>
+				<div class="col-xs-12 col-sm-6">
+				<select id="modemsettings_sms_storage" class="form-control">
+					<option value="">Określone przez modem</option>
+					<option value="SM">SM - pamięć karty SIM</option>
+					<option value="ME">ME - pamięć modemu</option>
+				</select>
+				</div>
+			</div>
+			<div class="form-group mmarginbottom">
+				<label for="modemsettings_ussd_raw_input" class="col-xs-6 control-label">Odbieranie USSD bez dekodowana PDU</label>
+				<div class="col-xs-6">
+				<label class="switch">
+					<input id="modemsettings_ussd_raw_input" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
+			</div>
+			<div class="form-group mmarginbottom">
+				<label for="modemsettings_ussd_raw_output" class="col-xs-6 control-label">Wysyłanie USSD bez kodowana PDU</label>
+				<div class="col-xs-6">
+				<label class="switch">
+					<input id="modemsettings_ussd_raw_output" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
+			</div>
+		</form>
+		<hr>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelmodemsettings();" value="Anuluj" />
+			<input type="button" class="btn btn-primary" onclick="savemodemsettings();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
 <div id="div_modemat" class="modal">
 	<div class="row modal-content">
 		<label>Polecenie AT</label>
@@ -1646,19 +1719,19 @@
 	</div>
 </div>
 
-<div id="div_modemsettings" class="modal">
+<div id="div_modembands" class="modal">
 	<div class="row modal-content">
 		<div class="text-center space">Pasma LTE</div>
 		<form class="form-horizontal">
-			<div id="modemsettings_bands_lte"></div>
+			<div id="modembands_bands_lte"></div>
 		</form>
 		<h3 class="section"></h3>
 		<div class="text-center">
-			<input type="button" class="btn btn-default modalmargintop" onclick="closemodemsettings();" value="Zamknij" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodembands();" value="Zamknij" />
 			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="ponowne uruchomienie połączenia z internetem" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodemsettings();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="modemsettings();" value="Odśwież" />
-			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodemsettings();" value="Zapisz zmiany" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodembands();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="modembands();" value="Odśwież" />
+			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodembands();" value="Zapisz zmiany" />
 		</div>
 	</div>
 </div>

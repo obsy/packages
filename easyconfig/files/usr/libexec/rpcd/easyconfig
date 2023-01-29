@@ -1025,6 +1025,25 @@ show_modem()
 
 ##############################################################################
 
+show_modemsettings() {
+	MODEM_DEVICE=$(uci -q get easyconfig.modem.device)
+	MODEM_FORCE_QMI=$(uci -q get easyconfig.modem.force_qmi)
+	MODEM_FORCE_PLMN=$(uci -q get easyconfig.modem.force_plmn)
+	SMS_STORAGE=$(uci -q get easyconfig.sms.storage)
+	USSD_RAW_INPUT=$(uci -q get easyconfig.ussd.raw_input)
+	USSD_RAW_OUTPUT=$(uci -q get easyconfig.ussd.raw_output)
+	echo "{"
+	echo '"modem_device":"'${MODEM_DEVICE}'"'
+	echo ',"modem_force_qmi":'${MODEM_FORCE_QMI:-0}
+	echo ',"modem_force_plmn":'${MODEM_FORCE_PLMN:-0}
+	echo ',"sms_storage":"'${SMS_STORAGE}'"'
+	echo ',"ussd_raw_input":'${USSD_RAW_INPUT:-1}
+	echo ',"ussd_raw_output":'${USSD_RAW_OUTPUT:-1}
+	echo "}"
+}
+
+##############################################################################
+
 show_ussd() {
 	read input;
 	json_load "$input"
@@ -1923,6 +1942,7 @@ case "$1" in
 		echo '"clientbandwidth":{"mac":"string"},'
 		echo '"traffic":{},'
 		echo '"modem":{},'
+		echo '"modemsettings":{},'
 		echo '"ussd":{"code":"string"},'
 		echo '"ussdshortcuts":{},'
 		echo '"sms":{"action":"string","arg1":"string","arg2":"string"},'
@@ -1974,6 +1994,9 @@ case "$1" in
 				;;
 			modem)
 				show_modem
+				;;
+			modemsettings)
+				show_modemsettings
 				;;
 			ussd)
 				show_ussd

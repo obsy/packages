@@ -843,6 +843,18 @@ function showcallback(data) {
 		e.appendChild(opt);
 	}
 
+	e = removeOptions('modemsettings_modem_device');
+	var opt = document.createElement('option');
+	opt.value = '';
+	opt.innerHTML = 'Automatyczne wykrywanie';
+	e.appendChild(opt);
+	for (var idx = 0; idx < arr.length; idx++) {
+		var opt = document.createElement('option');
+		opt.value = arr[idx];
+		opt.innerHTML = arr[idx];
+		e.appendChild(opt);
+	}
+
 	e = removeOptions('wan_device_mm');
 	var arr = config.wan_devices_mm;
 	for (var idx = 0; idx < arr.length; idx++) {
@@ -1007,8 +1019,8 @@ function showcallback(data) {
 	// nightmode / sunwait
 	setDisplay('div_nightmode_led_auto', config.services.sunwait);
 
-	// modemsettings
-	setDisplay('menu_modemsettings', config.services.modemband);
+	// modembands
+	setDisplay('menu_modembands', config.services.modemband);
 
 	// gps
 	setDisplay('menu_gps', config.services.gps);
@@ -1734,6 +1746,36 @@ function showsystem() {
 	});
 }
 
+function cancelmodemsettings() {
+	setDisplay('div_modemsettings', false);
+}
+
+function savemodemsettings() {
+	cancelmodemsettings();
+
+	var cmd = [];
+	cmd.push('uci set easyconfig.modem.device=' + getValue('modemsettings_modem_device'));
+	cmd.push('uci set easyconfig.modem.force_qmi=' + (getValue('modemsettings_modem_force_qmi') ? '1' : '0'));
+	cmd.push('uci set easyconfig.modem.force_plmn=' + (getValue('modemsettings_modem_force_plmn') ? '1' : '0'));
+	cmd.push('uci set easyconfig.sms.storage=' + getValue('modemsettings_sms_storage'));
+	cmd.push('uci set easyconfig.ussd.raw_input=' + (getValue('modemsettings_ussd_raw_input') ? '1' : '0'));
+	cmd.push('uci set easyconfig.ussd.raw_output=' + (getValue('modemsettings_ussd_raw_output') ? '1' : '0'));
+	cmd.push('uci commit easyconfig');
+	execute(cmd, showsystem);
+}
+
+function modemsettings() {
+	ubus_call('"easyconfig", "modemsettings", {}', function(data) {
+		setValue('modemsettings_modem_device', data.modem_device);
+		setValue('modemsettings_modem_force_qmi', data.modem_force_qmi == 1);
+		setValue('modemsettings_modem_force_plmn', data.modem_force_plmn == 1);
+		setValue('modemsettings_sms_storage', data.sms_storage);
+		setValue('modemsettings_ussd_raw_input', data.ussd_raw_input == 1);
+		setValue('modemsettings_ussd_raw_output', data.ussd_raw_output == 1);
+		setDisplay('div_modemsettings', true);
+	})
+}
+
 function modemat() {
 	setDisplay('div_modemat', true);
 	var e = document.getElementById('modemat_cmd');
@@ -1782,8 +1824,8 @@ function closemodemat() {
 	setDisplay('div_modemat', false);
 }
 
-function modemsettings() {
-	closemodemsettings();
+function modembands() {
+	closemodembands();
 	ubus_call('"file", "exec", {"command":"modemband.sh","params":["json"]}', function(data) {
 		if (data.code == 0) {
 			var modem = JSON.parse(data.stdout);
@@ -1791,29 +1833,29 @@ function modemsettings() {
 			var arr = sortJSON(modem.supported, 'band', 'asc');
 			var html = '<div class="form-group">';
 			for (var idx = 0; idx < arr.length; idx++) {
-				html += '<label for="modemsettings_band_lte_' + arr[idx].band + '"  class="col-xs-3 col-sm-2 control-label">B' + arr[idx].band + '</label> \
+				html += '<label for="modembands_band_lte_' + arr[idx].band + '"  class="col-xs-3 col-sm-2 control-label">B' + arr[idx].band + '</label> \
 						<div class="col-xs-9 col-sm-4"> \
-						<label class="switch"><input data-band=' + arr[idx].band + ' id="modemsettings_band_lte_' + arr[idx].band + '" type="checkbox" class="band_lte"><div class="slider round"></div></label> \
+						<label class="switch"><input data-band=' + arr[idx].band + ' id="modembands_band_lte_' + arr[idx].band + '" type="checkbox" class="band_lte"><div class="slider round"></div></label> \
 						<span class="control-label labelleft">' + arr[idx].txt + '</span> \
 						</div>';
 			}
 			html += '</div>';
-			setValue('modemsettings_bands_lte', html);
+			setValue('modembands_bands_lte', html);
 
 			arr = modem.enabled;
 			for (var idx = 0; idx < arr.length; idx++) {
-				var e = document.getElementById('modemsettings_band_lte_' + arr[idx]);
+				var e = document.getElementById('modembands_band_lte_' + arr[idx]);
 				if (e) {
 					e.checked = 1;
 				}
 			}
-			setDisplay('div_modemsettings', true);
+			setDisplay('div_modembands', true);
 		}
 	})
 }
 
-function savemodemsettings() {
-	closemodemsettings();
+function savemodembands() {
+	closemodembands();
 	var bands = '';
 	(document.querySelectorAll('.band_lte')).forEach((e) => {
 		if (e.checked) {
@@ -1826,26 +1868,26 @@ function savemodemsettings() {
 
 	var cmd = [];
 	cmd.push('modemband.sh setbands \\\"' + bands + '\\\"');
-	execute(cmd, modemsettings);
+	execute(cmd, modembands);
 }
 
-function defaultmodemsettings() {
-	closemodemsettings();
-	execute(['modemband.sh setbands default'], modemsettings);
+function defaultmodembands() {
+	closemodembands();
+	execute(['modemband.sh setbands default'], modembands);
 }
 
 function restartwan() {
-	closemodemsettings();
+	closemodembands();
 
 	var cmd = [];
 	cmd.push('ifdown wan');
 	cmd.push('sleep 3');
 	cmd.push('ifup wan');
-	execute(cmd, modemsettings);
+	execute(cmd, modembands);
 }
 
-function closemodemsettings() {
-	setDisplay('div_modemsettings', false);
+function closemodembands() {
+	setDisplay('div_modembands', false);
 }
 
 var arrmodemaddon = [];
