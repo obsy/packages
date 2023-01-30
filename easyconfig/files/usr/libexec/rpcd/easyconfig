@@ -1582,7 +1582,21 @@ show_vpn()
 		esac
 		echo "{\"interface\":\"$INTERFACE\"${CUSTOM},\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
 	done
-	echo "]}"
+	echo "]"
+
+	T=""
+	RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+	for RULE in $RULES; do
+		T2=$(uci -q get firewall.${RULE}.dest)
+		if [ "x$T2" = "xwan" ]; then
+			T2=$(uci -q get firewall.$RULE)
+			if [ "x$T2" = "xforwarding" ]; then
+				T="$RULE"
+				break
+			fi
+		fi
+	done
+	echo ',"wan_lanto":"'$T'"}'
 }
 
 show_vpn_status()

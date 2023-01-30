@@ -4161,8 +4161,29 @@ function downvpn(proto, interface, section) {
 	}
 }
 
+function savevpnkillswitch() {
+	var cmd = [];
+
+	if (getValue('vpn_killswitch')) {
+		if (config.wan_lanto != '') {
+			cmd.push('uci -q del firewall.' + config.wan_lanto);
+		}
+	} else {
+		if (config.wan_lanto == '') {
+			cmd.push('uci add firewall forwarding');
+			cmd.push('uci set firewall.@forwarding[-1].src=lan');
+			cmd.push('uci set firewall.@forwarding[-1].dest=wan');
+		}
+	}
+	cmd.push('uci commit firewall')
+	cmd.push('/etc/init.d/firewall restart')
+	execute(cmd, showvpn);
+}
+
 function showvpn() {
 	ubus_call('"easyconfig", "vpn", {}', function(data) {
+		setValue('vpn_killswitch', data.wan_lanto == '');
+		config.wan_lanto = data.wan_lanto;
 		var sorted = sortJSON(data.result, 'name', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
