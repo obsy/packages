@@ -1686,7 +1686,7 @@ show_vpn_details()
 	json_get_vars proto interface section
 
 	if [ -n "$interface" ]; then
-		[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && TOLAN=1
+		[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && LANTO=1
 		[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
 		AUTOSTART=$(uci -q get network.$interface.auto)
 		TRIGGER=$(uci -q get network.$interface.trigger)
@@ -1698,21 +1698,21 @@ show_vpn_details()
 		fi
 	else
 		if [ "x$proto" = "xopenvpn" ]; then
-			TOLAN=0
+			LANTO=0
 			BUTTON="false"
 			AUTOSTART=$(uci -q get openvpn.$section.enabled)
 			TRIGGER=$(uci -q get openvpn.$section.trigger)
 			PROTO="openvpn"
 		fi
 		if [ "x$proto" = "xzerotier" ]; then
-			TOLAN=0
+			LANTO=0
 			BUTTON="false"
 			AUTOSTART="0"
 			TRIGGER=""
 			PROTO="zerotier"
 		fi
 	fi
-	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"tolan\":${TOLAN:-0},\"trigger\":\"$TRIGGER\","
+	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"lanto\":${LANTO:-0},\"trigger\":\"$TRIGGER\","
 	if [ "x$PROTO" = "xopenvpn" ]; then
 		NAME=$(uci -q get openvpn.$section.name)
 		if [ -z "$NAME" ]; then

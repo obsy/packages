@@ -4285,7 +4285,7 @@ function vpndetails(proto, interface, section) {
 			if (data.trigger == 'wan') { setValue('vpn_openvpn_auto', 2); }
 			setValue('vpn_openvpn_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_openvpn_button', config.button.code != '');
-			setValue('vpn_openvpn_to_lan', data.tolan == 1);
+			setValue('vpn_openvpn_lanto', data.lanto == 1);
 			setValue('vpn_openvpn_username', data.username);
 			setValue('vpn_openvpn_password', data.password);
 			setValue('vpn_openvpn_configtext', data.configtext);
@@ -4299,7 +4299,7 @@ function vpndetails(proto, interface, section) {
 			if (data.trigger == 'wan') { setValue('vpn_pptp_auto', 2); }
 			setValue('vpn_pptp_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_pptp_button', config.button.code != '');
-			setValue('vpn_pptp_to_lan', data.tolan == 1);
+			setValue('vpn_pptp_lanto', data.lanto == 1);
 			setValue('vpn_pptp_server', data.server);
 			setValue('vpn_pptp_username', data.username);
 			setValue('vpn_pptp_password', data.password);
@@ -4314,7 +4314,7 @@ function vpndetails(proto, interface, section) {
 			if (data.trigger == 'wan') { setValue('vpn_sstp_auto', 2); }
 			setValue('vpn_sstp_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_sstp_button', config.button.code != '');
-			setValue('vpn_sstp_to_lan', data.tolan == 1);
+			setValue('vpn_sstp_lanto', data.lanto == 1);
 			setValue('vpn_sstp_server', data.server);
 			setValue('vpn_sstp_username', data.username);
 			setValue('vpn_sstp_password', data.password);
@@ -4327,7 +4327,7 @@ function vpndetails(proto, interface, section) {
 			if (data.trigger == 'wan') { setValue('vpn_wireguard_auto', 2); }
 			setValue('vpn_wireguard_button', (config.button.code != '') ? data.button : false);
 			setDisplay('div_vpn_wireguard_button', config.button.code != '');
-			setValue('vpn_wireguard_to_lan', data.tolan == 1);
+			setValue('vpn_wireguard_lanto', data.lanto == 1);
 			setValue('vpn_wireguard_privkey', data.privkey);
 			setValue('vpn_wireguard_pubkey', data.pubkey);
 			setValue('vpn_wireguard_port', data.listen_port);
@@ -4416,7 +4416,7 @@ function savevpnnew() {
 		setValue('vpn_openvpn_auto', 0);
 		setValue('vpn_openvpn_button', false);
 		setDisplay('div_vpn_openvpn_button', config.button.code != '');
-		setValue('vpn_openvpn_to_lan', false);
+		setValue('vpn_openvpn_lanto', true);
 		setValue('vpn_openvpn_username', '');
 		setValue('vpn_openvpn_password', '');
 		setValue('vpn_openvpn_configtext', '');
@@ -4429,7 +4429,7 @@ function savevpnnew() {
 		setValue('vpn_pptp_auto', 0);
 		setValue('vpn_pptp_button', false);
 		setDisplay('div_vpn_pptp_button', config.button.code != '');
-		setValue('vpn_pptp_to_lan', false);
+		setValue('vpn_pptp_lanto', true);
 		setValue('vpn_pptp_server', '');
 		setValue('vpn_pptp_username', '');
 		setValue('vpn_pptp_password', '');
@@ -4443,7 +4443,7 @@ function savevpnnew() {
 		setValue('vpn_sstp_auto', 0);
 		setValue('vpn_sstp_button', false);
 		setDisplay('div_vpn_sstp_button', config.button.code != '');
-		setValue('vpn_sstp_to_lan', false);
+		setValue('vpn_sstp_lanto', true);
 		setValue('vpn_sstp_server', '');
 		setValue('vpn_sstp_username', '');
 		setValue('vpn_sstp_password', '');
@@ -4455,7 +4455,7 @@ function savevpnnew() {
 		setValue('vpn_wireguard_auto', 0);
 		setValue('vpn_wireguard_button', false);
 		setDisplay('div_vpn_wireguard_button', config.button.code != '');
-		setValue('vpn_wireguard_to_lan', false);
+		setValue('vpn_wireguard_lanto', true);
 		setValue('vpn_wireguard_privkey', '');
 		setValue('vpn_wireguard_pubkey', '');
 		setValue('vpn_wireguard_port', '');
@@ -4586,7 +4586,7 @@ function saveopenvpn() {
 	cmd.push('cat /tmp/' + interface + ' > $CFG');
 	cmd.push('rm /tmp/' + interface);
 
-	if (getValue('vpn_openvpn_to_lan')) {
+	if (getValue('vpn_openvpn_lanto')) {
 		cmd.push('uci set firewall.' + interface + '=zone');
 		cmd.push('uci set firewall.' + interface + '.name=' + interface);
 		cmd.push('uci -q del firewall.' + interface + '.network');
@@ -4693,7 +4693,7 @@ function savepptp() {
 		cmd.push('uci set network.' + interface + '.pppd_options=\\\"nomppe\\\"');
 	}
 
-	if (getValue('vpn_pptp_to_lan')) {
+	if (getValue('vpn_pptp_lanto')) {
 		cmd.push('uci set firewall.' + interface + '=zone');
 		cmd.push('uci set firewall.' + interface + '.name=' + interface);
 		cmd.push('uci -q del firewall.' + interface + '.network');
@@ -4785,7 +4785,7 @@ function savesstp() {
 	cmd.push('uci set network.' + interface + '.username=\\\"' + escapeShell(getValue('vpn_sstp_username')) + '\\\"');
 	cmd.push('uci set network.' + interface + '.password=\\\"' + escapeShell(getValue('vpn_sstp_password')) + '\\\"');
 
-	if (getValue('vpn_sstp_to_lan')) {
+	if (getValue('vpn_sstp_lanto')) {
 		cmd.push('uci set firewall.' + interface + '=zone');
 		cmd.push('uci set firewall.' + interface + '.name=' + interface);
 		cmd.push('uci -q del firewall.' + interface + '.network');
@@ -5042,7 +5042,7 @@ function savewireguard() {
 		}
 	}
 
-	if (getValue('vpn_wireguard_to_lan')) {
+	if (getValue('vpn_wireguard_lanto')) {
 		cmd.push('uci set firewall.' + interface + '=zone');
 		cmd.push('uci set firewall.' + interface + '.name=' + interface);
 		cmd.push('uci -q del firewall.' + interface + '.network');
