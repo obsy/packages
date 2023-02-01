@@ -161,6 +161,14 @@ case $(cat /tmp/sysinfo/board_name) in
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
 		;;
+	"glinet,gl-x300b")
+		if [ -n "$(ubus list battery 2>/dev/null)" ]; then
+			eval $(ubus call battery info | jsonfilter -q -e 'CHARGING1=@.charging' -e 'TEMPERATURE1=@.temperature' -e 'CYCLES=@.cycles')
+			[ "x$CHARGING1" = "x1" ] && CHARGING="Tak" || CHARGING="Nie"
+			TEMPERATURE=$(echo "$TEMPERATURE1" | xargs printf "%.1f" )
+			echo '{"Ładowanie baterii":"'${CHARGING}'"},{"Temperatura baterii":"'${TEMPERATURE}' &deg;C"},{"Ilość cykli ładowania":"'${CYCLES}'"}'
+		fi
+		;;
 	"ravpower,wd03"|\
 	"ravpower,rp-wd03")
 		if [ -e /usr/bin/ravpower-mcu ]; then
@@ -170,7 +178,7 @@ case $(cat /tmp/sysinfo/board_name) in
 				CHARGING="Tak"
 			fi
 			BATTERY_LEVEL=$(ravpower-mcu battery-charge)
-			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+			echo '{"Ładowanie baterii":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		elif [ -f /usr/sbin/i2cset ] && [ -f /usr/sbin/i2cget ]; then
 			if [ $(i2cset -y 0 0x0a 0x0a 0x01 && i2cget -y 0 0x0a 0x0a) = 0x40 ]; then
 				CHARGING="Tak"
@@ -178,7 +186,7 @@ case $(cat /tmp/sysinfo/board_name) in
 				CHARGING="Nie"
 			fi
 			BATTERY_LEVEL=$(i2cset -y 0 0x0a 0x0a 0x10 && i2cget -y 0 0x0a 0x0a | xargs printf %d)
-			echo '{"Ładowanie":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+			echo '{"Ładowanie baterii":"'${CHARGING}'"},{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
 		fi
 		;;
 	"zte,mf286"|\
@@ -199,13 +207,13 @@ case $(cat /tmp/sysinfo/board_name) in
 					echo '{"Bateria":"Obecna"}'
 					CHARGING=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $3}' | xargs)
 					if [ "x$CHARGING" = "x0" ]; then
-						echo ',{"Ładowanie":"Nie"}'
+						echo ',{"Ładowanie baterii":"Nie"}'
 					fi
 					if [ "x$CHARGING" = "x1" ]; then
-						echo ',{"Ładowanie":"Tak"}'
+						echo ',{"Ładowanie baterii":"Tak"}'
 					fi
 					if [ "x$CHARGING" = "x2" ]; then
-						echo ',{"Ładowanie":"W pełni naładowana"}'
+						echo ',{"Ładowanie baterii":"W pełni naładowana"}'
 					fi
 					BATTERY_LEVEL=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $4}' | xargs)
 					echo ',{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
