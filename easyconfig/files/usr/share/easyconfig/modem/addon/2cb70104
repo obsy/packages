@@ -1,9 +1,8 @@
-# Fibocom FN150
+# Fibocom FM150
 
-O=$(sms_tool -d $DEVICE at "at+gtccinfo?")
+O=$(sms_tool -d $DEVICE at "at+gtccinfo?;+gtcainfo?")
 
 if [ "x$MODE" = "xLTE" ]; then
-	PBAND=""
 	if echo "$O" | grep -E "^SCC[1-9]:"; then
 		MODE="LTE_A"
 	fi
@@ -65,46 +64,46 @@ if [ "x$MODE" = "xLTE" ]; then
 
 	fi
 
-	T=$(echo "$O" | awk -F[:,] '/^PCC/{print $2}' | xargs)
-	if [ "x$PBAND" = "x$T" ]; then
-		T=$(echo "$O" | awk -F[:,] '/^PCC/{print $3}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(P) PCI":"'$T'"}'
-		fi
-		T=$(echo "$O" | awk -F[:,] '/^PCC/{print $4}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(P) EARFCN":"'$T'"}'
-		fi
-
-		IDX=1
-		LINES=$(echo "$O" | grep -E "^SCC[0-9]: " | sed 's/ //g')
-		for LINE in $LINES; do
-			T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX':1,0/{print $4}')
-			T=$((T - 100))
-			case $T in
-				"1") T2=$(band 1 "");;
-				"3") T2=$(band 3 "");;
-				"7") T2=$(band 7 "");;
-				"8") T2=$(band 8 "");;
-				"20") T2=$(band 20 "");;
-				*) T2="B${T}";;
-			esac
-			MODE="$MODE / $T2"
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2'"}'
-			T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX':1,0/{print $5}')
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"(S'${IDX}') PCI":"'$T'"}'
-			fi
-			T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX':1,0/{print $6}')
-			if [ -n "$T" ]; then
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"(S'${IDX}') EARFCN":"'$T'"}'
-			fi
-			IDX=$((IDX + 1))
-		done
+	T=$(echo "$O" | awk -F[:,] '/^PCC/{print $3}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) PCI":"'$T'"}'
 	fi
+	T=$(echo "$O" | awk -F[:,] '/^PCC/{print $4}')
+	if [ -n "$T" ]; then
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(P) EARFCN":"'$T'"}'
+	fi
+
+IFS="
+"
+
+	IDX=1
+	LINES=$(echo "$O" | grep -E "^SCC[0-9]: ")
+	for LINE in $LINES; do
+		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $4}')
+		T=$((T - 100))
+		case $T in
+			"1") T2=$(band 1 "");;
+			"3") T2=$(band 3 "");;
+			"7") T2=$(band 7 "");;
+			"8") T2=$(band 8 "");;
+			"20") T2=$(band 20 "");;
+			*) T2="B${T}";;
+		esac
+		MODE="$MODE / $T2"
+		[ -n "$ADDON" ] && ADDON="$ADDON,"
+		ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2'"}'
+		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $5}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') PCI":"'$T'"}'
+		fi
+		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $6}')
+		if [ -n "$T" ]; then
+			[ -n "$ADDON" ] && ADDON="$ADDON,"
+			ADDON="$ADDON"'{"(S'${IDX}') EARFCN":"'$T'"}'
+		fi
+		IDX=$((IDX + 1))
+	done
 fi
