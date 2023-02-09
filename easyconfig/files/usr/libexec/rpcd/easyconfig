@@ -1006,6 +1006,26 @@ show_modem()
 				;;
 		esac
 
+		if [ "x$MODE" = "xLTE" ]; then
+			PB=""
+			PF=""
+			S1B=""
+			S1F=""
+			S2B=""
+			S2F=""
+			S3B=""
+			S3F=""
+			S4B=""
+			S4F=""
+			eval $(uqmi -sd $D --get-lte-cphy-ca-info 2>/dev/null | jsonfilter -q -e 'PB=@.primary.band' -e 'PF=@.primary.frequency' -e 'S1B=@.secondary_1.band' -e 'S1F=@.secondary_1.frequency' -e 'S2B=@.secondary_2.band' -e 'S2F=@.secondary_2.frequency' -e 'S3B=@.secondary_3.band' -e 'S3F=@.secondary_3.frequency' -e 'S4B=@.secondary_4.band' -e 'S4F=@.secondary_4.frequency')
+			[ -n "$S1B" ] && MODE="LTE_A"
+			[ -n "$PB" ] && MODE="${MODE} B${PB} (${PF} MHz)"
+			[ -n "$S1B" ] && MODE="${MODE} / B${S1B} (${S1F} MHz)"
+			[ -n "$S2B" ] && MODE="${MODE} / B${S2B} (${S2F} MHz)"
+			[ -n "$S3B" ] && MODE="${MODE} / B${S3B} (${S3F} MHz)"
+			[ -n "$S4B" ] && MODE="${MODE} / B${S4B} (${S4F} MHz)"
+		fi
+
 		echo "{"
 		echo "\"signal\":\"$SIGNAL\","
 		echo "\"operator_name\":\"$plmn_description\","
