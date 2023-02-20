@@ -504,8 +504,17 @@ echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_netmask":"'$LAN_NETMASK'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
-WLAN_CURRENT_CHANNELS=$(iw dev 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}' | sort -u)
-echo '"wlan_current_channels":['$WLAN_CURRENT_CHANNELS'],'
+echo '"wlan_current_channels":['
+T=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
+if [ -e /sys/class/net/$T/bridge ]; then
+	for I in /sys/class/net/$T/lower_*; do
+		if [ -e $I/phy80211 ]; then
+			iw dev ${I##*lower_} info 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}'
+		fi
+	done
+fi
+echo '],'
+
 RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 echo '"wlan_devices":['
 for R in $RADIOS; do
