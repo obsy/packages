@@ -910,8 +910,9 @@ function showcallback(data) {
 
 	// wlan
 	var t = '';
-	for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
-		var o = config.wlan_current_channels[idx];
+	var sorted = sortJSON(config.wlan_current_channels, 'channel', 'asc');
+	for (var idx = 0; idx < sorted.length; idx++) {
+		var o = sorted[idx];
 		for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
 			var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
 			if (wlan_channels.hasOwnProperty(o.channel)) {
