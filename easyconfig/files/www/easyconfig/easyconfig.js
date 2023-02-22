@@ -2109,7 +2109,7 @@ var wifiscanresults;
 
 function showsitesurvey() {
 	ubus_call('"easyconfig", "wifiscan", {}', function(data) {
-		var arr = data.result;
+		var arr = [...new Map((data.result).map(v => [JSON.stringify([v.mac,v.ssid,v.freq,v.signal,v.channel,v.encryption,v.mode1,v.mode2,v.vhtch1,v.vhtch2]), v])).values()]
 
 		var wlan_devices = config.wlan_devices;
 
