@@ -15,6 +15,20 @@ band() {
 	esac
 }
 
+getdevicepath() {
+	devname="$(basename $1)"
+	case "$devname" in
+		'tty'*)
+			devpath="$(readlink -f /sys/class/tty/$devname/device)"
+			echo ${devpath%/*/*}
+			;;
+		*)
+			devpath="$(readlink -f /sys/class/usbmisc/$devname/device)"
+			echo ${devpath%/*}
+			;;
+	esac
+}
+
 RES="/usr/share/easyconfig/modem"
 
 DEVICE=$($RES/detect.sh)
@@ -125,20 +139,19 @@ if [ -n "$T" ]; then
 fi
 
 if [ -e /usr/bin/sms_tool ]; then
-	_DEVS=$(awk '/Vendor=/{gsub(/.*Vendor=| ProdID=| Rev.*/,"");print}' /sys/kernel/debug/usb/devices | sort -u)
-	for _DEV in $_DEVS; do
-		if [ -e "$RES/addon/$_DEV" ]; then
-			case $(cat /tmp/sysinfo/board_name) in
+	USBPATH=$(getdevicepath $DEVICE)
+	DEV="$(cat ${USBPATH}/idVendor)$(cat ${USBPATH}/idProduct)"
+	if [ -e "$RES/addon/$DEV" ]; then
+		case $(cat /tmp/sysinfo/board_name) in
 			"zte,mf289f")
 				. "$RES/addon/19d21485"
 				;;
 			*)
-				. "$RES/addon/$_DEV"
+				. "$RES/addon/$DEV"
 				;;
-			esac
-			break
-		fi
-	done
+		esac
+		break
+	fi
 
 	if [ "x$CSQ" = "x-" ] && [ "x$CSQ_PER" = "x0" ]; then
 		MODE="-"
