@@ -150,7 +150,6 @@ if [ -e /usr/bin/sms_tool ]; then
 				. "$RES/addon/$DEV"
 				;;
 		esac
-		break
 	fi
 
 	if [ "x$CSQ" = "x-" ] && [ "x$CSQ_PER" = "x0" ]; then
