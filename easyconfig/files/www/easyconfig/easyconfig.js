@@ -381,7 +381,7 @@ function okdetectwan() {
 	cmd.push('uci commit network');
 	cmd.push('ifup wan');
 
-	execute(cmd, showsettings);
+	execute(cmd, showconfig);
 }
 
 function canceldetectwan_pin() {
@@ -762,7 +762,7 @@ function login()
 					setDisplay('div_system_modem', true);
 				}
 
-				showsettings();
+				showconfig();
 				showstatus();
 			} else {
 				showMsg('Błąd logowania!', true);
@@ -799,10 +799,6 @@ function findClosestChannel(findmin, channel, wlan_channels) {
 	return closestValue;
 }
 
-function showsettings() {
-	ubus_call('"easyconfig", "config", {}', showcallback);
-}
-
 var wan = [];
 wan['none'] = 'Brak';
 wan['dhcp'] = 'Port WAN (DHCP)';
@@ -816,253 +812,255 @@ wan['dhcp_hilink'] = 'Modem komórkowy (HiLink lub RNDIS)';
 wan['-'] = ' ';
 wan['detect'] = 'Wykryj...';
 
-function showcallback(data) {
-	config = data;
+function showconfig() {
+	ubus_call('"easyconfig", "config", {}', function(data) {
+		config = data;
 
 //console.log(config);
 
-	// wan
-	var e = removeOptions('wan_proto');
-	var arr = config.wan_protos;
-	arr.push('-');
-	arr.push('detect');
-	for (var idx = 0; idx<arr.length; idx++) {
-		var opt = document.createElement('option');
-		opt.value = arr[idx];
-		opt.innerHTML = wan[arr[idx]];
-		if (arr[idx] == '-') { opt.disabled = true; }
-		e.appendChild(opt);
-	}
-
-	e = removeOptions('wan_device');
-	var arr = config.wan_devices;
-	for (var idx = 0; idx<arr.length; idx++) {
-		var opt = document.createElement('option');
-		opt.value = arr[idx];
-		opt.innerHTML = arr[idx];
-		e.appendChild(opt);
-	}
-
-	e = removeOptions('modemsettings_modem_device');
-	var opt = document.createElement('option');
-	opt.value = '';
-	opt.innerHTML = 'Automatyczne wykrywanie';
-	e.appendChild(opt);
-	for (var idx = 0; idx < arr.length; idx++) {
-		var opt = document.createElement('option');
-		opt.value = arr[idx];
-		opt.innerHTML = arr[idx];
-		e.appendChild(opt);
-	}
-
-	e = removeOptions('wan_device_mm');
-	var arr = config.wan_devices_mm;
-	for (var idx = 0; idx < arr.length; idx++) {
-		var opt = document.createElement('option');
-		opt.value = arr[idx][0];
-		opt.innerHTML = arr[idx][1] + ' ' + arr[idx][2];
-		e.appendChild(opt);
-	}
-
-	e = removeOptions('wan_dns');
-	var sorteddns = [];
-	sorteddns = sortJSON(dns, 'name', 'asc');
-	sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
-	if (config.services.stubby) {
-		sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
-	}
-	for (var idx = 0; idx < sorteddns.length; idx++) {
-		var opt = document.createElement('option');
-		opt.value = (sorteddns[idx].ip).sort();
-		opt.innerHTML = sorteddns[idx].name;
-		opt.setAttribute('data-url', sorteddns[idx].url);
-		e.appendChild(opt);
-	}
-
-	setValue('wan_ipaddr', config.wan_ipaddr);
-	setValue('wan_netmask', config.wan_netmask);
-	setValue('wan_gateway', config.wan_gateway);
-	setValue('wan_apn', config.wan_apn);
-	setValue('wan_device', config.wan_device);
-	setValue('wan_device_mm', config.wan_device);
-	setValue('wan_pincode', config.wan_pincode);
-	setValue('wan_dns1', config.wan_dns1);
-	setValue('wan_dns2', config.wan_dns2);
-	setValue('wan_proto', config.wan_proto);
-	setValue('wan_wanport', (config.wan_wanport == 'bridge'));
-	if (config.wan_proto == 'dhcp') {
-		if (config.wan_ifname == config.wan_ifname_hilink) {
-			setValue('wan_proto', 'dhcp_hilink');
+		// wan
+		var e = removeOptions('wan_proto');
+		var arr = config.wan_protos;
+		arr.push('-');
+		arr.push('detect');
+		for (var idx = 0; idx<arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = arr[idx];
+			opt.innerHTML = wan[arr[idx]];
+			if (arr[idx] == '-') { opt.disabled = true; }
+			e.appendChild(opt);
 		}
-	}
-	enableWan(getValue('wan_proto'));
-	setValue('wan_modem_mode', config.wan_modem_mode);
-	setValue('wan_metered', config.wan_metered);
-	setValue('wan_lanto', config.wan_lanto != '');
-	setDisplay('div_wan_lanto_status', config.wan_lanto == '');
 
-	// lan
-	setValue('lan_ipaddr', config.lan_ipaddr);
-	setValue('lan_dhcp_enabled', config.lan_dhcp_enabled);
-	setValue('lan_forcedns', config.lan_forcedns);
-	setValue('dhcp_logqueries', config.dhcp_logqueries);
-	setDisplay('menu_queries', config.dhcp_logqueries);
+		e = removeOptions('wan_device');
+		var arr = config.wan_devices;
+		for (var idx = 0; idx<arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = arr[idx];
+			opt.innerHTML = arr[idx];
+			e.appendChild(opt);
+		}
 
-	// wlan
-	var t = '';
-	var sorted = sortJSON(config.wlan_current_channels, 'channel', 'asc');
-	for (var idx = 0; idx < sorted.length; idx++) {
-		var o = sorted[idx];
-		for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
-			var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
-			if (wlan_channels.hasOwnProperty(o.channel)) {
-				o.min = findClosestChannel(true, o.min, wlan_channels);
-				o.max = findClosestChannel(false, o.max, wlan_channels);
-				break;
+		e = removeOptions('modemsettings_modem_device');
+		var opt = document.createElement('option');
+		opt.value = '';
+		opt.innerHTML = 'Automatyczne wykrywanie';
+		e.appendChild(opt);
+		for (var idx = 0; idx < arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = arr[idx];
+			opt.innerHTML = arr[idx];
+			e.appendChild(opt);
+		}
+
+		e = removeOptions('wan_device_mm');
+		var arr = config.wan_devices_mm;
+		for (var idx = 0; idx < arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = arr[idx][0];
+			opt.innerHTML = arr[idx][1] + ' ' + arr[idx][2];
+			e.appendChild(opt);
+		}
+
+		e = removeOptions('wan_dns');
+		var sorteddns = [];
+		sorteddns = sortJSON(dns, 'name', 'asc');
+		sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
+		if (config.services.stubby) {
+			sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
+		}
+		for (var idx = 0; idx < sorteddns.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = (sorteddns[idx].ip).sort();
+			opt.innerHTML = sorteddns[idx].name;
+			opt.setAttribute('data-url', sorteddns[idx].url);
+			e.appendChild(opt);
+		}
+
+		setValue('wan_ipaddr', config.wan_ipaddr);
+		setValue('wan_netmask', config.wan_netmask);
+		setValue('wan_gateway', config.wan_gateway);
+		setValue('wan_apn', config.wan_apn);
+		setValue('wan_device', config.wan_device);
+		setValue('wan_device_mm', config.wan_device);
+		setValue('wan_pincode', config.wan_pincode);
+		setValue('wan_dns1', config.wan_dns1);
+		setValue('wan_dns2', config.wan_dns2);
+		setValue('wan_proto', config.wan_proto);
+		setValue('wan_wanport', (config.wan_wanport == 'bridge'));
+		if (config.wan_proto == 'dhcp') {
+			if (config.wan_ifname == config.wan_ifname_hilink) {
+				setValue('wan_proto', 'dhcp_hilink');
 			}
 		}
-		if (t != '') { t += ', '; }
-		t += o.channel + ' (' + o.min + ' - ' + o.max + ')';
-	}
-	setValue('wlan_current_channels', t == '' ? '-' : t);
-	var is_radio2 = false;
-	var is_radio5 = false;
-	var enc = [];
-	enc['none'] = 'Brak';
-	enc['psk'] = 'WPA Personal';
-	enc['psk2'] = 'WPA2 Personal';
-	if (config.services.sae) {
-		enc['sae-mixed'] = 'WPA2/WPA3 Personal';
-		enc['sae'] = 'WPA3 Personal';
-	}
-	var radios = (config.wlan_devices).slice(0,2);
-	for (var i = 0; i < radios.length; i++) {
-		is_radio2 = false;
-		is_radio5 = false;
-		select = removeOptions('wlan_channel' + i);
-		obj = config[radios[i]].wlan_channels;
-		var opt = document.createElement('option');
-		opt.value = '0';
-		opt.innerHTML = 'automatycznie';
-		select.appendChild(opt);
-		for (var propt in obj) {
+		enableWan(getValue('wan_proto'));
+		setValue('wan_modem_mode', config.wan_modem_mode);
+		setValue('wan_metered', config.wan_metered);
+		setValue('wan_lanto', config.wan_lanto != '');
+		setDisplay('div_wan_lanto_status', config.wan_lanto == '');
+
+		// lan
+		setValue('lan_ipaddr', config.lan_ipaddr);
+		setValue('lan_dhcp_enabled', config.lan_dhcp_enabled);
+		setValue('lan_forcedns', config.lan_forcedns);
+		setValue('dhcp_logqueries', config.dhcp_logqueries);
+		setDisplay('menu_queries', config.dhcp_logqueries);
+
+		// wlan
+		var t = '';
+		var sorted = sortJSON(config.wlan_current_channels, 'channel', 'asc');
+		for (var idx = 0; idx < sorted.length; idx++) {
+			var o = sorted[idx];
+			for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
+				var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
+				if (wlan_channels.hasOwnProperty(o.channel)) {
+					o.min = findClosestChannel(true, o.min, wlan_channels);
+					o.max = findClosestChannel(false, o.max, wlan_channels);
+					break;
+				}
+			}
+			if (t != '') { t += ', '; }
+			t += o.channel + ' (' + o.min + ' - ' + o.max + ')';
+		}
+		setValue('wlan_current_channels', t == '' ? '-' : t);
+		var is_radio2 = false;
+		var is_radio5 = false;
+		var enc = [];
+		enc['none'] = 'Brak';
+		enc['psk'] = 'WPA Personal';
+		enc['psk2'] = 'WPA2 Personal';
+		if (config.services.sae) {
+			enc['sae-mixed'] = 'WPA2/WPA3 Personal';
+			enc['sae'] = 'WPA3 Personal';
+		}
+		var radios = (config.wlan_devices).slice(0,2);
+		for (var i = 0; i < radios.length; i++) {
+			is_radio2 = false;
+			is_radio5 = false;
+			select = removeOptions('wlan_channel' + i);
+			obj = config[radios[i]].wlan_channels;
 			var opt = document.createElement('option');
-			opt.value = propt;
-			opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
+			opt.value = '0';
+			opt.innerHTML = 'automatycznie';
 			select.appendChild(opt);
-			if (propt > 14) {
-				is_radio5 = true;
+			for (var propt in obj) {
+				var opt = document.createElement('option');
+				opt.value = propt;
+				opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
+				select.appendChild(opt);
+				if (propt > 14) {
+					is_radio5 = true;
+				} else {
+					is_radio2 = true;
+				}
+			}
+
+			if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4 GHz');}
+			if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5 GHz');}
+			if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5 GHz');}
+
+			setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
+			setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
+			enableWlanTXPower(config[radios[i]].wlan_channel, i);
+			var txpower;
+			if (config[radios[i]].wlan_txpower == '' || config[radios[i]].wlan_channel == 0) {
+				txpower = 100;
 			} else {
-				is_radio2 = true;
+				var maxtxpower = config[radios[i]].wlan_channels[config[radios[i]].wlan_channel][1];
+				var curtxpower = config[radios[i]].wlan_txpower * 100 / maxtxpower;
+				txpower = 20;
+				if (curtxpower > 20) { txpower = 40; }
+				if (curtxpower > 40) { txpower = 60; }
+				if (curtxpower > 60) { txpower = 80; }
+				if (curtxpower > 80) { txpower = 100; }
 			}
+			setValue('wlan_txpower' + i, txpower);
+			setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
+
+			var select = removeOptions('wlan_encryption' + i);
+			for (var propt in enc) {
+				var opt = document.createElement('option');
+				opt.value = propt;
+				opt.innerHTML = enc[propt];
+				select.appendChild(opt);
+			}
+			setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
+
+			setValue('wlan_key' + i, config[radios[i]].wlan_key);
+			enableWlanEncryption(config[radios[i]].wlan_encryption, i);
+			setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate == 1);
+			setDisplay('div_radio' + i, true);
 		}
 
-		if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4 GHz');}
-		if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5 GHz');}
-		if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5 GHz');}
-
-		setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
-		setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
-		enableWlanTXPower(config[radios[i]].wlan_channel, i);
-		var txpower;
-		if (config[radios[i]].wlan_txpower == '' || config[radios[i]].wlan_channel == 0) {
-			txpower = 100;
-		} else {
-			var maxtxpower = config[radios[i]].wlan_channels[config[radios[i]].wlan_channel][1];
-			var curtxpower = config[radios[i]].wlan_txpower * 100 / maxtxpower;
-			txpower = 20;
-			if (curtxpower > 20) { txpower = 40; }
-			if (curtxpower > 40) { txpower = 60; }
-			if (curtxpower > 60) { txpower = 80; }
-			if (curtxpower > 80) { txpower = 100; }
+		if (!is_radio2 && !is_radio5) {
+			setDisplay('menu_wlan', false);
+			setDisplay('div_status_wlan', false);
+			setDisplay('div_nightmode_wlan', false);
 		}
-		setValue('wlan_txpower' + i, txpower);
-		setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
 
-		var select = removeOptions('wlan_encryption' + i);
-		for (var propt in enc) {
+		// system
+		setValue('system_hostname_label', config.system_hostname);
+		setValue('system_hostname', config.system_hostname);
+		document.title = config.system_hostname;
+
+		// firewall
+		setValue('firewall_dmz', config.firewall_dmz);
+
+		// stat
+		if (config.services.statistics.enabled != -1) {
+			setValue('stat_enabled', (config.services.statistics.enabled == 1));
+		}
+		setDisplay('div_stat', (config.services.statistics.enabled != -1));
+
+		// vpn
+		setDisplay('menu_vpn', (config.services.vpn).length > 0);
+
+		// nightmode / sunwait
+		setDisplay('div_nightmode_led_auto', config.services.sunwait);
+
+		// modembands
+		setDisplay('menu_modembands', config.services.modemband);
+
+		// gps
+		setDisplay('menu_gps', config.services.gps);
+
+		// button
+		if (config.button.code != '') {
+			select = removeOptions('system_button');
 			var opt = document.createElement('option');
-			opt.value = propt;
-			opt.innerHTML = enc[propt];
+			opt.value = 'none';
+			opt.innerHTML = 'Brak akcji';
 			select.appendChild(opt);
-		}
-		setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
-
-		setValue('wlan_key' + i, config[radios[i]].wlan_key);
-		enableWlanEncryption(config[radios[i]].wlan_encryption, i);
-		setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate == 1);
-		setDisplay('div_radio' + i, true);
-	}
-
-	if (!is_radio2 && !is_radio5) {
-		setDisplay('menu_wlan', false);
-		setDisplay('div_status_wlan', false);
-		setDisplay('div_nightmode_wlan', false);
-	}
-
-	// system
-	setValue('system_hostname_label', config.system_hostname);
-	setValue('system_hostname', config.system_hostname);
-	document.title = config.system_hostname;
-
-	// firewall
-	setValue('firewall_dmz', config.firewall_dmz);
-
-	// stat
-	if (config.services.statistics.enabled != -1) {
-		setValue('stat_enabled', (config.services.statistics.enabled == 1));
-	}
-	setDisplay('div_stat', (config.services.statistics.enabled != -1));
-
-	// vpn
-	setDisplay('menu_vpn', (config.services.vpn).length > 0);
-
-	// nightmode / sunwait
-	setDisplay('div_nightmode_led_auto', config.services.sunwait);
-
-	// modembands
-	setDisplay('menu_modembands', config.services.modemband);
-
-	// gps
-	setDisplay('menu_gps', config.services.gps);
-
-	// button
-	if (config.button.code != '') {
-		select = removeOptions('system_button');
-		var opt = document.createElement('option');
-		opt.value = 'none';
-		opt.innerHTML = 'Brak akcji';
-		select.appendChild(opt);
-		var opt = document.createElement('option');
-		opt.value = 'leds';
-		opt.innerHTML = 'Włącz/wyłącz diody LED';
-		select.appendChild(opt);
-		if (is_radio2 || is_radio5) {
 			var opt = document.createElement('option');
-			opt.value = 'rfkill';
-			opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
+			opt.value = 'leds';
+			opt.innerHTML = 'Włącz/wyłącz diody LED';
 			select.appendChild(opt);
+			if (is_radio2 || is_radio5) {
+				var opt = document.createElement('option');
+				opt.value = 'rfkill';
+				opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
+				select.appendChild(opt);
+			}
+			if ((config.services.vpn).length > 0) {
+				var opt = document.createElement('option');
+				opt.value = 'vpn';
+				opt.innerHTML = 'Włącz/wyłącz VPN';
+				select.appendChild(opt);
+			}
+			setValue('system_button_name', config.button.name);
+			setValue('system_button', config.button.action);
 		}
-		if ((config.services.vpn).length > 0) {
-			var opt = document.createElement('option');
-			opt.value = 'vpn';
-			opt.innerHTML = 'Włącz/wyłącz VPN';
-			select.appendChild(opt);
+		setDisplay('div_button', config.button.code != '');
+
+		// button reset
+		if (config.button_reset != -1) {
+			setValue('system_button_reset', (config.button_reset == 1));
 		}
-		setValue('system_button_name', config.button.name);
-		setValue('system_button', config.button.action);
-	}
-	setDisplay('div_button', config.button.code != '');
+		setDisplay('div_button_reset', (config.button_reset != -1));
 
-	// button reset
-	if (config.button_reset != -1) {
-		setValue('system_button_reset', (config.button_reset == 1));
-	}
-	setDisplay('div_button_reset', (config.button_reset != -1));
+		setValue('datarec_period', config.datarec_period);
 
-	setValue('datarec_period', config.datarec_period);
-
-	showmodemsection();
+		showmodemsection();
+	})
 }
 
 function copywireless() {
@@ -1435,7 +1433,7 @@ function savesettings() {
 		cleanField('password1');
 		cleanField('password2');
 		setDisplay('div_security', (pass1 == '12345678'));
-		showsettings();
+		showconfig();
 	});
 }
 
@@ -5643,7 +5641,7 @@ function closenav() {
 function btn_pages(page) {
 	closenav();
 	setDisplay('div_status', (page == 'status'));
-	setDisplay('div_settings', (page == 'settings'));
+	setDisplay('div_settings', (page == 'config'));
 	setDisplay('div_system', (page == 'system'));
 	setDisplay('div_watchdog', (page == 'watchdog'));
 	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
@@ -5662,8 +5660,8 @@ function btn_pages(page) {
 		showmodemsection();
 	}
 
-	if (page == 'settings') {
-		showsettings();
+	if (page == 'config') {
+		showconfig();
 	}
 
 	if (page == 'system') {
