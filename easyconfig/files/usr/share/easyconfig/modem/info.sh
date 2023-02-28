@@ -78,29 +78,21 @@ eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d
 case "$T" in
 	0*)
 		REG="0"
-		CSQ="-"
-		CSQ_PER=0
 		;;
 	1*)
 		REG="1"
 		;;
 	2*)
 		REG="2"
-		CSQ="-"
-		CSQ_PER=0
 		;;
 	3*)
 		REG="3"
-		CSQ="-"
-		CSQ_PER=0
 		;;
 	5*)
 		REG="5"
 		;;
 	*)
 		REG="-"
-		CSQ="-"
-		CSQ_PER=0
 		;;
 esac
 
@@ -138,23 +130,25 @@ if [ -n "$T" ]; then
 	[ "$T" = "+CPIN: READY" ] || REG=$(echo "$T" | cut -f2 -d: | xargs)
 fi
 
-if [ -e /usr/bin/sms_tool ]; then
-	USBPATH=$(getdevicepath $DEVICE)
-	DEV="$(cat ${USBPATH}/idVendor)$(cat ${USBPATH}/idProduct)"
-	if [ -e "$RES/addon/$DEV" ]; then
-		case $(cat /tmp/sysinfo/board_name) in
-			"zte,mf289f")
-				. "$RES/addon/19d21485"
-				;;
-			*)
-				. "$RES/addon/$DEV"
-				;;
-		esac
+if [ "x$REG" = "x1" ] || [ "x$REG" = "x5" ]; then
+	if [ -e /usr/bin/sms_tool ]; then
+		USBPATH=$(getdevicepath $DEVICE)
+		DEV="$(cat ${USBPATH}/idVendor)$(cat ${USBPATH}/idProduct)"
+		if [ -e "$RES/addon/$DEV" ]; then
+			case $(cat /tmp/sysinfo/board_name) in
+				"zte,mf289f")
+					. "$RES/addon/19d21485"
+					;;
+				*)
+					. "$RES/addon/$DEV"
+					;;
+			esac
+		fi
 	fi
-
-	if [ "x$CSQ" = "x-" ] && [ "x$CSQ_PER" = "x0" ]; then
-		MODE="-"
-	fi
+else
+	CSQ="-"
+	CSQ_PER=0
+	MODE="-"
 fi
 
 cat <<EOF
