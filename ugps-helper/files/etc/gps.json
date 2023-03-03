@@ -16,14 +16,14 @@
 		"nmea_tty": "/dev/ttyUSB1"
 	},
 	"1bc71040": {
-		"name": "Telit LM940-CP",
+		"name": "Telit LM940",
 		"start": [
 			"AT$GPSANTPORT=1",
 			"AT$GPSNMUN=1,1,1,1,1,1,1",
 			"AT$GPSP=1"
 		],
 		"cmd_tty": "/dev/ttyUSB2",
-		"nmea_tty": "/dev/ttyUSB3"
+		"nmea_tty": "/dev/ttyUSB1"
 	},
 	"2c7c0125": {
 		"name": "Quectel EC25",
