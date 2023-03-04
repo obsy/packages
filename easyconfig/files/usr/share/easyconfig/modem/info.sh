@@ -153,18 +153,25 @@ band5g() {
 	esac
 }
 
-getdevicepath() {
+getdevicevendorproduct() {
 	devname="$(basename $1)"
 	case "$devname" in
 		'tty'*)
 			devpath="$(readlink -f /sys/class/tty/$devname/device)"
-			echo ${devpath%/*/*}
+			T=${devpath%/*/*}
+			echo "$(cat $T/idVendor)$(cat $T/idProduct)"
 			;;
 		*)
 			devpath="$(readlink -f /sys/class/usbmisc/$devname/device)"
-			echo ${devpath%/*}
+			T=${devpath%/*}
+			echo "$(cat $T/idVendor)$(cat $T/idProduct)"
 			;;
 	esac
+}
+
+addon() {
+	[ -n "$ADDON" ] && ADDON="$ADDON,"
+	ADDON="$ADDON"'{"idx":'$1',"key":"'$2'","value":"'$3'"}'
 }
 
 RES="/usr/share/easyconfig/modem"
@@ -188,16 +195,16 @@ CSQ=$(echo "$O" | awk -F[,\ ] '/^\+(csq|CSQ)/ {print $2}')
 if [ $CSQ -ge 0 ] && [ $CSQ -le 31 ]; then
 	CSQ_PER=$((CSQ * 100/31))
 else
-	CSQ="-"
-	CSQ_PER=0
+	CSQ=""
+	CSQ_PER=""
 fi
 
 # COPS numeric
 COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
 if [ "x$COPS_NUM" = "x" ]; then
-	COPS_NUM="-"
-	COPS_MCC="-"
-	COPS_MNC="-"
+	COPS_NUM=""
+	COPS_MCC=""
+	COPS_MNC=""
 else
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:3}
@@ -215,23 +222,17 @@ fi
 eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
 	0*)
-		REG="0"
-		;;
+		REG="0";;
 	1*)
-		REG="1"
-		;;
+		REG="1";;
 	2*)
-		REG="2"
-		;;
+		REG="2";;
 	3*)
-		REG="3"
-		;;
+		REG="3";;
 	5*)
-		REG="5"
-		;;
+		REG="5";;
 	*)
-		REG="-"
-		;;
+		REG="";;
 esac
 
 # MODE
@@ -245,7 +246,7 @@ case "$MODE_NUM" in
 	5*) MODE="HSUPA";;
 	6*) MODE="HSPA";;
 	7*) MODE="LTE";;
-	 *) MODE="-";;
+	*) MODE="";;
 esac
 
 T=$(echo "$O" | awk -F[,\ ] '/^\+CME ERROR:/ {print $0;exit}')
@@ -259,7 +260,7 @@ if [ -n "$T" ]; then
 		"+CME ERROR: 15"*) REG="SIM wrong";;
 		"+CME ERROR: 17"*) REG="SIM PIN2 required";;
 		"+CME ERROR: 18"*) REG="SIM PUK2 required";;
-				*) REG=$(echo "$T" | cut -f2 -d: | xargs);;
+		*) REG=$(echo "$T" | cut -f2 -d: | xargs);;
 	esac
 fi
 
@@ -268,25 +269,21 @@ if [ -n "$T" ]; then
 	[ "$T" = "+CPIN: READY" ] || REG=$(echo "$T" | cut -f2 -d: | xargs)
 fi
 
-if [ "x$REG" = "x1" ] || [ "x$REG" = "x5" ]; then
-	if [ -e /usr/bin/sms_tool ]; then
-		USBPATH=$(getdevicepath $DEVICE)
-		DEV="$(cat ${USBPATH}/idVendor)$(cat ${USBPATH}/idProduct)"
-		if [ -e "$RES/addon/$DEV" ]; then
-			case $(cat /tmp/sysinfo/board_name) in
-				"zte,mf289f")
-					. "$RES/addon/19d21485"
-					;;
-				*)
-					. "$RES/addon/$DEV"
-					;;
-			esac
-		fi
+if [ -e /usr/bin/sms_tool ]; then
+	REGOK=0
+	[ "x$REG" = "x1" ] || [ "x$REG" = "x5" ] && REGOK=1
+	VIDPID=$(getdevicevendorproduct $DEVICE)
+	if [ -e "$RES/addon/$VIDPID" ]; then
+		ADDON=""
+		case $(cat /tmp/sysinfo/board_name) in
+			"zte,mf289f")
+				. "$RES/addon/19d21485"
+				;;
+			*)
+				. "$RES/addon/$VIDPID"
+				;;
+		esac
 	fi
-else
-	CSQ="-"
-	CSQ_PER=0
-	MODE="-"
 fi
 
 cat <<EOF

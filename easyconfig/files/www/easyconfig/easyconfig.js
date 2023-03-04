@@ -1896,84 +1896,119 @@ function showmodem() {
 		if (data.error)
 			return;
 
-		setValue('modem_signal', data.signal?data.signal + "%":"?");
-
-		if (data.signal) {
-			var e = document.getElementById("modem_signal_bars");
-			removeClasses(e, ["lzero","lone","ltwo","lthree","lfour","lfive","one-bar","two-bars","three-bars","four-bars","five-bars"]);
-			if (data.signal >= 80) {
-				addClasses(e, ["lfive","five-bars"]);
-			}
-			if (data.signal < 80 && data.signal >= 60) {
-				addClasses(e, ["lfour","four-bars"]);
-			}
-			if (data.signal < 60 && data.signal >= 40) {
-				addClasses(e, ["lthree","three-bars"]);
-			}
-			if (data.signal < 40 && data.signal >= 20) {
-				addClasses(e, ["ltwo","two-bars"]);
-			}
-			if (data.signal < 20 && data.signal > 0) {
-				addClasses(e, ["lone","one-bar"]);
-			}
-			if (data.signal == 0) {
-				addClasses(e, ["lzero","one-bar"]);
-			}
-		}
-
-		setValue('modem_operator', data.operator_name);
-		setValue('modem_mode', data.mode);
-		switch(data.registration) {
-		case "0":
-			setValue('modem_registration', 'Brak sieci');
-			break;
-		case "1":
-			setValue('modem_registration', 'Zalogowana do sieci macierzystej');
-			break;
-		case "2":
-			setValue('modem_registration', 'Wyszukiwanie operatora');
-			break;
-		case "3":
-			setValue('modem_registration', 'Odmowa dostępu');
-			break;
-		case "5":
-			setValue('modem_registration', 'Zalogowana do sieci w roamingu');
-			break;
-		default:
-			setValue('modem_registration', data.registration == '' ? '-' : data.registration);
-		}
-
 		arrmodemaddon = [];
-		if (data.operator_mcc && data.operator_mcc != '-' &&
-			data.operator_mnc && data.operator_mnc != '-') {
-			arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
+
+		switch(data.registration) {
+			case "0":
+				setValue('modem_registration', 'Brak sieci');
+				break;
+			case "1":
+				setValue('modem_registration', 'Zalogowana do sieci macierzystej');
+				break;
+			case "2":
+				setValue('modem_registration', 'Wyszukiwanie operatora');
+				break;
+			case "3":
+				setValue('modem_registration', 'Odmowa dostępu');
+				break;
+			case "5":
+				setValue('modem_registration', 'Zalogowana do sieci w roamingu');
+				break;
+			default:
+				setValue('modem_registration', data.registration == '' ? '-' : data.registration);
 		}
-		if (data.lac_dec && data.lac_dec > 0) {
-			arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
+
+		if (data.registration == '1' || data.registration == '5') {
+			setValue('modem_signal', data.signal == '' ? '-' : data.signal + '%');
+
+			if (data.signal) {
+				var e = document.getElementById('modem_signal_bars');
+				removeClasses(e, ['lzero', 'lone', 'ltwo', 'lthree', 'lfour', 'lfive', 'one-bar', 'two-bars', 'three-bars', 'four-bars', 'five-bars']);
+				if (data.signal >= 80) {
+					addClasses(e, ['lfive', 'five-bars']);
+				}
+				if (data.signal < 80 && data.signal >= 60) {
+					addClasses(e, ['lfour', 'four-bars']);
+				}
+				if (data.signal < 60 && data.signal >= 40) {
+					addClasses(e, ['lthree', 'three-bars']);
+				}
+				if (data.signal < 40 && data.signal >= 20) {
+					addClasses(e, ['ltwo', 'two-bars']);
+				}
+				if (data.signal < 20 && data.signal > 0) {
+					addClasses(e, ['lone', 'one-bar']);
+				}
+				if (data.signal == 0) {
+					addClasses(e, ['lzero', 'one-bar']);
+				}
+			}
+
+			setValue('modem_operator', data.operator_name == '' ? '-' : data.operator_name);
+			setValue('modem_mode', data.mode == '' ? '-' : data.mode);
+
+			if (data.operator_mcc && data.operator_mcc != '-' &&
+				data.operator_mnc && data.operator_mnc != '-') {
+				if (data.addon) {
+					if (data.addon[0].idx) {
+						arrmodemaddon.push({'idx':20, 'key':'MCC MNC', 'value':data.operator_mcc + ' ' + data.operator_mnc});
+					} else {
+						arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
+					}
+				} else {
+					arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
+				}
+			}
+			if (data.lac_dec && data.lac_dec > 0) {
+				if (data.addon) {
+					if (data.addon[0].idx) {
+						arrmodemaddon.push({'idx':22, 'key':'LAC', 'value':data.lac_dec + ' (' + data.lac_hex + ')'});
+					} else {
+						arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
+					}
+				} else {
+					arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
+				}
+			}
+			if (data.cid_dec && data.cid_dec > 0) {
+				if (data.addon) {
+					if (data.addon[0].idx) {
+						arrmodemaddon.push({'idx':21, 'key':'Cell ID', 'value':data.cid_dec + ' (' + data.cid_hex + ')'});
+					} else {
+						arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
+					}
+				} else {
+					arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
+				}
+			}
+
+			if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
+				document.getElementById('modem_btsearch').setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
+				setDisplay('div_modem_btsearch', true);
+			} else {
+				setDisplay('div_modem_btsearch', false);
+			}
 		}
-		if (data.cid_dec && data.cid_dec > 0) {
-			arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
-		}
+
 		if (data.addon) {
 			arrmodemaddon = arrmodemaddon.concat(data.addon);
 		}
 		setDisplay('div_modem_addon', arrmodemaddon.length > 0);
-
-		if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
-			document.getElementById("modem_btsearch").setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
-			setDisplay('div_modem_btsearch', true);
-		} else {
-			setDisplay('div_modem_btsearch', false);
-		}
-
 	});
 }
 
 function modemaddon() {
 	var html = '';
-	for (var i in arrmodemaddon) {
-		for (var j in arrmodemaddon[i]) {
-			html += createRowForModal((j == 'Temperature' ? 'Temperatura' : j), arrmodemaddon[i][j]);
+	if (arrmodemaddon[0].idx) {
+		sorted = sortJSON(arrmodemaddon, 'idx', 'asc');
+		for (var idx = 0; idx < sorted.length; idx++) {
+			html += createRowForModal((sorted[idx].key == 'Temperature' ? 'Temperatura' : sorted[idx].key), sorted[idx].value);
+		}
+	} else {
+		for (var i in arrmodemaddon) {
+			for (var j in arrmodemaddon[i]) {
+				html += createRowForModal((j == 'Temperature' ? 'Temperatura' : j), arrmodemaddon[i][j]);
+			}
 		}
 	}
 	showMsg(html);
