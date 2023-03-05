@@ -1,30 +1,42 @@
 # Quectel EP06
+# Quectel EG06
 
 . "$RES/addon/05c69215"
 
-O=$(sms_tool -d $DEVICE at "AT+QCAINFO")
-T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "pss"/{print $4}')
-[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "pcc"/{print $4}')
-if [ -n "$T" ]; then
-	case $T in
-		*"LTE BAND 1") MODE=$(band 1 "LTE ");;
-		*"LTE BAND 3") MODE=$(band 3 "LTE ");;
-		*"LTE BAND 7") MODE=$(band 7 "LTE ");;
-		*"LTE BAND 8") MODE=$(band 8 "LTE ");;
-		*"LTE BAND 20") MODE=$(band 20 "LTE ");;
-		*) MODE="${T}";;
-	esac
+if [ "$REGOK" = "1" ]; then
 
-	T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "sss"/{print $4}')
-	[ -z "$T" ] && T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "scc"/{print $4}')
+O=$(sms_tool -d $DEVICE at "AT+QCAINFO")
+
+if [ "x$MODE_NUM" = "x7" ]; then
+	T=$(echo "$O" | awk -F[,] '/^\+QCAINFO: "scc"/{print $4}' | xargs)
 	if [ -n "$T" ]; then
+		B=$(echo $T | sed 's/.*LTE BAND \(.*\)/\1/')
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $4}')
 		case $T in
-			*"LTE BAND 1") MODE="${MODE/LTE/LTE_A} / "$(band 1 "");;
-			*"LTE BAND 3") MODE="${MODE/LTE/LTE_A} / "$(band 3 "");;
-			*"LTE BAND 7") MODE="${MODE/LTE/LTE_A} / "$(band 7 "");;
-			*"LTE BAND 8") MODE="${MODE/LTE/LTE_A} / "$(band 8 "");;
-			*"LTE BAND 20") MODE="${MODE/LTE/LTE_A} / "$(band 20 "");;
-			*) MODE="${MODE/LTE/LTE_A} / ${T}";;
+			6) T1="1.4";;
+			15) T1="3";;
+			25) T1="5";;
+			50) T1="10";;
+			75) T1="15";;
+			100) T1="20";;
+			*) T1="?";;
 		esac
+		addon 50 "(S1) band" "$(band4g ${B}), $T1 MHz"
+		MODE="${MODE/LTE/LTE_A} / $(band4g ${B})"
+
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $7}')
+		addon 53 "(S1) PCI" "$T"
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $3}')
+		addon 54 "(S1) EARFCN" "$T"
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $10}')
+		addon 55 "(S1) RSSI" "$T dBm"
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $8}')
+		addon 56 "(S1) RSRP" "$T dBm"
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $9}')
+		addon 57 "(S1) RSRQ" "$T dB"
+		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $11}' | awk '{printf "%.1f\n", $1*0.2-20}')
+		addon 58 "(S1) SINR" "$T dB"
 	fi
+fi
+
 fi
