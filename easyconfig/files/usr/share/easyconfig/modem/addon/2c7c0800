@@ -21,7 +21,7 @@ case "$MODE_NUM" in
 		fi
 		;;
 	13*)
-		if echo "$O" | grep -q -i "+QCAINFO.*SCC"; then
+		if echo "$O" | grep -q -i "+QCAINFO.*NR5G"; then
 			MODE="5G-NSA"
 		fi
 		;;
