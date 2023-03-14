@@ -7,7 +7,9 @@ if [ "x$MODE_NUM" = "x7" ]; then
 	O=$(sms_tool -d $DEVICE at "at#servinfo")
 
 	T=$(echo "$O" | awk -F[,:] '/^#SERVINFO/ {print $4}' | xargs)
-	[ -n "$COPS" ] && COPS="$T"
+	if [ -n "$T" ] && [ -z "$FORCE_PLMN" ]; then
+		COPS="$T"
+	fi
 
 	T=$(echo "$O" | awk -F[,:] '/^#SERVINFO/ {print $7}')
 	if [ -n "$T" ]; then
