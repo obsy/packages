@@ -7,7 +7,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 	T=$(echo "$O" | awk -F[,:] '/\$QCRSRP/ {gsub("\"","");printf "%.1f", $4 * 1}')
 	[ -n "$T" ] && addon 36 "RSRP" "$T dBm"
 	T=$(echo "$O" | awk -F[,:] '/\$QCRSRQ/ {gsub("\"","");printf "%.1f", $4 * 1}')
-	[ -n "$T" ] && 	addon 37 "RSRQ" "$T dB"
+	[ -n "$T" ] && addon 37 "RSRQ" "$T dB"
 fi
 
 fi
