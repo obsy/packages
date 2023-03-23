@@ -1,78 +1,50 @@
 # Fibocom FM150
 
-O=$(sms_tool -d $DEVICE at "at+gtccinfo?;+gtcainfo?")
+if [ "$REGOK" = "1" ]; then
 
-if [ "x$MODE" = "xLTE" ]; then
+
+if [ "x$MODE_NUM" = "x7" ]; then
+	O=$(sms_tool -d $DEVICE at "at+gtccinfo?;+gtcainfo?")
+
 	if echo "$O" | grep -E "^SCC[1-9]:"; then
 		MODE="LTE_A"
 	fi
+
 	T1=$(echo "$O" | grep -A 3 'LTE service cell' | grep '1,4,'${COPS_MCC}','${COPS_MNC}',')
 	if [ -n "$T1" ]; then
 		T=$(echo "$T1" | awk -F, '{print $5}')
 		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			T_DEC=$(printf "%d" "0x$T")
-			ADDON="$ADDON"'{"TAC":"'$T_DEC' ('$T')"}'
+			addon 23 "TAC" "${T_DEC} ($T)"
 		fi
 		T=$(echo "$T1" | awk -F, '{print $8}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"PCI":"'$T'"}'
-		fi
+		[ -n "$T" ] && addon 33 "PCI" "$T"
 		T=$(echo "$T1" | awk -F, '{print $7}')
 		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			T_DEC=$(printf "%d" "0x$T")
-			ADDON="$ADDON"'{"EARFCN":"'$T_DEC'"}'
+			addon 34 "EARFCN" "${T_DEC}"
 		fi
 		T=$(echo "$T1" | awk -F, '{print $11}')
 		if [ -n "$T" ]; then
 			if [ $T -ge -100 ] || [ $T -le 100 ]; then
 				T=$(echo "$T" | awk -F, '{printf "%0.1f", $T/2}')
-				[ -n "$ADDON" ] && ADDON="$ADDON,"
-				ADDON="$ADDON"'{"RSSNR":"'$T' dB"}'
+				addon 38 "RSSNR" "$T dB"
 			fi
 		fi
 		T=$(echo "$T1" | awk -F, '{print $13}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"RSRP":"'$((T - 141))' dBm"}'
-		fi
+		[ -n "$T" ] && addon 36 "RSRP" "$((T - 141)) dBm"
 		T=$(echo "$T1" | awk -F, '{print $14}')
 		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
 			T2=$(echo "$T" | awk '{printf "%0.1f", ($1-34)/2-3 }')
-			ADDON="$ADDON"'{"RSRQ":"'$T2' dB"}'
+			addon 37 "RSRQ" "$T2 dB"
 		fi
 
 		T=$(echo "$T1" | awk -F, '{print $9}')
 		if [ -n "$T" ]; then
-			T=$((T - 100))
-			PBAND=$T
-			case $T in
-				"1") MODE="$MODE / "$(band 1 "");;
-				"3") MODE="$MODE / "$(band 3 "");;
-				"7") MODE="$MODE / "$(band 7 "");;
-				"8") MODE="$MODE / "$(band 8 "");;
-				"20") MODE="$MODE / "$(band 20 "");;
-				*) MODE="$MODE / B${T}";;
-			esac
-
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"Primary band":"'$(band $T "")'"}'
+			B=$((T - 100))
+			addon 30 "Primary band" "$(band4g $B)"
+			MODE="$MODE $(band4g ${B})"
 		fi
-
-	fi
-
-	T=$(echo "$O" | awk -F[:,] '/^PCC/{print $3}')
-	if [ -n "$T" ]; then
-		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"(P) PCI":"'$T'"}'
-	fi
-	T=$(echo "$O" | awk -F[:,] '/^PCC/{print $4}')
-	if [ -n "$T" ]; then
-		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"(P) EARFCN":"'$T'"}'
 	fi
 
 IFS="
@@ -81,29 +53,20 @@ IFS="
 	IDX=1
 	LINES=$(echo "$O" | grep -E "^SCC[0-9]: ")
 	for LINE in $LINES; do
+		POS=$(((IDX + 4) * 10))
+
 		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $4}')
-		T=$((T - 100))
-		case $T in
-			"1") T2=$(band 1 "");;
-			"3") T2=$(band 3 "");;
-			"7") T2=$(band 7 "");;
-			"8") T2=$(band 8 "");;
-			"20") T2=$(band 20 "");;
-			*) T2="B${T}";;
-		esac
-		MODE="$MODE / $T2"
-		[ -n "$ADDON" ] && ADDON="$ADDON,"
-		ADDON="$ADDON"'{"(S'${IDX}') band":"'$T2'"}'
+		B=$((T - 100))
+		MODE="$MODE / $(band4g ${B})"
+
+		addon $POS "(S'${IDX}') band" "$(band4g ${B})"
 		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $5}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S'${IDX}') PCI":"'$T'"}'
-		fi
+		[ -n "$T" ] && addon $((POS + 3)) "(S'${IDX}') PCI" "$T"
 		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $6}')
-		if [ -n "$T" ]; then
-			[ -n "$ADDON" ] && ADDON="$ADDON,"
-			ADDON="$ADDON"'{"(S'${IDX}') EARFCN":"'$T'"}'
-		fi
+		[ -n "$T" ] && addon $((POS + 4)) "(S'${IDX}') EARFCN" "$T"
+
 		IDX=$((IDX + 1))
 	done
+fi
+
 fi
