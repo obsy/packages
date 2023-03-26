@@ -1988,6 +1988,14 @@ function showmodem() {
 			} else {
 				setDisplay('div_modem_btsearch', false);
 			}
+		} else {
+			setValue('modem_signal', '-');
+			var e = document.getElementById('modem_signal_bars');
+			removeClasses(e, ['lzero', 'lone', 'ltwo', 'lthree', 'lfour', 'lfive', 'one-bar', 'two-bars', 'three-bars', 'four-bars', 'five-bars']);
+			addClasses(e, ['lzero', 'one-bar']);
+			setValue('modem_operator', '-');
+			setValue('modem_mode', '-');
+			setDisplay('div_modem_btsearch', false);
 		}
 
 		if (data.addon) {
