@@ -64,7 +64,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		T_DEC=$(printf "%d" "0x$T")
 		addon 23 "TAC" "${T_DEC} ($T)"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
-		addon 38 "(P) SINR" "$T dB"
+		addon 38 "SINR" "$T dB"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
 		case $T in
 			0*) T1="1.4";;
@@ -103,7 +103,7 @@ if [ "x$MODE_NUM" = "x13" ]; then
 			addon 23 "TAC" "${T_DEC} ($T)"
 
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
-			addon 38 "(P) SINR" "$T dB"
+			addon 38 "SINR" "$T dB"
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
 			case $T in
 				0*) T1="1.4";;
@@ -158,15 +158,15 @@ if [ -n "$T" ]; then
 		addon 30 "Primary band" "$T2, $T4 MHz"
 	fi
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $3}')
-	addon 34 "(P) EARFCN" "$T"
+	addon 34 "EARFCN" "$T"
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $7}')
-	addon 33 "(P) PCI" "$T"
+	addon 33 "PCI" "$T"
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $10}')
-	addon 35 "(P) RSSI" "$T dBm"
+	addon 35 "RSSI" "$T dBm"
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $8}')
-	addon 36 "(P) RSRP" "$T dBm"
+	addon 36 "RSRP" "$T dBm"
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $9}')
-	addon 37 "(P) RSRQ" "$T dB"
+	addon 37 "RSRQ" "$T dB"
 
 	IDX=1
 	LINES=$(echo "$O" | grep -E "^\+QCAINFO: \"(scc|SCC)\"")
