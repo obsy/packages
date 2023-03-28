@@ -51,7 +51,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,] '/^\$QCAI/{print $7}')
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,] '/^\$QCAI/ {print $8}' | xargs)
-			addon 30 "Primary band" "$(band4g ${T##*:}), ${T1##*:} MHz"
+			addon 30 "Primary band" "$(band4g ${T##*:}) @${T1##*:} MHz"
 			MODE="$MODE $(band4g ${T##*:})"
 		fi
 		T=$(echo "$O" | awk -F[,:] '/^\$QCAI/{print $2}' | xargs)
@@ -68,7 +68,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,] '/CA:ADDED/{print $16}')
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,] '/CA:ADDED/ {print $17}' | xargs)
-			addon 50 "(S) band" "$(band4g ${T##*:}), ${T1##*:} MHz"
+			addon 50 "(S) band" "$(band4g ${T##*:}) @${T1##*:} MHz"
 			MODE="${MODE/LTE/LTE_A} / $(band4g ${T##*:})"
 		fi
 		T=$(echo "$O" | awk -F[,] '/CA:ADDED/{print $10}' | xargs)

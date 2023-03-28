@@ -45,7 +45,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $3}' | xargs)
 		if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
-			addon 30 "Primary band" "$(band4g $T), $T1 MHz"
+			addon 30 "Primary band" "$(band4g $T) @${T1} MHz"
 		fi
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
 		if [ -n "$T" ] && [ "x$T" != "x0" ]; then
@@ -60,7 +60,7 @@ case "$MODE_NUM" in
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $9}' | xargs)
 			if [ -n "$T" ]; then
 				T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
-				addon 50 "(S) band" "$(band4g $T), $T1 MHz"
+				addon 50 "(S) band" "$(band4g $T) @${T1} MHz"
 				MODE="${MODE/LTE/LTE_A} / $(band4g ${T})"
 
 				T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $7}' | xargs)

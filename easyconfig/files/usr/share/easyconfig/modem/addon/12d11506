@@ -46,19 +46,19 @@ if [ -n "$T" ]; then
 					addon 34 "EARFCN UL" "$T"
 
 					T=$(echo "$O1" | awk -F[,:] '/^\^HFREQINFO/ {printf "%.1f", $10/1000}')
-					addon 31 "Bandwidth UL" "$T MHz"}'
+					addon 31 "Bandwidth UL" "$T MHz"
 				fi
 			fi
 
 			PARAM2=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $4}' | xargs)
 			PARAM3=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $5}' | xargs)
 			PARAM4=$(echo "$O" | awk -F[,:] '/^\^HCSQ:/ {print $6}' | xargs)
-			RSRP=$(awk 'BEGIN {print -141 + '$PARAM2'}')
-			addon 36 "RSRP" "$RSRP dBm"
-			SINR=$(awk 'BEGIN {print -20.2 + '$PARAM3'/5}')
-			addon 38 "SINR" "$SINR dB"
-			RSRQ=$(awk 'BEGIN {print -20 + '$PARAM4'/2}')
-			addon 37 "RSRQ" "$RSRQ dB"
+			T=$(awk 'BEGIN {print -141 + '$PARAM2'}')
+			addon 36 "RSRP" "$T dBm"
+			T=$(awk 'BEGIN {print -20.2 + '$PARAM3'/5}')
+			addon 38 "SINR" "$T dB"
+			T=$(awk 'BEGIN {print -20 + '$PARAM4'/2}')
+			addon 37 "RSRQ" "$T dB"
 			;;
 	esac
 fi

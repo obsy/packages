@@ -86,7 +86,7 @@ if [ -n "$T" ]; then
 	if [ -z "$T4" ]; then
 		addon 30 "Primary band" "$T2"
 	else
-		addon 30 "Primary band" "$T2, $T4 MHz"
+		addon 30 "Primary band" "$T2 @${T4} MHz"
 	fi
 	T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $3}')
 	addon 34 "EARFCN" "$T"
@@ -120,7 +120,7 @@ if [ -n "$T" ]; then
 		if [ -z "$T4" ]; then
 			addon $POS "(S${IDX}) band" "$T2"
 		else
-			addon $POS "(S${IDX}) band" "$T2, $T4 MHz"
+			addon $POS "(S${IDX}) band" "$T2 @${T4} MHz"
 		fi
 		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}')
 		addon $((POS + 4)) "(S${IDX}) EARFCN" "$T"

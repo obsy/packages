@@ -1054,11 +1054,11 @@ show_modem()
 			[ -n "$rsrp" ] && echo "{\"idx\":36,\"key\":\"RSRP\",\"value\":\"$rsrp dBm\"},"
 			[ -n "$rsrq" ] && echo "{\"idx\":37,\"key\":\"RSRQ\",\"value\":\"$rsrq dB\"},"
 			[ -n "$snr" ] && echo "{\"idx\":38,\"key\":\"SNR\",\"value\":\"$(printf "%.1f" $snr) dB\"},"
-			[ -n "$PB" ] && echo "{\"idx\":30,\"key\":\"Primary band\",\"value\":\"B${PB} (${PF} MHz), ${PBW} MHz\"},"
-			[ -n "$S1B" ] && echo "{\"idx\":50,\"key\":\"(S1) band\",\"value\":\"B${S1B} (${S1F} MHz), ${S1BW} MHz\"},"
-			[ -n "$S2B" ] && echo "{\"idx\":60,\"key\":\"(S2) band\",\"value\":\"B${S2B} (${S2F} MHz), ${S2BW} MHz\"},"
-			[ -n "$S3B" ] && echo "{\"idx\":70,\"key\":\"(S3) band\",\"value\":\"B${S3B} (${S3F} MHz), ${S3BW} MHz\"},"
-			[ -n "$S4B" ] && echo "{\"idx\":80,\"key\":\"(S4) band\",\"value\":\"B${S4B} (${S4F} MHz), ${S4BW} MHz\"},"
+			[ -n "$PB" ] && echo "{\"idx\":30,\"key\":\"Primary band\",\"value\":\"B${PB} (${PF} MHz) @${PBW} MHz\"},"
+			[ -n "$S1B" ] && echo "{\"idx\":50,\"key\":\"(S1) band\",\"value\":\"B${S1B} (${S1F} MHz) @${S1BW} MHz\"},"
+			[ -n "$S2B" ] && echo "{\"idx\":60,\"key\":\"(S2) band\",\"value\":\"B${S2B} (${S2F} MHz) @${S2BW} MHz\"},"
+			[ -n "$S3B" ] && echo "{\"idx\":70,\"key\":\"(S3) band\",\"value\":\"B${S3B} (${S3F} MHz) @${S3BW} MHz\"},"
+			[ -n "$S4B" ] && echo "{\"idx\":80,\"key\":\"(S4) band\",\"value\":\"B${S4B} (${S4F} MHz) @${S4BW} MHz\"},"
 		fi
 		if [ "$MODE_NUM" = "2" ]; then
 			[ -n "$ecio" ] && echo "{\"idx\":36,\"key\":\"ECIO\",\"value\":\"$ecio dB\"},"

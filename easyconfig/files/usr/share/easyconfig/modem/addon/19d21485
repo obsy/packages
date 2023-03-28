@@ -79,7 +79,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $3}' | xargs)
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
-			addon 30 "Primary band" "$(band4g $T), $T1 MHz"
+			addon 30 "Primary band" "$(band4g $T) @${T1} MHz"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
 			[ -n "$T" ] && addon 33 "PCI" "$T"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $5}' | xargs)
@@ -89,7 +89,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $9}' | xargs)
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
-			addon 50 "(S1) band" "$(band4g $T), $T1 MHz"
+			addon 50 "(S1) band" "$(band4g $T) @${T1} MHz"
 			MODE="${MODE/LTE/LTE_A} / $(band4g ${T})"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $7}' | xargs)
 			[ -n "$T" ] && addon 53 "(S1) PCI" "$T"
@@ -100,7 +100,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $14}' | xargs)
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $16}' | xargs)
-			addon 60 "(S2) band" "$(band4g $T), $T1 MHz"
+			addon 60 "(S2) band" "$(band4g $T) @${T1} MHz"
 			MODE="$MODE / $(band4g ${T})"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $12}' | xargs)
 			[ -n "$T" ] && addon 63 "(S2) PCI" "$T"
@@ -111,7 +111,7 @@ case "$MODE_NUM" in
 		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $19}' | xargs)
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $21}' | xargs)
-			addon 70 "(S3) band" "$(band4g $T), $T1 MHz"
+			addon 70 "(S3) band" "$(band4g $T) @${T1} MHz"
 			MODE="$MODE / $(band4g ${T})"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $17}' | xargs)
 			[ -n "$T" ] && addon 73 "(S3) PCI" "$T"

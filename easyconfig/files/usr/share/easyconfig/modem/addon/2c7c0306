@@ -21,7 +21,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 			100) T1="20";;
 			*) T1="?";;
 		esac
-		addon 50 "(S1) band" "$(band4g ${B}), $T1 MHz"
+		addon 50 "(S1) band" "$(band4g ${B}) @${T1} MHz"
 		MODE="${MODE/LTE/LTE_A} / $(band4g ${B})"
 
 		T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "scc"/ {print $7}')
