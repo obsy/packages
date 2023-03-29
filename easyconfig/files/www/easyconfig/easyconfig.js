@@ -1947,39 +1947,14 @@ function showmodem() {
 			setValue('modem_operator', data.operator_name == '' ? '-' : data.operator_name);
 			setValue('modem_mode', data.mode == '' ? '-' : data.mode);
 
-			if (data.operator_mcc && data.operator_mcc != '-' &&
-				data.operator_mnc && data.operator_mnc != '-') {
-				if (data.addon) {
-					if (data.addon[0].idx) {
-						arrmodemaddon.push({'idx':20, 'key':'MCC MNC', 'value':data.operator_mcc + ' ' + data.operator_mnc});
-					} else {
-						arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
-					}
-				} else {
-					arrmodemaddon.push({'MCC MNC':data.operator_mcc + ' ' + data.operator_mnc});
-				}
+			if (data.operator_mcc && data.operator_mcc != '' && data.operator_mnc && data.operator_mnc != '') {
+				arrmodemaddon.push({'idx':20, 'key':'MCC MNC', 'value':data.operator_mcc + ' ' + data.operator_mnc});
 			}
 			if (data.lac_dec && data.lac_dec > 0) {
-				if (data.addon) {
-					if (data.addon[0].idx) {
-						arrmodemaddon.push({'idx':22, 'key':'LAC', 'value':data.lac_dec + ' (' + data.lac_hex + ')'});
-					} else {
-						arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
-					}
-				} else {
-					arrmodemaddon.push({'LAC':data.lac_dec + ' (' + data.lac_hex + ')'});
-				}
+				arrmodemaddon.push({'idx':22, 'key':'LAC', 'value':data.lac_dec + ' (' + data.lac_hex + ')'});
 			}
 			if (data.cid_dec && data.cid_dec > 0) {
-				if (data.addon) {
-					if (data.addon[0].idx) {
-						arrmodemaddon.push({'idx':21, 'key':'Cell ID', 'value':data.cid_dec + ' (' + data.cid_hex + ')'});
-					} else {
-						arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
-					}
-				} else {
-					arrmodemaddon.push({'CellID':data.cid_dec + ' (' + data.cid_hex + ')'});
-				}
+				arrmodemaddon.push({'idx':21, 'key':'Cell ID', 'value':data.cid_dec + ' (' + data.cid_hex + ')'});
 			}
 
 			if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
@@ -2007,18 +1982,10 @@ function showmodem() {
 
 function modemaddon() {
 	var html = '';
-	if (arrmodemaddon[0].idx) {
-		sorted = sortJSON(arrmodemaddon, 'idx', 'asc');
-		for (var idx = 0; idx < sorted.length; idx++) {
-			html += createRowForModal((sorted[idx].key == 'Temperature' ? 'Temperatura' : sorted[idx].key), sorted[idx].value);
-		}
-	} else {
-		for (var i in arrmodemaddon) {
-			for (var j in arrmodemaddon[i]) {
-				html += createRowForModal((j == 'Temperature' ? 'Temperatura' : j), arrmodemaddon[i][j]);
-			}
-		}
-	}
+	var sorted = sortJSON(arrmodemaddon, 'idx', 'asc');
+	sorted.forEach(function(e) {
+		html += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value);
+	});
 	showMsg(html);
 }
 
