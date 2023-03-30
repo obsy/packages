@@ -4,17 +4,6 @@
 # (c) 2010-2023 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
-band() {
-	case "$1" in
-		1) echo "${2}B1 (2100 MHz)";;
-		3) echo "${2}B3 (1800 MHz)";;
-		7) echo "${2}B7 (2600 MHz)";;
-		8) echo "${2}B8 (900 MHz)";;
-		20) echo "${2}B20 (800 MHz)";;
-		*) echo "$1";;
-	esac
-}
-
 band4g() {
 # see https://en.wikipedia.org/wiki/LTE_frequency_bands
 	echo -n "B${1}"
