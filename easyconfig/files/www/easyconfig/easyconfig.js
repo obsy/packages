@@ -1617,7 +1617,7 @@ function showstatus() {
 			}
 			if ((data.ports).length > 0) {
 				physicalports = data.ports;
-				var sorted = sortJSON(data.ports, 'port', 'asc');
+				var sorted = naturalSortJSON(data.ports, 'port');
 				var html = '<center><table><tr>';
 				for (var idx = 0; idx < sorted.length; idx++) {
 					html += '<td style="padding:5px;text-align:center"' + (sorted[idx].macs > 0 ? ' title="Połączonych klientów: ' + sorted[idx].macs + '"' : '') + '><i data-feather="wire' + (sorted[idx].speed > 0 ? '2' : '1')  + '">x</i><br>' + (sorted[idx].port).toUpperCase();
@@ -2093,6 +2093,10 @@ function sortJSON(data, key, way) {
 		if (way === 'asc' ) { return ((x < y) ? -1 : ((x > y) ? 1 : 0)); }
 		if (way === 'desc') { return ((x > y) ? -1 : ((x < y) ? 1 : 0)); }
 	});
+}
+
+function naturalSortJSON(data, key) {
+	return data.sort((a, b) => a[key].localeCompare(b[key], undefined, { numeric: true, sensitivity: 'base' }));
 }
 
 function formatDuration(s, showsec) {
