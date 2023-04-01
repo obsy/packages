@@ -1623,6 +1623,9 @@ function showstatus() {
 					html += '<td style="padding:5px;text-align:center"' + (sorted[idx].macs > 0 ? ' title="Połączonych klientów: ' + sorted[idx].macs + '"' : '') + '><i data-feather="wire' + (sorted[idx].speed > 0 ? '2' : '1')  + '">x</i><br>' + (sorted[idx].port).toUpperCase();
 					html += '<br>' + networkspeed(sorted[idx].speed);
 					html += '</td>';
+					if (((idx + 1) % 5) == 0 && (idx + 1) < sorted.length) {
+						html += '</tr><tr>';
+					}
 				}
 				html += '</tr></table></center>'
 				setValue('div_status_lan_ports', html);
