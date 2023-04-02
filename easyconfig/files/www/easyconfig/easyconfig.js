@@ -2016,7 +2016,7 @@ function btn_system_reboot() {
 
 function okreboot() {
 	ubus('"easyconfig", "reboot", {}', function(data) {
-		showMsg("Trwa ponownie uruchomienie urządzenia, może to potrwać do trzech minut...", false);
+		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać do trzech minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
 	}, true);
