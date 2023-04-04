@@ -58,7 +58,7 @@ case "$MODE_NUM" in
 
 		if [ "x$MODE_NUM" = "x9" ]; then
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $9}' | xargs)
-			if [ -n "$T" ]; then
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 				T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $11}' | xargs)
 				addon 50 "(S) band" "$(band4g $T) @${T1} MHz"
 				MODE="${MODE/LTE/LTE_A} / $(band4g ${T})"
