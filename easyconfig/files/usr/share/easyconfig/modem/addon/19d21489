@@ -46,14 +46,15 @@ case "$MODE_NUM" in
 		if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
 			addon 30 "Primary band" "$(band4g $T) @${T1} MHz"
-		fi
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
-		if [ -n "$T" ] && [ "x$T" != "x0" ]; then
-			addon 33 "PCI" "$T"
-		fi
-		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $5}' | xargs)
-		if [ -n "$T" ] && [ "x$T" != "x0" ]; then
-			addon 34 "EARFCN" "$T"
+
+			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				addon 33 "PCI" "$T"
+			fi
+			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $5}' | xargs)
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				addon 34 "EARFCN" "$T"
+			fi
 		fi
 
 		if [ "x$MODE_NUM" = "x9" ]; then
