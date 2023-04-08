@@ -33,7 +33,7 @@ handle_script() {
 		config_get param "$config" param
 		case "$type" in
 			"get" | "post")
-				[ "x$DATA" = "x" ] || DATA="${DATA}&"
+				[ -z "$DATA" ] || DATA="${DATA}&"
 				if [ $lines -le 1 ]; then
 					DATA="${DATA}${param}=${value}"
 				else
@@ -41,7 +41,7 @@ handle_script() {
 				fi
 				;;
 			"mqtt")
-				if [ "x$DATA" = "x" ]; then
+				if [ -z "$DATA" ]; then
 					json_init
 				else
 					json_load "$(echo "$DATA")"
@@ -86,7 +86,7 @@ parse_globals() {
 			config_get options "$section" options
 			config_get host "$section" host
 			config_get topic "$section" topic
-			$DEBUG mosquitto_pub "${options}" -h "${host}" -t "${topic}" -m "${DATA}"
+			$DEBUG mosquitto_pub ${options} -h "${host}" -t "${topic}" -m "${DATA}"
 	esac
 }
 
