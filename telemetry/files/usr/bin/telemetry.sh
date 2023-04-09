@@ -14,7 +14,7 @@ info() {
 	if [ -e "$RES/$script" ]; then
 		value=$("$RES/$script" info)
 		config_get param "$config" param
-		printf "%-30s%-30s%-20s\n" "$value" "parameter: $param" "enabled: $enabled"
+		printf "%-30s%-30s%-20s\n" "$value" "$param" "$enabled"
 	fi
 
 }
@@ -67,6 +67,7 @@ parse_globals() {
 	[ "$enabled" -eq 1 ] || exit 0
 	config_get type "$section" type ""
 	if [ "x$2" = "xinfo" ]; then
+		printf "%-30s%-30s%-20s\n" "Description" "Parameter" "Enabled"
 		config_foreach info script
 		exit 0
 	else
