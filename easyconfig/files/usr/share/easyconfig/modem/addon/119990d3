@@ -1,0 +1,117 @@
+# Sierra Wireless EM9190
+
+O=$(sms_tool -d $DEVICE at "at!gstatus?")
+
+T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}')
+[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+
+if [ "$REGOK" = "1" ]; then
+
+MODE=$(echo "$O" | awk '/^System mode:/ {print $3}')
+
+T=$(echo "$O" | awk '/.*TAC:/ {print $6}')
+if [ -n "$T" ]; then
+	T_DEC=$(printf "%d" "0x$T")
+	addon 23 "TAC" "${T_DEC} ($T)"
+fi
+
+T=$(echo "$O" | awk '/^PCC.*RSSI/ {print $4}' | xargs)
+[ -n "$T" ] && addon 35 "RSSI" "${T// //} dBm"
+T=$(echo "$O" | awk '/^PCC.*RSRP/ {print $8}' | xargs)
+[ -n "$T" ] && addon 36 "RSRP" "${T// //} dBm"
+T=$(echo "$O" | awk '/^RSRQ/ {print $3}')
+[ -n "$T" ] && addon 37 "RSRQ" "$T dB"
+T=$(echo "$O" | awk '/^SINR/ {print $3}')
+[ -n "$T" ] && addon 38 "SINR" "$T dB"
+
+T=$(echo "$O" | awk '/^LTE band:/ {print $3}')
+if [ -n "$T" ]; then
+	T1=$(echo "$O" | awk '/^LTE band:/ {print $6}')
+	addon 30 "Primary band" "$(band4g ${T/B/}) @${T1} MHz"
+	MODE="$MODE $(band4g ${T/B/})"
+fi
+T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $4}')
+[ -n "$T" ] && addon 34 "EARFCN DL" "$T"
+T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $8}')
+[ -n "$T" ] && addon 34 "EARFCN UL" "$T"
+
+T=$(echo "$O" | awk -F: '/^LTE SCC1 state:.*ACTIVE/ {print $3}')
+if [ -n "$T" ]; then
+	T1=$(echo "$O" | awk '/^LTE SCC1 bw/ {print $5}')
+	if [ -n "$T1" ]; then
+		addon 50 "(S1) band" "$(band4g ${T/B/}) @${T1} MHz"
+	else
+		addon 50 "(S1) band" "$(band4g ${T/B/})"
+	fi
+	MODE="${MODE/LTE/LTE_A} / $(band4g ${T/B/})"
+
+	T=$(echo "$O" | awk '/.*LTE SCC1 Rx chan:/ {print $11}')
+	[ -n "$T" ] && addon 54 "(S1) EARFCN DL" "${T}"
+	T=$(echo "$O" | awk '/.*LTE SCC1 Tx chan:/ {print $10}')
+	[ -n "$T" ] && addon 54 "(S1) EARFCN UL" "${T}"
+
+	T=$(echo "$O" | awk '/^SCC1.*RSSI/ {print $4}' | xargs)
+	[ -n "$T" ] && addon 55 "(S1) RSSI" "${T// //} dBm"
+	T=$(echo "$O" | awk '/^SCC1.*RSRP/ {print $8}' | xargs)
+	[ -n "$T" ] && addon 56 "(S1) RSRP" "${T// //} dBm"
+fi
+
+T=$(echo "$O" | awk -F: '/^LTE SCC2 state:.*ACTIVE/ {print $3}')
+if [ -n "$T" ]; then
+	T1=$(echo "$O" | awk '/^LTE SCC2 bw/ {print $5}')
+	if [ -n "$T1" ]; then
+		addon 60 "(S2) band" "$(band4g ${T/B/}) @${T1} MHz"
+	else
+		addon 60 "(S2) band" "$(band4g ${T/B/})"
+	fi
+	MODE="$MODE / $(band4g ${T/B/})"
+
+	T=$(echo "$O" | awk '/.*LTE SCC2 Rx chan:/ {print $11}')
+	[ -n "$T" ] && addon 64 "(S2) EARFCN DL" "${T}"
+	T=$(echo "$O" | awk '/.*LTE SCC2 Tx chan:/ {print $10}')
+	[ -n "$T" ] && addon 64 "(S2) EARFCN UL" "${T}"
+
+	T=$(echo "$O" | awk '/^SCC2.*RSSI/ {print $4}' | xargs)
+	[ -n "$T" ] && addon 65 "(S2) RSSI" "${T// //} dBm"
+	T=$(echo "$O" | awk '/^SCC2.*RSRP/ {print $8}' | xargs)
+	[ -n "$T" ] && addon 66 "(S2) RSRP" "${T// //} dBm"
+fi
+
+T=$(echo "$O" | awk -F: '/^LTE SCC3 state:.*ACTIVE/ {print $3}')
+if [ -n "$T" ]; then
+	T1=$(echo "$O" | awk '/^LTE SCC3 bw/ {print $5}')
+	if [ -n "$T1" ]; then
+		addon 70 "(S3) band" "$(band4g ${T/B/}) @${T1} MHz"
+	else
+		addon 70 "(S3) band" "$(band4g ${T/B/})"
+	fi
+	MODE="$MODE / $(band4g ${T/B/})"
+
+	T=$(echo "$O" | awk '/.*LTE SCC3 Rx chan:/ {print $11}')
+	[ -n "$T" ] && addon 74 "(S3) EARFCN DL" "${T}"
+	T=$(echo "$O" | awk '/.*LTE SCC3 Tx chan:/ {print $10}')
+	[ -n "$T" ] && addon 74 "(S3) EARFCN UL" "${T}"
+
+	T=$(echo "$O" | awk '/^SCC3.*RSSI/ {print $4}' | xargs)
+	[ -n "$T" ] && addon 75 "(S3) RSSI" "${T// //} dBm"
+	T=$(echo "$O" | awk '/^SCC3.*RSRP/ {print $8}' | xargs)
+	[ -n "$T" ] && addon 76 "(S3) RSRP" "${T// //} dBm"
+fi
+
+#T=$(echo "$O" | awk '/^NR5G band:/ {print $3}')
+#if [ -n "$T" ] && [ "$T" != "---" ]; then
+#	addon 80 "5G band" "$(band5g ${T/n/})"
+#	MODE="${MODE/LTE_A/NR5G} / $(band5g ${T/n/})"
+#	T=$(echo "$O" | awk '/^NR5G dl bw:/ {print $4}')
+#	[ -n "$T" ] && addon 81 "DL BW" "$T MHz"
+#	T=$(echo "$O" | awk '/NR5G ul bw:/ {print $9}')
+#	[ -n "$T" ] && addon 81 "UL BW" "$T MHz"
+#	T=$(echo "$O" | awk '/^NR5G Rx chan:/ {print $4}')
+#	[ -n "$T" ] && addon 84 "EARFCN DL" "$T"
+#	T=$(echo "$O" | awk '/NR5G Tx chan:/ {print $8}')
+#	[ -n "$T" ] && addon 84 "EARFCN UL" "$T"
+#	T=$(echo "$O" | awk '/^NR5G.*RSSI/ {print $5"/"$10}' | xargs)
+#	[ -n "$T" ] && addon 35 "RSSI" "${T// //} dBm"
+#fi
+
+fi
