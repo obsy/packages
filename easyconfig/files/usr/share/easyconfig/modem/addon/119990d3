@@ -7,7 +7,15 @@ T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}')
 
 if [ "$REGOK" = "1" ]; then
 
-MODE=$(echo "$O" | awk '/^System mode:/ {print $3}')
+T=$(echo "$O" | awk '/^System mode:/ {print $3}')
+case $T in
+	"LTE")
+		MODE="LTE"
+		;;
+	"ENDC")
+		MODE="5G NSA"
+		;;
+esac
 
 T=$(echo "$O" | awk '/.*TAC:/ {print $6}')
 if [ -n "$T" ]; then
@@ -98,20 +106,25 @@ if [ -n "$T" ]; then
 	[ -n "$T" ] && addon 76 "(S3) RSRP" "${T// //} dBm"
 fi
 
-#T=$(echo "$O" | awk '/^NR5G band:/ {print $3}')
-#if [ -n "$T" ] && [ "$T" != "---" ]; then
-#	addon 80 "5G band" "$(band5g ${T/n/})"
-#	MODE="${MODE/LTE_A/NR5G} / $(band5g ${T/n/})"
-#	T=$(echo "$O" | awk '/^NR5G dl bw:/ {print $4}')
-#	[ -n "$T" ] && addon 81 "DL BW" "$T MHz"
-#	T=$(echo "$O" | awk '/NR5G ul bw:/ {print $9}')
-#	[ -n "$T" ] && addon 81 "UL BW" "$T MHz"
-#	T=$(echo "$O" | awk '/^NR5G Rx chan:/ {print $4}')
-#	[ -n "$T" ] && addon 84 "EARFCN DL" "$T"
-#	T=$(echo "$O" | awk '/NR5G Tx chan:/ {print $8}')
-#	[ -n "$T" ] && addon 84 "EARFCN UL" "$T"
-#	T=$(echo "$O" | awk '/^NR5G.*RSSI/ {print $5"/"$10}' | xargs)
-#	[ -n "$T" ] && addon 35 "RSSI" "${T// //} dBm"
-#fi
+T=$(echo "$O" | awk '/^SCC. NR5G band:/ {print $4}')
+if [ -n "$T" ] && [ "$T" != "---" ]; then
+	MODE="$MODE / $(band5g ${T/n/})"
+	T1=$(echo "$O" | awk '/^SCC.*SCC. NR5G bw:/ {print $8}')
+	if [ -n "$T1" ]; then
+		addon 80 "5G band" "$(band5g ${T/n/}) @${T1} MHz"
+	else
+		addon 80 "5G band" "$(band5g ${T/n/})"
+	fi
+	T=$(echo "$O" | awk '/^SCC. NR5G Rx chan:/ {print $5}')
+	[ -n "$T" ] && addon 84 "EARFCN DL" "$T"
+	T=$(echo "$O" | awk '/^SCC.*SCC. NR5G Tx chan:/ {print $10}')
+	[ -n "$T" ] && addon 84 "EARFCN UL" "$T"
+	T=$(echo "$O" | awk '/^NR5G RSRP/ {print $4}')
+	[ -n "$T" ] && addon 86 "RSRP" "$T dBm"
+	T=$(echo "$O" | awk '/^NR5G.*RSRQ/ {print $8}')
+	[ -n "$T" ] && addon 87 "RSRQ" "$T dB"
+	T=$(echo "$O" | awk '/^NR5G SINR/ {print $4}')
+	[ -n "$T" ] && addon 88 "RSRP" "$T dBm"
+fi
 
 fi
