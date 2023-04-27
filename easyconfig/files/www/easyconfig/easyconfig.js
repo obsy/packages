@@ -3835,6 +3835,7 @@ function showtraffic() {
 				setValue('traffic_total_since', '');
 			}
 			setValue('traffic_currentperiod', bytesToSize(traffic_currentperiod));
+			setValue('traffic_currentperiod_projected', bytesToSize((traffic_currentperiod / current_period.length) * (current_period.length + diffdays - 1)));
 			setValue('traffic_lastperiod', bytesToSize(traffic_lastperiod));
 		});
 	});
