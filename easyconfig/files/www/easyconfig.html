@@ -284,7 +284,7 @@
 		<div class="form-group" id="div_wan_ipaddr">
 			<label for="wan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="wan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			</div>
 		</div>
 
@@ -332,7 +332,7 @@
 		<div class="form-group" id="div_wan_gateway">
 			<label for="wan_gateway" class="col-xs-4 col-sm-3 control-label">Brama</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_gateway" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="wan_gateway" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			</div>
 		</div>
 
@@ -397,14 +397,14 @@
 		<div class="form-group" id="div_wan_dns1">
 			<label for="wan_dns1" class="col-xs-4 col-sm-3 control-label">DNS 1</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_dns1" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="wan_dns1" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_wan_dns2">
 			<label for="wan_dns2" class="col-xs-4 col-sm-3 control-label">DNS 2</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_dns2" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="wan_dns2" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			</div>
 		</div>
 
@@ -435,7 +435,7 @@
 		<div class="form-group" id="div_firewall_dmz">
 			<label for="firewall_dmz" class="col-xs-4 col-sm-3 control-label">Adres IP w DMZ</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="firewall_dmz" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="firewall_dmz" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			<em><small class="form-text text-muted">musi być z tej samej klasy co sieć lokalna</small></em>
 			</div>
 		</div>
@@ -446,7 +446,7 @@
 		<div class="form-group">
 			<label for="lan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="lan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this)">
+			<input id="lan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
 			</div>
 		</div>
 
@@ -520,7 +520,7 @@
 		<div class="form-group">
 			<label for="wlan_ssid0" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_ssid0" type="text" class="form-control" onkeyup="proofreadLengthRange(this,1,32);">
+			<input id="wlan_ssid0" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 1, 32);">
 			</div>
 		</div>
 
@@ -595,7 +595,7 @@
 		<div class="form-group">
 			<label for="wlan_ssid1" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_ssid1" type="text" class="form-control" onkeyup="proofreadLengthRange(this,1,32);">
+			<input id="wlan_ssid1" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 1, 32);">
 			</div>
 		</div>
 
@@ -653,7 +653,7 @@
 		<div class="form-group">
 			<label for="system_hostname" class="col-xs-4 col-sm-3 control-label">Nazwa systemu</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="system_hostname" type="text" class="form-control" onkeyup="proofreadHost(this)">
+			<input id="system_hostname" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 
@@ -920,7 +920,7 @@
 		<div class="form-group" id="div_watchdog_delay">
 			<label for="watchdog_delay" class="col-xs-4 col-sm-3 control-label">Opóźnienie przy starcie systemu</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="watchdog_delay" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
+			<input id="watchdog_delay" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
 			<em><small class="form-text text-muted">[1 - 59] minut</small></em>
 			</div>
 		</div>
@@ -928,14 +928,14 @@
 		<div class="form-group" id="div_watchdog_dest">
 			<label for="watchdog_dest" class="col-xs-4 col-sm-3 control-label">Adres lub nazwa</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="watchdog_dest" type="text" class="form-control" onkeyup="proofreadHost(this)">
+			<input id="watchdog_dest" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_watchdog_period">
 			<label for="watchdog_period" class="col-xs-4 col-sm-3 control-label">Okres sprawdzenia</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="watchdog_period" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
+			<input id="watchdog_period" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
 			<em><small class="form-text text-muted">[1 - 59] minut</small></em>
 			</div>
 		</div>
@@ -943,7 +943,7 @@
 		<div class="form-group" id="div_watchdog_period_count">
 			<label for="watchdog_period_count" class="col-xs-4 col-sm-3 control-label">Liczba nieudanych sprawdzeń</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="watchdog_period_count" type="text" class="form-control" onkeyup="proofreadNumericRange(this,1,59)">
+			<input id="watchdog_period_count" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
 			<em><small class="form-text text-muted">[1 - 59]</small></em>
 			</div>
 		</div>
@@ -1162,7 +1162,7 @@
 
 			<div class="row">
 			<div class="col-sm-5">
-				<input id="traffic_warning_value" type="text" class="form-control" onkeyup="proofreadNumeric(this)">
+				<input id="traffic_warning_value" type="text" class="form-control" onkeyup="proofreadNumeric(this);">
 			</div>
 			<div class="col-sm-3">
 				<select id="traffic_warning_unit" class="form-control">
@@ -1207,7 +1207,7 @@
 		<div class="form-group">
 			<label for="ussd_code" class="col-xs-4 col-sm-3 control-label">Kod USSD</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="ussd_code" type="text" class="form-control" onkeyup="proofreadussd(this)">
+			<input id="ussd_code" type="text" class="form-control" onkeyup="proofreadussd(this);">
 			</div>
 		</div>
 
@@ -1222,13 +1222,13 @@
 		<div class="form-group">
 			<label for="sms_number" class="col-xs-4 col-sm-3 control-label">Numer telefonu</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="sms_number" type="text" class="form-control" onkeyup="proofreadNumeric(this)">
+			<input id="sms_number" type="text" class="form-control" onkeyup="proofreadNumeric(this);">
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="sms_msg" class="col-xs-4 col-sm-3 control-label">Treść wiadomości</label>
 			<div class="col-xs-8 col-sm-9">
-			<textarea id="sms_msg" class="form-control" rows="4" onkeyup="proofreadSMSText(this)"></textarea>
+			<textarea id="sms_msg" class="form-control" rows="4" onkeyup="proofreadSMSText(this);"></textarea>
 			<em><small class="form-text text-muted">pozostało znaków: <span id="sms_len">160</span></small></em>
 			</div>
 		</div>
@@ -1350,7 +1350,7 @@
 		<div class="form-group" id="div_adblock_domain">
 			<label for="adblock_domain" class="col-xs-4 col-sm-3 control-label">Domena</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="adblock_domain" type="text" class="form-control" onkeyup="proofreadHost(this)">
+			<input id="adblock_domain" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 		<h3 class="section"></h3>
@@ -1414,14 +1414,14 @@
 		<div class="form-group" id="div_nightmode_led_auto_latitude">
 			<label for="nightmode_led_auto_latitude" class="col-xs-4 col-sm-3 control-label">Szerokość geograficzna</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="nightmode_led_auto_latitude" type="text" class="form-control" onkeyup="proofreadFloat(this)">
+			<input id="nightmode_led_auto_latitude" type="text" class="form-control" onkeyup="proofreadFloat(this);">
 			</div>
 		</div>
 
 		<div class="form-group" id="div_nightmode_led_auto_longitude">
 			<label for="nightmode_led_auto_longitude" class="col-xs-4 col-sm-3 control-label">Długość geograficzna</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="nightmode_led_auto_longitude" type="text" class="form-control" onkeyup="proofreadFloat(this)">
+			<input id="nightmode_led_auto_longitude" type="text" class="form-control" onkeyup="proofreadFloat(this);">
 			<em><small class="form-text text-muted"><span id="nightmode_led_auto_note"></span></small></em>
 			</div>
 		</div>
@@ -1531,7 +1531,7 @@
 			<label for="hostip_ip" class="hidden-xs col-sm-3 control-label">Statyczny adres IP</label>
 			<label for="hostip_ip" class="visible-xs col-xs-12 control-label text-left">Statyczny adres IP</label>
 			<div class="col-xs-12 col-sm-9">
-			<input id="hostip_ip" type="text" class="form-control space" onkeyup="proofreadIp(this)">
+			<input id="hostip_ip" type="text" class="form-control space" onkeyup="proofreadIp(this);">
 			<em><small class="form-text text-muted">obecny statyczny adres IP: <span id="hostip_ipaddr"></span></small></em>
 			</div>
 		</div>
@@ -1610,7 +1610,7 @@
 			<label for="hostqos_upload" class="hidden-xs col-sm-3 control-label">Wysyłanie do</label>
 			<label for="hostqos_upload" class="visible-xs col-xs-12 control-label text-left">Wysyłanie do</label>
 			<div class="col-xs-12 col-sm-9">
-			<input id="hostqos_upload" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
+			<input id="hostqos_upload" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 0, 999);">
 			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
 			</div>
 		</div>
@@ -1618,7 +1618,7 @@
 			<label for="hostqos_download" class="hidden-xs col-sm-3 control-label">Pobieranie do</label>
 			<label for="hostqos_download" class="visible-xs col-xs-12 control-label text-left">Pobieranie do</label>
 			<div class="col-xs-12 col-sm-9">
-			<input id="hostqos_download" type="text" class="form-control" onkeyup="proofreadNumericRange(this,0,999)">
+			<input id="hostqos_download" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 0, 999);">
 			<em><small class="form-text text-muted">Mbps, 0 - brak limitu</small></em>
 			</div>
 		</div>
@@ -1909,7 +1909,7 @@
 		<div class="form-group">
 			<label for="vpn_pptp_server" class="col-xs-4 col-sm-3 control-label">Adres lub nazwa serwera</label>
 			<div class="col-xs-8 col-sm-9">
-				<input id="vpn_pptp_server" type="text" class="form-control" onkeyup="proofreadHost(this)">
+				<input id="vpn_pptp_server" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 
@@ -1995,7 +1995,7 @@
 		<div class="form-group">
 			<label for="vpn_sstp_server" class="col-xs-4 col-sm-3 control-label">Adres lub nazwa serwera</label>
 			<div class="col-xs-8 col-sm-9">
-				<input id="vpn_sstp_server" type="text" class="form-control" onkeyup="proofreadHost(this)">
+				<input id="vpn_sstp_server" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 
@@ -2107,7 +2107,7 @@
 			<div class="form-group">
 				<label for="vpn_wireguard_description_idx" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
 				<div class="col-xs-8 col-sm-9 input-group">
-					<input id="vpn_wireguard_description_idx" class="form-control" onkeyup="proofreadLengthRange(this,1,255);">
+					<input id="vpn_wireguard_description_idx" class="form-control" onkeyup="proofreadLengthRange(this, 1, 255);">
 					<span class="click input-group-element" title="usuń tunel" onclick="removewireguardpeer('_idx');"><i data-feather="trash-2"></i></span>
 				</div>
 			</div>
