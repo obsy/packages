@@ -1,0 +1,3 @@
+fallback=SMS/USSD
+EN=SMS/USSD
+PL=SMS/USSD
