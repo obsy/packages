@@ -6,15 +6,19 @@ function resetData()
 
 	var device = uciOriginal.get(pkg, smsbox[0], "device");
 	var memory = uciOriginal.get(pkg, smsbox[0], "memory");
+	var rawinput = uciOriginal.get(pkg, smsbox[0], "rawinput");
+	var rawoutput = uciOriginal.get(pkg, smsbox[0], "rawoutput");
 
 	document.getElementById("device").value = device;
 	document.getElementById("memory").value = memory;
+	document.getElementById("rawinput").checked = (rawinput == "1");
+	document.getElementById("rawoutput").checked = (rawoutput == "1");
 
 	var Commands = [];
 
 	Commands.push("/www/utility/sms.sh " + device + " " + memory + " l");
 
-	setControlsEnabled(false, true, "Odczyt wiadomości...");
+	setControlsEnabled(false, true, smsbox.ReadMsg);
 
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
@@ -139,7 +143,7 @@ function sendSMS()
 
 	var Commands = [];
 
-	Commands.push("/www/utility/sms.sh " + device + " XX s " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
+	Commands.push("/www/utility/sms.sh " + device + " s s " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
 
 	setControlsEnabled(false, true, 'Trwa wysyłanie wiadomości...');
 
@@ -161,20 +165,22 @@ function sendUSSD()
 	var smsbox = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
 
 	var device = uciOriginal.get(pkg, smsbox[0], "device");
+	var rawinput = uciOriginal.get(pkg, smsbox[0], "rawinput");
+	var rawoutput = uciOriginal.get(pkg, smsbox[0], "rawoutput");
 
 	var ussd = document.getElementById("ussd").value
 
 	if(ussd == "")
 	{
-		alert("Brak kodu USSD!");
+		alert(smsbox.NoCode);
 		return;
 	}
 
 	var Commands = [];
 
-	Commands.push("/www/utility/sms.sh " + device + " XX u \"" + ussd + "\"");
+	Commands.push("sms_tool -d " + device + (rawinput == "1" ? " -R" : "") + (rawoutput == "1" ? " -r" : "") + " ussd \"" + ussd + "\"");
 
-	setControlsEnabled(false, true, 'Trwa wysyłanie wiadomości...');
+	setControlsEnabled(false, true, smsbox.Sending);
 
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
@@ -220,16 +226,22 @@ function saveSettings()
 
 	var device = document.getElementById("device").value;
 	var memory = document.getElementById("memory").value;
+	var rawinput = document.getElementById("rawinput").checked;
+	var rawoutput = document.getElementById("rawoutput").checked;
 
 	Commands.push("uci set " + pkg + ".@smsbox[0].device=" + device);
 	Commands.push("uci set " + pkg + ".@smsbox[0].memory=" + memory);
+	Commands.push("uci set " + pkg + ".@smsbox[0].rawinput=" + (rawinput ? "1" : "0"));
+	Commands.push("uci set " + pkg + ".@smsbox[0].rawoutput=" + (rawoutput ? "1" : "0"));
 	Commands.push("uci commit " + pkg);
 
 	var smsbox = uci.getAllSectionsOfType(pkg, "smsbox");
 	uci.set(pkg, smsbox[0], "device", device);
 	uci.set(pkg, smsbox[0], "memory", memory);
+	uci.set(pkg, smsbox[0], "rawinput", (rawinput ? "1" : "0"));
+	uci.set(pkg, smsbox[0], "rawoutput", (rawoutput ? "1" : "0"));
 
-	setControlsEnabled(false, true, 'Proszę czekać na wprowadzenie zmian');
+	setControlsEnabled(false, true, UI.WaitSettings);
 
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 
@@ -248,7 +260,7 @@ function saveSettings()
 
 function scan3GDevice(field)
 {
-	setControlsEnabled(false, true, "Poszukiwanie urządzeń mobilnych");
+	setControlsEnabled(false, true, smsbox.ScnMo);
 	var param = getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 
 	var stateChangeFunction = function(req)
@@ -267,7 +279,7 @@ function scan3GDevice(field)
 			}
 			else
 			{
-				alert("Nie znaleziono urządzeń!");
+				alert(smsbox.NoDv);
 			}
 			setControlsEnabled(true);
 		}

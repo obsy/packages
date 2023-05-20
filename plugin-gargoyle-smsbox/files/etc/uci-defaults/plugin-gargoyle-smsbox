@@ -1,6 +1,6 @@
 #!/bin/sh
 
-uci set gargoyle.display.system_smsbox='SMS'
+uci set gargoyle.display.system_smsbox='SMS/USSD'
 uci set gargoyle.scripts.system_smsbox='smsbox.sh'
 uci set gargoyle.system.smsbox='351'
 uci commit gargoyle

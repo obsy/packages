@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_smsbox
-PKG_VERSION:=20130520
+PKG_VERSION:=20230520
 PKG_RELEASE:=1
 
 
@@ -13,14 +13,14 @@ define Package/plugin-gargoyle-smsbox
 	SECTION:=admin
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
-	TITLE:=SMS Support for Gargoyle (PL)
-	DEPENDS:=+gargoyle +gnokii
+	TITLE:=SMS/USSD Support for Gargoyle
+	DEPENDS:=+gargoyle +sms-tool
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
 
 define Package/plugin-gargoyle-smsbox/description
-	SMS Support for Gargoyle
+	SMS/USSD Support for Gargoyle
 endef
 
 define Build/Prepare
@@ -36,7 +36,7 @@ define Package/plugin-gargoyle-smsbox/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	uci set gargoyle.display.system_smsbox='SMS'
+	uci set gargoyle.display.system_smsbox='SMS/USSD'
 	uci set gargoyle.scripts.system_smsbox='smsbox.sh'
 	uci set gargoyle.system.smsbox='351'
 	uci commit gargoyle
