@@ -23,7 +23,14 @@ smsbox.SendSMS="Wysyłanie wiadomości";
 smsbox.RecvBox="Wiadomości otrzymane";
 smsbox.SMSCnt="Liczba wiadomości";
 smsbox.Refresh="Ośwież";
-smsbox.ReadMSG="Odczyt wiadomości...";
+smsbox.ReadMsg="Odczyt wiadomości...";
+smsbox.DeleteMsg="Usuwanie wiadomości...";
+smsbox.SendingMsg="Wysyłanie wiadomości...";
+smsbox.Timestamp="Data";
+smsbox.From="Od";
+smsbox.Content="Treść";
 
 smsbox.ScnMo="Poszukiwanie urządzeń mobilnych";
 smsbox.NoDv="Nie znaleziono urządzeń";
+smsbox.NoNumber="Brak podanego numeru!";
+smsbox.NoMsg="Brak treści wiadomości!";

@@ -1,13 +1,22 @@
+/*
+ * This program is copyright © 2012-2023 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+ * version 2.0 with a special clarification/exception that permits adapting the program to
+ * configure proprietary "back end" software provided that all modifications to the web interface
+ * itself remain covered by the GPL.
+ * See http://gargoyle-router.com/faq.html#qfoss for more information
+ */
+
+var smsbox = new Object();
+
 var pkg = "smsbox";
 
 function resetData()
 {
-	var smsbox = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
-
-	var device = uciOriginal.get(pkg, smsbox[0], "device");
-	var memory = uciOriginal.get(pkg, smsbox[0], "memory");
-	var rawinput = uciOriginal.get(pkg, smsbox[0], "rawinput");
-	var rawoutput = uciOriginal.get(pkg, smsbox[0], "rawoutput");
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+	var device = uciOriginal.get(pkg, sec[0], "device");
+	var memory = uciOriginal.get(pkg, sec[0], "memory");
+	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
+	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
 	document.getElementById("device").value = device;
 	document.getElementById("memory").value = memory;
@@ -16,7 +25,7 @@ function resetData()
 
 	var Commands = [];
 
-	Commands.push("/www/utility/sms.sh " + device + " " + memory + " l");
+	Commands.push("sms_tool -d " + device + " -f \"%s\" -j -s " + memory + " recv");
 
 	setControlsEnabled(false, true, smsbox.ReadMsg);
 
@@ -25,50 +34,44 @@ function resetData()
 	{
 		if(req.readyState == 4)
 		{
-
 			var smsTableData = new Array();
 
-			var smss = []
-			smss = (req.responseText).replace(/Success/,'').split('-sta-');
-
-			for (idx=1; idx < smss.length; idx++)
+			var systemDateFormat = uciOriginal.get("gargoyle",  "global", "dateformat");
+			var smss = JSON.parse((req.responseText).replace(/Success/,''));
+			for (idx = 0; idx < (smss.msg).length; idx++)
 			{
-				var sms = smss[idx].split('-sep-');
+				var sms = smss.msg[idx];
 				var removeButton = createInput("button");
-				removeButton.value = "Usuń";
-				removeButton.className="default_button";
+				removeButton.textContent = UI.Remove;
+				removeButton.className="btn btn-default btn-select";
 				removeButton.onclick = findAndDeleteSMS;
-				removeButton.id = sms[0];
+				removeButton.id = sms.index;
 
 				var span2 = document.createElement("span");
-				span2.appendChild(document.createTextNode(""+sms[2]));
-				if (sms[1] == '(unread)') { span2.style.color = 'green'; }
+				span2.appendChild(document.createTextNode("" + sms.timestamp));
 
 				var span3 = document.createElement("span");
-				span3.appendChild(document.createTextNode(""+sms[3]));
-				if (sms[1] == '(unread)') { span3.style.color = 'green'; }
+				span3.appendChild(document.createTextNode("" + sms.sender));
 
 				var span4 = document.createElement("span");
-				span4.appendChild(document.createTextNode(""+sms[4]));
-				if (sms[1] == '(unread)') { span4.style.color = 'green'; }
+				span4.appendChild(document.createTextNode("" + sms.content));
 
-				smsTableData.push([ parseDate(sms[2]), span3, span4, removeButton, span2 ]);
+				smsTableData.push([ parseTimestamp(sms.timestamp, systemDateFormat), span3, span4, removeButton, span2 ]);
 			}
+
 
 			if(smsTableData.length > 0)
 			{
-				smsTableData.sort(function(a, b) { return a[0] > b[0]?1:-1; });
-				smsTableData.reverse();
+				smsTableData.sort(function(a, b) { return a[4] > b[4] ? 1 : -1; });
 				for (idx=0; idx < smsTableData.length; idx++)
 				{
-					smsTableData[idx][0] = smsTableData[idx][4];
 					smsTableData[idx].splice(4, 1);
 				}
 			}
 
 			setSMSCnt(smsTableData.length);
 
-			var columnNames = ['Data', 'Od', 'Treść'];
+			var columnNames = [smsbox.Timestamp, smsbox.From, smsbox.Content];
 			var smsTable = createTable(columnNames, smsTableData, "inbox_table", false, false);
 			var tableContainer = document.getElementById('inbox_table_container');
 			if(tableContainer.firstChild != null)
@@ -100,11 +103,43 @@ function findAndDeleteSMS()
 	setSMSCnt(smscnt);
 }
 
-function parseDate(date)
+function parseTimestamp(timestamp, systemDateFormat)
 {
-	var d = date.replace(/[ :]/g,'/').split('/');
-	//var dt = new Date(d[2],d[1]-1,d[0],d[3],d[4],d[5]);
-	return d[2]+'.'+d[1]+'.'+d[0]+'.'+d[3]+'.'+d[4]+'.'+d[5];
+	var formated = '';
+	var date = new Date(timestamp * 1000);
+
+	var year = date.getFullYear();
+	var yearH = date.getYear();
+	var month = date.getMonth() + 1; if (month < 10) { month = '0' + month; }
+	var day = date.getDate(); if (day < 10) { day = '0' + day; }
+
+	switch(systemDateFormat) {
+		case "argentina":
+			formated = day + '/' + month + '/' + year;
+			break;
+		case "australia":
+			formated = day + '/' + month + '/' + yearH;
+			break;
+		case "hungary":
+			formated = year + '.' + month + '.' + day;
+			break;
+		case "iso":
+			formated = year + '/' + month + '/' + day;
+			break;
+		case "iso8601":
+			formated = year + '-' + month + '-' + day;
+			break;
+		case "russia":
+			formated = day + '.' + month + '.' + year;
+			break;
+		case "usa":
+			formated = month + '/' + day + '.' + year;
+			break;
+	}
+	var hour = date.getHours(); if (hour < 10) { hour = '0' + hour; }
+	var minute = date.getMinutes(); if (minute < 10) { minute = '0' + minute; }
+	var second = date.getSeconds(); if (second < 10) { second = '0' + second; }
+	return formated + ' ' + (cnv24hToLocal(hour + ':' + minute)).replace(" ", ":" + second + " ");
 }
 
 function utf2ascii(string)
@@ -122,30 +157,29 @@ function utf2ascii(string)
 
 function sendSMS()
 {
-	var smsbox = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
-
-	var device = uciOriginal.get(pkg, smsbox[0], "device");
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+	var device = uciOriginal.get(pkg, sec[0], "device");
 
 	var number = (document.getElementById("phonenumber").value).replace(/[^0-9+]/g,"");
 	var txt = utf2ascii(document.getElementById("smstext").value);
 
 	if(number == "")
 	{
-		alert("Brak podanego numeru!");
+		alert(smsbox.NoNumber);
 		return;
 	}
 
 	if(txt == "")
 	{
-		alert("Brak treści wiadomości!");
+		alert(smsbox.NoMsg);
 		return;
 	}
 
 	var Commands = [];
 
-	Commands.push("/www/utility/sms.sh " + device + " s s " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
+	Commands.push("sms_tool -d " + device + " send " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
 
-	setControlsEnabled(false, true, 'Trwa wysyłanie wiadomości...');
+	setControlsEnabled(false, true, smsbox.SendingMsg);
 
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
@@ -162,11 +196,10 @@ function sendSMS()
 
 function sendUSSD()
 {
-	var smsbox = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
-
-	var device = uciOriginal.get(pkg, smsbox[0], "device");
-	var rawinput = uciOriginal.get(pkg, smsbox[0], "rawinput");
-	var rawoutput = uciOriginal.get(pkg, smsbox[0], "rawoutput");
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+	var device = uciOriginal.get(pkg, sec[0], "device");
+	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
+	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
 	var ussd = document.getElementById("ussd").value
 
@@ -197,16 +230,15 @@ function sendUSSD()
 
 function deleteSMS(index)
 {
-	var smsbox = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
-
-	var device = uciOriginal.get(pkg, smsbox[0], "device");
-	var memory = uciOriginal.get(pkg, smsbox[0], "memory");
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+	var device = uciOriginal.get(pkg, sec[0], "device");
+	var memory = uciOriginal.get(pkg, sec[0], "memory");
 
 	var Commands = [];
 
-	Commands.push("/www/utility/sms.sh " + device + " " + memory + " d " + index);
+	Commands.push("sms_tool -d " + device + " -s " + memory + " delete " + index);
 
-	setControlsEnabled(false, true, 'Usuwanie wiadomości...');
+	setControlsEnabled(false, true, smsbox.DeleteMsg);
 
 	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
@@ -235,11 +267,11 @@ function saveSettings()
 	Commands.push("uci set " + pkg + ".@smsbox[0].rawoutput=" + (rawoutput ? "1" : "0"));
 	Commands.push("uci commit " + pkg);
 
-	var smsbox = uci.getAllSectionsOfType(pkg, "smsbox");
-	uci.set(pkg, smsbox[0], "device", device);
-	uci.set(pkg, smsbox[0], "memory", memory);
-	uci.set(pkg, smsbox[0], "rawinput", (rawinput ? "1" : "0"));
-	uci.set(pkg, smsbox[0], "rawoutput", (rawoutput ? "1" : "0"));
+	var sec = uci.getAllSectionsOfType(pkg, "smsbox");
+	uci.set(pkg, sec[0], "device", device);
+	uci.set(pkg, sec[0], "memory", memory);
+	uci.set(pkg, sec[0], "rawinput", (rawinput ? "1" : "0"));
+	uci.set(pkg, sec[0], "rawoutput", (rawoutput ? "1" : "0"));
 
 	setControlsEnabled(false, true, UI.WaitSettings);
 

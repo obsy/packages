@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_smsbox
-PKG_VERSION:=20230520
+PKG_VERSION:=20230522
 PKG_RELEASE:=1
 
 
@@ -36,8 +36,15 @@ define Package/plugin-gargoyle-smsbox/postinst
 #!/bin/sh
 
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	uci set gargoyle.display.system_smsbox='SMS/USSD'
-	uci set gargoyle.scripts.system_smsbox='smsbox.sh'
+	menu_name="SMS/USSD"
+	[ -n `which i18n` ] && {
+		mn=$$(i18n-menu gargoyle.display.system_smsbox)
+		if [ -n "$$mn" ] ; then
+			menu_name="$$mn"
+		fi
+	}
+	uci set gargoyle.display.system_smsbox="$$menu_name"
+	uci set gargoyle.scripts.system_smsbox="smsbox.sh"
 	uci set gargoyle.system.smsbox='351'
 	uci commit gargoyle
 fi

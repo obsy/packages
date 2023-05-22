@@ -6,7 +6,7 @@
 	# itself remain covered by the GPL.
 	# See http://gargoyle-router.com/faq.html#qfoss for more information
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "system" -p "smsbox" -c "internal.css" -j "table.js smsbox.js" smsbox
+	gargoyle_header_footer -h -s "system" -p "smsbox" -j "table.js smsbox.js" -z "smsbox.js" smsbox gargoyle
 %>
 <script>
 var uci = uciOriginal.clone();
@@ -130,9 +130,8 @@ var smscnt=0;
 	</div>
 	<div class="panel-body">
 
-	<div class="row form-group">
-		<label id="sms_cnt_label" class="col-xs-5" for="sms_cnt"><%~ SMSCnt %>:</label>
-		<span id="sms_cnt" class='col-xs-12'><span id="sms_cnt" class='form-control'></span></span>
+	<div class="row">
+		<span class='col-xs-12'><%~ SMSCnt %>:&nbsp;<span id="sms_cnt"></span></span>
 	</div>
 
 	<div id="inbox_table_container"></div>
