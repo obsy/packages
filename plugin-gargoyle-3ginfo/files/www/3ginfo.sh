@@ -1,13 +1,13 @@
 #!/usr/bin/haserl
 <%
-	# This program is copyright © 2016 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+	# This program is copyright © 2016-2023 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
 	# itself remain covered by the GPL.
 	# See http://gargoyle-router.com/faq.html#qfoss for more information
 
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "status" -p "3ginfo" -c "internal.css" -j "3ginfo.js" -z "3ginfo.js" -i 3ginfo
+	gargoyle_header_footer -h -s "status" -p "3ginfo" -j "3ginfo.js" -z "3ginfo.js" -i 3ginfo
 %>
 
 <h1 class="page-header"><%~ 3ginfo.Modem3g %></h1>

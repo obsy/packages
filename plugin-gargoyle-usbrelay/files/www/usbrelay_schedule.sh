@@ -3,9 +3,9 @@
 	# This webpage is copyright © 2013 by BashfulBladder 
 	# There is not much to this page, so this is public domain 
 	#
-	# 2014 Cezary Jackiewicz <cezary@eko.one.pl> - ugly/primitive adaptation to usbrelay
+	# 2014-2023 Cezary Jackiewicz <cezary@eko.one.pl> - ugly/primitive adaptation to usbrelay
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "status" -p "usbrelay" -c "internal.css" -j "usbrelay_schedule.js" -z "usbrelay_schedule.js" -i usbrelay
+	gargoyle_header_footer -h -s "status" -p "usbrelay" -j "usbrelay_schedule.js" -z "usbrelay_schedule.js" -i usbrelay
 %>
 
 <script>
