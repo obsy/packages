@@ -19,7 +19,7 @@
 	<div class="panel-body">
 
 		<div class="row form-group" >
-		    <label id="list_device_label" for="ist_device" class="col-xs-5" ><%~ Device %>:</label>
+		    <label id="list_device_label" for="list_device" class="col-xs-5" ><%~ Device %>:</label>
 		    <span class="col-xs-7">
 			<select id="list_device" class="form-control" onchange='setDevice(this.value)' >
 			<option value=''><%~ None %></option>
