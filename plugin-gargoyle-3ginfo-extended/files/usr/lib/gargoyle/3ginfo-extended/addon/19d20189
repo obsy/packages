@@ -1,0 +1,40 @@
+# ZTE MF28D
+# ZTE MF290
+
+if [ "$REGOK" = "1" ]; then
+
+O=$(sms_tool -d $DEVICE at "at+zrssi?;+zcellinfo?")
+
+case "$MODE_NUM" in
+	3*)
+		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
+		addon 35 "RSSI" "$T dBm"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		[ -n "$T" ] && MODE="$T"
+		;;
+	2*|\
+	4*|\
+	5*|\
+	6*)
+		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
+		addon 35 "RSCP" "$T dBm"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $3}' | xargs)
+		addon 36 "ECIO" "$T dB"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		[ -n "$T" ] && MODE="$T"
+		;;
+	7*)
+		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $2}' | xargs)
+		addon 36 "RSRP" "$T dBm"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZRSSI/ {print $3}' | xargs)
+		addon 37 "RSRQ" "$T dB"
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCELLINFO/ {print $3}' | xargs)
+		[ -n "$T" ] && addon 33 "PCI" "$T"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $5}' | xargs)
+		[ -n "$T" ] && addon 34 "EARFCN" "$T"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		MODE="LTE $(band4g ${T/LTE B/})"
+		;;
+esac
+
+fi

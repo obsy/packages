@@ -1,0 +1,40 @@
+# BroadMobi BM806U
+
+if [ "$REGOK" = "1" ]; then
+
+if [ "x$MODE_NUM" = "x7" ]; then
+
+	O=$(sms_tool -d $DEVICE at "AT+BMTCELLINFO")
+
+	T=$(echo "$O" | awk -F[,:] '/^TAC:/ {print $2}' | xargs)
+	if [ -n "$T" ]; then
+		T_HEX=$(printf "%X" $T)
+		addon 23 "TAC" "$T (${T_HEX})"
+	fi
+
+	T=$(echo "$O" | awk -F[,:] '/^RSSI:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 35 "RSSI" "-${T} dBm"
+	T=$(echo "$O" | awk -F[,:] '/^RSRP:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 36 "RSRP" "$T dBm"
+	T=$(echo "$O" | awk -F[,:] '/^RSRQ:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 37 "RSRQ" "$T dB"
+	T=$(echo "$O" | awk -F[,:] '/^SINR:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 38 "SINR" "$T dB"
+
+	T=$(echo "$O" | awk -F[,:] '/^ACTIVE BAND:/ {print $2}' | xargs)
+	[ -n "$T" ] && MODE="LTE $(band4g ${T})"
+
+	T=$(echo "$O" | awk -F[,:] '/^PCI:/ {print $2}' | xargs)
+	[ -n "$T" ] addon 33 "PCI" "$T"
+	T=$(echo "$O" | awk -F[,:] '/^EARFCN_DL:/ {print $2}' | xargs)
+	if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+		addon 34 "EARFCN DL" "$T"
+	fi
+	T=$(echo "$O" | awk -F[,:] '/^EARFCN_UL:/ {print $2}' | xargs)
+	if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+		addon 34 "EARFCN UL" "$T"
+	fi
+
+fi
+
+fi
