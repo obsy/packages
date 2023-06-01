@@ -21,10 +21,25 @@ function getCookie(cname) {
 	return "";
 }
 
-function darkmode() {
-	var e = document.body;
-	e.classList.toggle('darkmode');
-	setCookie('easyconfig_darkmode', e.classList.contains('darkmode') ? '1' : '0');
+function setTheme(mode) {
+	switch (mode) {
+		case '0':
+			document.body.classList.remove('darkmode');
+			setCookie('easyconfig_darkmode', '0');
+			break;
+		case '1':
+			document.body.classList.add('darkmode');
+			setCookie('easyconfig_darkmode', '1');
+			break;
+		default:
+			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.body.classList.add('darkmode');
+			} else {
+				document.body.classList.remove('darkmode');
+			}
+			setCookie('easyconfig_darkmode', '2');
+			break;
+	}
 }
 
 function showicon() {
@@ -33,7 +48,7 @@ function showicon() {
 
 function easyconfig_onload() {
 	showicon();
-	if (getCookie('easyconfig_darkmode') == '1') { darkmode(); }
+	setTheme(getCookie('easyconfig_darkmode'));
 }
 
 function string2color(str) {
@@ -1739,7 +1754,9 @@ function showsystem() {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model == '' ? '-' : data.model);
-		setValue('darkmode_enabled', getCookie('easyconfig_darkmode') == '1' ? true : false);
+		var theme = getCookie('easyconfig_darkmode');
+		if (theme == '') { theme = 2; }
+		setValue('theme', theme);
 		setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
 		setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
 		setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);

@@ -805,12 +805,13 @@
 
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="darkmode_enabled" class="col-xs-6 control-label">Tryb ciemny</label>
+			<label for="theme" class="col-xs-6 control-label">Motyw</label>
 			<div class="col-xs-6">
-			<label class="switch">
-				<input id="darkmode_enabled" type="checkbox" onclick="darkmode();">
-				<div class="slider round"></div>
-			</label>
+			<select id="theme" class="form-control" onchange="setTheme(this.value)">
+			<option value='0'>jasny</option>
+			<option value='1'>ciemny</option>
+			<option value='2'>automatycznie</option>
+			</select>
 			</div>
 		</div>
 	</form>
