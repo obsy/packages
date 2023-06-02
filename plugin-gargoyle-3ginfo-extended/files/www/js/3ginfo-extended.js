@@ -1,5 +1,5 @@
 /*
- * This program is copyright © 2016 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+ * This program is copyright © 2016-2023 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
  * version 2.0 with a special clarification/exception that permits adapting the program to
  * configure proprietary "back end" software provided that all modifications to the web interface
  * itself remain covered by the GPL.
@@ -19,7 +19,7 @@ function sortJSON(data, key, way) {
 }
 
 function parameter(key, value) {
-	return '<div><li class="list-group-item"><span class="list-group-item-title">' + key + '</span><span>' + value + '</span></li></div>';
+	return '<div><li class="list-group-item"><span class="list-group-item-title">' + key + ':</span><span>' + value + '</span></li></div>';
 }
 
 function modeminfo(device)
@@ -34,46 +34,21 @@ function modeminfo(device)
 			var tmp = req.responseText.replace(/Success/,"").split('\n');
 			for (var idx = 0; idx < tmp.length; idx++) {
 				if ((tmp[idx]).search(/CGMI[ ]*:/) > 0) {
-					console.log(tmp[idx]);
-					setChildText("vendor", tmp[idx].replace(/.*CGMI[ ]*:[ ]*/, ""));
-				} 
+					setChildText("vendor", tmp[idx].replace(/.*CGMI[ ]*:[ ]*/, ''));
+				}
 				if ((tmp[idx]).search(/CGMM[ ]*:/) > 0) {
-					console.log(tmp[idx]);
-					setChildText("product", tmp[idx].replace(/.*CGMM[ ]*:[ ]*/, ""));
-				} 
+					setChildText("product", tmp[idx].replace(/.*CGMM[ ]*:[ ]*/, ''));
+				}
 				if ((tmp[idx]).search(/CGMR[ ]*:/) > 0) {
-					console.log(tmp[idx]);
-					setChildText("revision", tmp[idx].replace(/.*CGMR[ ]*:[ ]*/, ""));
-				} 
+					setChildText("revision", tmp[idx].replace(/.*CGMR[ ]*:[ ]*/, ''));
+				}
 				if ((tmp[idx]).search(/CGSN[ ]*:/) > 0) {
-					console.log(tmp[idx]);
-					setChildText("imei", tmp[idx].replace(/.*CGSN[ ]*:[ ]*/, ""));
-				} 
+					setChildText("imei", tmp[idx].replace(/.*CGSN[ ]*:[ ]*/, ''));
+				}
 				if ((tmp[idx]).search(/CCID[ ]*:/) > 0) {
-					console.log(tmp[idx]);
-					setChildText("iccid", tmp[idx].replace(/.*CCID[ ]*:[ ]*/, ""));
-				} 
-			}			
-
-//			T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			//[ -n "$T" ] && VENDOR="$T"
-//			T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-//			[ -n "$T" ] && PRODUCT="$T"
-//			T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-//			[ -n "$T" ] && REVISION="$T"
-			//T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-//			[ -n "$T" ] && IMEI="$T"
-			//T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			//[ -n "$T" ] && ICCID="$T"
-//		fi
-	
-
-//			setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
-//			setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
-//			setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);
-//			setValue('modem_imei', data.modem.imei == '' ? '-' : data.modem.imei);
-//			setValue('modem_iccid', data.modem.iccid == '' ? '-' : data.modem.iccid);
-
+					setChildText("iccid", tmp[idx].replace(/.*CCID[ ]*:[ ]*/, ''));
+				}
+			}
 			setControlsEnabled(true);
 		}
 	}
@@ -87,17 +62,17 @@ function resetData()
 	var device = uciOriginal.get(pkg, sec[0], 'device')
 	setSelectedValue('list_device', device);
 
-	if (device == "")
+	if (device == '')
 	{
-		document.getElementById("tgdata1").style.display="none";
-		document.getElementById("tgdata2").style.display="none";
-		document.getElementById("tgdata3").style.display="none";
+		document.getElementById("tgdata1").style.display = "none";
+		document.getElementById("tgdata2").style.display = "none";
+		document.getElementById("tgdata3").style.display = "none";
 		return;
 	}
 
-	document.getElementById("tgdata1").style.display="block";
-	document.getElementById("tgdata2").style.display="block";
-	document.getElementById("tgdata3").style.display="block";
+	document.getElementById("tgdata1").style.display = "block";
+	document.getElementById("tgdata2").style.display = "block";
+	document.getElementById("tgdata3").style.display = "block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
 	var param = getParameterDefinition("commands", '/usr/lib/gargoyle/3ginfo-extended/info.sh\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
@@ -110,22 +85,22 @@ function resetData()
 				if (tmp.registration == '1' || tmp.registration == '5') {
 					switch(tmp.registration) {
 					case "0":
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': 'Brak sieci'});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.NoNetwork});
 						break;
 					case "1":
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': 'Zalogowana do sieci macierzystej'});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.HomeNetwork});
 						break;
 					case "2":
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': 'Wyszukiwanie operatora'});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.Searching});
 						break;
 					case "3":
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': 'Odmowa dostępu'});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.AccessDenied});
 						break;
 					case "5":
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': 'Zalogowana do sieci w roamingu'});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.Roaming});
 						break;
 					default:
-						arrmodem.push({'idx':1, 'key': 'Status karty SIM', 'value': tmp.registration == '' ? '-' : tmp.registration});
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tmp.registration == '' ? '-' : tmp.registration});
 					}
 
 					if (tmp.signal) {
@@ -149,7 +124,7 @@ function resetData()
 					}
 
 					if (tmp.cid_dec && tmp.cid_dec > 0 && tmp.operator_mcc == 260) {
-						arrmodem.push({'idx':20, 'key':'Lokalizacja stacji bazowej', 'value': "<a href='http://www.btsearch.pl/szukaj.php?search=" + tmp.cid_dec + "&siec=-1&mode=std' target='_blank'>link</a>"});
+						arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='http://www.btsearch.pl/szukaj.php?search=" + tmp.cid_dec + "&siec=-1&mode=std' target='_blank'>BTSeach</a>"});
 					}
 				} else {
 					setGraph(0);
@@ -165,8 +140,14 @@ function resetData()
 				var html = '';
 				var sorted = sortJSON(arrmodem, 'idx', 'asc');
 				sorted.forEach(function(e) {
+					if (e.key == 'Temperature') {
+						e.key = tginfoS.Temperature;
+					}
 					html += parameter(e.key, e.value);
 				});
+				if (html == '') {
+					html = '<em><span>' + tginfoS.NoInfo + '</spna></em>';
+				}
 				document.getElementById('tgdataparameters').innerHTML = html;
 			}
 			setControlsEnabled(true);

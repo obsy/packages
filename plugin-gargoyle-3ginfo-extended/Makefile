@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo_extended
-PKG_VERSION:=20230524
+PKG_VERSION:=20230602
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -30,7 +30,7 @@ define Package/plugin-gargoyle-3ginfo-extended/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	menu_name="Cellular Modem"
 	[ -n `which i18n` ] && {
-		mn=$$(i18n-menu gargoyle.display.status_3ginfo-extended)
+		mn=$$(i18n-menu gargoyle.display.status_3ginfo_extended)
 		if [ -n "$$mn" ] ; then
 			menu_name="$$mn"
 		fi

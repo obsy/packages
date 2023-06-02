@@ -18,6 +18,9 @@
 
 <div class="col-lg-6">
 	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ Device %></h3>
+		</div>
 	<div class="panel-body">
 
 		<div class="row form-group" >
@@ -42,6 +45,9 @@
 <div id="tgdata1" style="display:none;">
 <div class="col-lg-6">
 <div class="panel panel-default">
+<div class="panel-heading">
+	<h3 class="panel-title"><%~ Information %></h3>
+</div>
 <div class="panel-body">
 
 	<center>
@@ -85,6 +91,9 @@
 <div id="tgdata2" style="display:none;">
 <div class="col-lg-6">
 <div class="panel panel-default">
+<div class="panel-heading">
+	<h3 class="panel-title"><%~ SignalParam %></h3>
+</div>
 <div class="panel-body">
 	<ul class="list-group">
 	<div id="tgdataparameters">
@@ -98,22 +107,25 @@
 <div id="tgdata3" style="display:none;">
 <div class="col-lg-6">
 <div class="panel panel-default">
+<div class="panel-heading">
+	<h3 class="panel-title"><%~ Modem %></h3>
+</div>
 <div class="panel-body">
 	<ul class="list-group">
 	<div>
-		<li class="list-group-item"><span class="list-group-item-title">Producent:</span><span id="vendor">-</span></li>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ Vendor %>:</span><span id="vendor">-</span></li>
 	</div>
 	<div>
-		<li class="list-group-item"><span class="list-group-item-title">Model:</span><span id="product">-</span></li>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ Product %>:</span><span id="product">-</span></li>
 	</div>
 	<div>
-		<li class="list-group-item"><span class="list-group-item-title">Wersja:</span><span id="revision">-</span></li>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ Revision %>:</span><span id="revision">-</span></li>
 	</div>
 	<div>
-		<li class="list-group-item"><span class="list-group-item-title">IMEI:</span><span id="imei">-</span></li>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ IMEI %>:</span><span id="imei">-</span></li>
 	</div>
 	<div>
-		<li class="list-group-item"><span class="list-group-item-title">Numer karty SIM (ICCID):</span><span id="iccid">-</span></li>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ ICCID %>:</span><span id="iccid">-</span></li>
 	</div>
 	</ul>
 </div>
