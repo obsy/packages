@@ -22,6 +22,69 @@ function parameter(key, value) {
 	return '<div><li class="list-group-item"><span class="list-group-item-title">' + key + ':</span><span>' + value + '</span></li></div>';
 }
 
+function progress(param, value) {
+	var min = 0;
+	var max = 100;
+	switch(param) {
+		case 'rssi':
+			min = -113;
+			max = -51;
+			break;
+		case 'rsrp':
+			min = -140;
+			max = -44;
+			break;
+		case 'rsrq':
+			min = -19;
+			max = -3;
+			break;
+		case 'sinr':
+			min = -20;
+			max = 30;
+			break;
+		default:
+			return '';
+	}
+
+	var pvalue = parseInt(value.split(' ')[0]);
+	if (pvalue < min) { pvalue = min; }
+	if (pvalue > max) { pvalue = max; }
+
+	var style = ' class="progress-';
+	var title = param.toUpperCase() + ' ' + value + ', ';
+	switch(param) {
+		case 'rssi':
+			if (pvalue > -70) { style += 'green"'; title += tginfoS.SignalExcellent; }
+			if (pvalue >= -85 && pvalue <= -70 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
+			if (pvalue >= -100 && pvalue <= -86 ) { style += 'orange"'; title += tginfoS.SignalFair; }
+			if (pvalue <= -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			break;
+		case 'rsrp':
+			if (pvalue >= -80) { style += 'green"'; title += tginfoS.SignalExcellent; }
+			if (pvalue >= -90 && pvalue < -80 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
+			if (pvalue >= -100 && pvalue < -90 ) { style += 'orange"'; title += tginfoS.SignalFair; }
+			if (pvalue <= -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			break;
+		case 'rsrq':
+			if (pvalue >= -10) { style += 'green"'; title += tginfoS.SignalExcellent; }
+			if (pvalue >= -15 && pvalue < -10 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
+			if (pvalue >= -20 && pvalue < -15 ) { style += 'orange"'; title += tginfoS.SignalFair; }
+			if (pvalue < -20  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			break;
+		case 'sinr':
+			if (pvalue >= 20) { style += 'green"'; title += tginfoS.SignalExcellent; }
+			if (pvalue >= 13 && pvalue < 20 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
+			if (pvalue >= 0 && pvalue < 13 ) { style += 'orange"'; title += tginfoS.SignalFair; }
+			if (pvalue <= 0  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			break;
+	}
+
+	pvalue -= min;
+	var pmax = max - min;
+	console.log('param: ' + param + ', min: 0, value: ' + pvalue + ' max: ' + pmax)
+	return '&nbsp;<progress' + style + ' title="' + title + '" value="' + pvalue + '" max="' + pmax + '">' + value + '</progress>';
+}
+
 function modeminfo(device)
 {
 	firstrun = false;
@@ -33,19 +96,19 @@ function modeminfo(device)
 		{
 			var tmp = req.responseText.replace(/Success/,"").split('\n');
 			for (var idx = 0; idx < tmp.length; idx++) {
-				if ((tmp[idx]).search(/CGMI[ ]*:/) > 0) {
+				if ((tmp[idx]).search(/CGMI[ ]*:/) > -1) {
 					setChildText("vendor", tmp[idx].replace(/.*CGMI[ ]*:[ ]*/, ''));
 				}
-				if ((tmp[idx]).search(/CGMM[ ]*:/) > 0) {
+				if ((tmp[idx]).search(/CGMM[ ]*:/) > -1) {
 					setChildText("product", tmp[idx].replace(/.*CGMM[ ]*:[ ]*/, ''));
 				}
-				if ((tmp[idx]).search(/CGMR[ ]*:/) > 0) {
+				if ((tmp[idx]).search(/CGMR[ ]*:/) > -1) {
 					setChildText("revision", tmp[idx].replace(/.*CGMR[ ]*:[ ]*/, ''));
 				}
-				if ((tmp[idx]).search(/CGSN[ ]*:/) > 0) {
+				if ((tmp[idx]).search(/CGSN[ ]*:/) > -1) {
 					setChildText("imei", tmp[idx].replace(/.*CGSN[ ]*:[ ]*/, ''));
 				}
-				if ((tmp[idx]).search(/CCID[ ]*:/) > 0) {
+				if ((tmp[idx]).search(/CCID[ ]*:/) > -1) {
 					setChildText("iccid", tmp[idx].replace(/.*CCID[ ]*:[ ]*/, ''));
 				}
 			}
@@ -82,6 +145,7 @@ function resetData()
 			var tmp = eval ("(" + req.responseText.replace(/Success/,"") + ")");
 			if (!tmp["error"]) {
 				var arrmodem = [];
+				var mode = '';
 				if (tmp.registration == '1' || tmp.registration == '5') {
 					switch(tmp.registration) {
 					case "0":
@@ -106,7 +170,8 @@ function resetData()
 					if (tmp.signal) {
 						setGraph(tmp.signal);
 						setChildText("operator", tmp.operator_name);
-						setChildText("mode", (tmp.mode).split(" ")[0]);
+						mode = (tmp.mode).split(" ")[0];
+						setChildText("mode", mode);
 					} else {
 						setGraph(0);
 						setChildText("operator", "-");
@@ -142,6 +207,20 @@ function resetData()
 				sorted.forEach(function(e) {
 					if (e.key == 'Temperature') {
 						e.key = tginfoS.Temperature;
+					}
+					if (mode.search(/^LTE/) > -1) {
+						if ((e.key).search(/RSSI/) > -1) {
+							e.value += progress('rssi', e.value);
+						}
+						if (e.key.search(/RSRP/) > -1) {
+							e.value += progress('rsrp', e.value);
+						}
+						if (e.key.search(/RSRQ/) > -1) {
+							e.value += progress('rsrq', e.value);
+						}
+						if (e.key.search(/SINR/) > -1) {
+							e.value += progress('sinr', e.value);
+						}
 					}
 					html += parameter(e.key, e.value);
 				});

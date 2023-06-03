@@ -9,6 +9,53 @@
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
 	gargoyle_header_footer -h -s "status" -p "3ginfo-extended" -j "3ginfo-extended.js" -z "3ginfo-extended.js" -i 3ginfo
 %>
+<style>
+progress {
+	width: 150px;
+	height: 12px;
+	border-radius: 20px;
+}
+progress::-webkit-progress-bar {
+	width: 150px;
+	height: 12px;
+	border-radius: 20px;
+	background-color: #eee;
+}
+progress::-webkit-progress-value {
+	width: 150px;
+	height: 12px;
+	border-radius: 20px;
+}
+progress::-moz-progress-bar {
+	width: 150px;
+	height: 12px;
+	border-radius: 20px;
+}
+.progress-green::-webkit-progress-value {
+	background: #6acc5b;
+}
+.progress-yellow::-webkit-progress-value {
+	background: #fbfb0f;
+}
+.progress-orange::-webkit-progress-value {
+	background: #f7ba0a;
+}
+.progress-red::-webkit-progress-value {
+	background: #ed090a;
+}
+.progress-green::-moz-progress-bar {
+	background: #6acc5b;
+}
+.progress-yellow::-moz-progress-bar {
+	background: #fbfb0f;
+}
+.progress-orange::-moz-progress-bar {
+	background: #f7ba0a;
+}
+.progress-red::-moz-progress-bar {
+	background: #ed090a;
+}
+</style>
 <script>
 	var firstrun = true;
 </script>
