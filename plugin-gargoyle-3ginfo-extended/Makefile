@@ -11,7 +11,7 @@ define Package/plugin-gargoyle-3ginfo-extended
 	SECTION:=admin
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
-	TITLE:=3ginfo-extended for Gargoyle
+	TITLE:=3ginfo extended for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	DEPENDS:=+gargoyle +sms-tool +comgt
 	PKGARCH:=all
@@ -36,7 +36,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 		fi
 	}
 	uci set gargoyle.display.status_3ginfo_extended="$$menu_name"
-	uci set gargoyle.scripts.status_3ginfo_extended='3ginfo-extended.sh'
+	uci set gargoyle.scripts.status_3ginfo_extended='3ginfo_extended.sh'
 	uci set gargoyle.status.3ginfo_extended='900'
 	uci commit
 fi
@@ -56,7 +56,7 @@ endef
 define Package/plugin-gargoyle-3ginfo-extended/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/3ginfo-extended.js > $(1)/www/js/3ginfo-extended.js || true
+	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/3ginfo_extended.js > $(1)/www/js/3ginfo_extended.js || true
 endef
 
 $(eval $(call BuildPackage,plugin-gargoyle-3ginfo-extended))

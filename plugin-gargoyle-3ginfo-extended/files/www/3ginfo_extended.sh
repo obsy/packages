@@ -7,7 +7,7 @@
 	# See http://gargoyle-router.com/faq.html#qfoss for more information
 
 	eval $( gargoyle_session_validator -c "$COOKIE_hash" -e "$COOKIE_exp" -a "$HTTP_USER_AGENT" -i "$REMOTE_ADDR" -r "login.sh" -t $(uci get gargoyle.global.session_timeout) -b "$COOKIE_browser_time"  )
-	gargoyle_header_footer -h -s "status" -p "3ginfo-extended" -j "3ginfo-extended.js" -z "3ginfo-extended.js" -i 3ginfo
+	gargoyle_header_footer -h -s "status" -p "3ginfo_extended" -j "3ginfo_extended.js" -z "3ginfo_extended.js" -i 3ginfo
 %>
 <style>
 progress {
@@ -59,7 +59,7 @@ progress::-moz-progress-bar {
 <script>
 	var firstrun = true;
 </script>
-<h1 class="page-header"><%~ 3ginfo-extended.Modem3g %></h1>
+<h1 class="page-header"><%~ 3ginfo_extended.Modem3g %></h1>
 
 <div class="row">
 
@@ -104,17 +104,17 @@ progress::-moz-progress-bar {
 				<span id="operator" style="font-size:2em;">-</span>
 			</td>
 			<td rowspan="3">
-				<img id="s0p" src="img/3ginfo-extended/signal0.png" style="display: block;">
-				<img id="s10p" src="img/3ginfo-extended/signal10.png" style="display: none;">
-				<img id="s20p" src="img/3ginfo-extended/signal20.png" style="display: none;">
-				<img id="s30p" src="img/3ginfo-extended/signal30.png" style="display: none;">
-				<img id="s40p" src="img/3ginfo-extended/signal40.png" style="display: none;">
-				<img id="s50p" src="img/3ginfo-extended/signal50.png" style="display: none;">
-				<img id="s60p" src="img/3ginfo-extended/signal60.png" style="display: none;">
-				<img id="s70p" src="img/3ginfo-extended/signal70.png" style="display: none;">
-				<img id="s80p" src="img/3ginfo-extended/signal80.png" style="display: none;">
-				<img id="s90p" src="img/3ginfo-extended/signal90.png" style="display: none;">
-				<img id="s100p" src="img/3ginfo-extended/signal100.png" style="display: none;">
+				<img id="s0p" src="img/3ginfo_extended/signal0.png" style="display: block;">
+				<img id="s10p" src="img/3ginfo_extended/signal10.png" style="display: none;">
+				<img id="s20p" src="img/3ginfo_extended/signal20.png" style="display: none;">
+				<img id="s30p" src="img/3ginfo_extended/signal30.png" style="display: none;">
+				<img id="s40p" src="img/3ginfo_extended/signal40.png" style="display: none;">
+				<img id="s50p" src="img/3ginfo_extended/signal50.png" style="display: none;">
+				<img id="s60p" src="img/3ginfo_extended/signal60.png" style="display: none;">
+				<img id="s70p" src="img/3ginfo_extended/signal70.png" style="display: none;">
+				<img id="s80p" src="img/3ginfo_extended/signal80.png" style="display: none;">
+				<img id="s90p" src="img/3ginfo_extended/signal90.png" style="display: none;">
+				<img id="s100p" src="img/3ginfo_extended/signal100.png" style="display: none;">
 			</td>
 		</tr>
 		<tr>
@@ -190,5 +190,5 @@ progress::-moz-progress-bar {
 </script>
 
 <%
-	gargoyle_header_footer -f -s "status" -p "3ginfo-extended"
+	gargoyle_header_footer -f -s "status" -p "3ginfo_extended"
 %>

@@ -168,7 +168,7 @@ addon() {
 	ADDON="$ADDON"'{"idx":'$1',"key":"'$2'","value":"'$3'"}'
 }
 
-RES="/usr/lib/gargoyle/3ginfo-extended/"
+RES="/usr/lib/gargoyle/3ginfo_extended/"
 
 DEVICE=$(uci -q get 3ginfo.@3ginfo[0].device)
 if [ -z "$DEVICE" ]; then

@@ -57,13 +57,13 @@ function progress(param, value) {
 			if (pvalue > -70) { style += 'green"'; title += tginfoS.SignalExcellent; }
 			if (pvalue >= -85 && pvalue <= -70 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
 			if (pvalue >= -100 && pvalue <= -86 ) { style += 'orange"'; title += tginfoS.SignalFair; }
-			if (pvalue <= -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			if (pvalue < -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
 			break;
 		case 'rsrp':
 			if (pvalue >= -80) { style += 'green"'; title += tginfoS.SignalExcellent; }
 			if (pvalue >= -90 && pvalue < -80 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
 			if (pvalue >= -100 && pvalue < -90 ) { style += 'orange"'; title += tginfoS.SignalFair; }
-			if (pvalue <= -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			if (pvalue < -100  ) { style += 'red"'; title += tginfoS.SignalPoor; }
 			break;
 		case 'rsrq':
 			if (pvalue >= -10) { style += 'green"'; title += tginfoS.SignalExcellent; }
@@ -75,7 +75,7 @@ function progress(param, value) {
 			if (pvalue >= 20) { style += 'green"'; title += tginfoS.SignalExcellent; }
 			if (pvalue >= 13 && pvalue < 20 ) { style += 'yellow"'; title += tginfoS.SignalGood; }
 			if (pvalue >= 0 && pvalue < 13 ) { style += 'orange"'; title += tginfoS.SignalFair; }
-			if (pvalue <= 0  ) { style += 'red"'; title += tginfoS.SignalPoor; }
+			if (pvalue < 0  ) { style += 'red"'; title += tginfoS.SignalPoor; }
 			break;
 	}
 
@@ -89,7 +89,7 @@ function modeminfo(device)
 {
 	firstrun = false;
 	setControlsEnabled(false, true, tginfoS.DldingData);
-	var param = getParameterDefinition("commands", 'comgt -d ' + device + ' -s /usr/lib/gargoyle/3ginfo-extended/vendorproduct.gcom\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", 'comgt -d ' + device + ' -s /usr/lib/gargoyle/3ginfo_extended/vendorproduct.gcom\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -137,7 +137,7 @@ function resetData()
 	document.getElementById("tgdata2").style.display = "block";
 	document.getElementById("tgdata3").style.display = "block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
-	var param = getParameterDefinition("commands", '/usr/lib/gargoyle/3ginfo-extended/info.sh\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", '/usr/lib/gargoyle/3ginfo_extended/info.sh\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
