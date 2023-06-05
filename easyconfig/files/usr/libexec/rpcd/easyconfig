@@ -701,7 +701,10 @@ else
 fi
 
 if [ -e /usr/bin/modemband.sh ]; then
-	if /usr/bin/modemband.sh getinfo | grep -q 'found'; then
+	T=$(/usr/bin/modemband.sh getinfo)
+	if echo "$T" | grep -i -q 'found'; then
+		echo '"modemband":false,'
+	elif echo "$T" | grep -i -q 'unsupported'; then
 		echo '"modemband":false,'
 	else
 		echo '"modemband":true,'
