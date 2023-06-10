@@ -60,7 +60,7 @@ var smscnt=0;
 
 	<div class="row">
 		<span class="col-xs-12">
-			<button id="save_serrings_button" class="btn btn-default" onclick="saveSettings()">Zapisz</button>
+			<button id="save_serrings_button" class="btn btn-default" onclick="saveSettings()"><%~ DSave %></button>
 		</span>
 	</div>
 

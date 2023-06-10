@@ -12,6 +12,7 @@ smsbox.Memory="SMS memory";
 smsbox.internal="internal";
 smsbox.simcard="SIM card";
 smsbox.internalsimcard="internal and SIM card";
+smsbox.DSave="Save";
 smsbox.USSD="USSD";
 smsbox.Code="Code";
 smsbox.Send="Send";
