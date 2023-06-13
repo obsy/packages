@@ -3,4 +3,8 @@
 uci set gargoyle.display.status_3ginfo_extended="Cellular Modem"
 uci set gargoyle.scripts.status_3ginfo_extended='3ginfo_extended.sh'
 uci set gargoyle.status.3ginfo_extended='900'
+
+touch /etc/config/3ginfo
+uci add 3ginfo 3ginfo
+
 uci commit
