@@ -6,9 +6,10 @@ PKG_VERSION:=20150706
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ekooneplstat
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE:=eko.one.pl Services
+	CATEGORY:=Administration
+	SUBMENU:=eko.one.pl services
+	SECTION:=admin
+	TITLE:=eko.one.pl services - statistics
 	PKGARCH:=all
 endef
 
