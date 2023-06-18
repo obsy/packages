@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplusbluciprofiles
-PKG_VERSION:=20230616
+PKG_VERSION:=20230617
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -19,8 +19,8 @@ define Package/ekooneplusbluciprofiles/Default
 		+kmod-fs-vfat +kmod-nls-cp437 +kmod-nls-iso8859-1 \
 		+kmod-fs-ntfs3 +kmod-fs-exfat \
 		+kmod-nf-nathelper-extra \
-		+luci-app-p910nd +kmod-usb-printer +p910nd \
-		+luci-app-ksmbd +ksmbd-server +wsdd2 \
+		+luci-app-p910nd +luci-i18n-p910nd-pl +kmod-usb-printer +p910nd \
+		+luci-app-ksmbd +luci-i18n-ksmbd-pl +ksmbd-server +wsdd2 \
 		+usb-modeswitch +kmod-usb-net +kmod-usb-net-rndis +kmod-usb-net-cdc-ether \
 		+luci-proto-3g +comgt +kmod-usb-serial +kmod-usb-serial-option +kmod-usb-serial-sierrawireless +kmod-usb-serial-qualcomm +kmod-usb-acm \
 		+luci-proto-ncm +comgt-ncm +kmod-usb-net-cdc-ncm +kmod-usb-net-huawei-cdc-ncm \
@@ -49,7 +49,7 @@ endef
 define Package/ekooneplusb-lucifull
 	$(call Package/ekooneplusbluciprofiles/Default)
 	TITLE+= LuCI USB full
-	DEPENDS+= +luci-app-openvpn +openvpn-openssl +openvpn-easy-rsa
+	DEPENDS+= +luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
 define Package/ekooneplusb-lucifull/description
