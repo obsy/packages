@@ -81,7 +81,6 @@ function progress(param, value) {
 
 	pvalue -= min;
 	var pmax = max - min;
-	console.log('param: ' + param + ', min: 0, value: ' + pvalue + ' max: ' + pmax)
 	return '&nbsp;<progress' + style + ' title="' + title + '" value="' + pvalue + '" max="' + pmax + '">' + value + '</progress>';
 }
 
@@ -257,7 +256,7 @@ function setGraph(signal)
 function setDevice(device)
 {
 	setControlsEnabled(false, true, UI.Wait);
-	var param = getParameterDefinition("commands", 'uci set 3ginfo.@3ginfo[0].device='+device+'\nuci commit 3ginfo\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", 'uci set ' + pkg + '.@3ginfo[0].device=' + device + '\nuci commit ' + pkg + '\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
