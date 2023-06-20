@@ -18,7 +18,7 @@ function resetData()
 	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
 	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
-	document.getElementById("device").value = device;
+	document.getElementById("list_device").value = device;
 	document.getElementById("memory").value = memory;
 	document.getElementById("rawinput").checked = (rawinput == "1");
 	document.getElementById("rawoutput").checked = (rawoutput == "1");
@@ -37,7 +37,12 @@ function resetData()
 			var smsTableData = new Array();
 
 			var systemDateFormat = uciOriginal.get("gargoyle",  "global", "dateformat");
-			var smss = JSON.parse((req.responseText).replace(/Success/,''));
+			var smss = {};
+			try {
+				smss = JSON.parse((req.responseText).replace(/Success/,''));
+			} catch (error) {
+				smss.msg = [];
+			}
 			for (idx = 0; idx < (smss.msg).length; idx++)
 			{
 				var sms = smss.msg[idx];
@@ -159,6 +164,10 @@ function sendSMS()
 {
 	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
 	var device = uciOriginal.get(pkg, sec[0], "device");
+	if(device == "") {
+		alert(smsbox.NoDevice);
+		return;
+	}
 
 	var number = (document.getElementById("phonenumber").value).replace(/[^0-9+]/g,"");
 	var txt = utf2ascii(document.getElementById("smstext").value);
@@ -198,6 +207,11 @@ function sendUSSD()
 {
 	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
 	var device = uciOriginal.get(pkg, sec[0], "device");
+	if (device == "") {
+		alert(smsbox.NoDevice);
+		return;
+	}
+
 	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
 	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
@@ -256,7 +270,7 @@ function saveSettings()
 {
 	var Commands = [];
 
-	var device = document.getElementById("device").value;
+	var device = document.getElementById("list_device").value;
 	var memory = document.getElementById("memory").value;
 	var rawinput = document.getElementById("rawinput").checked;
 	var rawoutput = document.getElementById("rawoutput").checked;
@@ -290,36 +304,19 @@ function saveSettings()
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
-function scan3GDevice(field)
+function setDevice(device)
 {
-	setControlsEnabled(false, true, smsbox.ScnMo);
-	var param = getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
-
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", 'uci set ' + pkg + '.@smsbox[0].device=' + device + '\nuci commit ' + pkg + '\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
 		{
-			var scannedDevices = [];
-			scannedDevices = req.responseText.split(/\n/);
-			scannedDevices.pop();
-			if(scannedDevices.length > 0)
-			{
-				setAllowableSelections(field, scannedDevices, scannedDevices);
-				document.getElementById("device").style.display = "none";
-				document.getElementById("list_device").style.display = "block";
-				set3GDevice(getSelectedValue("list_device"));
-			}
-			else
-			{
-				alert(smsbox.NoDv);
-			}
+			var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+			uciOriginal.set(pkg, sec[0], "device", device);
 			setControlsEnabled(true);
+			resetData();
 		}
 	}
-	runAjax("POST", "utility/scan_3gdevices.sh", param, stateChangeFunction);
-}
-
-function set3GDevice(device)
-{
-	document.getElementById("device").value = device;
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }

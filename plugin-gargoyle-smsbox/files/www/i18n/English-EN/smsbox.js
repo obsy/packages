@@ -5,7 +5,8 @@
 smsbox.Sms="SMS/USSD";
 smsbox.Config="Configuration";
 smsbox.Device="Device";
-smsbox.Scan="Scan";
+smsbox.NoDevice="No device selected!";
+smsbox.None="None";
 smsbox.RawInput="Without changing USSD code to PDU";
 smsbox.RawOutput="No USSD response decoding";
 smsbox.Memory="SMS memory";
@@ -30,8 +31,5 @@ smsbox.SendingMsg="Sending a message...";
 smsbox.Timestamp="Date";
 smsbox.From="From";
 smsbox.Content="Message";
-
-smsbox.ScnMo="Scanning For Mobile Devices";
-smsbox.NoDv="No devices found";
 smsbox.NoNumber="No number provided!";
 smsbox.NoMsg="No message content!";

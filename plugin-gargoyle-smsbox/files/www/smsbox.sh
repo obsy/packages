@@ -27,9 +27,15 @@ var smscnt=0;
 	<div class="row form-group">
 		<label class="col-xs-5" for="device" id="device_label"><%~ Device %>:</label>
 		<span class="col-xs-7">
-			<select style="display:none;float:left;max-width:180px" class="form-control" id="list_device" onchange="setDevice(this.value)"></select>
-			<input style="float:left;" type="text" class="form-control" id="device" size="20" oninput="proofreadLengthRange(this,1,999)"/>
-			<button style="float:left;" class="btn btn-default" id="scan_button" onclick="scan3GDevice('list_device')"><%~ Scan %></button>
+			<select id="list_device" class="form-control" onchange='setDevice(this.value)' >
+			<option value=''><%~ None %></option>
+			<%
+				devices=$(ls -1 /dev/tty[A\|U][C\|S]* 2>/dev/null)
+				for d in $devices; do
+					echo "<option value='$d'>$d</option>"
+				done
+			%>
+			</select>
 		</span>
 	</div>
 

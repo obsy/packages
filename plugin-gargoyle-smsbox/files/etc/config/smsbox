@@ -1,6 +1,6 @@
 
 config 'smsbox'
-	option 'device' '/dev/ttyUSB2'
+	option 'device' ''
 	option 'memory' 'SM'
 	option 'rawinput' 1
 	option 'rawoutput' 1

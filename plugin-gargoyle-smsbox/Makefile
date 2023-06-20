@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_smsbox
-PKG_VERSION:=20230610
+PKG_VERSION:=20230618
 PKG_RELEASE:=1
 
 
@@ -13,7 +13,7 @@ define Package/plugin-gargoyle-smsbox
 	SECTION:=admin
 	CATEGORY:=Administration
 	SUBMENU:=Gargoyle Web Interface
-	TITLE:=SMS/USSD Support for Gargoyle
+	TITLE:=SMS/USSD plugin for Gargoyle
 	DEPENDS:=+gargoyle +sms-tool
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all

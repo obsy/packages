@@ -5,7 +5,8 @@
 smsbox.Sms="SMS/USSD";
 smsbox.Config="Konfiguracja";
 smsbox.Device="Urządzenie";
-smsbox.Scan="Skanuj";
+smsbox.NoDevice="Nie wybrano żadnego urządzenia!";
+smsbox.None="Brak";
 smsbox.RawInput="Bez zmiany kodu USSD do PDU";
 smsbox.RawOutput="Bez dekodowania odpowiedzi USSD";
 smsbox.Memory="Pamięć SMSów";
@@ -30,8 +31,5 @@ smsbox.SendingMsg="Wysyłanie wiadomości...";
 smsbox.Timestamp="Data";
 smsbox.From="Od";
 smsbox.Content="Treść";
-
-smsbox.ScnMo="Poszukiwanie urządzeń mobilnych";
-smsbox.NoDv="Nie znaleziono urządzeń";
 smsbox.NoNumber="Brak podanego numeru!";
 smsbox.NoMsg="Brak treści wiadomości!";
