@@ -9,6 +9,25 @@
 var smsbox = new Object();
 
 var pkg = "smsbox";
+var ussdcode = [];
+
+function populateUSSD()
+{
+	removeAllOptionsFromSelectElement(document.getElementById("ussd_list"));
+	addOptionToSelectElement("ussd_list", smsbox.SlctCd, '');
+	for (var idx = 0; idx < ussdcode.length; idx++) {
+		addOptionToSelectElement("ussd_list", ussdcode[idx][0] + ' (' + ussdcode[idx][1] + ')', ussdcode[idx][1]);
+	}
+}
+
+function readUSSD() {
+	ussdcode = [];
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "ussd");
+	for (var idx = 0; idx < sec.length; idx++) {
+		ussdcode.push([ uciOriginal.get(pkg, sec[idx], "description"), uciOriginal.get(pkg, sec[idx], "code") ]);
+	}
+	populateUSSD();
+}
 
 function resetData()
 {
@@ -18,18 +37,16 @@ function resetData()
 	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
 	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
-	document.getElementById("list_device").value = device;
+	document.getElementById("device").value = device;
 	document.getElementById("memory").value = memory;
 	document.getElementById("rawinput").checked = (rawinput == "1");
 	document.getElementById("rawoutput").checked = (rawoutput == "1");
 
-	var Commands = [];
-
-	Commands.push("sms_tool -d " + device + " -f \"%s\" -j -s " + memory + " recv");
+	var cmd = [];
+	cmd.push("sms_tool -d " + device + " -f \"%s\" -j -s " + memory + " recv");
 
 	setControlsEnabled(false, true, smsbox.ReadMsg);
-
-	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -88,7 +105,6 @@ function resetData()
 			setControlsEnabled(true);
 		}
 	}
-
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
@@ -169,7 +185,7 @@ function sendSMS()
 		return;
 	}
 
-	var number = (document.getElementById("phonenumber").value).replace(/[^0-9+]/g,"");
+	var number = (document.getElementById("phonenumber").value).replace(/[^0-9]/g,"");
 	var txt = utf2ascii(document.getElementById("smstext").value);
 
 	if(number == "")
@@ -184,13 +200,11 @@ function sendSMS()
 		return;
 	}
 
-	var Commands = [];
-
-	Commands.push("sms_tool -d " + device + " send " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
+	var cmd = [];
+	cmd.push("sms_tool -d " + device + " send " + number + " \"" + txt.replace(/"/g, "\\\"") + "\"");
 
 	setControlsEnabled(false, true, smsbox.SendingMsg);
-
-	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -199,7 +213,6 @@ function sendSMS()
 			alert(req.responseText.replace(/Success/, ''));
 		}
 	}
-
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
@@ -215,7 +228,7 @@ function sendUSSD()
 	var rawinput = uciOriginal.get(pkg, sec[0], "rawinput");
 	var rawoutput = uciOriginal.get(pkg, sec[0], "rawoutput");
 
-	var ussd = document.getElementById("ussd").value
+	var ussd = document.getElementById("ussd").value;
 
 	if(ussd == "")
 	{
@@ -223,13 +236,11 @@ function sendUSSD()
 		return;
 	}
 
-	var Commands = [];
-
-	Commands.push("sms_tool -d " + device + (rawinput == "1" ? " -R" : "") + (rawoutput == "1" ? " -r" : "") + " ussd \"" + ussd + "\"");
+	var cmd = [];
+	cmd.push("sms_tool -d " + device + (rawinput == "1" ? " -R" : "") + (rawoutput == "1" ? " -r" : "") + " ussd \"" + ussd + "\"");
 
 	setControlsEnabled(false, true, smsbox.Sending);
-
-	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -238,7 +249,6 @@ function sendUSSD()
 			alert(req.responseText.replace(/Success/, ''));
 		}
 	}
-
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
@@ -248,13 +258,11 @@ function deleteSMS(index)
 	var device = uciOriginal.get(pkg, sec[0], "device");
 	var memory = uciOriginal.get(pkg, sec[0], "memory");
 
-	var Commands = [];
-
-	Commands.push("sms_tool -d " + device + " -s " + memory + " delete " + index);
+	var cmd = [];
+	cmd.push("sms_tool -d " + device + " -s " + memory + " delete " + index);
 
 	setControlsEnabled(false, true, smsbox.DeleteMsg);
-
-	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
@@ -262,45 +270,40 @@ function deleteSMS(index)
 			setControlsEnabled(true);
 		}
 	}
-
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
 function saveSettings()
 {
-	var Commands = [];
+	var cmd = [];
 
-	var device = document.getElementById("list_device").value;
+	var device = document.getElementById("device").value;
 	var memory = document.getElementById("memory").value;
 	var rawinput = document.getElementById("rawinput").checked;
 	var rawoutput = document.getElementById("rawoutput").checked;
 
-	Commands.push("uci set " + pkg + ".@smsbox[0].device=" + device);
-	Commands.push("uci set " + pkg + ".@smsbox[0].memory=" + memory);
-	Commands.push("uci set " + pkg + ".@smsbox[0].rawinput=" + (rawinput ? "1" : "0"));
-	Commands.push("uci set " + pkg + ".@smsbox[0].rawoutput=" + (rawoutput ? "1" : "0"));
-	Commands.push("uci commit " + pkg);
+	cmd.push("uci set " + pkg + ".@smsbox[0].device=" + device);
+	cmd.push("uci set " + pkg + ".@smsbox[0].memory=" + memory);
+	cmd.push("uci set " + pkg + ".@smsbox[0].rawinput=" + (rawinput ? "1" : "0"));
+	cmd.push("uci set " + pkg + ".@smsbox[0].rawoutput=" + (rawoutput ? "1" : "0"));
+	cmd.push("uci commit " + pkg);
 
-	var sec = uci.getAllSectionsOfType(pkg, "smsbox");
-	uci.set(pkg, sec[0], "device", device);
-	uci.set(pkg, sec[0], "memory", memory);
-	uci.set(pkg, sec[0], "rawinput", (rawinput ? "1" : "0"));
-	uci.set(pkg, sec[0], "rawoutput", (rawoutput ? "1" : "0"));
+	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
+	uciOriginal.set(pkg, sec[0], "device", device);
+	uciOriginal.set(pkg, sec[0], "memory", memory);
+	uciOriginal.set(pkg, sec[0], "rawinput", (rawinput ? "1" : "0"));
+	uciOriginal.set(pkg, sec[0], "rawoutput", (rawoutput ? "1" : "0"));
 
-	setControlsEnabled(false, true, UI.WaitSettings);
-
-	var param = getParameterDefinition("commands", Commands.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
-
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
 		{
-			uciOriginal = uci.clone();
 			setControlsEnabled(true);
 			resetData();
 		}
 	}
-
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
@@ -316,6 +319,96 @@ function setDevice(device)
 			uciOriginal.set(pkg, sec[0], "device", device);
 			setControlsEnabled(true);
 			resetData();
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function setUSSD(code)
+{
+	if (code == "") {
+		return;
+	}
+	document.getElementById("ussd").value = code;
+}
+
+function USSDmngmt()
+{
+	var columnNames = [smsbox.Description, smsbox.Code];
+	var table = createTable(columnNames, ussdcode, "ussd_table", true, true);
+	var tableContainer = document.getElementById('ussd_table_container');
+	if(tableContainer.firstChild != null)
+	{
+		tableContainer.removeChild(tableContainer.firstChild);
+	}
+	tableContainer.appendChild(table);
+
+	modalButtons = [
+		{"title" : UI.CApplyChanges, "classes" : "btn btn-primary", "function" : saveUSSD},
+		"defaultDiscard"
+	];
+
+	modalElements = [
+		{"id" : "new_description", "value" : '', "disable" : false},
+		{"id" : "new_code", "value" : ''},
+	];
+	modalPrepare('ussd_modal', smsbox.USSDCodes, modalElements, modalButtons);
+	openModalWindow('ussd_modal');
+}
+
+function addUSSD()
+{
+	var errors = [];
+
+	var description = document.getElementById("new_description").value;
+	if (description == "") {
+		errors.push(smsbox.USSDDescErr);
+	}
+	var code = document.getElementById("new_code").value;
+	if (code == "") {
+		errors.push(smsbox.USSDCodeErr);
+	}
+	var testUSSD = code.replace(/[0-9\*#]+/g, "");
+	if (testUSSD != "") {
+		errors.push(smsbox.USSDCodeErr);
+	}
+	if (errors.length > 0) {
+		alert(errors.join("\n"));
+	} else {
+		addTableRow(document.getElementById('ussd_table'), [description, code], true, true);
+	}
+}
+
+function saveUSSD()
+{
+	var cmd = [];
+
+	cmd.push("SEC=$(uci show " + pkg + " | awk -F= '/=ussd$/{a[i++]=$1} END {while(i--) print a[i]}')");
+	cmd.push("for S in $SEC; do");
+	cmd.push("uci delete $S");
+	cmd.push("done");
+
+	ussdcode = [];
+	var data = getTableDataArray(document.getElementById("ussd_table"));
+	while (data.length > 0) {
+		var t = data.shift();
+		cmd.push("uci add " + pkg + " ussd");
+		cmd.push("uci set " + pkg + ".@ussd[-1].description=\"" + t[0].replace(/"/g,'\\\"') + "\"");
+		cmd.push("uci set " + pkg + ".@ussd[-1].code=\"" + t[1] + "\"");
+		ussdcode.push([ t[0], t[1] ])
+	}
+	cmd.push("uci commit " + pkg);
+
+	closeModalWindow('ussd_modal');
+
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", cmd.join("\n")) + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if (req.readyState == 4)
+		{
+			setControlsEnabled(true);
+			populateUSSD();
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);

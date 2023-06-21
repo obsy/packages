@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_smsbox
-PKG_VERSION:=20230618
+PKG_VERSION:=20230621
 PKG_RELEASE:=1
 
 

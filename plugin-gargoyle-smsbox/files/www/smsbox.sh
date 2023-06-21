@@ -9,7 +9,6 @@
 	gargoyle_header_footer -h -s "system" -p "smsbox" -j "table.js smsbox.js" -z "smsbox.js" smsbox gargoyle
 %>
 <script>
-var uci = uciOriginal.clone();
 var smscnt=0;
 </script>
 
@@ -27,7 +26,7 @@ var smscnt=0;
 	<div class="row form-group">
 		<label class="col-xs-5" for="device" id="device_label"><%~ Device %>:</label>
 		<span class="col-xs-7">
-			<select id="list_device" class="form-control" onchange='setDevice(this.value)' >
+			<select id="device" class="form-control" onchange='setDevice(this.value)' >
 			<option value=''><%~ None %></option>
 			<%
 				devices=$(ls -1 /dev/tty[A\|U][C\|S]* 2>/dev/null)
@@ -82,15 +81,22 @@ var smscnt=0;
 	<div class="panel-body">
 
 	<div class="row form-group">
+		<span class='col-xs-offset-5 col-xs-7'>
+			<select id="ussd_list" class='form-control' style="width:100%;" onchange='setUSSD(this.value);'></select>
+		<span>
+	</div>
+
+	<div class="row form-group">
 		<label id="ussd_label" class="col-xs-5" for="ussd"><%~ Code %>:</label>
 		<span class="col-xs-7">
-			<input id="ussd" class="form-control" type="text" size='45'/>
+			<input id="ussd" class="form-control" type="text" style="width:100%;"/>
 		</span>
 	</div>
 
 	<div class="row">
 		<span class="col-xs-12">
 			<button class="btn btn-default" onclick="sendUSSD()"><%~ Send %></button>
+			<button class="btn btn-default" onclick="USSDmngmt()"><%~ Mngmt %></button>
 		</span>
 	</div>
 
@@ -154,8 +160,34 @@ var smscnt=0;
 
 </div>
 
+<div class="modal fade" tabindex="-1" role="dialog" id="ussd_modal" aria-hidden="true" aria-labelledby="ussd_modal_title">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 id="ussd_modal_title" class="panel-title"><%~ AddUSSD %></h3>
+			</div>
+			<div class="modal-body">
+				<div id="description_container" class="row form-group">
+					<label class="col-xs-5" id="description_label" for="new_description"><%~ Description %>:</label>
+					<span class="col-xs-7"><input id="new_description" class="form-control" type="text"/></span>
+				</div>
+
+				<div id="code_container" class="row form-group">
+					<label class="col-xs-5" id="ussd_label" for="new_code"><%~ Code %>:</label>
+					<span class="col-xs-7"><input id="new_code" class="form-control" type="text"/></span>
+				</div>
+				<button class="btn btn-default btn-add" onclick="addUSSD();"><%~ Add %></button>
+				<hr>
+				<div id="ussd_table_container" class="table-responsive"></div>
+			</div>
+			<div id="ussd_modal_button_container" class="modal-footer" ></div>
+		</div>
+	</div>
+</div>
+
 <script>
 <!--
+	readUSSD();
 	resetData();
 //-->
 </script>
