@@ -1,0 +1,10 @@
+#!/bin/sh
+
+uci set gargoyle.display.system_modemband="Modem bands"
+uci set gargoyle.scripts.system_modemband='modemband.sh'
+uci set gargoyle.system.modemband='351'
+
+touch /etc/config/3ginfo
+uci -q get 3ginfo.@3ginfo[0] > /dev/null || uci add 3ginfo 3ginfo
+
+uci commit
