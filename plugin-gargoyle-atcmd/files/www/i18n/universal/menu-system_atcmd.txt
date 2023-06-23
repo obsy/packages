@@ -1,0 +1,3 @@
+fallback=AT Command
+EN=AT Command
+PL=Polecenia AT
