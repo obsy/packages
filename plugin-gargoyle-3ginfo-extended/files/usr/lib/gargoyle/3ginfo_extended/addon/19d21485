@@ -80,6 +80,7 @@ case "$MODE_NUM" in
 		if [ -n "$T" ]; then
 			T1=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $6}' | xargs)
 			addon 30 "Primary band" "$(band4g $T) @${T1} MHz"
+			[ "x$MODE" = "xLTE BUnknown" ] && MODE="LTE $(band4g $T)"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $2}' | xargs)
 			[ -n "$T" ] && addon 33 "PCI" "$T"
 			T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO/ {print $5}' | xargs)
