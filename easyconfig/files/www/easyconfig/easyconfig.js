@@ -1031,6 +1031,7 @@ function showconfig() {
 
 		// nightmode / sunwait
 		setDisplay('div_nightmode_led_auto', config.services.sunwait);
+		if (config.services.gps) { document.getElementById('btn_nightmode_locationfromgps').style.display = 'inline-block'; }
 
 		// modembands
 		setDisplay('menu_modembands', config.services.modemband);
@@ -5527,6 +5528,17 @@ function btn_nightmode_getlocation() {
 			setValue('nightmode_led_auto_longitude', data.lon ? data.lon : '');
 		} else {
 			showMsg('Błąd odczytu lokalizacji', true);
+		}
+	});
+}
+
+function btn_nightmode_getlocationfromgps() {
+	ubus_call('"gps", "info", {}', function(data) {
+		if (data.age == undefined) {
+			showMsg('Błąd odczytu lokalizacji', true);
+		} else {
+			setValue('nightmode_led_auto_latitude', data.latitude);
+			setValue('nightmode_led_auto_longitude', data.longitude);
 		}
 	});
 }
