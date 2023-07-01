@@ -5236,7 +5236,7 @@ function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
 		if (config.services.adblock) {
 			setDisplay('div_adblock_adblock', true);
-			document.getElementById('adblock_btn_check').style.display = 'inline-block';
+			document.getElementById('btn_adblock_check').style.display = 'inline-block';
 			var tmp = data.domains == '' ? '-' : data.domains
 			if (data.domains == '0') {
 				if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
