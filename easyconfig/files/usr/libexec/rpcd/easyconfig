@@ -226,18 +226,6 @@ case $(cat /tmp/sysinfo/board_name) in
 	"zte,mf286r")
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		;;
-	"zyxel,nr7101")
-		if [ -e /usr/bin/sms_tool ]; then
-			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-			if [ -n "$DEVICE" ]; then
-				O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
-				T=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
-				if [ -n "$T" ]; then
-					echo ',{"Aktywny slot SIM":"'$T'"}'
-				fi
-			fi
-		fi
-		;;
 esac
 echo ']'
 
@@ -719,10 +707,50 @@ else
 	echo '"gps":false,'
 fi
 
+echo '},'
+
+echo '"simslot":{'
+if [ -e /usr/bin/sms_tool ]; then
+	case $(cat /tmp/sysinfo/board_name) in
+		"teltonika,rut955" | \
+		"teltonika,rut955-h7v3c0")
+			GPIO=$(uci -q get system.sim_sel.gpio_pin)
+			if [ -n "$GPIO" ]; then
+				SLOT=$(cat /sys/class/gpio/$GPIO/value 2>/dev/null)
+				if [ "x$SLOT" = "x0" ]; then
+					echo '"active":0,'
+				else
+					echo '"active":1,'
+				fi
+				echo '"slots":[{"index":0,"description":"SIM1"},{"index":1,"description":"SIM2"}]'
+			fi
+			;;
+
+		"zbtlink,zbt-we826-e")
+			GPIO=$(uci -q get system.sim_switch.gpio_pin)
+			if [ -n "$GPIO" ]; then
+				SLOT=$(cat /sys/class/gpio/$GPIO/value 2>/dev/null)
+				if [ "x$SLOT" = "x0" ]; then
+					echo '"active":0,'
+				else
+					echo '"active":1,'
+				fi
+				echo '"slots":[{"index":0,"description":"SIM1"},{"index":1,"description":"SIM2"}]'
+			fi
+			;;
+		"zyxel,nr7101")
+			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+			if [ -n "$DEVICE" ]; then
+				O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
+				SLOT=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
+				[ -n "$SLOT" ] && echo '"active":'$SLOT',"slots":[{"index":1,"description":"SIM1"},{"index":2,"description":"SIM2"}]'
+			fi
+			;;
+	esac
+fi
 echo '}'
 
 echo '}'
-
 }
 
 ##############################################################################
@@ -1091,6 +1119,56 @@ show_modemsettings() {
 	echo ',"ussd_raw_input":'${USSD_RAW_INPUT:-1}
 	echo ',"ussd_raw_output":'${USSD_RAW_OUTPUT:-1}
 	echo "}"
+}
+
+##############################################################################
+
+setsimslot() {
+	read input;
+	json_load "$input"
+	json_get_var slot slot
+	if [ -z "$slot" ]; then
+		echo '{"error":1}'
+		return
+	fi
+	if [ ! -e /usr/bin/sms_tool ]; then
+		echo '{"error":2}'
+		return
+	fi
+	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+	if [ -z "$DEVICE" ]; then
+		echo '{"error":3}'
+		return
+	fi
+	case $(cat /tmp/sysinfo/board_name) in
+		"teltonika,rut955" | \
+		"teltonika,rut955-h7v3c0")
+			ifdown wan
+			sms_tool -d $DEVICE at "AT+CFUN=0" >/dev/null 2>&1
+			GPIO=$(uci -q get system.sim_sel.gpio_pin)
+			echo $slot > /sys/class/gpio/$GPIO/value
+			uci set system.sim_sel.value=$slot
+			uci commit system
+			sms_tool -d $DEVICE at "AT+CFUN=1,1" >/dev/null 2>&1
+			ifup wan
+			;;
+		"zbtlink,zbt-we826-e")
+			ifdown wan
+			sms_tool -d $DEVICE at "AT+CFUN=0" >/dev/null 2>&1
+			GPIO=$(uci -q get system.sim_switch.gpio_pin)
+			echo $slot > /sys/class/gpio/$GPIO/value
+			uci set system.sim_switch.value=$slot
+			uci commit system
+			sms_tool -d $DEVICE at "AT+CFUN=1,1" >/dev/null 2>&1
+			ifup wan
+			;;
+		"zyxel,nr7101")
+			ifdown wan
+			sms_tool -d $DEVICE at "AT+QUIMSLOT=${slot}" >/dev/null 2>&1
+			ifup wan
+			;;
+	esac
+	echo '{"error":0}'
 }
 
 ##############################################################################
@@ -2013,6 +2091,7 @@ case "$1" in
 		echo '"traffic":{},'
 		echo '"modem":{},'
 		echo '"modemsettings":{},'
+		echo '"setsimslot":{"slot":"string"},'
 		echo '"ussd":{"code":"string"},'
 		echo '"ussdshortcuts":{},'
 		echo '"sms":{"action":"string","arg1":"string","arg2":"string"},'
@@ -2067,6 +2146,9 @@ case "$1" in
 				;;
 			modemsettings)
 				show_modemsettings
+				;;
+			setsimslot)
+				setsimslot
 				;;
 			ussd)
 				show_ussd

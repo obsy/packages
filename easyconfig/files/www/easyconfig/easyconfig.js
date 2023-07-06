@@ -1764,6 +1764,21 @@ function showsystem() {
 		setValue('modem_imei', data.modem.imei == '' ? '-' : data.modem.imei);
 		setValue('modem_iccid', data.modem.iccid == '' ? '-' : data.modem.iccid);
 	});
+
+	if (config.simslot.hasOwnProperty('active')) {
+		var e = removeOptions('modem_simslot');
+		var arr = config.simslot.slots;
+		for (var idx = 0; idx < arr.length; idx++) {
+			var opt = document.createElement('option');
+			opt.value = arr[idx]["index"];
+			opt.innerHTML = arr[idx]["description"];
+			e.appendChild(opt);
+		}
+		setValue('modem_simslot', config.simslot.active);
+		setDisplay('div_modem_simslot', true);
+	} else {
+		setDisplay('div_modem_simslot', false);
+	}
 }
 
 function cancelmodemsettings() {
@@ -1896,6 +1911,17 @@ function defaultmodembands() {
 	execute(['modemband.sh setbands default'], modembands);
 }
 
+function modem_simslot_save() {
+	showDialog('UWAGA: zmiana aktywnego slotu SIM spowoduje rozłaczenie połączenia z internetem. Zmienić slot?', 'Nie', 'Tak', oksimslotchange);
+}
+
+function oksimslotchange() {
+	console.log(getValue('modem_simslot'));
+	ubus_call('"easyconfig", "setsimslot", {"slot":"' + getValue('modem_simslot') + '"}', function(data) {
+		showsystem();
+	});
+}
+
 function restartwan() {
 	closemodembands();
 
@@ -1984,6 +2010,14 @@ function showmodem() {
 			} else {
 				setDisplay('div_modem_btsearch', false);
 			}
+			if (config.simslot.hasOwnProperty('active')) {
+				for (var idx = 0; idx < config.simslot.slots.length; idx++) {
+					if (config.simslot.slots[idx].index == config.simslot.active) {
+						arrmodemaddon.push({'idx':10, 'key':'Aktywny slot SIM', 'value':config.simslot.slots[idx].description});
+						break;
+					}
+				}
+			}
 		} else {
 			setValue('modem_signal', '-');
 			var e = document.getElementById('modem_signal_bars');
@@ -2039,7 +2073,6 @@ function okreboot() {
 		showMsg("Błąd pobierania danych!", true);
 	}, true);
 }
-
 
 /*****************************************************************************/
 
