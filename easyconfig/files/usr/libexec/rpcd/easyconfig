@@ -107,7 +107,7 @@ for IFNAME in $TPORTS1; do
 	PORT=${IFNAME%%.*}
 	VLAN=${IFNAME##*.}
 	if [ "$PORT" = "$VLAN" ]; then
-		VLAN=$(jsonfilter -i /etc/board.json -e '@.switch.*.roles' | jsonfilter -e '@[*]' | awk '/"'$PORT'"/{print NR; exit}')
+		VLAN=$(jsonfilter -i /etc/board.json -e '@.switch.*.roles' | jsonfilter -q -e '@[*]' | awk '/"'$PORT'"/{print NR; exit}')
 		[ -z "$VLAN" ] && VLAN=1
 	fi
 
