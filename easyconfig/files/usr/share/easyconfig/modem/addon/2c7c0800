@@ -1,4 +1,5 @@
 # Quectel RG502Q-EA
+# Quectel RM520N-GL
 
 O=$(sms_tool -d $DEVICE at "at+qtemp")
 
@@ -23,6 +24,13 @@ case "$MODE_NUM" in
 	13*)
 		if echo "$O" | grep -q -i "+QCAINFO.*NR5G"; then
 			MODE="5G-NSA"
+		else
+			if echo "$O" | grep -q -i "+QCAINFO.*PCC.*LTE"; then
+				MODE="LTE"
+				if echo "$O" | grep -q -i "+QCAINFO.*SCC"; then
+					MODE="LTE_A"
+				fi
+			fi
 		fi
 		;;
 esac
