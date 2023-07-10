@@ -552,8 +552,7 @@ for R in $RADIOS; do
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	echo '"wlan_channels":{'
 	O=""
-	PHY=$(cat /sys/devices/$(uci -q get wireless.$R.path)/ieee80211/*/name 2>/dev/null)
-	[ -z "$PHY" ] && PHY=$(cat /sys/devices/platform/$(uci -q get wireless.$R.path)/ieee80211/*/name 2>/dev/null)
+	PHY=$(ubus call iwinfo phyname '{"section":"'$R'"}' 2>/dev/null | jsonfilter -q -e @.phyname)
 	[ -n "$PHY" ] && O=$(iw phy $PHY info | grep -v "(disabled)" | grep -v "(no IR)" | awk '/\* [0-9]+ MHz/{dfs="false";if(index($0, "radar detection") != 0){dfs="true"};gsub(/\[|\]|\(|\)/,""); printf ",\"%d\":[\"%s\",\"%s\",%s]", $4, $2, $5, dfs}')
 	if [ -z "$O" ]; then
 		echo '"'$WLAN_CHANNEL'":["","",false]'
