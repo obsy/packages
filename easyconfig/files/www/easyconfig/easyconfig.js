@@ -1994,6 +1994,7 @@ function showmodem() {
 			setValue('modem_operator', data.operator_name == '' ? '-' : data.operator_name);
 			setValue('modem_mode', data.mode == '' ? '-' : data.mode);
 
+			arrmodemaddon.push({'idx':1, 'key':'Technologia', 'value':data.mode});
 			if (data.operator_mcc && data.operator_mcc != '' && data.operator_mnc && data.operator_mnc != '') {
 				arrmodemaddon.push({'idx':20, 'key':'MCC MNC', 'value':data.operator_mcc + ' ' + data.operator_mnc});
 			}
@@ -2035,11 +2036,66 @@ function showmodem() {
 	});
 }
 
+function paramdesc(param, value) {
+	var description = '';
+	var pvalue = parseInt(value.split(' ')[0]);
+	var color = '';
+	switch(param) {
+		case 'rssi':
+			if (pvalue > -65) { color = '#2bdf5a'; description += 'doskonały'; }
+			if (pvalue > -75 && pvalue <= -65 ) { color = '#efff12'; description += 'dobry'; }
+			if (pvalue > -85 && pvalue <= -75 ) { color = '#f8c200'; description += 'słaby'; }
+			if (pvalue > -95 && pvalue <= -85 ) { color = '#fa0000'; description += 'zły'; }
+			if (pvalue <= -95) { color = '#fa0000'; description += 'bardzo zły'; }
+			break;
+		case 'rsrp':
+			if (pvalue >= -80) { color = '#2bdf5a'; description += 'doskonały'; }
+			if (pvalue >= -90 && pvalue < -80 ) { color = '#efff12'; description += 'dobry'; }
+			if (pvalue >= -100 && pvalue < -90 ) { color = '#f8c200'; description += 'słaby'; }
+			if (pvalue < -100) { color = '#fa0000'; description += 'zły'; }
+			break;
+		case 'rsrq':
+			if (pvalue >= -10) { color = '#2bdf5a'; description += 'doskonały'; }
+			if (pvalue >= -15 && pvalue < -10 ) { color = '#efff12'; description += 'dobry'; }
+			if (pvalue >= -20 && pvalue < -15 ) { color = '#f8c200'; description += 'słaby'; }
+			if (pvalue < -20) { color = '#fa0000'; description += 'zły'; }
+			break;
+		case 'sinr':
+			if (pvalue >= 20) {color = '#2bdf5a'; description += 'doskonały'; }
+			if (pvalue >= 13 && pvalue < 20 ) { color = '#efff12'; description += 'dobry'; }
+			if (pvalue >= 0 && pvalue < 13 ) { color = '#f8c200'; descriptionle += 'słaby'; }
+			if (pvalue < 0) { color = '#fa0000'; description += 'zły'; }
+			break;
+	}
+	return ', <span style="color:' + color + '">' + description + '</span>';
+}
+
 function modemaddon() {
+	var is4g = false;
+	var description = '';
 	var html = '';
 	var sorted = sortJSON(arrmodemaddon, 'idx', 'asc');
 	sorted.forEach(function(e) {
-		html += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value);
+		if (e.idx == 1) {
+			if ((e.value).search(/LTE/) > -1) { is4g = true; }
+			return;
+		}
+		description = '';
+		if (is4g) {
+			if ((e.key).search(/RSSI/) > -1) {
+				description = paramdesc('rssi', e.value);
+			}
+			if ((e.key).search(/RSRP/) > -1) {
+				description = paramdesc('rsrp', e.value);
+			}
+			if ((e.key).search(/RSRQ/) > -1) {
+				description = paramdesc('rsrq', e.value);
+			}
+			if ((e.key).search(/SINR/) > -1) {
+				description = paramdesc('sinr', e.value);
+			}
+		}
+		html += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value + description);
 	});
 	showMsg(html);
 }
