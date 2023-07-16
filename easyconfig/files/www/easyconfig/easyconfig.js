@@ -4998,6 +4998,7 @@ function addwireguardpeer(withallowedip) {
 	var html = ('<div id="div_vpn_wireguard_peer_idx">' + document.getElementById('div_vpn_wireguard_peer_template').innerHTML + '</div>').replaceAll('_idx', "_" + idx);
 	document.getElementById('vpn_wireguard_peers_content').insertAdjacentHTML('beforeend', html);
 	if (withallowedip) { addwireguardallowedips('_' + idx); }
+	setValue('vpn_wireguard_enabled_' + idx, true);
 	idx++;
 	setValue('vpn_wireguard_peers', idx);
 }
