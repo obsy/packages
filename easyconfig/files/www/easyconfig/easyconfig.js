@@ -5058,9 +5058,9 @@ function savewireguard() {
 		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey') + '<br>Klucz prywatny ma nieprawidłową długość lub format');
 		return;
 	}
-	var port = getValue('vpn_wireguard_port');
-	if (port != '') {
-		if (validateNumericRange(port, 0, 65535) != 0){
+	var tmp = getValue('vpn_wireguard_port');
+	if (tmp != '') {
+		if (validateNumericRange(tmp, 0, 65535) != 0) {
 			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_port'));
 			return;
 		}
@@ -5090,15 +5090,20 @@ function savewireguard() {
 			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey_' + idx));
 			return;
 		}
-		if (validateHost(getValue('vpn_wireguard_endpoint_host_' + idx)) != 0) {
-			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_host_' + idx));
-			return;
+		tmp = getValue('vpn_wireguard_endpoint_host_' + idx);
+		if (tmp != '') {
+			if (validateHost(tmp) != 0) {
+				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_host_' + idx));
+				return;
+			}
 		}
-		if (validateNumericRange(getValue('vpn_wireguard_endpoint_port_' + idx, 0, 65535)) != 0) {
-			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_port_' + idx));
-			return;
+		tmp = getValue('vpn_wireguard_endpoint_port_' + idx);
+		if (tmp != '') {
+			if (validateNumericRange(tmp, 0, 65535) != 0) {
+				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_port_' + idx));
+				return;
+			}
 		}
-
 		var cnt1 = getValue('vpn_wireguard_allowed_ips_' + idx);
 		for (var idy = 0; idy < cnt1; idy++) {
 			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
