@@ -4318,7 +4318,7 @@ function showvpn() {
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row space"><div class="col-xs-12 col-sm-4 click" onclick="vpndetails(\'' + sorted[idx].proto + '\',\'' + sorted[idx].interface + '\',\'' + (sorted[idx].section ? sorted[idx].section : '') + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
-				html += '<div class="col-xs-3 col-sm-3">' + vpnproto(sorted[idx].proto) + '</div>';
+				html += '<div class="col-xs-3 col-sm-3">' + vpntype(sorted[idx].proto) + '</div>';
 				if (sorted[idx].up) {
 					if (sorted[idx].proto == 'zerotier') {
 						html += '<div class="col-xs-7 col-sm-4"><span style="color:green">aktywny</span></div>';
@@ -4499,7 +4499,7 @@ function vpndetails(proto, interface, section) {
 	})
 }
 
-function vpnproto(proto) {
+function vpntype(proto) {
 	switch (proto) {
 		case 'openvpn':
 			return 'OpenVPN';
@@ -4521,7 +4521,7 @@ function addvpn() {
 	for (var idx = 0; idx < arr.length; idx++) {
 		var opt = document.createElement('option');
 		opt.value = arr[idx];
-		opt.innerHTML = vpnproto(arr[idx]);
+		opt.innerHTML = vpntype(arr[idx]);
 		e.appendChild(opt);
 	}
 
@@ -4620,7 +4620,7 @@ function removeopenvpn() {
 	cancelopenvpn();
 	setValue('dialog_val', getValue('vpn_openvpn_interface'));
 	setValue('dialog_val1', getValue('vpn_openvpn_section'));
-	showDialog('Usunąć VPN "' + getValue('vpn_openvpn_name') + '" (typu OpenvVPN)?', 'Anuluj', 'Usuń', okremoveopenvpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_openvpn_name') + '" (typu ' + vpntype('openvpn') + ')?', 'Anuluj', 'Usuń', okremoveopenvpn);
 }
 
 function okremoveopenvpn() {
@@ -4771,7 +4771,7 @@ function cancelpptp() {
 function removepptp() {
 	cancelpptp();
 	setValue('dialog_val', getValue('vpn_pptp_interface'));
-	showDialog('Usunąć VPN "' + getValue('vpn_pptp_name') + '" (typu PPTP)?', 'Anuluj', 'Usuń', okremovevpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_pptp_name') + '" (typu ' + vpntype('pptp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
 }
 
 function okremovevpn() {
@@ -4883,7 +4883,7 @@ function cancelsstp() {
 function removesstp() {
 	cancelsstp();
 	setValue('dialog_val', getValue('vpn_sstp_interface'));
-	showDialog('Usunąć VPN "' + getValue('vpn_sstp_name') + '" (typu SSTP)?', 'Anuluj', 'Usuń', okremovevpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_sstp_name') + '" (typu ' + vpntype('sstp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
 }
 
 function savesstp() {
@@ -5024,7 +5024,7 @@ function removewireguardallowedips(idx) {
 function removewireguard() {
 	cancelwireguard();
 	setValue('dialog_val', getValue('vpn_wireguard_interface'));
-	showDialog('Usunąć ten VPN (typu WireGuard)?', 'Anuluj', 'Usuń', okremovewireguard);
+	showDialog('Usunąć ten VPN (typu ' + vpntype('wireguard') + ')?', 'Anuluj', 'Usuń', okremovewireguard);
 }
 
 function okremovewireguard() {
@@ -5251,7 +5251,7 @@ function removezerotiernetwork(idx) {
 function removezerotier() {
 	cancelzerotier();
 	setValue('dialog_val', getValue('vpn_zerotier_section'));
-	showDialog('Usunąć VPN "' + getValue('vpn_zerotier_name') + '" (typu ZeroTier)?', 'Anuluj', 'Usuń', okremovezerotier);
+	showDialog('Usunąć VPN "' + getValue('vpn_zerotier_name') + '" (typu ' + vpntype('zerotier') + ')?', 'Anuluj', 'Usuń', okremovezerotier);
 }
 
 function okremovezerotier() {
