@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplusbluciprofiles
-PKG_VERSION:=20230617
+PKG_VERSION:=20230727
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,42 +18,41 @@ define Package/ekooneplusbluciprofiles/Default
 		+kmod-fs-ext4 +e2fsprogs \
 		+kmod-fs-vfat +kmod-nls-cp437 +kmod-nls-iso8859-1 \
 		+kmod-fs-ntfs3 +kmod-fs-exfat \
-		+kmod-nf-nathelper-extra \
 		+luci-app-p910nd +luci-i18n-p910nd-pl +kmod-usb-printer +p910nd \
 		+luci-app-ksmbd +luci-i18n-ksmbd-pl +ksmbd-server +wsdd2 \
 		+usb-modeswitch +kmod-usb-net +kmod-usb-net-rndis +kmod-usb-net-cdc-ether \
 		+luci-proto-3g +comgt +kmod-usb-serial +kmod-usb-serial-option +kmod-usb-serial-sierrawireless +kmod-usb-serial-qualcomm +kmod-usb-acm \
 		+luci-proto-ncm +comgt-ncm +kmod-usb-net-cdc-ncm +kmod-usb-net-huawei-cdc-ncm \
-		+luci-proto-mbim +umbim +kmod-usb-net-cdc-mbim +kmod-usb-net-cdc-ncm +kmod-usb-net-huawei-cdc-ncm \
+		+luci-proto-mbim +umbim +kmod-usb-net-cdc-mbim \
 		+luci-proto-qmi +uqmi +kmod-usb-net-qmi-wwan
 endef
 
 define Package/ekooneplusbluciprofiles/description/Default
 	eko.one.pl Services
-	.
-	This meta package contains only the dependencies required for
-	USB functionality in LuCI.
 endef
 
 
-define Package/ekooneplusb-lucimini
+define Package/ekoonepl-luci
 	$(call Package/ekooneplusbluciprofiles/Default)
-	TITLE+= LuCI USB mini
+	TITLE+= LuCI
+	DEPENDS:=+luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
-define Package/ekooneplusb-lucimini/description
+define Package/ekoonepl-luci/description
 	$(call Package/ekooneplusbluciprofiles/description/Default)
 endef
 
-
-define Package/ekooneplusb-lucifull
+define Package/ekooneplusb-luci
 	$(call Package/ekooneplusbluciprofiles/Default)
-	TITLE+= LuCI USB full
+	TITLE+= LuCI USB
 	DEPENDS+= +luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
-define Package/ekooneplusb-lucifull/description
+define Package/ekooneplusb-luci/description
 	$(call Package/ekooneplusbluciprofiles/description/Default)
+	.
+	This meta package contains only the dependencies required for
+	USB functionality in LuCI.
 endef
 
 define Build/Configure
@@ -62,14 +61,15 @@ endef
 define Build/Compile
 endef
 
-define Package/ekooneplusb-lucimini/install
+
+define Package/ekoonepl-luci/install
 	/bin/true
 endef
 
-define Package/ekooneplusb-lucifull/install
+define Package/ekooneplusb-luci/install
 	/bin/true
 endef
 
 
-$(eval $(call BuildPackage,ekooneplusb-lucimini))
-$(eval $(call BuildPackage,ekooneplusb-lucifull))
+$(eval $(call BuildPackage,ekoonepl-luci))
+$(eval $(call BuildPackage,ekooneplusb-luci))
