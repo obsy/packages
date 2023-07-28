@@ -1730,8 +1730,17 @@ function showstatus() {
 
 function networkspeed(speed) {
 	switch (speed) {
+		case 40000:
+			return '40Gbps';
+			break;
+		case 25000:
+			return '25Gbps';
+			break;
 		case 10000:
 			return '10Gbps';
+			break;
+		case 5000:
+			return '5Gbps';
 			break;
 		case 2500:
 			return '2.5Gbps';
