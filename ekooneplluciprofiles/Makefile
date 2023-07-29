@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=ekooneplusbluciprofiles
-PKG_VERSION:=20230727
+PKG_NAME:=ekooneplluciprofiles
+PKG_VERSION:=20230728
 
 include $(INCLUDE_DIR)/package.mk
 
 
-define Package/ekooneplusbluciprofiles/Default
+define Package/ekooneplluciprofiles/Default
 	CATEGORY:=Administration
 	SUBMENU:=eko.one.pl services
 	SECTION:=admin
@@ -27,29 +27,29 @@ define Package/ekooneplusbluciprofiles/Default
 		+luci-proto-qmi +uqmi +kmod-usb-net-qmi-wwan
 endef
 
-define Package/ekooneplusbluciprofiles/description/Default
+define Package/ekooneplluciprofiles/description/Default
 	eko.one.pl Services
 endef
 
 
 define Package/ekoonepl-luci
-	$(call Package/ekooneplusbluciprofiles/Default)
+	$(call Package/ekooneplluciprofiles/Default)
 	TITLE+= LuCI
 	DEPENDS:=+luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
 define Package/ekoonepl-luci/description
-	$(call Package/ekooneplusbluciprofiles/description/Default)
+	$(call Package/ekooneplluciprofiles/description/Default)
 endef
 
 define Package/ekooneplusb-luci
-	$(call Package/ekooneplusbluciprofiles/Default)
+	$(call Package/ekooneplluciprofiles/Default)
 	TITLE+= LuCI USB
 	DEPENDS+= +luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
 define Package/ekooneplusb-luci/description
-	$(call Package/ekooneplusbluciprofiles/description/Default)
+	$(call Package/ekooneplluciprofiles/description/Default)
 	.
 	This meta package contains only the dependencies required for
 	USB functionality in LuCI.
