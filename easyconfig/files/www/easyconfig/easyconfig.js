@@ -2824,9 +2824,10 @@ function clientscallback(sortby) {
 					limitations = '<span title="ograniczenia">&#9888;</span>&nbsp;';
 				}
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">' + limitations;
+
+				html += '<div class="col-xs-9 visible-xs-block"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-3 visible-xs-block text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-12 visible-xs-block">' + limitations;
 				html += 'MAC: ' + sorted[idx].mac + (sorted[idx].ip == '' ? '' : ', IP: ' + sorted[idx].ip) + ', ';
 				if (sorted[idx].type == 1) {
 					html += 'przewodowo';
@@ -2838,6 +2839,30 @@ function clientscallback(sortby) {
 				} else {
 					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}
+
+				var title1 = '';
+				var title2 = '';
+				if (sorted[idx].type == 2) {
+					title1 = ' title="' + sorted[idx].percent + '% udziału w ruchu"';
+					title2 = ' title="połączony: ' + formatDuration(sorted[idx].connected, false) + '"';
+				}
+				html += '<div class="col-xs-3 hidden-xs"><span style="color:' + string2color(sorted[idx].mac) + '"' + title1 + '>&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');"' + title2 + '>' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-3 hidden-xs">' + limitations + '<span title="adres MAC">' + sorted[idx].mac + '</span><br><span title="adres IP">' + sorted[idx].ip + '</span></div>';
+				html += '<div class="col-xs-3 hidden-xs" title="sposób połączenia">';
+				if (sorted[idx].type == 1) {
+					html += 'przewodowo';
+					var obj = physicalports.find(o => o.port === sorted[idx].port);
+					if (obj) {
+						html += '<br>' + (sorted[idx].port).toUpperCase();
+					}
+					html += '</div>';
+					html += '<div class="col-xs-2"></div>';
+				} else {
+					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + '</div>';
+					html += '<div class="col-xs-2 hidden-xs"><span title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
+				}
+				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+
 				html += '</div>';
 				any_active = true;
 			} else {
