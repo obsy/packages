@@ -1288,8 +1288,8 @@ show_wifiscan() {
 	if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 		for I in /sys/class/net/$BRIDGE/lower_*; do
 			if [ -e $I/phy80211 ]; then
-				iw dev ${I##*lower_} scan 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("(on","");
-					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""}
+				iw dev ${I##*lower_} scan -u 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("(on","");
+					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""; wifi_bssload[MAC] = -1}
 					if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
 					if($1 == "signal:") {wifi_sig[MAC] = $2}
 					if($1 == "freq:") {wifi_freq[MAC] = $2; if($2<5000){wifi_mode1[MAC] = "g"}else{wifi_mode1[MAC] = "a"}}
@@ -1311,8 +1311,9 @@ show_wifiscan() {
 					if($0 ~ /Authentication suites: SAE/) {wifi_enc[MAC] = "WPA3 Personal"}
 					if($0 ~ /Authentication suites: PSK PSK\/SHA-256 SAE/) {wifi_enc[MAC] = "WPA2/WPA3 Personal"}
 					if($0 ~ /TSF:/) {wifi_uptime[MAC] = $2/1000}
+					if($0 ~ /Unknown IE \(11\):/) {wifi_bssload[MAC] = int("0x"$4) + int("0x"$5)*256}
 					} END { for (w in wifi_enc) {
-							printf "{\"mac\":\"%s\",\"ssid\":\"%s\",\"freq\":\"%s\",\"signal\":\"%s\",\"channel\":\"%s\",\"encryption\":\"%s\",\"mode1\":\"%s\",\"mode2\":\"%s\",\"vhtch1\":\"%s\",\"vhtch2\":\"%s\",\"uptime\":\"%.0f\"},\n", w, wifi_ssid[w], wifi_freq[w], wifi_sig[w], wifi_chan[w], wifi_enc[w], wifi_mode1[w], wifi_mode2[w], wifi_vhtch1[w], wifi_vhtch2[w], wifi_uptime[w]/1000
+							printf "{\"mac\":\"%s\",\"ssid\":\"%s\",\"freq\":\"%s\",\"signal\":\"%s\",\"channel\":\"%s\",\"encryption\":\"%s\",\"mode1\":\"%s\",\"mode2\":\"%s\",\"vhtch1\":\"%s\",\"vhtch2\":\"%s\",\"uptime\":\"%.0f\",\"bssload\":%d},\n", w, wifi_ssid[w], wifi_freq[w], wifi_sig[w], wifi_chan[w], wifi_enc[w], wifi_mode1[w], wifi_mode2[w], wifi_vhtch1[w], wifi_vhtch2[w], wifi_uptime[w]/1000, wifi_bssload[w]
 						}
 					}'
 			fi

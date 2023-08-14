@@ -2384,7 +2384,7 @@ function sitesurveycallback(sortby) {
 			var manuf = getmanuf(sorted[idx].mac);
 			if (manuf != '-') { html += manuf + '<br>'; }
 			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatDuration(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
-			if (rogueap) {html += '<br>Wrogi AP';}
+			if (rogueap) { html += '<br>Wrogi AP'; }
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
 			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
@@ -2392,8 +2392,9 @@ function sitesurveycallback(sortby) {
 			html += (sorted[idx].encryption ? '<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>' : '');
 			var t = modes.indexOf(sorted[idx].mode1);
 			if (t > -1) {html += 'Wi-Fi ' + (t + 2) + ' ';}
-			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')<br>';
-			html += (sorted[idx].uptime ? '<span class="hidden-vxs">Czas działania </span>' + formatDuration(sorted[idx].uptime, false) : '');
+			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')';
+			html += (sorted[idx].uptime ? '<br><span class="hidden-vxs">Czas działania </span>' + formatDuration(sorted[idx].uptime, false) : '');
+			if (sorted[idx].bssload > -1) { html += '<br>Liczba klientów: ' + sorted[idx].bssload; }
 			html += '</div></div>';
 		}
 	} else {
