@@ -1,0 +1,88 @@
+# DW5821e Snapdragon X20 LTE
+
+O=$(sms_tool -d $DEVICE at "at+temp")
+
+T=$(echo "$O" | awk -F: '/xo_therm_buf:/ {print $2}' | xargs)
+[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+
+if [ "$REGOK" = "1" ]; then
+
+O=$(sms_tool -d $DEVICE at "at^ca_info?;^debug?")
+
+T=$(echo "$O" | awk '/TAC:/ {print $2}')
+if [ -n "$T" ]; then
+	T_DEC=$(printf "%d" "0x$T")
+	addon 23 "TAC" "${T_DEC} ($T)"
+fi
+
+T=$(echo "$O" | awk '/^RSSI:/ {print $2}' | sed 's/dBm/ dBm/')
+[ -n "$T" ] && addon 35 "RSSI" "$T"
+T=$(echo "$O" | awk '/^RSRP:/ {print $2}' | sed 's/dBm/ dBm/')
+[ -n "$T" ] && addon 36 "RSRP" "$T}"
+T=$(echo "$O" | awk '/^RSRQ:/ {print $2}' | sed 's/dB/ dB/')
+[ -n "$T" ] && addon 37 "RSRQ" "$T"
+T=$(echo "$O" | awk '/^RS-SINR/ {print $2}' | sed 's/dB/ dB/')
+[ -n "$T" ] && addon 38 "SINR" "$T"
+
+T=$(echo "$O" | awk '/^BAND:/ {print $2}')
+if [ -n "$T" ]; then
+	T1=$(echo "$O" | awk '/^BW:/ {print $2}')
+	addon 30 "Primary band" "$(band4g $T) @${T1} MHz"
+	MODE="$MODE $(band4g $T)"
+fi
+T=$(echo "$O" | awk '/^EARFCN/ {print $2}')
+if [ -n "$T" ]; then
+	addon 34 "EARFCN DL" "$(echo $T | cut -f1 -d/)"
+	addon 34 "EARFCN UL" "$(echo $T | cut -f2 -d/)"
+fi
+
+T=$(echo "$O" | awk '/^SCC1 info:/ {print $5}')
+if [ -n "$T" ]; then
+	T=${T/,/}
+	T=${T/LTE_B/}
+	T1=$(echo "$O" | awk '/^SCC1 info:/ {print $8}')
+	if [ -n "$T1" ]; then
+		addon 50 "(S1) band" "$(band4g $T) @${T1} MHz"
+	else
+		addon 50 "(S1) band" "$(band4g $T)"
+	fi
+	MODE="${MODE/LTE/LTE_A} / $(band4g $T)"
+fi
+
+T=$(echo "$O" | awk '/^SCC2 info:/ {print $5}')
+if [ -n "$T" ]; then
+	T=${T/,/}
+	T=${T/LTE_B/}
+	T1=$(echo "$O" | awk '/^SCC2 info:/ {print $8}')
+	if [ -n "$T1" ]; then
+		addon 60 "(S2) band" "$(band4g $T) @${T1} MHz"
+	else
+		addon 60 "(S2) band" "$(band4g $T)"
+	fi
+fi
+
+T=$(echo "$O" | awk '/^SCC3 info:/ {print $5}')
+if [ -n "$T" ]; then
+	T=${T/,/}
+	T=${T/LTE_B/}
+	T1=$(echo "$O" | awk '/^SCC3 info:/ {print $8}')
+	if [ -n "$T1" ]; then
+		addon 70 "(S3) band" "$(band4g $T) @${T1} MHz"
+	else
+		addon 70 "(S3) band" "$(band4g $T)"
+	fi
+fi
+
+T=$(echo "$O" | awk '/^SCC4 info:/ {print $5}')
+if [ -n "$T" ]; then
+	T=${T/,/}
+	T=${T/LTE_B/}
+	T1=$(echo "$O" | awk '/^SCC4 info:/ {print $8}')
+	if [ -n "$T1" ]; then
+		addon 80 "(S4) band" "$(band4g $T) @${T1} MHz"
+	else
+		addon 80 "(S4) band" "$(band4g $T)"
+	fi
+fi
+
+fi
