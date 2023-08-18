@@ -197,6 +197,16 @@ if [ -n "$T" ]; then
 					100*) T4="20";;
 					*) T4="";;
 				esac
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}')
+				[ -n "$T5" ] && addon $((POS + 4)) "(S${IDX}) EARFCN" "$T5"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}')
+				[ -n "$T5" ] && addon $((POS + 3)) "(S${IDX}) PCI" "$T5"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $10}')
+				[ -n "$T5" ] && addon $((POS + 5)) "(S${IDX}) RSSI" "$T5 dBm"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
+				[ -n "$T5" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}')
+				[ -n "$T5" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T5 dB"
 				;;
 			*"NR5G BAND"*)
 				B=$(echo $T | sed 's/"NR5G BAND \(.*\)"/\1/')
@@ -219,6 +229,14 @@ if [ -n "$T" ]; then
 					14*) T4="400";;
 					*) T4="";;
 				esac
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}')
+				[ -n "$T5" ] && addon $((POS + 4)) "(S${IDX}) EARFCN" "$T5"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $6}')
+				[ -n "$T5" ] && addon $((POS + 3)) "(S${IDX}) PCI" "$T5"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}')
+				[ -n "$T5" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
+				[ -n "$T5" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T5 dB"
 				;;
 		esac
 		if [ -z "$T4" ]; then
@@ -226,16 +244,6 @@ if [ -n "$T" ]; then
 		else
 			addon $POS "(S${IDX}) band" "${T2} @${T4} MHz"
 		fi
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}')
-		[ -n "$T" ] && addon $((POS + 4)) "(S${IDX}) EARFCN" "$T"
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}')
-		[ -n "$T" ] && addon $((POS + 3)) "(S${IDX}) PCI" "$T"
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $10}')
-		[ -n "$T" ] && addon $((POS + 5)) "(S${IDX}) RSSI" "$T dBm"
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
-		[ -n "$T" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T dBm"
-		T=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}')
-		[ -n "$T" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T dB"
 
 		IDX=$((IDX + 1))
 	done
