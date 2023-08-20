@@ -1011,7 +1011,7 @@ show_modem()
 		MODE_NUM=0
 		case "x$MODE" in
 			"xLTE") MODE_NUM=7;;
-			"xWCMDA") MODE_NUM=2;;
+			"xWCDMA") MODE_NUM=2;;
 		esac
 
 		if [ "x$(uci -q get easyconfig.modem.force_plmn)" = "x1" ]; then
