@@ -1,13 +1,13 @@
 # ASKEY WWHC050
 
-if [ "$REGOK" = "1" ]; then
-
-O=$(sms_tool -d $DEVICE at "at\$qcai?;+ccputemp;+cgcelli;+cgnws")
+O=$(sms_tool -d $DEVICE at "at+ccputemp")
 
 T=$(echo "$O" | awk -F[:] '/^\+CCPUTEMP/ {print $2}' | xargs)
-if [ -n "$T" ]; then
-	addon 10 "Temperature" "$T &deg;C"
-fi
+[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+
+if [ "$REGOK" = "1" ]; then
+
+O=$(sms_tool -d $DEVICE at "at\$qcai?;+cgcelli;+cgnws")
 
 T=$(echo "$O" | awk 'BEGIN{FS="BEARER:"}/^\+CGCELLI/{print $2}' | awk 'BEGIN{FS=","}{print $1}')
 
