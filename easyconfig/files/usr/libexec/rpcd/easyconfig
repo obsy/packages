@@ -1008,16 +1008,16 @@ show_modem()
 		json_get_vars type rssi rsrq rsrp snr ecio registration plmn_mcc plmn_mnc plmn_description roaming
 
 		MODE=$(echo $type | tr 'a-z' 'A-Z')
-		MODE_NUM=0
-		case "x$MODE" in
-			"xLTE") MODE_NUM=7;;
-			"xWCDMA") MODE_NUM=2;;
+		case "$MODE" in
+			"LTE") MODE_NUM=7;;
+			"WCDMA") MODE_NUM=2;;
+			*) MODE_NUM=0;;
 		esac
 
 		if [ "x$(uci -q get easyconfig.modem.force_plmn)" = "x1" ]; then
 			COPS_NUM="$plmn_mcc"$(printf %02d $plmn_mnc)
-			T=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/easyconfig/modem/mccmnc.dat)
-			[ "x$T" = "x" ] || plmn_description=$T
+			plmn_description=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' /usr/share/easyconfig/modem/mccmnc.dat)
+			[ -z "$plmn_description" ] && plmn_description="$COPS_NUM"
 		fi
 
 		if [ -n "$rssi" ]; then
@@ -1027,18 +1027,18 @@ show_modem()
 			SIGNAL=0
 		fi
 
-		case "x$registration" in
-			"xnot_registered")
+		case "$registration" in
+			"not_registered")
 				registration="0"
 				;;
-			"xregistered")
+			"registered")
 				registration="1"
 				[ "x$roaming" = "x1" ] && registration="5"
 				;;
-			"xsearching")
+			"searching")
 				registration="2"
 				;;
-			"xregistering_denied")
+			"registering_denied")
 				registration="3"
 				;;
 			*)
@@ -1061,7 +1061,7 @@ show_modem()
 		S4B=""
 		S4F=""
 		S4BW=""
-		if [ "x$MODE" = "xLTE" ]; then
+		if [ "$MODE_NUM" = "7" ]; then
 			eval $(uqmi -sd $D --get-lte-cphy-ca-info 2>/dev/null | jsonfilter -q -e 'PB=@.primary.band' -e 'PF=@.primary.frequency' -e 'PBW=@.primary.bandwidth' -e 'S1B=@.secondary_1.band' -e 'S1F=@.secondary_1.frequency' -e 'S1BW=@.secondary_1.bandwidth' -e 'S2B=@.secondary_2.band' -e 'S2F=@.secondary_2.frequency' -e 'S2BW=@.secondary_2.bandwidth'  -e 'S3B=@.secondary_3.band' -e 'S3F=@.secondary_3.frequency' -e 'S3BW=@.secondary_3.bandwidth' -e 'S4B=@.secondary_4.band' -e 'S4F=@.secondary_4.frequency' -e 'S4BW=@.secondary_4.bandwidth')
 			[ -n "$S1B" ] && MODE="LTE_A"
 			[ -n "$PB" ] && MODE="${MODE} B${PB} (${PF} MHz)"
@@ -1078,7 +1078,18 @@ show_modem()
 		echo "\"operator_mnc\":\"$(printf "%02d" $plmn_mnc)\","
 		echo "\"mode\":\"$MODE\","
 		echo "\"registration\":\"$registration\","
-		echo "\"lac_dec\":\"\",\"lac_hex\":\"\",\"cid_dec\":\"\",\"cid_hex\":\"\",\"addon\":["
+		TAC=""
+		CELLID=""
+		if [ "$MODE_NUM" = "7" ]; then
+			SCELLID=""
+			ENODEBID=""
+			eval $(uqmi -sd $D --get-system-info 2>/dev/null | jsonfilter -q -e 'TAC=@.lte.tracking_area_code' -e 'SCELLID=@.lte.cell_id' -e 'ENODEBID=@.lte.enodeb_id')
+			if [ -n "$SCELLID" ] && [ -n "$ENODEBID" ]; then
+				CELLID=$(printf "%X%X" $ENODEBID $SCELLID )
+				CELLID_DEC=$(printf "%d" "0x$CELLID")
+			fi
+		fi
+		echo "\"lac_dec\":\"\",\"lac_hex\":\"\",\"cid_dec\":\"$CELLID_DEC\",\"cid_hex\":\"$CELLID\",\"addon\":["
 		[ -n "$rssi" ] && echo "{\"idx\":35,\"key\":\"RSSI\", \"value\":\"$rssi dBm\"},"
 		if [ "$MODE_NUM" = "7" ]; then
 			[ -n "$rsrp" ] && echo "{\"idx\":36,\"key\":\"RSRP\",\"value\":\"$rsrp dBm\"},"
@@ -1089,6 +1100,10 @@ show_modem()
 			[ -n "$S2B" ] && echo "{\"idx\":60,\"key\":\"(S2) band\",\"value\":\"B${S2B} (${S2F} MHz) @${S2BW} MHz\"},"
 			[ -n "$S3B" ] && echo "{\"idx\":70,\"key\":\"(S3) band\",\"value\":\"B${S3B} (${S3F} MHz) @${S3BW} MHz\"},"
 			[ -n "$S4B" ] && echo "{\"idx\":80,\"key\":\"(S4) band\",\"value\":\"B${S4B} (${S4F} MHz) @${S4BW} MHz\"},"
+			if [ -n "$TAC" ]; then
+				T_HEX=$(printf "%X" $TAC)
+				echo "{\"idx\":23,\"key\":\"TAC\",\"value\":\"$TAC (${T_HEX})\"},"
+			fi
 		fi
 		if [ "$MODE_NUM" = "2" ]; then
 			[ -n "$ecio" ] && echo "{\"idx\":36,\"key\":\"ECIO\",\"value\":\"$ecio dB\"},"
