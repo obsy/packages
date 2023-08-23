@@ -215,18 +215,12 @@ fi
 # CREG
 eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
-	0*)
-		REG="0";;
-	1*)
-		REG="1";;
-	2*)
-		REG="2";;
-	3*)
-		REG="3";;
-	5*)
-		REG="5";;
-	*)
-		REG="";;
+	0*) REG="0";;
+	1*) REG="1";;
+	2*) REG="2";;
+	3*) REG="3";;
+	5*) REG="5";;
+	*) REG="";;
 esac
 
 # MODE
