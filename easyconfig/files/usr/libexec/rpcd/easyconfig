@@ -326,8 +326,8 @@ if [ "x$WAN_PROTO" = "xstatic" ]; then
 fi
 
 if echo "$WAN_DNS" | grep -q " "; then
-	WAN_DNS1=$(echo $WAN_DNS | cut -f1 -d" ")
-	WAN_DNS2=$(echo $WAN_DNS | cut -f2 -d" ")
+	WAN_DNS1=$(echo "$WAN_DNS" | cut -f1 -d" ")
+	WAN_DNS2=$(echo "$WAN_DNS" | cut -f2 -d" ")
 else
 	WAN_DNS1=$WAN_DNS
 	WAN_DNS2=""

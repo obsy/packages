@@ -1204,12 +1204,14 @@ function savesettings() {
 	}
 
 	// dns
+	cmd.push('uci -q del dhcp.@dnsmasq[0].noresolv');
+	cmd.push('uci -q del dhcp.@dnsmasq[0].server');
+	cmd.push('uci -q del network.wan.dns');
+	cmd.push('uci -q del network.wan.peerdns');
 	if (use_dns != 'none') {
-		cmd.push('uci -q del dhcp.@dnsmasq[0].noresolv');
-		cmd.push('uci -q del dhcp.@dnsmasq[0].server');
-		var t = '';
+		var t = [];
 		if (use_dns == 'stubby') {
-			t = '127.0.0.1';
+			t.push('127.0.0.1');
 			cmd.push('IP=$(uci -q -d, get stubby.global.listen_address | awk -F, \'{for(i=1;i<=NF;i++)if($i~/.*\\\\..*\\\\..*\\\\..*@/){gsub(\\\"@\\\", \\\"#\\\"); print $i; break}}\')');
 			cmd.push('if [ -n \\\"$IP\\\" ]; then');
 			cmd.push(' uci add_list dhcp.@dnsmasq[0].server=\\\"$IP\\\"');
@@ -1220,22 +1222,19 @@ function savesettings() {
 		} else if (use_dns == 'custom') {
 			if (checkFieldAllowEmpty('wan_dns1', validateIP)) {return;}
 			if (checkFieldAllowEmpty('wan_dns2', validateIP)) {return;}
-			t = [getValue('wan_dns1'), getValue('wan_dns2')].filter(function (val) {return val;}).join(' ');
+			if (getValue('wan_dns1') != '') { t.push(getValue('wan_dns1')); }
+			if (getValue('wan_dns2') != '') { t.push(getValue('wan_dns2')); }
 		} else if (use_dns == 'isp') {
-			t = '';
+			t = [];
 		} else {
-			t = use_dns.replace(",", " ");
+			t = use_dns.split(',');
 		}
-		if (t == '') {
-			cmd.push('uci -q del network.wan.dns');
-			cmd.push('uci -q del network.wan.peerdns');
-		} else {
-			cmd.push('uci set network.wan.dns=\\\"' + t + '\\\"');
+		if (t.length > 0) {
 			cmd.push('uci set network.wan.peerdns=0');
+			t.forEach(function(address) {
+				cmd.push('uci add_list network.wan.dns=\\\"' + address + '\\\"');
+			});
 		}
-	} else {
-		cmd.push('uci -q del network.wan.dns');
-		cmd.push('uci -q del network.wan.peerdns');
 	}
 
 	// firewall
