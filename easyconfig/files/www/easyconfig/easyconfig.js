@@ -2022,7 +2022,7 @@ function showmodem() {
 			if (config.simslot.hasOwnProperty('active')) {
 				for (var idx = 0; idx < config.simslot.slots.length; idx++) {
 					if (config.simslot.slots[idx].index == config.simslot.active) {
-						arrmodemaddon.push({'idx':10, 'key':'Aktywny slot SIM', 'value':config.simslot.slots[idx].description});
+						arrmodemaddon.push({'idx':9, 'key':'Aktywny slot SIM', 'value':config.simslot.slots[idx].description});
 						break;
 					}
 				}
