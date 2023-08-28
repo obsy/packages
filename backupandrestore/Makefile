@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=backupandrestore
-PKG_VERSION:=20230824
+PKG_VERSION:=20230828
 
 include $(INCLUDE_DIR)/package.mk
 
