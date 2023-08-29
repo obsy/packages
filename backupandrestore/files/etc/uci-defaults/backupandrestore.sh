@@ -6,7 +6,7 @@ if uci show luci | grep -q restorepkgslist.sh; then
 	true
 else
 	uci add luci command
-	uci set luci.@command[-1].name='Instalacja pakietów użytkownka'
+	uci set luci.@command[-1].name='Instalacja pakietów użytkownika'
 	uci set luci.@command[-1].command='/usr/bin/restorepkgslist.sh verbose'
 fi
 
