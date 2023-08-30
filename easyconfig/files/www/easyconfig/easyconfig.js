@@ -1605,7 +1605,7 @@ function showstatus() {
 		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.wan_uptime_since) + ')');
-		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '-' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
+		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '0' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.wan_ipaddr + '</span>');
 		setDisplay('div_vpn_up_status', data.vpn_up);
 		if ((data.sensors).length > 0) {
