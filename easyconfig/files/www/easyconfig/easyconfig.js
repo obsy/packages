@@ -2071,7 +2071,7 @@ function paramdesc(param, value) {
 		case 'sinr':
 			if (pvalue >= 20) {color = '#2bdf5a'; description += 'doskonały'; }
 			if (pvalue >= 13 && pvalue < 20 ) { color = '#efff12'; description += 'dobry'; }
-			if (pvalue >= 0 && pvalue < 13 ) { color = '#f8c200'; descriptionle += 'słaby'; }
+			if (pvalue >= 0 && pvalue < 13 ) { color = '#f8c200'; description += 'słaby'; }
 			if (pvalue < 0) { color = '#fa0000'; description += 'zły'; }
 			break;
 	}
