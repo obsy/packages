@@ -519,7 +519,7 @@ function enableWan(proto) {
 		setElementEnabled(fields[idx], true, false);
 	}
 	if (proto != 'static' && proto != 'none') {
-		var t = ([config.wan_dns1,config.wan_dns2]).sort().filter(function (val) {return val;}).join(',');
+		var t = (config.wan_dns).slice(0,2).sort().join(',');
 
 		if (config.wan_dns_source == 'stubby') {
 			setValue('wan_dns', 'stubby');
@@ -898,8 +898,8 @@ function showconfig() {
 		setValue('wan_device', config.wan_device);
 		setValue('wan_device_mm', config.wan_device);
 		setValue('wan_pincode', config.wan_pincode);
-		setValue('wan_dns1', config.wan_dns1);
-		setValue('wan_dns2', config.wan_dns2);
+		setValue('wan_dns1', (config.wan_dns.length > 0 ? config.wan_dns[0] : ''));
+		setValue('wan_dns2', (config.wan_dns.length > 1 ? config.wan_dns[1] : ''));
 		setValue('wan_proto', config.wan_proto);
 		setValue('wan_wanport', (config.wan_wanport == 'bridge'));
 		if (config.wan_proto == 'dhcp') {

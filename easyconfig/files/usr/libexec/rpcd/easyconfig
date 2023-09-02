@@ -325,13 +325,7 @@ if [ "x$WAN_PROTO" = "xstatic" ]; then
 	fi
 fi
 
-if echo "$WAN_DNS" | grep -q " "; then
-	WAN_DNS1=$(echo "$WAN_DNS" | cut -f1 -d" ")
-	WAN_DNS2=$(echo "$WAN_DNS" | cut -f2 -d" ")
-else
-	WAN_DNS1=$WAN_DNS
-	WAN_DNS2=""
-fi
+[ -n "$WAN_DNS" ] && WAN_DNS='"'$(echo $WAN_DNS | sed 's/ /","/g')'"'
 
 if [ -e /etc/config/stubby ]; then
 	STUBBY="true"
@@ -414,8 +408,7 @@ echo '"wan_proto":"'$WAN_PROTO'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"wan_netmask":"'${WAN_NETMASK:-255.255.255.0}'",'
 echo '"wan_gateway":"'$WAN_GATEWAY'",'
-echo '"wan_dns1":"'$WAN_DNS1'",'
-echo '"wan_dns2":"'$WAN_DNS2'",'
+echo '"wan_dns":['$WAN_DNS'],'
 echo '"wan_dns_source":"'$WAN_DNS_SOURCE'",'
 echo '"wan_apn":"'${WAN_APN:-internet}'",'
 echo '"wan_device":"'$WAN_DEVICE'",'
