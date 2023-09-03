@@ -1088,7 +1088,7 @@ function copywireless() {
 	enableWlanEncryption(getValue('wlan_encryption0'), 1);
 }
 
-function savesettings() {
+function saveconfig() {
 	var cmd = [];
 
 	// wan
@@ -5817,7 +5817,7 @@ function closenav() {
 function btn_pages(page) {
 	closenav();
 	setDisplay('div_status', (page == 'status'));
-	setDisplay('div_settings', (page == 'config'));
+	setDisplay('div_config', (page == 'config'));
 	setDisplay('div_system', (page == 'system'));
 	setDisplay('div_watchdog', (page == 'watchdog'));
 	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
