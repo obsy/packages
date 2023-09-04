@@ -17,6 +17,7 @@ Supported devices:
 - Quectel EM12-G
 - Quectel EM160R-GL
 - Quectel EP06-E
+- Quectel RM500Q-GL
 - Quectel RG502Q-EA
 - Quectel RM520N-GL
 - Telit LM940
