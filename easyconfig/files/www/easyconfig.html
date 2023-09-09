@@ -923,7 +923,7 @@
 
 	<h3 class="section"></h3>
 	<form class="form-horizontal">
-		<div class="form-group" id="div_watchdog_enabled">
+		<div class="form-group">
 			<label for="watchdog_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
@@ -933,7 +933,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_watchdog_delay">
+		<div class="form-group">
 			<label for="watchdog_delay" class="col-xs-4 col-sm-3 control-label">Opóźnienie przy starcie systemu</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="watchdog_delay" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
@@ -941,14 +941,14 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_watchdog_dest">
+		<div class="form-group">
 			<label for="watchdog_dest" class="col-xs-4 col-sm-3 control-label">Adres lub nazwa</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="watchdog_dest" type="text" class="form-control" onkeyup="proofreadHost(this);">
 			</div>
 		</div>
 
-		<div class="form-group" id="div_watchdog_period">
+		<div class="form-group">
 			<label for="watchdog_period" class="col-xs-4 col-sm-3 control-label">Okres sprawdzenia</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="watchdog_period" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
@@ -956,7 +956,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_watchdog_period_count">
+		<div class="form-group">
 			<label for="watchdog_period_count" class="col-xs-4 col-sm-3 control-label">Liczba nieudanych sprawdzeń</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="watchdog_period_count" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 59);">
@@ -964,7 +964,7 @@
 			</div>
 		</div>
 
-		<div class="form-group" id="div_watchdog_action">
+		<div class="form-group">
 			<label for="watchdog_action" class="col-xs-4 col-sm-3 control-label">Akcja</label>
 			<div class="col-xs-8 col-sm-9">
 			<select id="watchdog_action" class="form-control">
