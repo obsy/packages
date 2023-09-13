@@ -17,8 +17,9 @@ Supported devices:
 - Quectel EM12-G
 - Quectel EM160R-GL
 - Quectel EP06-E
-- Quectel RM500Q-GL
 - Quectel RG502Q-EA
+- Quectel RM500Q-GL
+- Quectel RM502Q-AE
 - Quectel RM520N-GL
 - Telit LM940
 - Telit LN940 (Foxconn T77W676)
@@ -44,11 +45,16 @@ Available commands:
  /usr/bin/modemband.sh help
 
  only for 5G modem
- /usr/bin/modemband.sh getsupportedbands5g
- /usr/bin/modemband.sh getsupportedbandsext5g
- /usr/bin/modemband.sh getbands5g
- /usr/bin/modemband.sh getbandsext5g
- /usr/bin/modemband.sh setbands5g "<band list>"
+ /usr/bin/modemband.sh getsupportedbands5gnsa
+ /usr/bin/modemband.sh getsupportedbandsext5gnsa
+ /usr/bin/modemband.sh getbands5gnsa
+ /usr/bin/modemband.sh getbandsext5gnsa
+ /usr/bin/modemband.sh setbands5gnsa "<band list>"
+ /usr/bin/modemband.sh getsupportedbands5gsa
+ /usr/bin/modemband.sh getsupportedbandsext5gsa
+ /usr/bin/modemband.sh getbands5gsa
+ /usr/bin/modemband.sh getbandsext5gsa
+ /usr/bin/modemband.sh setbands5gsa "<band list>"
 
 root@MiFi:~# # modemband.sh
 Modem: Quectel EC25
