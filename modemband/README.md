@@ -1,4 +1,4 @@
-Setting LTE/5G bands for selected modems.
+Setting LTE/5G NSA/5G SA bands for selected modems.
 
 Supported devices:
 - BroadMobi BM806U
@@ -36,20 +36,24 @@ Supported devices:
 root@MiFi:~# modemband.sh help
 Available commands:
  /usr/bin/modemband.sh getinfo
+ /usr/bin/modemband.sh json
+ /usr/bin/modemband.sh help
+
+for LTE modem
  /usr/bin/modemband.sh getsupportedbands
  /usr/bin/modemband.sh getsupportedbandsext
  /usr/bin/modemband.sh getbands
  /usr/bin/modemband.sh getbandsext
  /usr/bin/modemband.sh setbands "<band list>"
- /usr/bin/modemband.sh json
- /usr/bin/modemband.sh help
 
- only for 5G modem
+for 5G NSA modem
  /usr/bin/modemband.sh getsupportedbands5gnsa
  /usr/bin/modemband.sh getsupportedbandsext5gnsa
  /usr/bin/modemband.sh getbands5gnsa
  /usr/bin/modemband.sh getbandsext5gnsa
  /usr/bin/modemband.sh setbands5gnsa "<band list>"
+
+for 5G SA modem
  /usr/bin/modemband.sh getsupportedbands5gsa
  /usr/bin/modemband.sh getsupportedbandsext5gsa
  /usr/bin/modemband.sh getbands5gsa
