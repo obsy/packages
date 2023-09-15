@@ -42,60 +42,104 @@
 	</div>
 </div>
 
-<div id="modemerror" style="display:none;">
-	<div class="col-lg-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h3 class="panel-title"><%~ Error %></h3>
+<div id="div_modembandinfo" class="col-lg-6" style="display:none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ Info %></h3>
+		</div>
+		<div class="panel-body">
+			<ul class="list-group">
+			<div>
+				<li class="list-group-item"><span class="list-group-item-title"><%~ Modem %>:</span><span id="modem">-</span></li>
 			</div>
+			</ul>
+		</div>
+	</div>
+</div>
 
-			<div class="panel-body">
-				<em><span><%~ NoModem %>.</span></em>
+<div id="modemerror" class="col-lg-12" style="display:none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ Error %></h3>
+		</div>
+
+		<div class="panel-body">
+			<em><span><%~ NoModem %></span></em>
+		</div>
+	</div>
+</div>
+
+<div id="div_modemband4g" class="col-lg-12" style="display:none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ LTEBands %></h3>
+		</div>
+		<div class="panel-body">
+			<div class="row form-group">
+				<ul class="list-group">
+				<div id="modemband4g">
+				</div>
+				</ul>
+			</div>
+			<div class="row">
+				<span class="col-xs-12">
+					<button id="default_button_4g" class="btn btn-default" onclick="defaultData4g()"><%~ Default %></button>
+					<button id="save_button_4g" class="btn btn-default" onclick="saveChanges4g()"><%~ SaveChanges %></button>
+				</span>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div id="modemband1" style="display:none;">
-<div class="col-lg-6">
-<div class="panel panel-default">
-<div class="panel-heading">
-	<h3 class="panel-title"><%~ Info %></h3>
-</div>
-<div class="panel-body">
-	<ul class="list-group">
-	<div>
-		<li class="list-group-item"><span class="list-group-item-title"><%~ Modem %>:</span><span id="modem">-</span></li>
+<div id="div_modemband5gnsa" class="col-lg-12" style="display:none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ FGNSABands %></h3>
+		</div>
+		<div class="panel-body">
+			<div class="row form-group">
+				<ul class="list-group">
+				<div id="modemband5gnsa">
+				</div>
+				</ul>
+			</div>
+			<div class="row">
+				<span class="col-xs-12">
+					<button id="default_button_5gnsa" class="btn btn-default" onclick="defaultData5gnsa()"><%~ Default %></button>
+					<button id="save_button_5gnsa" class="btn btn-default" onclick="saveChanges5gnsa()"><%~ SaveChanges %></button>
+				</span>
+			</div>
+		</div>
 	</div>
-	</ul>
-</div>
-</div>
-</div>
 </div>
 
-<div id="modemband2" style="display:none;">
-<div class="col-lg-12">
-<div class="panel panel-default">
-<div class="panel-heading">
-	<h3 class="panel-title"><%~ LTEBands %></h3>
-</div>
-<div class="panel-body">
-	<ul class="list-group">
-	<div id="modembandlte">
+<div id="div_modemband5gsa" class="col-lg-12" style="display:none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><%~ FGSABands %></h3>
+		</div>
+		<div class="panel-body">
+			<div class="row form-group">
+				<ul class="list-group">
+				<div id="modemband5gsa">
+				</div>
+				</ul>
+			</div>
+			<div class="row">
+				<span class="col-xs-12">
+					<button id="default_button_5gsa" class="btn btn-default" onclick="defaultData5gsa()"><%~ Default %></button>
+					<button id="save_button_5gsa" class="btn btn-default" onclick="saveChanges5gsa()"><%~ SaveChanges %></button>
+				</span>
+			</div>
+		</div>
 	</div>
-	</ul>
 </div>
 
-</div>
-</div>
-</div>
 
 </div>
 
 <div id="bottom_button_container" class="panel panel-default">
 	<button id="restart_button" class="btn btn-primary btn-lg" onclick="restartConn()"><%~ Restart %></button>
-	<button id="default_button" class="btn btn-primary btn-lg" onclick="defaultData()"><%~ Default %></button>
-	<button id="save_button" class="btn btn-primary btn-lg" onclick="saveChanges()"><%~ SaveChanges %></button>
 	<button id="reset_button" class="btn btn-warning btn-lg" onclick="resetData()"><%~ Reset %></button>
 </div>
 

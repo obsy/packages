@@ -27,11 +27,11 @@ function resetData()
 
 	if (device == '')
 	{
-		document.getElementById('modemband1').style.display = 'none';
-		document.getElementById('modemband2').style.display = 'none';
 		document.getElementById('modemerror').style.display = 'none';
-		document.getElementById('default_button').disabled = true;
-		document.getElementById('save_button').disabled = true;
+		document.getElementById('div_modembandinfo').style.display = 'none';
+		document.getElementById('div_modemband4g').style.display = 'none';
+		document.getElementById('div_modemband5gnsa').style.display = 'none';
+		document.getElementById('div_modemband5gsa').style.display = 'none';
 		return;
 	}
 
@@ -50,49 +50,110 @@ function resetData()
 			}
 			if (tmp['error']) {
 				document.getElementById('modemerror').style.display = 'block';
-				document.getElementById('modemband1').style.display = 'none';
-				document.getElementById('modemband2').style.display = 'none';
-				document.getElementById('default_button').disabled = true;
-				document.getElementById('save_button').disabled = true;
+				document.getElementById('div_modembandinfo').style.display = 'none';
+				document.getElementById('div_modemband4g').style.display = 'none';
+				document.getElementById('div_modemband5gnsa').style.display = 'none';
+				document.getElementById('div_modemband5gsa').style.display = 'none';
 				return;
 			}
 
 			document.getElementById('modemerror').style.display = 'none';
-			document.getElementById('modemband1').style.display = 'block';
-			document.getElementById('modemband2').style.display = 'block';
-
+			document.getElementById('div_modembandinfo').style.display = 'block';
 			setChildText("modem", tmp['modem']);
 
-			var html = '';
-			var bands = sortJSON(tmp['supported'], 'band', 'asc');
-			for (var idx = 0; idx < bands.length; idx++) {
-				html += '<span class="col-xs-12" style="margin-bottom:5px;"><input type="checkbox" name="band" data-band="' + bands[idx].band + '" id="band' + bands[idx].band + '">';
-				html += '<label class="short-left-pad" for="band' + bands[idx].band + ' id="band' + bands[idx].band + '_label" style="margin-left:5px;vertical-align:middle">B' + bands[idx].band + ' (' + bands[idx].txt + ')</label>';
-				html += '</span>';
-			}
-			document.getElementById('modembandlte').innerHTML = html;
+			if (tmp['supported']) {
+				document.getElementById('div_modemband4g').style.display = 'block';
+				var html = '';
+				var bands = sortJSON(tmp['supported'], 'band', 'asc');
+				for (var idx = 0; idx < bands.length; idx++) {
+					html += '<span class="col-xs-12" style="margin-bottom:5px;"><input type="checkbox" name="band4g" data-band="' + bands[idx].band + '" id="band4g' + bands[idx].band + '">';
+					html += '<label class="short-left-pad" for="band4g' + bands[idx].band + '" id="band4g' + bands[idx].band + '_label" style="margin-left:5px;vertical-align:middle">B' + bands[idx].band + ' (' + bands[idx].txt + ')</label>';
+					html += '</span>';
+				}
+				document.getElementById('modemband4g').innerHTML = html;
 
-			var enabled = tmp['enabled'];
-			if (enabled.length == 0) {
-				document.getElementById('modemerror').style.display = 'block';
-				document.getElementById('default_button').disabled = true;
-				document.getElementById('save_button').disabled = true;
+				var enabled = tmp['enabled'];
+				if (enabled.length == 0) {
+					document.getElementById('modemerror').style.display = 'block';
+					document.getElementById('default_button_4g').disabled = true;
+					document.getElementById('save_button_4g').disabled = true;
+				} else {
+					document.getElementById('modemerror').style.display = 'none';
+					document.getElementById('default_button_4g').disabled = false;
+					document.getElementById('save_button_4g').disabled = false;
+					enabled.forEach(e => {
+						document.getElementById('band4g' + e).checked = true;
+					});
+				}
 			} else {
-				document.getElementById('modemerror').style.display = 'none';
-				document.getElementById('default_button').disabled = false;
-				document.getElementById('save_button').disabled = false;
-				enabled.forEach(e => {
-					document.getElementById('band' + e).checked = true;
-				});
+				document.getElementById('div_modemband4g').style.display = 'none';
 			}
+
+			if (tmp['supported5gnsa']) {
+				document.getElementById('div_modemband5gnsa').style.display = 'block';
+				var html = '';
+				var bands = sortJSON(tmp['supported5gnsa'], 'band', 'asc');
+				for (var idx = 0; idx < bands.length; idx++) {
+					html += '<span class="col-xs-12" style="margin-bottom:5px;"><input type="checkbox" name="band5gnsa" data-band="' + bands[idx].band + '" id="band5gnsa' + bands[idx].band + '">';
+					html += '<label class="short-left-pad" for="band5gnsa' + bands[idx].band + '" id="band5gnsa' + bands[idx].band + '_label" style="margin-left:5px;vertical-align:middle">n' + bands[idx].band + ' (' + bands[idx].txt + ')</label>';
+					html += '</span>';
+				}
+				document.getElementById('modemband5gnsa').innerHTML = html;
+
+				var enabled = tmp['enabled5gnsa'];
+				if (enabled.length == 0) {
+					document.getElementById('modemerror').style.display = 'block';
+					document.getElementById('default_button_5gnsa').disabled = true;
+					document.getElementById('save_button_5gnsa').disabled = true;
+				} else {
+					document.getElementById('modemerror').style.display = 'none';
+					document.getElementById('default_button_5gnsa').disabled = false;
+					document.getElementById('save_button_5gnsa').disabled = false;
+					enabled.forEach(e => {
+						document.getElementById('band5gnsa' + e).checked = true;
+					});
+				}
+			} else {
+				document.getElementById('div_modemband5gnsa').style.display = 'none';
+			}
+
+			if (tmp['supported5gsa']) {
+				document.getElementById('div_modemband5gsa').style.display = 'block';
+				var html = '';
+				var bands = sortJSON(tmp['supported5gsa'], 'band', 'asc');
+				for (var idx = 0; idx < bands.length; idx++) {
+					html += '<span class="col-xs-12" style="margin-bottom:5px;"><input type="checkbox" name="band5gsa" data-band="' + bands[idx].band + '" id="band5gsa' + bands[idx].band + '">';
+					html += '<label class="short-left-pad" for="band5gsa' + bands[idx].band + '" id="band5gsa' + bands[idx].band + '_label" style="margin-left:5px;vertical-align:middle">n' + bands[idx].band + ' (' + bands[idx].txt + ')</label>';
+					html += '</span>';
+				}
+				document.getElementById('modemband5gsa').innerHTML = html;
+
+				var enabled = tmp['enabled5gsa'];
+				if (enabled.length == 0) {
+					document.getElementById('modemerror').style.display = 'block';
+					document.getElementById('default_button_5gsa').disabled = true;
+					document.getElementById('save_button_5gsa').disabled = true;
+				} else {
+					document.getElementById('modemerror').style.display = 'none';
+					document.getElementById('default_button_5gsa').disabled = false;
+					document.getElementById('save_button_5gsa').disabled = false;
+					enabled.forEach(e => {
+						document.getElementById('band5gsa' + e).checked = true;
+					});
+				}
+			} else {
+				document.getElementById('div_modemband5gsa').style.display = 'none';
+			}
+
+
 		}
 	}
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
-function saveChanges()
+function saveChanges4g()
 {
-	var bands = document.getElementsByName('band');
+	var bands = document.getElementsByName('band4g');
 	var cmd = '';
 	for (var idx = 0; idx < bands.length; idx++) {
 		if (bands[idx].checked) {
@@ -116,10 +177,92 @@ function saveChanges()
 	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
 }
 
-function defaultData()
+function defaultData4g()
 {
 	setControlsEnabled(false, true);
 	var param = getParameterDefinition("commands", '/usr/bin/modemband.sh setbands default\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if(req.readyState == 4)
+		{
+			setControlsEnabled(true);
+			resetData();
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function saveChanges5gnsa()
+{
+	var bands = document.getElementsByName('band5gnsa');
+	var cmd = '';
+	for (var idx = 0; idx < bands.length; idx++) {
+		if (bands[idx].checked) {
+			cmd += bands[idx].getAttribute('data-band') + ' ';
+		}
+	}
+	if (cmd == '') {
+		return;
+	}
+
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", '/usr/bin/modemband.sh setbands5gnsa "' + cmd + '"\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if(req.readyState == 4)
+		{
+			setControlsEnabled(true);
+			resetData();
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function defaultData5gnsa()
+{
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", '/usr/bin/modemband.sh setbands5gnsa default\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if(req.readyState == 4)
+		{
+			setControlsEnabled(true);
+			resetData();
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function saveChanges5gsa()
+{
+	var bands = document.getElementsByName('band5gsa');
+	var cmd = '';
+	for (var idx = 0; idx < bands.length; idx++) {
+		if (bands[idx].checked) {
+			cmd += bands[idx].getAttribute('data-band') + ' ';
+		}
+	}
+	if (cmd == '') {
+		return;
+	}
+
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", '/usr/bin/modemband.sh setbands5gsa "' + cmd + '"\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var stateChangeFunction = function(req)
+	{
+		if(req.readyState == 4)
+		{
+			setControlsEnabled(true);
+			resetData();
+		}
+	}
+	runAjax("POST", "utility/run_commands.sh", param, stateChangeFunction);
+}
+
+function defaultData5gsa()
+{
+	setControlsEnabled(false, true);
+	var param = getParameterDefinition("commands", '/usr/bin/modemband.sh setbands5gsa default\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
