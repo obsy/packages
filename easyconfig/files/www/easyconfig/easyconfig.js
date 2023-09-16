@@ -1034,7 +1034,9 @@ function showconfig() {
 		if (config.services.gps) { document.getElementById('btn_nightmode_locationfromgps').style.display = 'inline-block'; }
 
 		// modembands
-		setDisplay('menu_modembands', config.services.modemband);
+		setDisplay('link_modembands4g', config.services.modemband4g);
+		setDisplay('link_modembands5gnsa', config.services.modemband5gnsa);
+		setDisplay('link_modembands5gsa', config.services.modemband5gsa);
 
 		// gps
 		setDisplay('menu_gps', config.services.gps);
@@ -1867,8 +1869,8 @@ function closemodemat() {
 	setDisplay('div_modemat', false);
 }
 
-function modembands() {
-	closemodembands();
+function modembands4g() {
+	closemodembands4g();
 	ubus_call('"file", "exec", {"command":"modemband.sh","params":["json"]}', function(data) {
 		if (data.code == 0) {
 			var modem = JSON.parse(data.stdout);
@@ -1876,31 +1878,31 @@ function modembands() {
 			var arr = sortJSON(modem.supported, 'band', 'asc');
 			var html = '<div class="form-group">';
 			for (var idx = 0; idx < arr.length; idx++) {
-				html += '<label for="modembands_band_lte_' + arr[idx].band + '"  class="col-xs-3 col-sm-2 control-label">B' + arr[idx].band + '</label> \
+				html += '<label for="modembands_band_4g_' + arr[idx].band + '" class="col-xs-3 col-sm-2 control-label">B' + arr[idx].band + '</label> \
 						<div class="col-xs-9 col-sm-4"> \
-						<label class="switch"><input data-band=' + arr[idx].band + ' id="modembands_band_lte_' + arr[idx].band + '" type="checkbox" class="band_lte"><div class="slider round"></div></label> \
+						<label class="switch"><input data-band=' + arr[idx].band + ' id="modembands_band_4g_' + arr[idx].band + '" type="checkbox" class="band_4g"><div class="slider round"></div></label> \
 						<span class="control-label labelleft">' + arr[idx].txt + '</span> \
 						</div>';
 			}
 			html += '</div>';
-			setValue('modembands_bands_lte', html);
+			setValue('modembands_bands_4g', html);
 
 			arr = modem.enabled;
 			for (var idx = 0; idx < arr.length; idx++) {
-				var e = document.getElementById('modembands_band_lte_' + arr[idx]);
+				var e = document.getElementById('modembands_band_4g_' + arr[idx]);
 				if (e) {
 					e.checked = 1;
 				}
 			}
-			setDisplay('div_modembands', true);
+			setDisplay('div_modembands4g', true);
 		}
 	})
 }
 
-function savemodembands() {
-	closemodembands();
+function savemodembands4g() {
+	closemodembands4g();
 	var bands = '';
-	(document.querySelectorAll('.band_lte')).forEach((e) => {
+	(document.querySelectorAll('.band_4g')).forEach((e) => {
 		if (e.checked) {
 			bands += e.getAttribute('data-band') + ' ';
 		}
@@ -1911,12 +1913,128 @@ function savemodembands() {
 
 	var cmd = [];
 	cmd.push('modemband.sh setbands \\\"' + bands + '\\\"');
-	execute(cmd, modembands);
+	execute(cmd, modembands4g);
 }
 
-function defaultmodembands() {
-	closemodembands();
-	execute(['modemband.sh setbands default'], modembands);
+function defaultmodembands4g() {
+	closemodembands4g();
+	execute(['modemband.sh setbands default'], modembands4g);
+}
+
+function closemodembands4g() {
+	setDisplay('div_modembands4g', false);
+}
+
+function modembands5gnsa() {
+	closemodembands5gnsa();
+	ubus_call('"file", "exec", {"command":"modemband.sh","params":["json"]}', function(data) {
+		if (data.code == 0) {
+			var modem = JSON.parse(data.stdout);
+
+			var arr = sortJSON(modem.supported5gnsa, 'band', 'asc');
+			var html = '<div class="form-group">';
+			for (var idx = 0; idx < arr.length; idx++) {
+				html += '<label for="modembands_band_5gnsa_' + arr[idx].band + '" class="col-xs-3 col-sm-2 control-label">n' + arr[idx].band + '</label> \
+						<div class="col-xs-9 col-sm-4"> \
+						<label class="switch"><input data-band=' + arr[idx].band + ' id="modembands_band_5gnsa_' + arr[idx].band + '" type="checkbox" class="band_5gnsa"><div class="slider round"></div></label> \
+						<span class="control-label labelleft">' + arr[idx].txt + '</span> \
+						</div>';
+			}
+			html += '</div>';
+			setValue('modembands_bands_5gnsa', html);
+
+			arr = modem.enabled5gnsa;
+			for (var idx = 0; idx < arr.length; idx++) {
+				var e = document.getElementById('modembands_band_5gnsa_' + arr[idx]);
+				if (e) {
+					e.checked = 1;
+				}
+			}
+			setDisplay('div_modembands5gnsa', true);
+		}
+	})
+}
+
+function savemodembands5gnsa() {
+	closemodembands5gnsa();
+	var bands = '';
+	(document.querySelectorAll('.band_5gnsa')).forEach((e) => {
+		if (e.checked) {
+			bands += e.getAttribute('data-band') + ' ';
+		}
+	})
+	if (bands == '') {
+		bands = 'default';
+	}
+
+	var cmd = [];
+	cmd.push('modemband.sh setbands5gnsa \\\"' + bands + '\\\"');
+	execute(cmd, modembands5gnsa);
+}
+
+function defaultmodembands5gnsa() {
+	closemodembands5gnsa();
+	execute(['modemband.sh setbands5gnsa default'], modembands5gnsa);
+}
+
+function closemodembands5gnsa() {
+	setDisplay('div_modembands5gnsa', false);
+}
+
+function modembands5gsa() {
+	closemodembands5gsa();
+	ubus_call('"file", "exec", {"command":"modemband.sh","params":["json"]}', function(data) {
+		if (data.code == 0) {
+			var modem = JSON.parse(data.stdout);
+
+			var arr = sortJSON(modem.supported5gsa, 'band', 'asc');
+			var html = '<div class="form-group">';
+			for (var idx = 0; idx < arr.length; idx++) {
+				html += '<label for="modembands_band_5gsa_' + arr[idx].band + '" class="col-xs-3 col-sm-2 control-label">n' + arr[idx].band + '</label> \
+						<div class="col-xs-9 col-sm-4"> \
+						<label class="switch"><input data-band=' + arr[idx].band + ' id="modembands_band_5gsa_' + arr[idx].band + '" type="checkbox" class="band_5gsa"><div class="slider round"></div></label> \
+						<span class="control-label labelleft">' + arr[idx].txt + '</span> \
+						</div>';
+			}
+			html += '</div>';
+			setValue('modembands_bands_5gsa', html);
+
+			arr = modem.enabled5gsa;
+			for (var idx = 0; idx < arr.length; idx++) {
+				var e = document.getElementById('modembands_band_5gsa_' + arr[idx]);
+				if (e) {
+					e.checked = 1;
+				}
+			}
+			setDisplay('div_modembands5gsa', true);
+		}
+	})
+}
+
+function savemodembands5gsa() {
+	closemodembands5gsa();
+	var bands = '';
+	(document.querySelectorAll('.band_5gsa')).forEach((e) => {
+		if (e.checked) {
+			bands += e.getAttribute('data-band') + ' ';
+		}
+	})
+	if (bands == '') {
+		bands = 'default';
+	}
+
+	var cmd = [];
+	cmd.push('modemband.sh setbands5gsa \\\"' + bands + '\\\"');
+	execute(cmd, modembands5gsa);
+}
+
+function defaultmodembands5gsa() {
+	closemodembands5gsa();
+	execute(['modemband.sh setbands5gsa default'], modembands5gsa);
+}
+
+function closemodembands5gsa() {
+	setDisplay('div_modembands5gsa', false);
 }
 
 function modem_simslot_save() {
@@ -1938,10 +2056,6 @@ function restartwan() {
 	cmd.push('sleep 3');
 	cmd.push('ifup wan');
 	execute(cmd, modembands);
-}
-
-function closemodembands() {
-	setDisplay('div_modembands', false);
 }
 
 var arrmodemaddon = [];

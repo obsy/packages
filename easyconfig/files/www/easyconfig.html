@@ -766,8 +766,18 @@
 			</div>
 		</div>
 		<div class="row">
-			<div id="menu_modembands" class="col-xs-6 col-xs-offset-6"  style="display:none;">
-			<p><a href="#" class="click" onclick="modembands();">pasma LTE</a></p>
+			<div id="link_modembands4g" class="col-xs-6 col-xs-offset-6"  style="display:none;">
+			<p><a href="#" class="click" onclick="modembands4g();">pasma LTE</a></p>
+			</div>
+		</div>
+		<div class="row">
+			<div id="link_modembands5gnsa" class="col-xs-6 col-xs-offset-6"  style="display:none;">
+			<p><a href="#" class="click" onclick="modembands5gnsa();">pasma 5G NSA</a></p>
+			</div>
+		</div>
+		<div class="row">
+			<div id="link_modembands5gsa" class="col-xs-6 col-xs-offset-6"  style="display:none;">
+			<p><a href="#" class="click" onclick="modembands5gsa();">pasma 5G SA</a></p>
 			</div>
 		</div>
 		<div id="div_modem_simslot" style="display:none;">
@@ -1762,19 +1772,53 @@
 	</div>
 </div>
 
-<div id="div_modembands" class="modal">
+<div id="div_modembands4g" class="modal">
 	<div class="row modal-content">
 		<div class="text-center space">Pasma LTE</div>
 		<form class="form-horizontal">
-			<div id="modembands_bands_lte"></div>
+			<div id="modembands_bands_4g"></div>
 		</form>
 		<h3 class="section"></h3>
 		<div class="text-center">
-			<input type="button" class="btn btn-default modalmargintop" onclick="closemodembands();" value="Zamknij" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodembands4g();" value="Zamknij" />
 			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="ponowne uruchomienie połączenia z internetem" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodembands();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
-			<input type="button" class="btn btn-default modalmargintop" onclick="modembands();" value="Odśwież" />
-			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodembands();" value="Zapisz zmiany" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodembands4g();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="modembands4g();" value="Odśwież" />
+			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodembands4g();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
+<div id="div_modembands5gnsa" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">Pasma 5G NSA</div>
+		<form class="form-horizontal">
+			<div id="modembands_bands_5gnsa"></div>
+		</form>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodembands5gnsa();" value="Zamknij" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="ponowne uruchomienie połączenia z internetem" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodembands5gnsa();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="modembands5gnsa();" value="Odśwież" />
+			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodembands5gnsa();" value="Zapisz zmiany" />
+		</div>
+	</div>
+</div>
+
+<div id="div_modembands5gsa" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">Pasma 5G SA</div>
+		<form class="form-horizontal">
+			<div id="modembands_bands_5gsa"></div>
+		</form>
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default modalmargintop" onclick="closemodembands5gsa();" value="Zamknij" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="restartwan();" value="Restart poł." title="ponowne uruchomienie połączenia z internetem" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="defaultmodembands5gsa();" value="Domyślne ust." title="przywraca domyślne ustawienia modemu" />
+			<input type="button" class="btn btn-default modalmargintop" onclick="modembands5gsa();" value="Odśwież" />
+			<input type="button" class="btn btn-primary modalmargintop" onclick="savemodembands5gsa();" value="Zapisz zmiany" />
 		</div>
 	</div>
 </div>

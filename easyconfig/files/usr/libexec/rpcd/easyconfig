@@ -680,18 +680,25 @@ else
 	echo '"sae":false,'
 fi
 
+MB4G="false"
+MB5GNSA="false"
+MB5GSA="false"
 if [ -e /usr/bin/modemband.sh ]; then
 	T=$(/usr/bin/modemband.sh getinfo)
-	if echo "$T" | grep -i -q 'found'; then
-		echo '"modemband":false,'
-	elif echo "$T" | grep -i -q 'unsupported'; then
-		echo '"modemband":false,'
+	if echo "$T" | grep -q -i 'found'; then
+		MB4G="false"
+	elif echo "$T" | grep -q -i 'unsupported'; then
+		MB4G="false"
 	else
-		echo '"modemband":true,'
+		MB4G="true"
+		/usr/bin/modemband.sh getsupportedbands5gnsa | grep -q -i 'unsupported' || MB5GNSA="true"
+		/usr/bin/modemband.sh getsupportedbands5gsa | grep -q -i 'unsupported' || MB5GSA="true"
 	fi
-else
-	echo '"modemband":false,'
 fi
+echo '"modemband4g":'$MB4G','
+echo '"modemband5gnsa":'$MB5GNSA','
+echo '"modemband5gsa":'$MB5GSA','
+
 
 if ubus list | grep -q gps; then
 	echo '"gps":true,'
