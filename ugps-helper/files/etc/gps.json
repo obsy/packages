@@ -25,6 +25,14 @@
 		"cmd_tty": "/dev/ttyUSB2",
 		"nmea_tty": "/dev/ttyUSB1"
 	},
+	"20202033": {
+		"name": "BroadMobi BM806U",
+		"start": [
+			"AT+GPSSTART"
+		],
+		"cmd_tty": "/dev/ttyUSB2",
+		"nmea_tty": "/dev/ttyUSB3"
+	},
 	"2c7c0125": {
 		"name": "Quectel EC25",
 		"start": [
