@@ -196,24 +196,22 @@ else
 	CSQ_PER=""
 fi
 
-# COPS numeric
+# COPS
+COPS=""
+COPS_MCC=""
+COPS_MNC=""
 COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
-if [ "x$COPS_NUM" = "x" ]; then
-	COPS_NUM=""
-	COPS_MCC=""
-	COPS_MNC=""
-else
+if [ -n "$COPS_NUM" ]; then
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:3}
-	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 fi
-[ "x$COPS" = "x" ] && COPS=$COPS_NUM
 
 if [ -z "$FORCE_PLMN" ]; then
-	# COPS alphanumeric
-	T=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
-	[ "x$T" != "x" ] && COPS="$T"
+	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
+else
+	[ -n "$COPS_NUM" ] && COPS=$(awk -F[\;] '/^'$COPS_NUM';/ {print $2}' $RES/mccmnc.dat)
 fi
+[ -z "$COPS" ] && COPS=$COPS_NUM
 
 # CREG
 eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
