@@ -1765,6 +1765,12 @@ function showsystem() {
 		setValue('firmware_version', data.version);
 		setValue('gui_version', data.gui_version);
 		setValue('model', data.model == '' ? '-' : data.model);
+		if (data.mac != '') {
+			setValue('system_mac', (data.mac).toUpperCase());
+			setDisplay('div_system_mac', true);
+		} else {
+			setDisplay('div_system_mac', false);
+		}
 		var theme = getCookie('easyconfig_darkmode');
 		if (theme == '') { theme = 2; }
 		setValue('theme', theme);

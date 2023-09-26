@@ -242,6 +242,8 @@ show_system() {
 	GUI_VERSION="-devel-"
 	VERSION=$(awk -F\' '/DISTRIB_DESCRIPTION/{print $2}' /etc/openwrt_release)
 	MODEL=$(cat /tmp/sysinfo/model)
+	. /lib/functions/system.sh
+	MAC=$(get_mac_label)
 
 	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 	if [ -n "$DEVICE" ]; then
@@ -266,7 +268,8 @@ show_system() {
 	echo '"iccid":"'$ICCID'"},'
 	echo '"version":"'$VERSION'",'
 	echo '"gui_version":"'$GUI_VERSION'",'
-	echo '"model":"'$MODEL'"'
+	echo '"model":"'$MODEL'",'
+	echo '"mac":"'$MAC'"'
 	echo '}'
 }
 
