@@ -1771,6 +1771,12 @@ function showsystem() {
 		} else {
 			setDisplay('div_system_mac', false);
 		}
+		if (data.sn != '') {
+			setValue('system_sn', data.sn);
+			setDisplay('div_system_sn', true);
+		} else {
+			setDisplay('div_system_sn', false);
+		}
 		var theme = getCookie('easyconfig_darkmode');
 		if (theme == '') { theme = 2; }
 		setValue('theme', theme);
