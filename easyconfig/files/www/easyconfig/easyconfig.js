@@ -2264,6 +2264,18 @@ function okreboot() {
 	}, true);
 }
 
+function btn_system_firstboot() {
+	showDialog('Przywrócić ustawienia domyślne urządzenia?', 'Nie', 'Tak', okfirstboot);
+}
+
+function okfirstboot() {
+	ubus('"file", "exec", {"command":"firstboot","params":["-r", "-y"]}', function(data) {
+		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać do trzech minut...", false);
+	}, function(status) {
+		showMsg("Błąd pobierania danych!", true);
+	}, true);
+}
+
 /*****************************************************************************/
 
 function showwatchdog() {
