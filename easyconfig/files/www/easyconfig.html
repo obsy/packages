@@ -862,6 +862,53 @@
 		</div>
 	</form>
 
+	<div id="div_cloudbackup" style="display:none;">
+		<h3 class="section">Archiwum konfiguracji w chmurze</h3>
+
+		<form class="form-horizontal">
+
+		<div class="alert" id="div_cloudbackup_msg" style="display:none">
+			<span id="cloudbackup_msg"></span>
+		</div>
+
+		<div class="form-group">
+			<label for="cloudbackup_password" class="col-xs-6 control-label click" onclick="showPassword('cloudbackup_password');">Hasło do archiwum</label>
+			<div class="col-xs-6">
+			<input id="cloudbackup_password" type="password" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_cloudbackup_create">
+			<label class="col-xs-6 text-right">Tworzenie archiwum</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="cloudbackup_create();" value="Utwórz" />
+			</div>
+		</div>
+
+		<div class="form-group" id="div_cloudbackup_step1" style="display:block;">
+			<label class="col-xs-6 text-right">Dostępność archiwum</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="cloudbackup_step1();" value="Sprawdź" />
+			</div>
+		</div>
+
+		<div class="form-group" id="div_cloudbackup_step2" style="display:none;">
+			<label class="col-xs-6 text-right">Pobieranie archiwum</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="cloudbackup_step2();" value="Pobierz" />
+			</div>
+		</div>
+
+		<div class="form-group" id="div_cloudbackup_remove" style="display:none;">
+			<label class="col-xs-6 text-right">Usuwanie archiwum</label>
+			<div class="col-xs-6">
+			<input type="button" class="btn btn-default" onclick="cloudbackup_remove();" value="Usuń" />
+			</div>
+		</div>
+
+		</form>
+	</div>
+
 	<div id="div_upgrade" style="display:none;">
 		<h3 class="section">Aktualizacja</h3>
 

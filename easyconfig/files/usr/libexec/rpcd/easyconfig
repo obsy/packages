@@ -704,7 +704,6 @@ echo '"modemband4g":'$MB4G','
 echo '"modemband5gnsa":'$MB5GNSA','
 echo '"modemband5gsa":'$MB5GSA','
 
-
 if ubus list | grep -q gps; then
 	echo '"gps":true,'
 else
@@ -2097,6 +2096,46 @@ leds() {
 
 ##############################################################################
 
+cloudbackup() {
+	read input;
+	json_load "$input"
+	json_get_vars action password
+	case "x$action" in
+		"xcreate")
+			if [ -z "$password" ]; then
+				echo '{"status":99}'
+				exit 0
+			fi
+
+			backuppkgslist.sh
+			BACKUPFILE=$(mktemp)
+			sysupgrade -q -b ${BACKUPFILE}
+			openssl enc -e -chacha20 -in ${BACKUPFILE} -out $BACKUPFILE.enc -k ${password} 2>/dev/null
+			TOKEN=$(stat.sh token)
+			T=$(uclient-fetch -qO - --post-file ${BACKUPFILE}.enc https://dl.eko.one.pl/cloudbackup/${TOKEN})
+			rm ${BACKUPFILE}
+			rm ${BACKUPFILE}.enc
+			if [ "x$T" = "xok" ]; then
+				echo '{"status":0}'
+			else
+				echo '{"status":1}'
+			fi
+			;;
+		"xstatus")
+			TOKEN=$(stat.sh token)
+			T=$(uclient-fetch -qO - https://dl.eko.one.pl/cloudbackup/${TOKEN}/status)
+			if [ -n "$T" ]; then
+				T=$(date -d @$T +"%Y%m%d%H%M%S" 2>/dev/null)
+				echo '{"status":0,"timestamp":"'$T'"}'
+			else
+				echo '{"status":1}'
+			fi
+			;;
+	esac
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -2129,7 +2168,8 @@ case "$1" in
 		echo '"geolocation":{},'
 		echo '"adblock":{},'
 		echo '"nightmode":{},'
-		echo '"leds":{"action":"string"}'
+		echo '"leds":{"action":"string"}',
+		echo '"cloudbackup":{"action":"string","password":"string"}'
 		echo '}'
 	;;
 	call)
@@ -2223,6 +2263,9 @@ case "$1" in
 				;;
 			leds)
 				leds
+				;;
+			cloudbackup)
+				cloudbackup
 				;;
 		esac
 	;;
