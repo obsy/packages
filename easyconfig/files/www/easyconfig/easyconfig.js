@@ -4298,46 +4298,6 @@ function selectussd(code) {
 
 /*****************************************************************************/
 
-function cloudbackup_create() {
-	setDisplay('div_cloudbackup_msg', false);
-	var e = document.getElementById('div_cloudbackup_msg');
-	removeClasses(e, ['alert-warning', 'alert-info']);
-	var archpass = getValue('cloudbackup_password');
-	if (archpass == '') {
-		setValue('cloudbackup_msg', 'Do uwtorzenia archiwum wymagane jest podane silnego hasła');
-		addClasses(e, ['alert-warning']);
-		setDisplay('div_cloudbackup_msg', true);
-		return;
-	}
-	ubus_call('"easyconfig", "cloudbackup", {"action":"create", "password":"' + escapeShell(archpass) + '"}', function(data) {
-		if (data.status == 0) {
-			setValue('cloudbackup_msg', 'Archiwum zostało utworzone pomyślnie');
-			addClasses(e, ['alert-info']);
-		} else {
-			setValue('cloudbackup_msg', 'Wystąpił błąd podczas tworzenia archiwum');
-			addClasses(e, ['alert-warning']);
-		}
-		setDisplay('div_cloudbackup_msg', true);
-	});
-}
-
-function cloudbackup_step1() {
-	setDisplay('div_cloudbackup_msg', false);
-	var e = document.getElementById('div_cloudbackup_msg');
-	removeClasses(e, ['alert-warning', 'alert-info']);
-	ubus_call('"easyconfig", "cloudbackup", {"action":"status", "password":""}', function(data) {
-		if (data.status == 0) {
-			setValue('cloudbackup_msg', 'Dostępne jest archiwum utworzone ' + formatDateTime(data.timestamp));
-			addClasses(e, ['alert-info']);
-		} else {
-			setValue('cloudbackup_msg', 'Brak dostępnego archiwum lub Wystąpił błąd podczas sprawdzania dostępności');
-			addClasses(e, ['alert-warning']);
-		}
-		setDisplay('div_cloudbackup_msg', true);
-	});
-}
-/*****************************************************************************/
-
 function upgrade_step1() {
 	ubus_call('"easyconfig", "upgrade", {"step":"1"}', function(data) {
 		var msg = "";
