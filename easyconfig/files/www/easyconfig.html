@@ -107,25 +107,25 @@
 		<div class="row">
 			<div class="col-sm-8">
 				<div class="row">
-					<label class="col-xs-6 text-right">Operator</label>
+					<div class="col-xs-6 text-right">Operator</div>
 					<div class="col-xs-6">
 					<p id="modem_operator">-</p>
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-xs-6 text-right">Sygnał</label>
+					<div class="col-xs-6 text-right">Sygnał</div>
 					<div class="col-xs-6">
 					<p id="modem_signal">-</p>
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-xs-6 text-right">Technologia</label>
+					<div class="col-xs-6 text-right">Technologia</div>
 					<div class="col-xs-6">
 					<p id="modem_mode">-</p>
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-xs-6 text-right">Status karty SIM</label>
+					<div class="col-xs-6 text-right">Status karty SIM</div>
 					<div class="col-xs-6">
 					<p id="modem_registration">-</p>
 					</div>
@@ -156,37 +156,37 @@
 	<div id="div_status_wan" style="display:none;">
 		<h3 class="section">Internet</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Liczba wznowień połączenia</label>
+			<div class="col-xs-6 text-right">Liczba wznowień połączenia</div>
 			<div class="col-xs-6">
 			<p id="wan_up_cnt">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Czas połączenia</label>
+			<div class="col-xs-6 text-right">Czas połączenia</div>
 			<div class="col-xs-6">
 			<p><span id="wan_uptime">-</span><span class="visible-xs oneline"></span><small><span id="wan_uptime_since"></span></small></p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Wysłano</label>
+			<div class="col-xs-6 text-right">Wysłano</div>
 			<div class="col-xs-6">
 			<p id="wan_tx">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Pobrano</label>
+			<div class="col-xs-6 text-right">Pobrano</div>
 			<div class="col-xs-6">
 			<p id="wan_rx">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Adres IP</label>
+			<div class="col-xs-6 text-right">Adres IP</div>
 			<div class="col-xs-6">
 			<p id="wan_ipaddr_status">-</p>
 			</div>
 		</div>
 		<div class="row" id="div_vpn_up_status" style="display:none;">
-			<label class="col-xs-6 text-right">VPN</label>
+			<div class="col-xs-6 text-right">VPN</div>
 			<div class="col-xs-6">
 			<a href="#" class="click" onclick="btn_pages('vpn');"><p>aktywny</p></a>
 			</div>
@@ -201,13 +201,13 @@
 	<div id="div_status_wlan">
 		<h3 class="section">Wi-Fi</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Wykorzystywane kanały</label>
+			<div class="col-xs-6 text-right">Wykorzystywane kanały</div>
 			<div class="col-xs-6">
 			<p id="wlan_current_channels">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Połączonych klientów</label>
+			<div class="col-xs-6 text-right">Połączonych klientów</div>
 			<div class="col-xs-6">
 			<a href="#" class="click" onclick="btn_pages('clients');"><p id="wlan_clients">0</p></a>
 			</div>
@@ -217,7 +217,7 @@
 	<div id="div_status_lan">
 		<h3 class="section">Sieć lokalna</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Połączonych klientów</label>
+			<div class="col-xs-6 text-right">Połączonych klientów</div>
 			<div class="col-xs-6">
 			<a href="#" class="click" onclick="btn_pages('clients');"><p id="lan_clients">0</p></a>
 			</div>
@@ -238,19 +238,19 @@
 
 	<h3 class="section">System</h3>
 	<div class="row">
-		<label class="col-xs-6 text-right">Obciążenie</label>
+		<div class="col-xs-6 text-right">Obciążenie</div>
 		<div class="col-xs-6">
 		<p id="system_load">-</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Czas pracy</label>
+		<div class="col-xs-6 text-right">Czas pracy</div>
 		<div class="col-xs-6">
 		<p><span id="system_uptime">-</span><span class="visible-xs oneline"></span><small><span id="system_uptime_since"></span></small></p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Data i czas</label>
+		<div class="col-xs-6 text-right">Data i czas</div>
 		<div class="col-xs-6">
 		<p id="system_time">-</p>
 		</div>
@@ -572,9 +572,9 @@
 						<div class="slider round"></div>
 					</label>
 					</div>
-					<label class="col-xs-6 control-label">
+					<div class="col-xs-6 control-label">
 						<span class="click" onclick="copywireless();">kopiuj z poprzedniej sieci</span>
-					</label>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -667,15 +667,15 @@
 						<div class="slider round"></div>
 						</label>
 					</div>
-					<label class="col-xs-6 control-label">
+					<div class="col-xs-6 control-label">
 					<a href="#" class="click" onclick="showstatistics();">zobacz statystykę &rarr;</a>
-					</label>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="form-group" id="div_button" style="display:none;">
-			<label for="system_button" class="col-xs-4 col-sm-3 control-label">Przycisk "<span id="system_button_name"></span>"</label>
+			<div class="col-xs-4 col-sm-3 control-label">Przycisk "<span id="system_button_name"></span>"</div>
 			<div class="col-xs-8 col-sm-9">
 			<select id="system_button" class="form-control">
 			</select>
@@ -726,31 +726,31 @@
 	<div id="div_system_modem" style="display:none;">
 		<h3 class="section">Modem</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Producent</label>
+			<div class="col-xs-6 text-right">Producent</div>
 			<div class="col-xs-6">
 			<p id="modem_vendor">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Model</label>
+			<div class="col-xs-6 text-right">Model</div>
 			<div class="col-xs-6">
 			<p id="modem_model">-</p>
 		</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Wersja</label>
+			<div class="col-xs-6 text-right">Wersja</div>
 			<div class="col-xs-6">
 			<p id="modem_revision">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">IMEI</label>
+			<div class="col-xs-6 text-right">IMEI</div>
 			<div class="col-xs-6">
 			<p id="modem_imei">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Numer karty SIM (ICCID)</label>
+			<div class="col-xs-6 text-right">Numer karty SIM (ICCID)</div>
 			<div class="col-xs-6">
 			<p id="modem_iccid">-</p>
 			</div>
@@ -799,42 +799,42 @@
 
 	<h3 class="section">System</h3>
 	<div class="row">
-		<label class="col-xs-6 text-right">Model</label>
+		<div class="col-xs-6 text-right">Model</div>
 		<div class="col-xs-6">
 		<p id="model">-</p>
 		</div>
 	</div>
 
 	<div id="div_system_mac" class="row" style="display:none;">
-		<label class="col-xs-6 text-right">MAC</label>
+		<div class="col-xs-6 text-right">MAC</div>
 		<div class="col-xs-6">
 		<p id="system_mac">-</p>
 		</div>
 	</div>
 
 	<div id="div_system_sn" class="row" style="display:none;">
-		<label class="col-xs-6 text-right">S/N</label>
+		<div class="col-xs-6 text-right">S/N</div>
 		<div class="col-xs-6">
 		<p id="system_sn">-</p>
 		</div>
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Wersja oprogramowania</label>
+		<div class="col-xs-6 text-right">Wersja oprogramowania</div>
 		<div class="col-xs-6">
 		<p id="firmware_version">-</p>
 		</div>
 	</div>
 
 	<div class="row space">
-		<label class="col-xs-6 text-right">Restart urządzenia</label>
+		<div class="col-xs-6 text-right">Restart urządzenia</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_system_reboot();" value="Restart" title="Ponowne uruchomienie urządzenia" />
 		</div>
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Przywrócenie ustawień domyślnych</label>
+		<div class="col-xs-6 text-right">Przywrócenie ustawień domyślnych</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_system_firstboot();" value="Domyślne" title="Przywrócenie ustawień domyślnych" />
 		</div>
@@ -843,7 +843,7 @@
 	<h3 class="section">Interfejs użytkownika</h3>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Wersja GUI</label>
+		<div class="col-xs-6 text-right">Wersja GUI</div>
 		<div class="col-xs-6">
 		<p id="gui_version">-</p>
 		</div>
@@ -874,14 +874,14 @@
 		</div>
 
 		<div class="form-group" id="div_upgrade_step1" style="display:block;">
-			<label class="col-xs-6 text-right">Dostępność aktualizacji</label>
+			<div class="col-xs-6 text-right">Dostępność aktualizacji</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="upgrade_step1();" value="Sprawdź" />
 			</div>
 		</div>
 
 		<div class="form-group" id="div_upgrade_step2" style="display:none;">
-			<label class="col-xs-6 text-right">Pobieranie aktualizacji</label>
+			<div class="col-xs-6 text-right">Pobieranie aktualizacji</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="upgrade_step2();" value="Pobierz" />
 			</div>
@@ -928,25 +928,25 @@
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie sprawdzenie</label>
+		<div class="col-xs-6 text-right">Ostatnie sprawdzenie</div>
 		<div class="col-xs-6">
 		<p id="watchdog_rundate">-</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">minimum</label>
+		<div class="col-xs-6 text-right">minimum</div>
 		<div class="col-xs-6">
 		<p id="watchdog_min">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">średnia</label>
+		<div class="col-xs-6 text-right">średnia</div>
 		<div class="col-xs-6">
 		<p id="watchdog_avg">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">maksimum</label>
+		<div class="col-xs-6 text-right">maksimum</div>
 		<div class="col-xs-6">
 		<p id="watchdog_max">0</p>
 		</div>
@@ -1076,7 +1076,7 @@
 	</div>
 
 	<div class="row">
-		<label class="col-xs-6 text-right">Dziś</label>
+		<div class="col-xs-6 text-right">Dziś</div>
 		<div class="col-xs-6">
 		<p><span id="traffic_today">0</span><small><span class="visible-xs oneline"></span><span id="traffic_today_progress"></span></small></p>
 		</div>
@@ -1089,43 +1089,43 @@
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Wczoraj</label>
+		<div class="col-xs-6 text-right">Wczoraj</div>
 		<div class="col-xs-6">
 		<p id="traffic_yesterday">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 7 dni</label>
+		<div class="col-xs-6 text-right">Ostatnie 7 dni</div>
 		<div class="col-xs-6">
 		<p id="traffic_last7d">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Ostatnie 30 dni</label>
+		<div class="col-xs-6 text-right">Ostatnie 30 dni</div>
 		<div class="col-xs-6">
 		<p id="traffic_last30d">0</p>
 		</div>
 	</div>
 	<div class="row space">
-		<label class="col-xs-6 text-right">Łącznie</label>
+		<div class="col-xs-6 text-right">Łącznie</div>
 		<div class="col-xs-6">
 		<p><span id="traffic_total">0</span><span class="visible-xs oneline"></span><small><span id="traffic_total_since"></span></small></p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Dni do końca okresu rozliczeniowego</label>
+		<div class="col-xs-6 text-right">Dni do końca okresu rozliczeniowego</div>
 		<div class="col-xs-6">
 		<p id="traffic_currentperiod_daysleft">0</p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Bieżący okres rozliczeniowy</label>
+		<div class="col-xs-6 text-right">Bieżący okres rozliczeniowy</div>
 		<div class="col-xs-6">
 		<p><span id="traffic_currentperiod">0</span><span class="visible-xs oneline"></span><small><span id="traffic_currentperiod_progress"></span></small></p>
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Przewidywane zużycie danych w bieżącym okresie</label>
+		<div class="col-xs-6 text-right">Przewidywane zużycie danych w bieżącym okresie</div>
 		<div class="col-xs-6">
 		<p id="traffic_currentperiod_projected">0</p>
 		</div>
@@ -1138,7 +1138,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<label class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</label>
+		<div class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</div>
 		<div class="col-xs-6">
 		<p id="traffic_lastperiod">0</p>
 		</div>
@@ -1334,7 +1334,7 @@
 
 	<div id="div_adblock_adblock" style="display:none;">
 	<div class="row">
-		<label class="col-xs-6 text-right">Liczba blokowanych domen</label>
+		<div class="col-xs-6 text-right">Liczba blokowanych domen</div>
 		<div class="col-xs-6">
 		<p id="adblock_domains">-</p>
 		</div>
@@ -1418,13 +1418,13 @@
 	<div id="div_nightmode_wlan">
 		<h3 class="section">Wi-Fi</h3>
 		<div class="row space">
-			<label class="col-xs-6 text-right">Włączenie Wi-Fi</label>
+			<div class="col-xs-6 text-right">Włączenie Wi-Fi</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_on();" value="Włącz" />
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Wyłączenie Wi-Fi</label>
+			<div class="col-xs-6 text-right">Wyłączenie Wi-Fi</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_off();" value="Wyłącz" />
 			</div>
@@ -1433,13 +1433,13 @@
 
 	<h3 class="section">Diody LED</h3>
 	<div class="row space">
-		<label class="col-xs-6 text-right">Włączenie LED</label>
+		<div class="col-xs-6 text-right">Włączenie LED</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_nightmode_leds_on();" value="Włącz" />
 		</div>
 	</div>
 	<div class="row space">
-		<label class="col-xs-6 text-right">Wyłączenie LED</label>
+		<div class="col-xs-6 text-right">Wyłączenie LED</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_nightmode_leds_off();" value="Wyłącz" />
 		</div>
@@ -1489,13 +1489,13 @@
 	<div id="div_gps" style="display:none;">
 		<h3 class="section">Pozycja GPS</h3>
 		<div class="row">
-			<label class="col-xs-6 text-right">Czas odczytu</label>
+			<div class="col-xs-6 text-right">Czas odczytu</div>
 			<div class="col-xs-6">
 			<p id="gps_fixtime">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Szerokość geograficzna</label>
+			<div class="col-xs-6 text-right">Szerokość geograficzna</div>
 			<div class="col-xs-6">
 			<p id="gps_latitude">-<p>
 			</div>
@@ -1504,7 +1504,7 @@
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Długość geograficzna</label>
+			<div class="col-xs-6 text-right">Długość geograficzna</div>
 			<div class="col-xs-6">
 			<p id="gps_longitude">-</p>
 			</div>
@@ -1513,19 +1513,19 @@
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Wysokość</label>
+			<div class="col-xs-6 text-right">Wysokość</div>
 			<div class="col-xs-6">
 			<p id="gps_elevation">-</p>
 			</div>
 		</div>
 		<div class="row">
-			<label class="col-xs-6 text-right">Kierunek</label>
+			<div class="col-xs-6 text-right">Kierunek</div>
 			<div class="col-xs-6">
 			<p id="gps_course">-</p>
 			</div>
 		</div>
 		<div class="row space">
-			<label class="col-xs-6 text-right">Szybkość</label>
+			<div class="col-xs-6 text-right">Szybkość</div>
 			<div class="col-xs-6">
 			<p id="gps_speed">-</p>
 			</div>
@@ -1700,7 +1700,7 @@
 
 <div id="div_detectwan_pin" class="modal">
 	<div class="row modal-content">
-		<label class="text-center">Wykryto modem komórkowy, podaj PIN do karty SIM</label>
+		<div class="text-center">Wykryto modem komórkowy, podaj PIN do karty SIM</div>
 		<input id="detectwan_proto" type="hidden">
 		<input id="detectwan_device" type="hidden">
 		<input id="detectwan_pin" type="text" class="form-control space">
@@ -1782,7 +1782,7 @@
 
 <div id="div_modemat" class="modal">
 	<div class="row modal-content">
-		<label>Polecenie AT</label>
+		<label for="modemat_cmd">Polecenie AT</label>
 		<input id="modemat_cmd" type="text" class="form-control" value="AT">
 		<div class="text-left"><code><pre><span id="modemat_output"></span></pre></code></div>
 		<h3 class="section"></h3>

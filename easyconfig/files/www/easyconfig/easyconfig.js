@@ -268,12 +268,12 @@ function checkFieldAllowEmpty(element, proofFunction) {
 }
 
 function createRowForModal(key, value) {
-	return '<div class="row"><label class="col-xs-5 col-sm-6 text-right">' + key + '</label><div class="col-xs-7 col-sm-6 text-left"><p>' + value + '</p></div></div>';
+	return '<div class="row"><div class="col-xs-5 col-sm-6 text-right">' + key + '</div><div class="col-xs-7 col-sm-6 text-left"><p>' + value + '</p></div></div>';
 }
 
 function createRow4ColForModal(key, value1, value2, value3) {
 	return '<div class="row">' +
-		'<label class="col-xs-3 text-right">' + key + '</label>' +
+		'<div class="col-xs-3 text-right">' + key + '</div>' +
 		'<div class="col-xs-3 text-left"><p>' + value1 + '</p></div>' +
 		'<div class="col-xs-3 text-left"><p>' + value2 + '</p></div>' +
 		'<div class="col-xs-3 text-left"><p>' + value3 + '</p></div>' +
@@ -1509,15 +1509,15 @@ function bandwidthcallback(val) {
 
 function showbandwidth(mac) {
 	var html = '';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Wysłano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right">Pobrano</label><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
-	html += '<div class="row space"><label class="col-xs-5 col-sm-6 text-right">Jednostki</label><div class="col-xs-7 col-sm-6 text-left">';
+	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Wysłano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
+	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Pobrano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
+	html += '<div class="row space"><div class="col-xs-5 col-sm-6 text-right">Jednostki</div><div class="col-xs-7 col-sm-6 text-left">';
 	html += '<span class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></span>|';
 	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>';
 	html += '</div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right"></label><div class="col-xs-3 col-sm-3 text-left"><p>teraz</p></div><div class="col-xs-4 col-sm-3 text-left"><p>maks.</p></div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_tx">Szybkość wysyłania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_tx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_tx">-</p></div></div>';
-	html += '<div class="row"><label class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_rx">Szybkość pobierania</label><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_rx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_rx">-</p></div></div>';
+	html += '<div class="row"><div class="col-xs-3 col-xs-offset-5 col-sm-3 col-sm-offset-6 text-left"><p>teraz</p></div><div class="col-xs-4 col-sm-3 text-left"><p>maks.</p></div></div>';
+	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_tx">Szybkość wysyłania</div><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_tx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_tx">-</p></div></div>';
+	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_rx">Szybkość pobierania</div><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_rx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_rx">-</p></div></div>';
 	html += '<div class="row" id="div_bandwidth"><div class="col-xs-12"><canvas id="bandwidth" height="400"></canvas></div></div>';
 	showMsg(html);
 	var bandwidth_arr = []; bandwidth_arr[0] = []; bandwidth_arr[1] = [];
@@ -1614,7 +1614,7 @@ function showstatus() {
 			var html = '';
 			for (var i in data.sensors) {
 				for (var j in data.sensors[i]) {
-					html += '<div class="row"><label class="col-xs-6 text-right">' + j + '</label>';
+					html += '<div class="row"><div class="col-xs-6 text-right">' + j + '</div>';
 					html += '<div class="col-xs-6"><p>' + data.sensors[i][j] + '</p></div></div>';
 				}
 			}
@@ -1684,7 +1684,7 @@ function showstatus() {
 
 				html = '';
 				for (var i in data1.interfaces) {
-					html += '<div class="row"><label class="col-xs-3 text-right">' + i + '</label>';
+					html += '<div class="row"><div class="col-xs-3 text-right">' + i + '</div>';
 					var css = '';
 					var status1 = '';
 					var status2 = '';
@@ -3824,14 +3824,14 @@ function queriescallback(sortby, order) {
 	var html = '';
 	if (filtered.length > 0) {
 
-		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań</label><div class="col-xs-6"><p>' + filtered.length + '</p></div></div>';
+		html += '<div class="row"><div class="col-xs-6 text-right">Liczba zapytań</div><div class="col-xs-6"><p>' + filtered.length + '</p></div></div>';
 		var cnt = 0;
 		for (var idx = 0; idx < filtered.length; idx++) {
 			if (filtered[idx].nxdomain) {
 				cnt ++;
 			}
 		}
-		html += '<div class="row"><label class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</label><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / filtered.length) + '%)</small></p></div></div>';
+		html += '<div class="row"><div class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</div><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / filtered.length) + '%)</small></p></div></div>';
 		html += '<hr>'
 
 		html += '<div class="form-group row" id="div_queries_hosts">';
@@ -5531,7 +5531,7 @@ function showadblock() {
 				if (adblock_lists[i].section == 'blacklist') {
 					if (!adblock_lists[i].enabled) {
 						if ((data.blacklist).length > 0) {
-							html += '<label class="col-xs-4 col-sm-3 control-label">&nbsp;</label>';
+							html += '<div class="col-xs-4 col-sm-3 control-label">&nbsp;</div>';
 							html += '<div class="col-xs-8 col-sm-9 alert alert-warning" style="margin-bottom:-5px !important;">UWAGA: lista jest wyłączona, ręcznie dodane domeny nie będą blokowane</div>';
 						}
 					}
