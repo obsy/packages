@@ -4086,27 +4086,27 @@ function showtraffic() {
 			if (traffic_today == 0) {
 				setValue('traffic_today', 0);
 			} else {
-				setValue('traffic_today', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'' + getLabelText('traffic_today') + '\',\'d\',1);">' + bytesToSize(traffic_today) + '</span>');
+				setValue('traffic_today', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'Dziś\',\'d\',1);">' + bytesToSize(traffic_today) + '</span>');
 			}
 			if (traffic_yesterday == 0) {
 				setValue('traffic_yesterday', 0);
 			} else {
-				setValue('traffic_yesterday', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'' + getLabelText('traffic_yesterday') + '\',\'d\',-1);">' + bytesToSize(traffic_yesterday) + '</span>');
+				setValue('traffic_yesterday', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'Wczoraj\',\'d\',-1);">' + bytesToSize(traffic_yesterday) + '</span>');
 			}
 			if (traffic_last7d == 0) {
 				setValue('traffic_last7d', 0);
 			} else {
-				setValue('traffic_last7d', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'' + getLabelText('traffic_last7d') + '\',\'d\',-7);">' + bytesToSize(traffic_last7d) + '</span>');
+				setValue('traffic_last7d', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'Ostatnie 7 dni\',\'d\',-7);">' + bytesToSize(traffic_last7d) + '</span>');
 			}
 			if (traffic_last30d == 0) {
 				setValue('traffic_last30d', 0);
 			} else {
-				setValue('traffic_last30d', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'' + getLabelText('traffic_last30d') + '\',\'d\',-30);">' + bytesToSize(traffic_last30d) + '</span>');
+				setValue('traffic_last30d', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'Ostatnie 30 dni\',\'d\',-30);">' + bytesToSize(traffic_last30d) + '</span>');
 			}
 			if (traffic_total == 0) {
 				setValue('traffic_total', 0);
 			} else {
-				setValue('traffic_total', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'' + getLabelText('traffic_total') + '\',\'m\',0);">' + bytesToSize(traffic_total) + '</span>');
+				setValue('traffic_total', '<span class="click" style="color:' + color + '" onclick="hoststatisticsmodal(\'wan\',\'Łącznie\',\'m\',0);">' + bytesToSize(traffic_total) + '</span>');
 			}
 			if (total_since) {
 				setValue('traffic_total_since', ' (od ' + formatDateTime(total_since) + ')');
