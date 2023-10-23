@@ -1341,7 +1341,7 @@ function saveconfig() {
 				return;
 			}
 			if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
-				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i) + '<br /><br />Nazwa Wi-Fi nie może być dłuższa niż 32 znaki', true);
+				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki', true);
 				return;
 			}
 			wlan_restart_required = true;
@@ -1356,7 +1356,7 @@ function saveconfig() {
 		if (config[radios[i]].wlan_key != wlan_key) {
 			if (wlan_encryption != 'none') {
 				if (wlan_key.length < 8) {
-					showMsg('Błąd w polu ' + getLabelText('wlan_key' + i) + '<br /><br />Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
+					showMsg('Błąd w polu ' + getLabelText('wlan_key' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
 					return;
 				}
 			}
@@ -4181,7 +4181,7 @@ function sendussd() {
 		if (data.response == "") {
 			showMsg("Brak odpowiedzi z modemu");
 		} else {
-			showMsg((data.result).replace(/(\r\n|\r|\n)/g, '<br />'));
+			showMsg((data.result).replace(/(\r\n|\r|\n)/g, '<br>'));
 		}
 	});
 }
