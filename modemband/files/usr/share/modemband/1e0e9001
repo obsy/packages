@@ -1,0 +1,62 @@
+_DEVICE=/dev/ttyUSB2
+_DEFAULT_LTE_BANDS="1 2 3 4 5 7 8 12 13 14 17 18 19 20 25 26 28 29 30 32 34 38 39 40 41 42 43 48 66 71"
+_DEFAULT_5GNSA_BANDS="1 2 3 5 7 8 12 14 20 28 38 40 41 48 66 71 77 78"
+_DEFAULT_5GSA_BANDS="1 2 3 5 7 8 12 14 20 28 38 40 41 48 66 71 77 78"
+
+getinfo() {
+	echo "SIMCOM SIM8200EA-M2"
+}
+
+getsupportedbands() {
+	echo "$_DEFAULT_LTE_BANDS"
+}
+
+getbands() {
+	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
+	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $2}' | xargs)
+	[ -n "$HEX" ] && hextobands "$HEX"
+}
+
+setbands() {
+	BANDS="$1"
+	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_LTE_BANDS"
+
+	HEX=$(bandstohex "$BANDS")
+	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,0x$HEX,,,"
+}
+
+getsupportedbands5gnsa() {
+	echo "$_DEFAULT_5GNSA_BANDS"
+}
+
+getbands5gnsa() {
+	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
+	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $5}' | xargs)
+	[ -n "$HEX" ] && hextobands "$HEX"
+}
+
+setbands5gnsa() {
+	BANDS="$1"
+	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_5GNSA_BANDS"
+
+	HEX=$(bandstohex "$BANDS")
+	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,,,,0x$HEX"
+}
+
+getsupportedbands5gsa() {
+	echo "$_DEFAULT_5GSA_BANDS"
+}
+
+getbands5gsa() {
+	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
+	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $4}' | xargs)
+	[ -n "$HEX" ] && hextobands "$HEX"
+}
+
+setbands5gsa() {
+	BANDS="$1"
+	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_5GNSA_BANDS"
+
+	HEX=$(bandstohex "$BANDS")
+	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,,,0x$HEX,"
+}
