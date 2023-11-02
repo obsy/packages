@@ -1048,22 +1048,26 @@ function showconfig() {
 			opt.value = 'none';
 			opt.innerHTML = 'Brak akcji';
 			select.appendChild(opt);
-			var opt = document.createElement('option');
+			opt = document.createElement('option');
 			opt.value = 'leds';
 			opt.innerHTML = 'Włącz/wyłącz diody LED';
 			select.appendChild(opt);
 			if (is_radio2 || is_radio5) {
-				var opt = document.createElement('option');
+				opt = document.createElement('option');
 				opt.value = 'rfkill';
 				opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
 				select.appendChild(opt);
 			}
 			if ((config.services.vpn).length > 0) {
-				var opt = document.createElement('option');
+				opt = document.createElement('option');
 				opt.value = 'vpn';
 				opt.innerHTML = 'Włącz/wyłącz VPN';
 				select.appendChild(opt);
 			}
+			opt = document.createElement('option');
+			opt.value = 'killswitch';
+			opt.innerHTML = 'Włącz/wyłącz dostęp z sieci lokalnej (killswitch)';
+			select.appendChild(opt);
 			setValue('system_button_name', config.button.name);
 			setValue('system_button', config.button.action);
 		}

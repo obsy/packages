@@ -1,0 +1,27 @@
+#!/bin/sh
+[ "${ACTION}" = "released" ] || exit 0
+
+ENABLED=""
+RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+for RULE in $RULES; do
+	T=$(uci -q get firewall.${RULE}.dest)
+	if [ "x$T" = "xwan" ]; then
+		T=$(uci -q get firewall.$RULE)
+		if [ "x$T" = "xforwarding" ]; then
+			ENABLED=$RULE
+			break
+		fi
+	fi
+done
+
+if [ -n "$ENABLED" ]; then
+	uci -q del firewall.$ENABLED
+else
+	uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src=lan
+	uci set firewall.@forwarding[-1].dest=wan
+fi
+uci commit firewall
+/etc/init.d/firewall restart
+
+exit 0

@@ -26,4 +26,5 @@ else
 	ifdown ${VPN}
 	ifup wan
 fi
+
 exit 0

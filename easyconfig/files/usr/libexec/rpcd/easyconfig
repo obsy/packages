@@ -612,6 +612,9 @@ if [ -n "$BUTTON" ]; then
 	if grep -q "easyconfig.vpn" /etc/rc.button/$BUTTON; then
 		ACTION="vpn"
 	fi
+	if grep -q "forwarding" /etc/rc.button/$BUTTON; then
+		ACTION="killswitch"
+	fi
 fi
 echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
 
