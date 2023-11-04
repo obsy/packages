@@ -5,7 +5,7 @@ VPN=$(uci -q get easyconfig.vpn.interface)
 [ -z "$VPN" ] && exit 0
 
 if [ -e /etc/config/openvpn ]; then
-	OVPN=$(uci show openvpn | awk -F. '/\.dev=.*'${VPN}'.*/{print $2}' | head -n1)
+	OVPN=$(uci show openvpn | awk -F. '/\.dev='\'''${VPN}''\''$/{print $2}' | head -n1)
 	if [ -n "$OVPN" ]; then
 		T=$(ubus call network.interface status "{\"interface\":\"${VPN}\"}" 2>/dev/null | jsonfilter -q -e @.up)
 		if [ "x$T" = "xfalse" ]; then

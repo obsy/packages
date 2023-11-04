@@ -388,7 +388,7 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 	if $DEVICESECTION; then
 		T=$(uci -q get network.lan.device)
 		if [ -n "$T" ]; then
-			SEC=$(uci show network | awk -F. '/\.name=.'$T'.$/{print $2}')
+			SEC=$(uci show network | awk -F. '/\.name='\'''${T}''\''$/{print $2}')
 			if [ -n "$SEC" ]; then
 				case "$(uci -q get network.$SEC.ports)" in
 					*$WAN_IFNAME_DEFAULT*)
@@ -514,7 +514,7 @@ for R in $RADIOS; do
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
 	WLAN_BAND=$(uci -q get wireless.$R.band)
 	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
-	T=$(uci -q show wireless | awk -F. '/device=.*'$R'/{print $2}')
+	T=$(uci -q show wireless | awk -F. '/device='\'''${R}''\''$/{print $2}')
 	WLAN_SEC=""
 	WLAN_SSID=""
 	WLAN_ENCRYPTION=""
@@ -573,7 +573,7 @@ T=$(uci -q get dhcp.@dnsmasq[0].logqueries)
 echo '"dhcp_logqueries":'$T','
 
 T=""
-RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+RULES=$(uci show firewall | awk -F. '/\.src='\''lan'\''$/{print $2}')
 for RULE in $RULES; do
 	T2=$(uci -q get firewall.${RULE}.dest)
 	if [ "x$T2" = "xwan" ]; then
@@ -1626,7 +1626,7 @@ show_vpn_up()
 			INTERFACE=""
 			TUN=$(uci -q get openvpn.$OVPN.dev)
 			[ -z "$TUN" ] && TUN=$(awk '/^tun/{print $2}' $(uci -q get openvpn.$OVPN.config) 2>/dev/null)
-			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device=.*'$TUN'.*/{print $2}')
+			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device='\'''${TUN}''\''$/{print $2}')
 			if [ -n "$INTERFACE" ]; then
 				INTERFACES="${INTERFACES} ${INTERFACE}:openvpn:${OVPN}"
 			else
@@ -1680,7 +1680,7 @@ show_vpn()
 			TUN=$(uci -q get openvpn.$OVPN.dev)
 			NAME=$(uci -q get openvpn.$OVPN.name)
 			[ -z "$TUN" ] && TUN=$(awk '/^tun/{print $2}' $(uci -q get openvpn.$OVPN.config) 2>/dev/null)
-			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device=.*'$TUN'.*/{print $2}')
+			[ -n "$TUN" ] && INTERFACE=$(uci show network | awk -F. '/device='\'''${TUN}''\''$/{print $2}')
 			if [ -n "$INTERFACE" ]; then
 				INTERFACES="${INTERFACES} ${INTERFACE}:openvpn:${OVPN}"
 			else
@@ -1742,7 +1742,7 @@ show_vpn()
 	echo "]"
 
 	T=""
-	RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+	RULES=$(uci show firewall | awk -F. '/\.src='\''lan'\''$/{print $2}')
 	for RULE in $RULES; do
 		T2=$(uci -q get firewall.${RULE}.dest)
 		if [ "x$T2" = "xwan" ]; then

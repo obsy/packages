@@ -2,7 +2,7 @@
 [ "${ACTION}" = "released" ] || exit 0
 
 ENABLED=""
-RULES=$(uci show firewall | awk -F. '/\.src=.*lan.*$/{print $2}')
+RULES=$(uci show firewall | awk -F. '/\.src='\''lan'\''$/{print $2}')
 for RULE in $RULES; do
 	T=$(uci -q get firewall.${RULE}.dest)
 	if [ "x$T" = "xwan" ]; then
