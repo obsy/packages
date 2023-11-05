@@ -4545,7 +4545,7 @@ function vpnstatus(interface) {
 		if (data.proto == 'wireguard') {
 			for (var idx = 0; idx < data.peers.length; idx++) {
 				html += '<br>';
-				html += createRowForModal(data.peers[idx].name, '');
+				html += createRowForModal('Nazwa połączenia', data.peers[idx].name);
 				html += createRowForModal('Wysłano', bytesToSize(data.peers[idx].tx));
 				html += createRowForModal('Pobrano', bytesToSize(data.peers[idx].rx));
 				t = '-';
