@@ -12,17 +12,24 @@ getsupportedbands() {
 }
 
 getbands() {
-	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
-	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $2}' | xargs)
-	[ -n "$HEX" ] && hextobands "$HEX"
+	O=$(sms_tool -d $_DEVICE at "AT+CSYSSEL=\"lte_band\"")
+	echo "$O" | awk -F, '/^\+CSYSSEL: "lte_band",/{gsub(":"," ");print $2}' | xargs
 }
 
 setbands() {
 	BANDS="$1"
 	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_LTE_BANDS"
 
-	HEX=$(bandstohex "$BANDS")
-	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,0x$HEX,,,"
+	T=""
+	for BAND in $BANDS; do
+		case $BAND in
+			''|*[!0-9]*) continue ;;
+		esac
+		[ -n "$T" ] && T="${T}:"
+		T="${T}${BAND}"
+	done
+
+	[ -n "$T" ] && sms_tool -d $_DEVICE at "AT+CSYSSEL=\"lte_band\",$T"
 }
 
 getsupportedbands5gnsa() {
@@ -30,17 +37,24 @@ getsupportedbands5gnsa() {
 }
 
 getbands5gnsa() {
-	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
-	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $5}' | xargs)
-	[ -n "$HEX" ] && hextobands "$HEX"
+	O=$(sms_tool -d $_DEVICE at "AT+CSYSSEL=\"nsa_nr5g_band\"")
+	echo "$O" | awk -F, '/^\+CSYSSEL: "nsa_nr5g_band",/{gsub(":"," ");print $2}' | xargs
 }
 
 setbands5gnsa() {
 	BANDS="$1"
-	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_5GNSA_BANDS"
+	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_LTE_BANDS"
 
-	HEX=$(bandstohex "$BANDS")
-	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,,,,0x$HEX"
+	T=""
+	for BAND in $BANDS; do
+		case $BAND in
+			''|*[!0-9]*) continue ;;
+		esac
+		[ -n "$T" ] && T="${T}:"
+		T="${T}${BAND}"
+	done
+
+	[ -n "$T" ] && sms_tool -d $_DEVICE at "AT+CSYSSEL=\"nsa_nr5g_band\",$T"
 }
 
 getsupportedbands5gsa() {
@@ -48,15 +62,22 @@ getsupportedbands5gsa() {
 }
 
 getbands5gsa() {
-	O=$(sms_tool -d $_DEVICE at "AT+CNBP?")
-	HEX=$(echo "$O" | awk -F, '/^\+CNBP:/{print $4}' | xargs)
-	[ -n "$HEX" ] && hextobands "$HEX"
+	O=$(sms_tool -d $_DEVICE at "AT+CSYSSEL=\"nr5g_band\"")
+	echo "$O" | awk -F, '/^\+CSYSSEL: "nr5g_band",/{gsub(":"," ");print $2}' | xargs
 }
 
 setbands5gsa() {
 	BANDS="$1"
 	[ "$BANDS" = "default" ] && BANDS="$_DEFAULT_5GNSA_BANDS"
 
-	HEX=$(bandstohex "$BANDS")
-	[ -n "$HEX" ] && sms_tool -d $_DEVICE at "AT+CNBP=,,,0x$HEX,"
+	T=""
+	for BAND in $BANDS; do
+		case $BAND in
+			''|*[!0-9]*) continue ;;
+		esac
+		[ -n "$T" ] && T="${T}:"
+		T="${T}${BAND}"
+	done
+
+	[ -n "$T" ] && sms_tool -d $_DEVICE at "AT+CSYSSEL=\"nr5g_band\",$T"
 }
