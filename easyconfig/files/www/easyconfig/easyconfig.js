@@ -5939,7 +5939,7 @@ function showgps() {
 		script.onload = function() {
 			map = L.map('gps_map').setView([52.114339, 19.423672], 6);
 			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			}).addTo(map);
 		}
 	}

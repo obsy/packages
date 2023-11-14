@@ -1,2 +1,2 @@
-See http://eko.one.pl/?p=easyconfig
+See https://eko.one.pl/?p=easyconfig
 
