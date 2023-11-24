@@ -2891,7 +2891,7 @@ function clientscallback(sortby) {
 		html += '<span class="click" onclick="clientscallbackfilter(\'active\');clientscallback(\'\');"><span id="clients_filter_active"> aktywni (0) </span></span>|';
 		html += '<span class="click" onclick="clientscallbackfilter(\'all\');clientscallback(\'\');"><span id="clients_filter_all"> wszyscy (0) </span></span>';
 		html += '</div>';
-		html += '<div class="col-xs-3 text-right"><span class="click" onclick="clientsstats();"><i data-feather="bar-chart-2"></i></span></div>';
+		html += '<div class="col-xs-3 text-right"><span class="click" title="nowi klienci" onclick="clientsstats();"><i data-feather="bar-chart-2"></i></span></div>';
 		html += '<div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="clientscallback(\'displayname\');"><span id="clients_sortby_displayname"> nazwie </span></span>|';
@@ -2968,7 +2968,7 @@ function clientscallback(sortby) {
 				html += '<hr><div class="row">';
 
 				html += '<div class="col-xs-9 visible-xs-block"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
-				html += '<div class="col-xs-3 visible-xs-block text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-3 visible-xs-block text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12 visible-xs-block">' + limitations;
 				html += 'MAC: ' + sorted[idx].mac + (sorted[idx].ip == '' ? '' : ', IP: ' + sorted[idx].ip) + ', ';
 				if (sorted[idx].type == 1) {
@@ -3003,7 +3003,7 @@ function clientscallback(sortby) {
 					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + '</div>';
 					html += '<div class="col-xs-2 hidden-xs"><span title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
 				}
-				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 
 				html += '</div>';
 				any_active = true;
@@ -3011,7 +3011,7 @@ function clientscallback(sortby) {
 				if (sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
 				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + sorted[idx].displayname + '</span></div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) +  (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen)) + '</div>';
 				html += '</div>';
 				any_all = true;
@@ -4221,7 +4221,7 @@ function readsms() {
 					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
 				}
 				html += '</div>';
-				html += '<div class="col-xs-2 text-right"><span class="click" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></span></div>';
+				html += '<div class="col-xs-2 text-right"><span class="click" title="usuń" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
 				html += '</div>';
 			}
@@ -5557,7 +5557,7 @@ function showadblock() {
 			for (var idx = 0; idx < blacklist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + blacklist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" title="usuń" onclick="removefromblacklist(\'' + blacklist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '</div>';
 			}
 			html += '<hr>';
@@ -5571,7 +5571,7 @@ function showadblock() {
 			for (var idx = 0; idx < whitelist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + whitelist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" title="usuń" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '</div>';
 			}
 			html += '<hr>';
