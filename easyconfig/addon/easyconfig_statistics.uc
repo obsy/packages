@@ -1,7 +1,7 @@
 #!/usr/bin/ucode
 'use strict';
 
-// (c) 2016-2023 Cezary Jackiewicz <cezary@eko.one.pl>
+// (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
 
 import { readfile, writefile } from "fs";
 
