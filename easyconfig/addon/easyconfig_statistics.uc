@@ -76,8 +76,7 @@ if (!tmp) {
 if (DHCPNAME)
 	db[MAC].dhcpname = DHCPNAME;
 
-if (TYPE)
-	db[MAC].type = TYPE;
+db[MAC].type = TYPE;
 
 tmp = db[MAC][IFNAME];
 if (!tmp) {
