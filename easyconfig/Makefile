@@ -9,7 +9,7 @@ define Package/easyconfig
 	SECTION:=admin
 	CATEGORY:=Administration
 	TITLE:=Easyconfig - prosty system konfiguracji
-	DEPENDS:=+uhttpd +uhttpd-mod-ubus +rpcd +rpcd-mod-file +iw +iwinfo +jshn +jsonfilter
+	DEPENDS:=+iw +iwinfo +jshn +jsonfilter +rpcd +rpcd-mod-file +uhttpd +uhttpd-mod-ubus
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
 endef
