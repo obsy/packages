@@ -1,4 +1,5 @@
 # WNC D18QC
+# WNC D19QA
 
 if [ "$REGOK" = "1" ]; then
 
