@@ -120,6 +120,11 @@ case "$MODE_NUM" in
 			[ -n "$T" ] && addon 74 "(S3) EARFCN" "$T"
 		fi
 
+		O=$(sms_tool -d $DEVICE at "at+zulca?")
+		T=$(echo "$O" | awk -F[,:] '/^\+ZULCA/ {print $2}' | xargs)
+		if [ -n "$T" ]; then
+			[ "$T" = "1" ] && addon 99 "Upload aggregation" "ON" || addon 99 "Upload aggregation" "OFF"
+		fi
 		;;
 esac
 
