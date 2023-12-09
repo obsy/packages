@@ -30,6 +30,11 @@ if (!TX)
 if (!RX)
 	RX = 0;
 
+TX = int(TX);
+RX = int(RX);
+TYPE = int(TYPE);
+CONNECTED = int(CONNECTED);
+
 let ts = localtime();
 let day = sprintf("%04d%02d%02d", ts.year, ts.mon, ts.mday);
 let ts_now = sprintf("%04d%02d%02d%02d%02d", ts.year, ts.mon, ts.mday, ts.hour, ts.min);
@@ -85,8 +90,8 @@ if (!tmp) {
 	db[MAC][IFNAME].last_rx = 0;
 	db[MAC][IFNAME].first_seen = ts_now;
 }
-let last_tx = db[MAC][IFNAME].last_tx;
-let last_rx = db[MAC][IFNAME].last_rx;
+let last_tx = int(db[MAC][IFNAME].last_tx);
+let last_rx = int(db[MAC][IFNAME].last_rx);
 
 tmp = db[MAC][IFNAME][day];
 if (!tmp) {
@@ -94,8 +99,8 @@ if (!tmp) {
 	db[MAC][IFNAME][day].total_tx = 0;
 	db[MAC][IFNAME][day].total_rx = 0;
 }
-let total_tx = db[MAC][IFNAME][day].total_tx;
-let total_rx = db[MAC][IFNAME][day].total_rx;
+let total_tx = int(db[MAC][IFNAME][day].total_tx);
+let total_rx = int(db[MAC][IFNAME][day].total_rx);
 
 let dtx = TX - last_tx;
 if (dtx < 0)
