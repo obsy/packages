@@ -1,6 +1,8 @@
 #!/bin/sh
 
+#
 # (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
+#
 
 TIMEISVALID=""
 grep -q "time is valid" /tmp/state/dnsmasqsec 2>/dev/null && TIMEISVALID="yes"

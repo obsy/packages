@@ -4153,11 +4153,15 @@ function okremovetraffic() {
 	cmd.push('. /usr/share/libubox/jshn.sh');
 	cmd.push('if [ -e \\\"$DB\\\" ]; then');
 	cmd.push('lock \\\"/var/lock/easyconfig_statistics.lock\\\"');
+	cmd.push('if [ -e \\\"/usr/bin/easyconfig_statistics.uc\\\" ]; then');
+	cmd.push('/usr/bin/easyconfig_statistics.uc \\\"' + mac + '\\\" \\\"delete\\\" 0 0 0 \\\"\\\" 0');
+	cmd.push('else');
 	cmd.push('json_init');
 	cmd.push('json_load_file \\\"$DB\\\"');
 	cmd.push('export K_J_V=$(echo \\\"${K_J_V}\\\" | sed \'s/ ' + mac + '//g\')');
 	cmd.push('json_close_object');
 	cmd.push('json_dump > \\\"$DB\\\"');
+	cmd.push('fi');
 	cmd.push('touch -d \\\"2000-01-01 00:00:00\\\" \\\"$SDB\\\"');
 	cmd.push('lock -u \\\"/var/lock/easyconfig_statistics.lock\\\"');
 	cmd.push('/usr/bin/easyconfig_statistics.sh');
