@@ -491,98 +491,30 @@
 		</div>
 	</form>
 
-	<div id="div_radio0" style="display:none;">
-	<h3 class="section" id="radio0">Wi-Fi</h3>
+	<div id="div_radio_template" style="display:none;">
+	<h3 class="section" id="radio_idx">Wi-Fi</h3>
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="wlan_enabled0" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="wlan_enabled0" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wlan_txpower0">
-			<label for="wlan_txpower0" class="col-xs-4 col-sm-3 control-label">Moc nadawania</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_txpower0" class="form-control">
-			<option value='100'>100%</option>
-			<option value='80'>80%</option>
-			<option value='60'>60%</option>
-			<option value='40'>40%</option>
-			<option value='20'>20%</option>
-			</select>
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="wlan_ssid0" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
-			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_ssid0" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 1, 32);">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="wlan_channel0" class="col-xs-4 col-sm-3 control-label">Kanał</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_channel0" class="form-control" onchange="enableWlanTXPower(this.value, 0);">
-			</select>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wlan_encryption0">
-			<label for="wlan_encryption0" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_encryption0" class="form-control" onchange="enableWlanEncryption(this.value, 0);">
-			</select>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wlan_key0">
-			<label for="wlan_key0" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('wlan_key0');">Hasło</label>
-			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_key0" type="password" class="form-control">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="wlan_isolate0" class="col-xs-4 col-sm-3 control-label">Izolacja klientów</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="wlan_isolate0" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			</div>
-		</div>
-	</form>
-	</div>
-
-	<div id="div_radio1" style="display:none;">
-	<h3 class="section" id="radio1">Wi-Fi</h3>
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="wlan_enabled1" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
+			<label for="wlan_enabled_idx" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
 			<div class="col-xs-8 col-sm-9">
 				<div class="row">
 					<div class="col-xs-6">
 					<label class="switch">
-						<input id="wlan_enabled1" type="checkbox">
+						<input id="wlan_enabled_idx" type="checkbox">
 						<div class="slider round"></div>
 					</label>
 					</div>
-					<div class="col-xs-6 control-label">
-						<span class="click" onclick="copywireless();">kopiuj z poprzedniej sieci</span>
+					<div class="col-xs-6 control-label" id="div_wlan_copy_link_idx" style="display:none;">
+						<span class="click" onclick="copywireless('_idx');">kopiuj z poprzedniej sieci</span>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="form-group" id="div_wlan_txpower1">
-			<label for="wlan_txpower1" class="col-xs-4 col-sm-3 control-label">Moc nadawania</label>
+		<div class="form-group" id="div_wlan_txpower_idx">
+			<label for="wlan_txpower_idx" class="col-xs-4 col-sm-3 control-label">Moc nadawania</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_txpower1" class="form-control">
+			<select id="wlan_txpower_idx" class="form-control">
 			<option value='100'>100%</option>
 			<option value='80'>80%</option>
 			<option value='60'>60%</option>
@@ -593,46 +525,47 @@
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_ssid1" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
+			<label for="wlan_ssid_idx" class="col-xs-4 col-sm-3 control-label">Nazwa sieci (SSID)</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_ssid1" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 1, 32);">
+			<input id="wlan_ssid_idx" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 1, 32);">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_channel1" class="col-xs-4 col-sm-3 control-label">Kanał</label>
+			<label for="wlan_channel_idx" class="col-xs-4 col-sm-3 control-label">Kanał</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_channel1" class="form-control" onchange="enableWlanTXPower(this.value, 1);">
+			<select id="wlan_channel_idx" class="form-control" onchange="enableWlanTXPower(this.value, '_idx');">
 			</select>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wlan_encryption1">
-			<label for="wlan_encryption1" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wlan_encryption1" class="form-control" onchange="enableWlanEncryption(this.value, 1);">
-			</select>
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wlan_key1">
-			<label for="wlan_key1" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('wlan_key1');">Hasło</label>
-			<div class="col-xs-8 col-sm-9">
-			<input id="wlan_key1" type="password" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="wlan_isolate1" class="col-xs-4 col-sm-3 control-label">Izolacja klientów</label>
+			<label for="wlan_encryption_idx" class="col-xs-4 col-sm-3 control-label">Szyfrowanie</label>
+			<div class="col-xs-8 col-sm-9">
+			<select id="wlan_encryption_idx" class="form-control" onchange="enableWlanEncryption(this.value, '_idx');">
+			</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wlan_key_idx">
+			<label for="wlan_key_idx" class="col-xs-4 col-sm-3 control-label click" onclick="showPassword('wlan_key_idx');">Hasło</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="wlan_key_idx" type="password" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wlan_isolate_idx" class="col-xs-4 col-sm-3 control-label">Izolacja klientów</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
-				<input id="wlan_isolate1" type="checkbox">
+				<input id="wlan_isolate_idx" type="checkbox">
 				<div class="slider round"></div>
 			</label>
 			</div>
 		</div>
 	</form>
 	</div>
+	<div id="div_radio_content"></div>
 
 	<h3 class="section">System</h3>
 	<form class="form-horizontal">

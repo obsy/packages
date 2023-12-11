@@ -331,6 +331,8 @@ function getValue(element) {
 	var e = document.getElementById(element);
 	if (e.tagName == "SELECT") {
 		return e.options[e.selectedIndex].value;
+	} else if (e.tagName == "H3") {
+		return e.innerHTML;
 	} else if (e.tagName == "SPAN") {
 		return e.innerHTML;
 	} else if (e.type === 'checkbox') {
@@ -831,8 +833,6 @@ function showconfig() {
 	ubus_call('"easyconfig", "config", {}', function(data) {
 		config = data;
 
-//console.log(config);
-
 		// wan
 		var e = removeOptions('wan_proto');
 		var arr = config.wan_protos;
@@ -947,11 +947,18 @@ function showconfig() {
 			enc['sae-mixed'] = 'WPA2/WPA3 Personal';
 			enc['sae'] = 'WPA3 Personal';
 		}
-		var radios = (config.wlan_devices).slice(0,2);
+
+		setValue('div_radio_content', '');
+		var radios = config.wlan_devices;
 		for (var i = 0; i < radios.length; i++) {
 			is_radio2 = false;
 			is_radio5 = false;
-			select = removeOptions('wlan_channel' + i);
+
+			var html = ('<div>' + document.getElementById('div_radio_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
+			document.getElementById('div_radio_content').insertAdjacentHTML('beforeend', html);
+			if (i > 0) { setDisplay('div_wlan_copy_link_' + i, true); }
+
+			select = removeOptions('wlan_channel_' + i);
 			obj = config[radios[i]].wlan_channels;
 			var opt = document.createElement('option');
 			opt.value = '0';
@@ -969,13 +976,13 @@ function showconfig() {
 				}
 			}
 
-			if (is_radio2) {setValue('radio' + i, 'Wi-Fi 2.4 GHz');}
-			if (is_radio5) {setValue('radio' + i, 'Wi-Fi 5 GHz');}
-			if (is_radio2 && is_radio5) {setValue('radio' + i, 'Wi-Fi 2.4/5 GHz');}
+			if (is_radio2) { setValue('radio_' + i, 'Wi-Fi 2.4 GHz'); }
+			if (is_radio5) { setValue('radio_' + i, 'Wi-Fi 5 GHz'); }
+			if (is_radio2 && is_radio5) { setValue('radio_' + i, 'Wi-Fi 2.4/5 GHz'); }
 
-			setValue('wlan_enabled' + i, (config[radios[i]].wlan_disabled != 1));
-			setValue('wlan_channel' + i, config[radios[i]].wlan_channel);
-			enableWlanTXPower(config[radios[i]].wlan_channel, i);
+			setValue('wlan_enabled_' + i, (config[radios[i]].wlan_disabled != 1));
+			setValue('wlan_channel_' + i, config[radios[i]].wlan_channel);
+			enableWlanTXPower(config[radios[i]].wlan_channel, '_' + i);
 			var txpower;
 			if (config[radios[i]].wlan_txpower == '' || config[radios[i]].wlan_channel == 0) {
 				txpower = 100;
@@ -988,22 +995,21 @@ function showconfig() {
 				if (curtxpower > 60) { txpower = 80; }
 				if (curtxpower > 80) { txpower = 100; }
 			}
-			setValue('wlan_txpower' + i, txpower);
-			setValue('wlan_ssid' + i, config[radios[i]].wlan_ssid);
+			setValue('wlan_txpower_' + i, txpower);
+			setValue('wlan_ssid_' + i, config[radios[i]].wlan_ssid);
 
-			var select = removeOptions('wlan_encryption' + i);
+			var select = removeOptions('wlan_encryption_' + i);
 			for (var propt in enc) {
 				var opt = document.createElement('option');
 				opt.value = propt;
 				opt.innerHTML = enc[propt];
 				select.appendChild(opt);
 			}
-			setValue('wlan_encryption' + i, config[radios[i]].wlan_encryption);
+			setValue('wlan_encryption_' + i, config[radios[i]].wlan_encryption);
 
-			setValue('wlan_key' + i, config[radios[i]].wlan_key);
-			enableWlanEncryption(config[radios[i]].wlan_encryption, i);
-			setValue('wlan_isolate' + i, config[radios[i]].wlan_isolate == 1);
-			setDisplay('div_radio' + i, true);
+			setValue('wlan_key_' + i, config[radios[i]].wlan_key);
+			enableWlanEncryption(config[radios[i]].wlan_encryption, '_' + i);
+			setValue('wlan_isolate_' + i, config[radios[i]].wlan_isolate == 1);
 		}
 
 		if (!is_radio2 && !is_radio5) {
@@ -1085,13 +1091,14 @@ function showconfig() {
 	})
 }
 
-function copywireless() {
-	setValue('wlan_enabled1', getValue('wlan_enabled0'));
-	setValue('wlan_ssid1', getValue('wlan_ssid0'));
-	setValue('wlan_encryption1', getValue('wlan_encryption0'));
-	setValue('wlan_key1', getValue('wlan_key0'));
-	setValue('wlan_isolate1', getValue('wlan_isolate0'));
-	enableWlanEncryption(getValue('wlan_encryption0'), 1);
+function copywireless(idx) {
+	var previdx = parseInt(idx.replace('_', '')) - 1;
+	setValue('wlan_enabled' + idx, getValue('wlan_enabled_' + previdx));
+	setValue('wlan_ssid' + idx, getValue('wlan_ssid_' + previdx));
+	setValue('wlan_encryption' + idx, getValue('wlan_encryption_' + previdx));
+	setValue('wlan_key' + idx, getValue('wlan_key_' + previdx));
+	setValue('wlan_isolate' + idx, getValue('wlan_isolate_' + previdx));
+	enableWlanEncryption(getValue('wlan_encryption_' + previdx), idx);
 }
 
 function saveconfig() {
@@ -1291,7 +1298,7 @@ function saveconfig() {
 	// wlan
 	var wlan_restart_required = false;
 
-	var radios = (config.wlan_devices).slice(0,2);
+	var radios = config.wlan_devices;
 	for (var i = 0; i < radios.length; i++) {
 		var section = config[radios[i]].wlan_section;
 
@@ -1303,7 +1310,7 @@ function saveconfig() {
 			cmd.push('uci set wireless.' + section + '.device=' + radios[i]);
 		}
 
-		if (getValue('wlan_enabled' + i)) {
+		if (getValue('wlan_enabled_' + i)) {
 			if (config[radios[i]].wlan_disabled == 1) {
 				wlan_restart_required = true;
 				cmd.push('uci -q del wireless.' + radios[i] + '.disabled');
@@ -1315,7 +1322,7 @@ function saveconfig() {
 			}
 		}
 
-		wlan_channel = getValue('wlan_channel' + i);
+		wlan_channel = getValue('wlan_channel_' + i);
 		if (config[radios[i]].wlan_channel != wlan_channel) {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
@@ -1328,7 +1335,7 @@ function saveconfig() {
 			}
 		}
 		if (wlan_channel > 0) {
-			txpower = getValue('wlan_txpower' + i);
+			txpower = getValue('wlan_txpower_' + i);
 			var maxtxpower = config[radios[i]].wlan_channels[wlan_channel][1];
 			var curtxpower = Math.round(txpower * maxtxpower / 100);
 			if (config[radios[i]].wlan_txpower != curtxpower) {
@@ -1338,29 +1345,29 @@ function saveconfig() {
 		} else {
 			cmd.push('uci -q del wireless.' + radios[i] + '.txpower');
 		}
-		wlan_ssid = getValue('wlan_ssid' + i);
+		wlan_ssid = getValue('wlan_ssid_' + i);
+		if (wlan_ssid == '') {
+			showMsg('Błąd w polu ' + getLabelText('wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i), true);
+			return;
+		}
+		if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
+			showMsg('Błąd w polu ' + getLabelText('wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki', true);
+			return;
+		}
 		if (config[radios[i]].wlan_ssid != wlan_ssid) {
-			if (wlan_ssid == '') {
-				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i), true);
-				return;
-			}
-			if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
-				showMsg('Błąd w polu ' + getLabelText('wlan_ssid' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki', true);
-				return;
-			}
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + section + '.ssid=\\\"' + escapeShell(wlan_ssid) + '\\\"');
 		}
-		wlan_encryption = getValue('wlan_encryption' + i);
+		wlan_encryption = getValue('wlan_encryption_' + i);
 		if (config[radios[i]].wlan_encryption != wlan_encryption) {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + section + '.encryption=\\\"'+wlan_encryption+'\\\"');
 		}
-		wlan_key = getValue('wlan_key' + i);
+		wlan_key = getValue('wlan_key_' + i);
 		if (config[radios[i]].wlan_key != wlan_key) {
 			if (wlan_encryption != 'none') {
 				if (wlan_key.length < 8) {
-					showMsg('Błąd w polu ' + getLabelText('wlan_key' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
+					showMsg('Błąd w polu ' + getLabelText('wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
 					return;
 				}
 			}
@@ -1368,7 +1375,7 @@ function saveconfig() {
 			cmd.push('uci set wireless.' + section + '.key=\\\"' + escapeShell(wlan_key) + '\\\"');
 		}
 
-		if (getValue('wlan_isolate' + i)) {
+		if (getValue('wlan_isolate_' + i)) {
 			if (config[radios[i]].wlan_isolate == 0) {
 				wlan_restart_required = true;
 				cmd.push('uci set wireless.' + section + '.isolate=1');

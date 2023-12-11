@@ -521,9 +521,10 @@ for R in $RADIOS; do
 	WLAN_KEY=""
 	WLAN_ISOLATE=0
 	if [ -n "$T" ]; then
-		for WLAN_SEC in $T; do
-			[ "x$(uci -q get wireless.$WLAN_SEC.network)" = "xlan" ] || continue
-			[ "x$(uci -q get wireless.$WLAN_SEC.mode)" = "xap" ] || continue
+		for T1 in $T; do
+			[ "x$(uci -q get wireless.$T1.network)" = "xlan" ] || continue
+			[ "x$(uci -q get wireless.$T1.mode)" = "xap" ] || continue
+			WLAN_SEC=$T1
 			WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
 			WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
 			WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
@@ -532,10 +533,7 @@ for R in $RADIOS; do
 			WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
 			break
 		done
-		if [ "x$WLAN_SSID" = "x" ]; then
-			WLAN_SEC=""
-			WLAN_DISABLED=1
-		fi
+		[ -z "$WLAN_SSID" ] && WLAN_DISABLED=1
 	else
 		WLAN_DISABLED=1
 	fi
