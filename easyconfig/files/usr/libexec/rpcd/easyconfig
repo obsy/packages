@@ -496,7 +496,7 @@ T=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 if [ -e /sys/class/net/$T/bridge ]; then
 	for I in /sys/class/net/$T/lower_*; do
 		if [ -e $I/phy80211 ]; then
-			iw dev ${I##*lower_} info 2>/dev/null | awk '/channel/{if($2 > 14){printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"channel\":%d,\"min\":%d,\"max\":%d},\n", $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}'
+			iw dev ${I##*lower_} info 2>/dev/null | awk -v PHY=$(cat $I/phy80211/name) '/channel/{if($2 > 14){printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}'
 		fi
 	done
 fi
@@ -547,9 +547,10 @@ for R in $RADIOS; do
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
 	echo '"wlan_section":"'$WLAN_SEC'",'
+	PHY=$(iwinfo nl80211 phyname $R 2>/dev/null)
+	echo '"wlan_phy":"'$PHY'",'
 	echo '"wlan_channels":{'
 	O=""
-	PHY=$(iwinfo nl80211 phyname $R 2>/dev/null)
 	[ -n "$PHY" ] && O=$(iw phy $PHY info | grep -v "(disabled)" | grep -v "(no IR)" | awk '/\* [0-9]+ MHz/{dfs="false";if(index($0, "radar detection") != 0){dfs="true"};gsub(/\[|\]|\(|\)/,""); printf ",\"%d\":[\"%s\",\"%s\",%s]", $4, $2, $5, dfs}')
 	if [ -z "$O" ]; then
 		echo '"'$WLAN_CHANNEL'":["","",false]'

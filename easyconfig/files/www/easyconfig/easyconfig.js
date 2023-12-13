@@ -798,6 +798,7 @@ function findClosestChannel(findmin, channel, wlan_channels) {
 	if (wlan_channels.hasOwnProperty(channel)) {
 		return channel;
 	}
+
 	var closestValue = 0;
 	for (var t in wlan_channels) {
 		if (findmin) {
@@ -926,8 +927,8 @@ function showconfig() {
 		for (var idx = 0; idx < sorted.length; idx++) {
 			var o = sorted[idx];
 			for (var idx1 = 0; idx1 < (config.wlan_devices).length; idx1++) {
-				var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
-				if (wlan_channels.hasOwnProperty(o.channel)) {
+				if (config[config.wlan_devices[idx1]].wlan_phy == o.phy) {
+					var wlan_channels = config[config.wlan_devices[idx1]].wlan_channels;
 					o.min = findClosestChannel(true, o.min, wlan_channels);
 					o.max = findClosestChannel(false, o.max, wlan_channels);
 					break;
@@ -937,6 +938,7 @@ function showconfig() {
 			t += o.channel + ' (' + o.min + ' - ' + o.max + ')';
 		}
 		setValue('wlan_current_channels', t == '' ? '-' : t);
+
 		var is_radio2 = false;
 		var is_radio5 = false;
 		var enc = [];
