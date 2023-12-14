@@ -155,6 +155,17 @@ echo '"wan_up_since":['$WAN_UP_SINCE'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"vpn_up":'${VPN_UP:-false}','
 
+echo '"wlan_current_channels":['
+T=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
+if [ -e /sys/class/net/$T/bridge ]; then
+	for I in /sys/class/net/$T/lower_*; do
+		if [ -e $I/phy80211 ]; then
+			iw dev ${I##*lower_} info 2>/dev/null | awk -v PHY=$(cat $I/phy80211/name) '/channel/{if($2 > 14){printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}'
+		fi
+	done
+fi
+echo '],'
+
 echo '"sensors":['
 case $(cat /tmp/sysinfo/board_name) in
 	"cellc,rtl30vw"|\
