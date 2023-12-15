@@ -819,6 +819,11 @@ function findClosestChannel(findmin, channel, wlan_channels) {
 
 function showChannelRange(current_channels) {
 	if (config) {
+		current_channels = current_channels.filter((value, index, self) =>
+			index === self.findIndex((t) => (
+				t.channel === value.channel && t.min === value.min && t.max === value.max && t.phy === value.phy
+			))
+		)
 		var t = '';
 		var sorted = sortJSON(current_channels, 'channel', 'asc');
 		for (var idx = 0; idx < sorted.length; idx++) {
