@@ -2283,7 +2283,7 @@ function btn_system_reboot() {
 
 function okreboot() {
 	ubus('"easyconfig", "reboot", {}', function(data) {
-		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać do trzech minut...", false);
+		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać kilka minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
 	}, true);
@@ -2295,7 +2295,7 @@ function btn_system_firstboot() {
 
 function okfirstboot() {
 	ubus('"file", "exec", {"command":"firstboot","params":["-r", "-y"]}', function(data) {
-		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać do trzech minut...", false);
+		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać kilka minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
 	}, true);
