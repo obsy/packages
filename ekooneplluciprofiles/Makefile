@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplluciprofiles
-PKG_VERSION:=20230728
+PKG_VERSION:=20231218
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -13,7 +13,27 @@ define Package/ekooneplluciprofiles/Default
 	TITLE:=eko.one.pl profile -
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
-	DEPENDS:=+block-mount +kmod-usb-storage +kmod-usb-storage-uas \
+	DEPENDS:=+luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
+endef
+
+define Package/ekooneplluciprofiles/description/Default
+	eko.one.pl Services
+endef
+
+
+define Package/ekoonepl-luci
+	$(call Package/ekooneplluciprofiles/Default)
+	TITLE+= LuCI
+endef
+
+define Package/ekoonepl-luci/description
+	$(call Package/ekooneplluciprofiles/description/Default)
+endef
+
+define Package/ekooneplusb-luci
+	$(call Package/ekooneplluciprofiles/Default)
+	TITLE+= LuCI USB
+	DEPENDS+=+block-mount +kmod-usb-storage +kmod-usb-storage-uas \
 		+kmod-fs-f2fs +mkf2fs +f2fsck \
 		+kmod-fs-ext4 +e2fsprogs \
 		+kmod-fs-vfat +kmod-nls-cp437 +kmod-nls-iso8859-1 \
@@ -25,27 +45,6 @@ define Package/ekooneplluciprofiles/Default
 		+luci-proto-ncm +comgt-ncm +kmod-usb-net-cdc-ncm +kmod-usb-net-huawei-cdc-ncm \
 		+luci-proto-mbim +umbim +kmod-usb-net-cdc-mbim \
 		+luci-proto-qmi +uqmi +kmod-usb-net-qmi-wwan
-endef
-
-define Package/ekooneplluciprofiles/description/Default
-	eko.one.pl Services
-endef
-
-
-define Package/ekoonepl-luci
-	$(call Package/ekooneplluciprofiles/Default)
-	TITLE+= LuCI
-	DEPENDS:=+luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
-endef
-
-define Package/ekoonepl-luci/description
-	$(call Package/ekooneplluciprofiles/description/Default)
-endef
-
-define Package/ekooneplusb-luci
-	$(call Package/ekooneplluciprofiles/Default)
-	TITLE+= LuCI USB
-	DEPENDS+= +luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
 define Package/ekooneplusb-luci/description

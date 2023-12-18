@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-ekooneplstat
-PKG_VERSION:=20220729
+PKG_VERSION:=20231219
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 PKG_BUILD_DEPENDS:=luci-base
@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/luci-app-ekooneplstat
 	CATEGORY:=LuCI
 	SUBMENU:=3. Applications
-	TITLE:=LuCI Support for eko.one.pl Services
+	TITLE:=LuCI Support for eko.one.pl services
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	DEPENDS:=+ekooneplstat
 	PKGARCH:=all
