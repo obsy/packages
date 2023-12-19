@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplluciprofiles
-PKG_VERSION:=20231218
+PKG_VERSION:=20231219
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -30,6 +30,34 @@ define Package/ekoonepl-luci/description
 	$(call Package/ekooneplluciprofiles/description/Default)
 endef
 
+define Package/ekooneplmonitoring-luci
+	$(call Package/ekooneplluciprofiles/Default)
+	TITLE+= LuCI monitoring
+	DEPENDS:=+luci-app-statistics +luci-i18n-statistics-pl +collectd-mod-sensors \
+		+luci-app-nlbwmon +luci-i18n-nlbwmon-pl
+endef
+
+define Package/ekooneplmonitoring-luci/description
+	$(call Package/ekooneplluciprofiles/description/Default)
+	.
+	This meta package contains only the dependencies required for
+	monitoring functionality in LuCI.
+endef
+
+define Package/ekooneplnas-luci
+	$(call Package/ekooneplluciprofiles/Default)
+	TITLE+= LuCI NAS
+	DEPENDS:=+luci-app-hd-idle +luci-i18n-hd-idle-pl \
+		+luci-app-disks-info +luci-i18n-disks-info-pl
+endef
+
+define Package/ekooneplnas-luci/description
+	$(call Package/ekooneplluciprofiles/description/Default)
+	.
+	This meta package contains only the dependencies required for
+	NAS functionality in LuCI.
+endef
+
 define Package/ekooneplusb-luci
 	$(call Package/ekooneplluciprofiles/Default)
 	TITLE+= LuCI USB
@@ -54,6 +82,7 @@ define Package/ekooneplusb-luci/description
 	USB functionality in LuCI.
 endef
 
+
 define Build/Configure
 endef
 
@@ -65,10 +94,20 @@ define Package/ekoonepl-luci/install
 	/bin/true
 endef
 
+define Package/ekooneplmonitoring-luci/install
+	/bin/true
+endef
+
+define Package/ekooneplnas-luci/install
+	/bin/true
+endef
+
 define Package/ekooneplusb-luci/install
 	/bin/true
 endef
 
 
 $(eval $(call BuildPackage,ekoonepl-luci))
+$(eval $(call BuildPackage,ekooneplmonitoring-luci))
+$(eval $(call BuildPackage,ekooneplnas-luci))
 $(eval $(call BuildPackage,ekooneplusb-luci))
