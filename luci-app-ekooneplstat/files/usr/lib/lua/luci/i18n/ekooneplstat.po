@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: LuCI\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-25 22:44+0200\n"
-"PO-Revision-Date: 2022-07-29 14:39+0200\n"
+"PO-Revision-Date: 2023-12-18 21:47+0100\n"
 "Last-Translator: Cezary Jackiewicz <cezary@eko.one.pl>\n"
 "Language-Team: Polish\n"
 "Language: pl\n"
@@ -25,6 +25,9 @@ msgstr "Ustawienia"
 
 msgid "Statistics"
 msgstr "Statystyka"
+
+msgid "eko.one.pl - Statistics"
+msgstr "eko.one.pl - Statystyka"
 
 msgid "See all statistics"
 msgstr "Zobacz wszystkie statystyki"
