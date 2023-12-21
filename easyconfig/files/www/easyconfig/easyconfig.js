@@ -1618,9 +1618,11 @@ function showbandwidth(mac) {
 }
 
 var physicalports = [];
+var simslot = {};
 
 function showstatus() {
 	ubus_call('"easyconfig", "status", {}', function(data) {
+		simslot = data.simslot;
 		setValue('system_uptime', formatDuration(data.system_uptime, false));
 		setValue('system_uptime_since', data.system_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.system_uptime_since) + ')');
 		setValue('system_load', data.system_load);
@@ -1810,22 +1812,21 @@ function showsystem() {
 		setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);
 		setValue('modem_imei', data.modem.imei == '' ? '-' : data.modem.imei);
 		setValue('modem_iccid', data.modem.iccid == '' ? '-' : data.modem.iccid);
-	});
-
-	if (config.simslot.hasOwnProperty('active')) {
-		var e = removeOptions('modem_simslot');
-		var arr = config.simslot.slots;
-		for (var idx = 0; idx < arr.length; idx++) {
-			var opt = document.createElement('option');
-			opt.value = arr[idx]["index"];
-			opt.innerHTML = arr[idx]["description"];
-			e.appendChild(opt);
+		if (data.simslot.hasOwnProperty('active')) {
+			var e = removeOptions('modem_simslot');
+			var arr = sortJSON(data.simslot.slots, 'index', 'asc');
+			for (var idx = 0; idx < arr.length; idx++) {
+				var opt = document.createElement('option');
+				opt.value = arr[idx]["value"];
+				opt.innerHTML = arr[idx]["description"];
+				e.appendChild(opt);
+			}
+			setValue('modem_simslot', data.simslot.active);
+			setDisplay('div_modem_simslot', true);
+		} else {
+			setDisplay('div_modem_simslot', false);
 		}
-		setValue('modem_simslot', config.simslot.active);
-		setDisplay('div_modem_simslot', true);
-	} else {
-		setDisplay('div_modem_simslot', false);
-	}
+	});
 }
 
 function cancelmodemsettings() {
@@ -2170,14 +2171,6 @@ function showmodem() {
 			} else {
 				setDisplay('div_modem_btsearch', false);
 			}
-			if (config.simslot.hasOwnProperty('active')) {
-				for (var idx = 0; idx < config.simslot.slots.length; idx++) {
-					if (config.simslot.slots[idx].index == config.simslot.active) {
-						arrmodemaddon.push({'idx':9, 'key':'Aktywny slot SIM', 'value':config.simslot.slots[idx].description});
-						break;
-					}
-				}
-			}
 		} else {
 			setValue('modem_signal', '-');
 			var e = document.getElementById('modem_signal_bars');
@@ -2186,6 +2179,14 @@ function showmodem() {
 			setValue('modem_operator', '-');
 			setValue('modem_mode', '-');
 			setDisplay('div_modem_btsearch', false);
+		}
+		if (simslot.hasOwnProperty('active')) {
+			for (var idx = 0; idx < simslot.slots.length; idx++) {
+				if (simslot.slots[idx].value == simslot.active) {
+					arrmodemaddon.push({'idx':9, 'key':'Aktywny slot SIM', 'value':simslot.slots[idx].description});
+					break;
+				}
+			}
 		}
 
 		if (data.addon) {

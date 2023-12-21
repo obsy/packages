@@ -34,6 +34,31 @@ escapeForSed() {
 	echo "$ret"
 }
 
+simslot() {
+	echo ',"simslot":{'
+	case $(cat /tmp/sysinfo/board_name) in
+		"teltonika,rut955"*)
+			T=$(cat /sys/class/gpio/gpio503/value 2>/dev/null)
+			[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":1},{"index":2,"description":"SIM2","value":0}]'
+			;;
+		"zbtlink,zbt-we826-e")
+			T=$(cat /sys/class/gpio/gpio13/value 2>/dev/null)
+			[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":0},{"index":2,"description":"SIM2","value":1}]'
+			;;
+		"zyxel,nr7101")
+			if [ -e /usr/bin/sms_tool ]; then
+				DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+				if [ -n "$DEVICE" ]; then
+					O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
+					T=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
+					[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":1},{"index":2,"description":"SIM2","value":2}]'
+				fi
+			fi
+			;;
+	esac
+	echo '}'
+}
+
 show_status() {
 SYSTEM_UPTIME=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
@@ -245,6 +270,8 @@ if [ -e /etc/config/mwan3 ]; then
 	echo ',"mwan3_use_policy":"'$(uci get mwan3.default_rule_v4.use_policy)'"'
 fi
 
+simslot
+
 echo '}'
 }
 
@@ -284,6 +311,9 @@ show_system() {
 	echo '"model":"'$MODEL'",'
 	echo '"mac":"'$MAC'",'
 	echo '"sn":"'$SN'"'
+
+	simslot
+
 	echo '}'
 }
 
@@ -727,47 +757,6 @@ fi
 
 echo '},'
 
-echo '"simslot":{'
-if [ -e /usr/bin/sms_tool ]; then
-	case $(cat /tmp/sysinfo/board_name) in
-		"teltonika,rut955" | \
-		"teltonika,rut955-h7v3c0")
-			GPIO=$(uci -q get system.sim_sel.gpio_pin)
-			if [ -n "$GPIO" ]; then
-				SLOT=$(cat /sys/class/gpio/$GPIO/value 2>/dev/null)
-				if [ "x$SLOT" = "x0" ]; then
-					echo '"active":0,'
-				else
-					echo '"active":1,'
-				fi
-				echo '"slots":[{"index":0,"description":"SIM1"},{"index":1,"description":"SIM2"}]'
-			fi
-			;;
-
-		"zbtlink,zbt-we826-e")
-			GPIO=$(uci -q get system.sim_switch.gpio_pin)
-			if [ -n "$GPIO" ]; then
-				SLOT=$(cat /sys/class/gpio/$GPIO/value 2>/dev/null)
-				if [ "x$SLOT" = "x0" ]; then
-					echo '"active":0,'
-				else
-					echo '"active":1,'
-				fi
-				echo '"slots":[{"index":0,"description":"SIM1"},{"index":1,"description":"SIM2"}]'
-			fi
-			;;
-		"zyxel,nr7101")
-			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-			if [ -n "$DEVICE" ]; then
-				O=$(sms_tool -d $DEVICE at "AT+QUIMSLOT?")
-				SLOT=$(echo "$O" | awk -F [:] '/^\+QUIMSLOT/{print $2}' | xargs)
-				[ -n "$SLOT" ] && echo '"active":'$SLOT',"slots":[{"index":1,"description":"SIM1"},{"index":2,"description":"SIM2"}]'
-			fi
-			;;
-	esac
-fi
-echo '}'
-
 echo '}'
 }
 
@@ -1058,38 +1047,41 @@ setsimslot() {
 		echo '{"error":1}'
 		return
 	fi
-	if [ ! -e /usr/bin/sms_tool ]; then
-		echo '{"error":2}'
-		return
-	fi
-	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-	if [ -z "$DEVICE" ]; then
-		echo '{"error":3}'
-		return
-	fi
 	case $(cat /tmp/sysinfo/board_name) in
-		"teltonika,rut955" | \
-		"teltonika,rut955-h7v3c0")
-			ifdown wan
-			sms_tool -d $DEVICE at "AT+CFUN=0" >/dev/null 2>&1
-			GPIO=$(uci -q get system.sim_sel.gpio_pin)
-			echo $slot > /sys/class/gpio/$GPIO/value
-			uci set system.sim_sel.value=$slot
-			uci commit system
-			sms_tool -d $DEVICE at "AT+CFUN=1,1" >/dev/null 2>&1
-			ifup wan
+		"teltonika,rut955"*)
+			# hardcode device
+			if [ -e /dev/cdc-wdm0 ]; then
+				ifdown wan
+				uqmi -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
+				echo $slot > /sys/class/gpio/gpio503/value
+				uci set system.sim_sel.value=$slot
+				uci commit system
+				uqmi -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
+				ifup wan
+			fi
 			;;
 		"zbtlink,zbt-we826-e")
-			ifdown wan
-			sms_tool -d $DEVICE at "AT+CFUN=0" >/dev/null 2>&1
-			GPIO=$(uci -q get system.sim_switch.gpio_pin)
-			echo $slot > /sys/class/gpio/$GPIO/value
-			uci set system.sim_switch.value=$slot
-			uci commit system
-			sms_tool -d $DEVICE at "AT+CFUN=1,1" >/dev/null 2>&1
-			ifup wan
+			# hardcode device
+			if [ -e /dev/cdc-wdm0 ]; then
+				ifdown wan
+				uqmi -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
+				echo $slot > /sys/class/gpio/gpio13/value
+				uci set system.sim_switch.value=$slot
+				uci commit system
+				uqmi -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
+				ifup wan
+			fi
 			;;
 		"zyxel,nr7101")
+			if [ ! -e /usr/bin/sms_tool ]; then
+				echo '{"error":2}'
+				return
+			fi
+			DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+			if [ -z "$DEVICE" ]; then
+				echo '{"error":3}'
+				return
+			fi
 			ifdown wan
 			sms_tool -d $DEVICE at "AT+QUIMSLOT=${slot}" >/dev/null 2>&1
 			ifup wan
