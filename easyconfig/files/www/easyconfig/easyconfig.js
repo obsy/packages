@@ -989,9 +989,16 @@ function showconfig() {
 				}
 			}
 
-			if (is_radio2) { setValue('radio_' + i, 'Wi-Fi 2.4 GHz'); }
-			if (is_radio5) { setValue('radio_' + i, 'Wi-Fi 5 GHz'); }
-			if (is_radio2 && is_radio5) { setValue('radio_' + i, 'Wi-Fi 2.4/5 GHz'); }
+			var wifidesc1 = '';
+			var wifidesc2 = '';
+			if ((config[radios[i]].wlan_hwmode).includes('g')) { wifidesc1 = ' 3, ' + config[radios[i]].wlan_hwmode + ','; }
+			if ((config[radios[i]].wlan_hwmode).includes('n')) { wifidesc1 = ' 4, ' + config[radios[i]].wlan_hwmode + ',' }
+			if ((config[radios[i]].wlan_hwmode).includes('ac')) { wifidesc1 = ' 5, ' + config[radios[i]].wlan_hwmode + ','; }
+			if ((config[radios[i]].wlan_hwmode).includes('ax')) { wifidesc1 = ' 6, ' + config[radios[i]].wlan_hwmode + ','; }
+			if (is_radio2) { wifidesc2 = ' 2.4 GHz'; }
+			if (is_radio5) { wifidesc2 = ' 5 GHz'; }
+			if (is_radio2 && is_radio5) { wifidesc2 = ' 2.4/5 GHz'; }
+			setValue('radio_' + i, 'Wi-Fi' + wifidesc1 + wifidesc2);
 
 			setValue('wlan_enabled_' + i, (config[radios[i]].wlan_disabled != 1));
 			setValue('wlan_channel_' + i, config[radios[i]].wlan_channel);

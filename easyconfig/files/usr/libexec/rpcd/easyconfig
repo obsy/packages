@@ -588,7 +588,10 @@ for R in $RADIOS; do
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
 	echo '"wlan_section":"'$WLAN_SEC'",'
-	PHY=$(iwinfo nl80211 phyname $R 2>/dev/null)
+	O=$(iwinfo $R info 2>/dev/null)
+	HWMODE=$(echo "$O" | awk -F: '/HW Mode/{gsub(" ","",$3);print $3}')
+	echo '"wlan_hwmode":"'$HWMODE'",'
+	PHY=$(echo "$O" | awk -F: '/PHY name:/{gsub(" ","",$3);print $3}')
 	echo '"wlan_phy":"'$PHY'",'
 	echo '"wlan_channels":{'
 	O=""
