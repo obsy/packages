@@ -4679,6 +4679,7 @@ function vpndetails(proto, interface, section) {
 				setValue('vpn_wireguard_description_' + idx, data.peers[idx].description);
 				setValue('vpn_wireguard_enabled_' + idx, data.peers[idx].disabled != 1);
 				setValue('vpn_wireguard_pubkey_' + idx, data.peers[idx].pubkey);
+				setValue('vpn_wireguard_pskey_' + idx, data.peers[idx].pskey);
 				setValue('vpn_wireguard_endpoint_host_' + idx, data.peers[idx].endpoint_host);
 				setValue('vpn_wireguard_endpoint_port_' + idx, data.peers[idx].endpoint_port);
 
@@ -5299,6 +5300,13 @@ function savewireguard() {
 			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey_' + idx));
 			return;
 		}
+		tmp = getValue('vpn_wireguard_pskey_' + idx);
+		if (tmp != '') {
+			if (validateLengthRange(tmp, 44, 44) != 0) {
+				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pskey_' + idx));
+				return;
+			}
+		}
 		tmp = getValue('vpn_wireguard_endpoint_host_' + idx);
 		if (tmp != '') {
 			if (validateHost(tmp) != 0) {
@@ -5367,6 +5375,7 @@ function savewireguard() {
 		}
 		cmd.push('uci set network.@wireguard_' + interface + '[-1].description=\\\"' + escapeShell(getValue('vpn_wireguard_description_' + idx)) + '\\\"');
 		cmd.push('uci set network.@wireguard_' + interface + '[-1].public_key=\\\"' + getValue('vpn_wireguard_pubkey_' + idx) + '\\\"');
+		cmd.push('uci set network.@wireguard_' + interface + '[-1].preshared_key=\\\"' + getValue('vpn_wireguard_pskey_' + idx) + '\\\"');
 		cmd.push('uci set network.@wireguard_' + interface + '[-1].endpoint_host=\\\"' + getValue('vpn_wireguard_endpoint_host_' + idx) + '\\\"');
 		cmd.push('uci set network.@wireguard_' + interface + '[-1].endpoint_port=\\\"' + getValue('vpn_wireguard_endpoint_port_' + idx) + '\\\"');
 		cmd.push('uci set network.@wireguard_' + interface + '[-1].persistent_keepalive=25');

@@ -1813,10 +1813,11 @@ show_vpn_details()
 			ENDPOINTHOST=$(uci -q get network.$PEER.endpoint_host)
 			ENDPOINTPORT=$(uci -q get network.$PEER.endpoint_port)
 			PUBKEY=$(uci -q get network.$PEER.public_key)
+			PSKEY=$(uci -q get network.$PEER.preshared_key)
 			DESCRIPTION=$(uci -q get network.$PEER.description)
 			[ -z "$DESCRIPTION" ] && DESCRIPTION="$ENDPOINTHOST:$ENDPOINTPORT"
 			ALLOWEDIPS=$(uci -q get network.$PEER.allowed_ips | sed 's/ /","/g')
-			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
+			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"pskey\":\"$PSKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
 		done
 		echo "]}"
 	fi

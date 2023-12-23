@@ -2145,6 +2145,13 @@
 			</div>
 
 			<div class="form-group">
+				<label for="vpn_wireguard_pskey_idx" class="col-xs-4 col-sm-3 control-label">Klucz wstępny</label>
+				<div class="col-xs-8 col-sm-9">
+				<input id="vpn_wireguard_pskey_idx" class="form-control" onkeyup="proofreadLengthRange(this, 44, 44);">
+				</div>
+			</div>
+
+			<div class="form-group">
 				<label for="vpn_wireguard_endpoint_host_idx" class="col-xs-4 col-sm-3 control-label">Host</label>
 				<div class="col-xs-8 col-sm-9">
 				<input id="vpn_wireguard_endpoint_host_idx" class="form-control" onkeyup="proofreadHost(this);">
