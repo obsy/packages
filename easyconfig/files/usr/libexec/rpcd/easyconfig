@@ -283,7 +283,16 @@ show_system() {
 	MODEL=$(cat /tmp/sysinfo/model)
 	. /lib/functions/system.sh
 	MAC=$(get_mac_label)
-	[ -e /sys/firmware/mikrotik/hard_config/board_serial ] && SN=$(cat /sys/firmware/mikrotik/hard_config/board_serial)
+
+	case $(cat /tmp/sysinfo/board_name) in
+		"mikrotik"*)
+			[ -e /sys/firmware/mikrotik/hard_config/board_serial ] && SN=$(cat /sys/firmware/mikrotik/hard_config/board_serial)
+			;;
+		"teltonika"*)
+			T=$(awk -F: '/"config"$|"0:CONFIG"$/{print $1}' /proc/mtd)
+			[ -n "$T" ] && SN=$(hexdump -n 10 -s 48 -e '10/1 "%_c""\n"' /dev/$T)
+			;;
+	esac
 
 	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 	if [ -n "$DEVICE" ]; then
