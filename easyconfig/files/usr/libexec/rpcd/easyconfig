@@ -940,7 +940,7 @@ echo ']}'
 show_clientstatistics() {
 	read input;
 	json_load "$input"
-	json_get_var mac mac
+	json_get_vars mac
 
 	echo '{"statistics":['
 
@@ -984,7 +984,7 @@ show_clientstatistics() {
 show_clientbandwidth() {
 	read input;
 	json_load "$input"
-	json_get_var mac mac
+	json_get_vars mac
 
 	echo '{"result":['
 
@@ -1054,7 +1054,7 @@ show_modemsettings() {
 setsimslot() {
 	read input;
 	json_load "$input"
-	json_get_var slot slot
+	json_get_vars slot
 	if [ -z "$slot" ]; then
 		echo '{"error":1}'
 		return
@@ -1107,7 +1107,7 @@ setsimslot() {
 show_ussd() {
 	read input;
 	json_load "$input"
-	json_get_var code code
+	json_get_vars code
 	if [ -z "$code" ]; then
 		T="Error: wrong ussd code"
 	else
@@ -1145,9 +1145,7 @@ show_ussdshortcuts() {
 show_sms() {
 	read input;
 	json_load "$input"
-	json_get_var action action
-	json_get_var arg1 arg1
-	json_get_var arg2 arg2
+	json_get_vars action arg1 arg2
 
 	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 	if [ -z "$DEVICE" ]; then
@@ -1792,7 +1790,7 @@ show_vpn_details()
 		PASSWORD=$(uci -q get openvpn.$section.password)
 		json_init
 		json_add_string config "$(escapeJSON "$(cat $(uci -q get openvpn.$section.config) 2>/dev/null)")"
-		json_get_var config config
+		json_get_vars config
 		echo "\"section\":\"$section\",\"name\":\""$(escapeJSON "${NAME}")"\",\"username\":\""$(escapeJSON "$USERNAME")"\",\"password\":\""$(escapeJSON "$PASSWORD")"\",\"configtext\":\"$config\"}"
 	fi
 	if [ "x$PROTO" = "xpptp" ]; then
@@ -1903,13 +1901,11 @@ show_adblock()
 		json_get_keys keylist
 		for key in ${keylist}; do
 			json_select "${key}"
-			json_get_var SIZE size
-			json_get_var DESCURL descurl
-			json_get_var FOCUS focus
+			json_get_vars size descurl focus
 			uci -q get adblock.global.adb_sources | grep -q ${key} && ENABLED=1 || ENABLED=0
 			json_select ..
 			[ -n "$LISTS" ] && LISTS="${LISTS},"
-			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${SIZE}\",\"descurl\":\"${DESCURL}\",\"focus\":\"${FOCUS}\"}"
+			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${size}\",\"descurl\":\"${descurl}\",\"focus\":\"${focus}\"}"
 		done
 	fi
 	ENABLED=$(uci -q get adblock.global.adb_enabled)
@@ -1981,7 +1977,7 @@ show_nightmode()
 leds() {
 	read input;
 	json_load "$input"
-	json_get_var action action
+	json_get_vars action
 	if [ "x$action" = "xoff" ]; then
 		for i in /sys/class/leds/*:*; do
 		echo none > $i/trigger
