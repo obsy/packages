@@ -3308,7 +3308,7 @@ function hostmenu(id) {
 	html += '<p><span class="click" onclick="closeMsg();hostlogs(' + host.id + ');">historia połączeń &rarr;</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostqueries(' + host.id + ');">zapytania DNS &rarr;</span></p>';
 	if (host.type == 2) {
-		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer dzienny</span></p>';
+		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer z ostatnich 30 dni</span></p>';
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
 	}
 	html += '<hr><p><span class="click" onclick="closeMsg();hostremovedata(' + host.id + ');">usuwanie danych</span></p>';
@@ -3728,6 +3728,31 @@ function hoststatisticsmodal(mac, title, type, limit) {
 				html += createRow4ColForModal('Miesiąc', 'Wysłano', 'Pobrano', 'Łącznie');
 			} else {
 				html += createRow4ColForModal('Dzień', 'Wysłano', 'Pobrano', 'Łącznie');
+
+				var days = [];
+				switch (limit) {
+					case 30:
+						days = new Array(formatDate(new Date));
+						days = days.concat(lastDays(29));
+						break;
+					case 1:
+						days = new Array(formatDate(new Date));
+						break;
+					case -1:
+						days = lastDays(1);
+						break;
+					case -7:
+						days = lastDays(7);
+						break;
+					case -30:
+						days = lastDays(30);
+						break;
+				}
+				for (var idx = (data.statistics).length - 1; idx >= 0; idx--) {
+					if (days.indexOf((data.statistics[idx]).date) == -1) {
+						(data.statistics).splice(idx, 1);
+					}
+				}
 			}
 			var traffic = [];
 			var sorted = sortJSON(data.statistics, 'date', 'desc');
@@ -3746,14 +3771,6 @@ function hoststatisticsmodal(mac, title, type, limit) {
 				}
 			}
 			traffic.push({'date':date,'tx':total_tx,'rx':total_rx});
-
-			if (limit < 0) {
-				traffic.shift();
-				traffic.splice(limit * -1);
-			}
-			if (limit > 0) {
-				traffic.splice(limit);
-			}
 			var total_total = 0;
 			total_tx = 0;
 			total_rx = 0;
