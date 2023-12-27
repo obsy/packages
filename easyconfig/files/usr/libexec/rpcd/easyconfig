@@ -1239,6 +1239,7 @@ show_wifiscan() {
 					if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA Personal"}
 					if($0 ~ /Authentication suites: IEEE 802.1X/) {wifi_enc[MAC] = "WPA Enterprise"}
 					if($0 ~ /Authentication suites: SAE/) {wifi_enc[MAC] = "WPA3 Personal"}
+					if($0 ~ /Authentication suites: PSK SAE/) {wifi_enc[MAC] = "WPA3 Personal"}
 					if($0 ~ /Authentication suites: PSK PSK\/SHA-256 SAE/) {wifi_enc[MAC] = "WPA2/WPA3 Personal"}
 					if($0 ~ /TSF:/) {wifi_uptime[MAC] = $2/1000}
 					if($0 ~ /Unknown IE \(11\):/) {wifi_bssload[MAC] = int("0x"$4) + int("0x"$5)*256}
