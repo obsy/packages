@@ -2457,7 +2457,9 @@ function sitesurveycallbackfilter(filterby) {
 	var all = ['all', '2', '5'];
 	for (var idx = 0; idx < all.length; idx++) {
 		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
-		e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
+		if (e !== null) {
+			e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
+		}
 	}
 }
 
@@ -2494,12 +2496,27 @@ function sitesurveycallback(sortby) {
 
 	var html = '';
 	if (wifiscanresults.length > 0) {
-		html += '<div class="row space"><div class="col-xs-12 space">';
-		html += '<span>Filtrowanie:</span>';
-		html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
-		html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>|';
-		html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');" ><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
-		html += '</div><div class="col-xs-12">';
+		var is_radio2 = false;
+		var is_radio5 = false;
+		(config.wlan_devices).forEach((item) => {
+			for (var channel in config[item].wlan_channels) {
+				if (channel > 14) {
+					is_radio5 = true;
+				} else {
+					is_radio2 = true;
+				}
+			}
+		})
+		html += '<div class="row space">';
+		if (is_radio2 && is_radio5) {
+			html += '<div class="col-xs-12 space">';
+			html += '<span>Filtrowanie:</span>';
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>|';
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
+			html += '</div>';
+		}
+		html += '<div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></span>|';
 		html += '<span class="click" onclick="sitesurveycallback(\'mac\');"><span id="sitesurvey_sortby_mac"> adresie mac </span></span>|';
@@ -2637,9 +2654,11 @@ function sitesurveycallback(sortby) {
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 
-		setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
-		setValue('sitesurvey_filter_2', ' 2.4 GHz (' + counter_2 + ') ');
-		setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
+		if (is_radio2 && is_radio5) {
+			setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
+			setValue('sitesurvey_filter_2', ' 2.4 GHz (' + counter_2 + ') ');
+			setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
+		}
 		sitesurveycallbackfilter(filterby);
 	}
 }
