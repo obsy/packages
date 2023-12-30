@@ -1214,7 +1214,7 @@ show_wifiscan() {
 		for I in /sys/class/net/$BRIDGE/lower_*; do
 			if [ -e $I/phy80211 ]; then
 				iw dev ${I##*lower_} scan -u 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("(on","");
-					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""; wifi_bssload[MAC] = -1}
+					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_psk[MAC] = 0; wifi_psk2[MAC] = 0; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""; wifi_bssload[MAC] = -1}
 					if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
 					if($1 == "signal:") {wifi_sig[MAC] = $2}
 					if($1 == "freq:") {wifi_freq[MAC] = $2; if($2<5000){wifi_mode1[MAC] = "g"}else{wifi_mode1[MAC] = "a"}}
@@ -1229,10 +1229,10 @@ show_wifiscan() {
 					if($0 ~ /channel width: 1 \(80 MHz\)/) {wifi_mode2[MAC] = "VHT80"}
 					if($0 ~ /HE capabilities:/) {wifi_mode1[MAC] = "ax"; gsub(/VHT|HT/, "HE", wifi_mode2[MAC])}
 					if($1 == "capability:") {t=$3; gsub(/\(/,"", t);gsub(/\)/,"", t); if(and(t,16)==16){wifi_enc[MAC] = "WEP"}}
-					if($0 ~ /Group cipher: CCMP/) {wifi_enc[MAC] = "WPA"}
-					if($0 ~ /Group cipher: TKIP/) {wifi_enc[MAC] = "WPA"}
-					if($0 ~ /Authentication suites: PSK/) {wifi_enc[MAC] = "WPA Personal"}
-					if($0 ~ /Authentication suites: IEEE 802.1X/) {wifi_enc[MAC] = "WPA Enterprise"}
+					if($0 ~ /WPA:.*Version: 1/) {wifi_psk[MAC] = 1}
+					if($0 ~ /RSN:.*Version: 1/) {wifi_psk2[MAC] = 1}
+					if($0 ~ /Authentication suites: PSK/) {if(wifi_psk[MAC] == 1){wifi_enc[MAC] = "WPA Personal"};if(wifi_psk2[MAC] == 1){wifi_enc[MAC] = "WPA2 Personal"};if(wifi_psk[MAC] == 1 && wifi_psk2[MAC] == 1){wifi_enc[MAC] = "WPA/WPA2 Personal"}}
+					if($0 ~ /Authentication suites: IEEE 802.1X/) {wifi_enc[MAC] = "WPA2 Enterprise"}
 					if($0 ~ /Authentication suites: SAE/) {wifi_enc[MAC] = "WPA3 Personal"}
 					if($0 ~ /Authentication suites: PSK SAE/) {wifi_enc[MAC] = "WPA3 Personal"}
 					if($0 ~ /Authentication suites: PSK PSK\/SHA-256 SAE/) {wifi_enc[MAC] = "WPA2/WPA3 Personal"}
