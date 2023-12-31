@@ -2777,16 +2777,16 @@ wifigraph = {
 			var x1, x11, x2, x22;
 			var width = data[i].width;
 
-			if (width == 'HT40-') {
+			if (width == 'HT40-' || width == 'HE40-') {
 				x1 = wifigraph.getX(graph, data[i].channel - 6);
 				x11 = wifigraph.getX(graph, data[i].channel - 5);
-			} else 	if (width == 'VHT40') {
+			} else 	if (width == 'VHT40' || width == 'HE40') {
 				x1 = wifigraph.getX(graph, data[i].vhtch1 - 4);
 				x11 = wifigraph.getX(graph, data[i].vhtch1 - 3);
-			} else if (width == 'VHT80' || width == 'VHT80+80') {
+			} else if (width == 'VHT80' || width == 'VHT80+80' || width == 'HE80') {
 				x1 = wifigraph.getX(graph, data[i].vhtch1 - 8);
 				x11 = wifigraph.getX(graph, data[i].vhtch1 - 7);
-			} else if (width == 'VHT160') {
+			} else if (width == 'VHT160' || width == 'HE160') {
 				x1 = wifigraph.getX(graph, data[i].vhtch2 - 16);
 				x11 = wifigraph.getX(graph, data[i].vhtch2 - 15);
 			} else {
@@ -2794,16 +2794,16 @@ wifigraph = {
 				x11 = wifigraph.getX(graph, data[i].channel - 1);
 			}
 
-			if (width == 'HT40+') {
+			if (width == 'HT40+' || width == 'HE40+') {
 				x2 = wifigraph.getX(graph, data[i].channel + 6);
 				x22 = wifigraph.getX(graph, data[i].channel + 5);
-			} else if (width == 'VHT40') {
+			} else if (width == 'VHT40' || width == 'HE40') {
 				x2 = wifigraph.getX(graph, data[i].vhtch1 + 4);
 				x22 = wifigraph.getX(graph, data[i].vhtch1 + 3);
-			} else if (width == 'VHT80' || width == 'VHT80+80') {
+			} else if (width == 'VHT80' || width == 'VHT80+80' || width == 'HE80') {
 				x2 = wifigraph.getX(graph, data[i].vhtch1 + 8);
 				x22 = wifigraph.getX(graph, data[i].vhtch1 + 7);
-			} else if (width == 'VHT160') {
+			} else if (width == 'VHT160' || width == 'HE160') {
 				x2 = wifigraph.getX(graph, data[i].vhtch2 + 16);
 				x22 = wifigraph.getX(graph, data[i].vhtch2 + 15);
 			} else {
