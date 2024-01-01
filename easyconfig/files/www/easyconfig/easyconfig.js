@@ -2508,14 +2508,19 @@ function sitesurveycallback(sortby) {
 			}
 		})
 		html += '<div class="row space">';
+		html += '<div class="col-xs-12 space">';
+		html += '<span>Filtrowanie:</span>';
 		if (is_radio2 && is_radio5) {
-			html += '<div class="col-xs-12 space">';
-			html += '<span>Filtrowanie:</span>';
 			html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
-			html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>|';
-			html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
-			html += '</div>';
 		}
+		if (is_radio2) {
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>';
+			if (is_radio5) { html += '|'; }
+		}
+		if (is_radio5) {
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
+		}
+		html += '</div>';
 		html += '<div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="sitesurveycallback(\'ssid\');"><span id="sitesurvey_sortby_ssid"> nazwie </span></span>|';
@@ -2656,7 +2661,11 @@ function sitesurveycallback(sortby) {
 
 		if (is_radio2 && is_radio5) {
 			setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
+		}
+		if (is_radio2) {
 			setValue('sitesurvey_filter_2', ' 2.4 GHz (' + counter_2 + ') ');
+		}
+		if (is_radio5) {
 			setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
 		}
 		sitesurveycallbackfilter(filterby);
