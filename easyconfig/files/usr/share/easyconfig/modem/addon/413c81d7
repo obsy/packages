@@ -59,6 +59,7 @@ if [ -n "$T" ]; then
 	else
 		addon 60 "(S2) band" "$(band4g $T)"
 	fi
+	MODE="${MODE} / $(band4g $T)"
 fi
 
 T=$(echo "$O" | awk '/^SCC3 info:/ {print $5}')
@@ -71,6 +72,7 @@ if [ -n "$T" ]; then
 	else
 		addon 70 "(S3) band" "$(band4g $T)"
 	fi
+	MODE="${MODE} / $(band4g $T)"
 fi
 
 T=$(echo "$O" | awk '/^SCC4 info:/ {print $5}')
@@ -83,6 +85,7 @@ if [ -n "$T" ]; then
 	else
 		addon 80 "(S4) band" "$(band4g $T)"
 	fi
+	MODE="${MODE} / $(band4g $T)"
 fi
 
 fi
