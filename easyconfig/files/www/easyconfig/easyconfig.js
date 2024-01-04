@@ -619,8 +619,6 @@ var expires;
 var timeout;
 
 var ubus = function(param, successHandler, errorHandler, showWait) {
-//console.log(param);
-
 	if (showWait) {
 		showMsg();
 	}
@@ -674,7 +672,6 @@ function ubus_error(error) {
 function ubus_call(param, callback)
 {
 	ubus(param, function(data) {
-//console.log(JSON.stringify(data, null, 4));
 		if (data.error) {
 			ubus_error(data.error.code);
 		} else {
@@ -1476,7 +1473,6 @@ function saveconfig() {
 		cmd.push('(echo \\\"' + escapeShell(pass1) + '\\\"; sleep 1; echo \\\"' + escapeShell(pass1) + '\\\") | passwd root');
 	}
 
-//console.log(cmd);
 	execute(cmd, function(){
 		cleanField('password1');
 		cleanField('password2');
@@ -2087,7 +2083,6 @@ function modem_simslot_save() {
 }
 
 function oksimslotchange() {
-	console.log(getValue('modem_simslot'));
 	ubus_call('"easyconfig", "setsimslot", {"slot":"' + getValue('modem_simslot') + '"}', function(data) {
 		showsystem();
 	});
@@ -3325,7 +3320,7 @@ function hostmenu(id) {
 	var html = host.displayname + '<hr>';
 
 	html += '<p><span class="click" onclick="closeMsg();hostinfo(' + (host.active_id > -1 ? host.active_id : host.id) + ');">informacje</span></p>';
-	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span>';
+	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostblock(' + host.id + ');">blokady</span></p>';
 	if (config.services.nftqos) {
 		html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
