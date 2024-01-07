@@ -1,10 +1,8 @@
 #!/bin/sh
 
-##############################################################################
-
-# (c) 2016-2023 Cezary Jackiewicz <cezary@eko.one.pl>
-
-##############################################################################
+#
+# (c) 2016-2024 Cezary Jackiewicz <cezary@eko.one.pl>
+#
 
 . /usr/share/libubox/jshn.sh
 
@@ -1153,7 +1151,8 @@ show_sms() {
 		STORAGE=""
 		T=$(uci -q get easyconfig.sms.storage)
 		[ "x$T" = "x" ] || STORAGE="-s $T"
-		sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null
+		O=$(sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null)
+		[ -n "$O" ] && echo "$O" || echo '{"msg":[]}'
 	fi
 
 	if [ "x$action" = "xsend" ]; then
