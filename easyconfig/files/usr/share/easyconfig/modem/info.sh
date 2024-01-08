@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2023 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2024 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 band4g() {
@@ -148,6 +148,15 @@ band5g() {
 getdevicevendorproduct() {
 	devname="$(basename $1)"
 	case "$devname" in
+		'wwan'*'at'*)
+			devpath="$(readlink -f /sys/class/wwan/$devname/device)"
+			T=${devpath%/*/*/*}
+			if [ -e $T/vendor ] && [ -e $T/device ]; then
+				V=$(cat $T/vendor)
+				D=$(cat $T/device)
+				echo "pci${V/0x/}${D/0x/}"
+			fi
+			;;
 		'ttyACM'*)
 			devpath="$(readlink -f /sys/class/tty/$devname/device)"
 			T=${devpath%/*}

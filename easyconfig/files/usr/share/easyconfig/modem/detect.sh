@@ -1,12 +1,16 @@
 #!/bin/sh
 
 #
-# (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2023-2024 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 getdevicepath() {
 	devname="$(basename $1)"
 	case "$devname" in
+	'wwan'*'at'*)
+		devpath="$(readlink -f /sys/class/wwan/$devname/device)"
+		echo ${devpath%/*/*/*}
+		;;
 	'ttyACM'*)
 		devpath="$(readlink -f /sys/class/tty/$devname/device)"
 		echo ${devpath%/*}
@@ -39,15 +43,15 @@ if [ -n "$DEVICE" ]; then
 fi
 
 # find any device
-DEVICES=$(find /dev -name "ttyUSB*" -o -name "ttyACM*" | sort -r)
+DEVICES=$(find /dev -name "ttyUSB*" -o -name "ttyACM*" -o -name "wwan*at*" | sort -r)
 # limit to devices from the modem
 WAN=$(uci -q get network.wan.device)
 if [ -e "$WAN" ]; then
-	USBPATH=$(getdevicepath "$WAN")
+	DEVPATH=$(getdevicepath "$WAN")
 	DEVICESFOUND=""
 	for DEVICE in $DEVICES; do
 		T=$(getdevicepath $DEVICE)
-		[ "x$T" = "x$USBPATH" ] && DEVICESFOUND="$DEVICESFOUND $DEVICE"
+		[ "x$T" = "x$DEVPATH" ] && DEVICESFOUND="$DEVICESFOUND $DEVICE"
 	done
 	DEVICES="$DEVICESFOUND"
 fi
