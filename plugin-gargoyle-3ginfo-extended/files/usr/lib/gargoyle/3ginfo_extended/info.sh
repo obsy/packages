@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2010-2023 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2010-2024 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 band4g() {
@@ -145,20 +145,29 @@ band5g() {
 getdevicevendorproduct() {
 	devname="$(basename $1)"
 	case "$devname" in
+		'wwan'*'at'*)
+			devpath="$(readlink -f /sys/class/wwan/$devname/device)"
+			T=${devpath%/*/*/*}
+			if [ -e $T/vendor ] && [ -e $T/device ]; then
+				V=$(cat $T/vendor)
+				D=$(cat $T/device)
+				echo "pci/${V/0x/}${D/0x/}"
+			fi
+			;;
 		'ttyACM'*)
 			devpath="$(readlink -f /sys/class/tty/$devname/device)"
 			T=${devpath%/*}
-			echo "$(cat $T/idVendor)$(cat $T/idProduct)"
+			echo "usb/$(cat $T/idVendor)$(cat $T/idProduct)"
 			;;
 		'tty'*)
 			devpath="$(readlink -f /sys/class/tty/$devname/device)"
 			T=${devpath%/*/*}
-			echo "$(cat $T/idVendor)$(cat $T/idProduct)"
+			echo "usb/$(cat $T/idVendor)$(cat $T/idProduct)"
 			;;
 		*)
 			devpath="$(readlink -f /sys/class/usbmisc/$devname/device)"
 			T=${devpath%/*}
-			echo "$(cat $T/idVendor)$(cat $T/idProduct)"
+			echo "usb/$(cat $T/idVendor)$(cat $T/idProduct)"
 			;;
 	esac
 }
@@ -266,7 +275,7 @@ if [ -e /usr/bin/sms_tool ]; then
 		ADDON=""
 		case $(cat /tmp/sysinfo/board_name) in
 			"zte,mf289f")
-				. "$RES/addon/19d21485"
+				. "$RES/addon/usb/19d21485"
 				;;
 			*)
 				. "$RES/addon/$VIDPID"
