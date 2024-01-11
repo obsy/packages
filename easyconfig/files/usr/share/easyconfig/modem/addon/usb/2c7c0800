@@ -10,6 +10,10 @@ if [ "$REG" = "0" ] || [ "x$MODE_NUM" = "x11" ]; then
 	O=$(sms_tool -d $DEVICE at "at+c5greg=2;+c5greg?")
 
 	# C5GREG
+	T=""
+	TAC_HEX=""
+	CID_HEX=""
+	TAC_DEC=""
 	eval $(echo "$O" | awk -F[,] '/^\+C5GREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";TAC_HEX=\"%X\";CID_HEX=\"%s\";TAC_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, $4, "0x"$3, $5}')
 	case "$T" in
 		0*) REG="0";;
@@ -41,11 +45,11 @@ case "$MODE_NUM" in
 		fi
 		;;
 	11*)
-		MODE="5G-SA"
+		MODE="5G SA"
 		;;
 	13*)
 		if echo "$O" | grep -q -i "+QCAINFO.*NR5G"; then
-			MODE="5G-NSA"
+			MODE="5G NSA"
 		else
 			if echo "$O" | grep -q -i "+QCAINFO.*PCC.*LTE"; then
 				MODE="LTE"

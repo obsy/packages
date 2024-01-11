@@ -36,8 +36,8 @@ case $MODE_NUM in
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $15}')
 		[ -n "$T" ] && addon 38 "SNR" "$T dBm"
 		;;
-	11) MODE="5G-SA";;
-	13) MODE="5G-NSA";;
+	11) MODE="5G SA";;
+	13) MODE="5G NSA";;
 esac
 
 fi
