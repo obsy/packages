@@ -2413,6 +2413,10 @@ function showsitesurvey() {
 		var l = arr.length;
 		for (var idx1 = 0; idx1 < l; idx1++) {
 			arr[idx1].timestamp = parseInt(ts).toString();
+			arr[idx1].ssid = (arr[idx1].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
+			if (arr[idx1].ssid == '') { arr[idx1].ssid = '<bez nazwy>'; }
+			arr[idx1].signal = parseInt(arr[idx1].signal);
+			if (isNaN(arr[idx1].signal)) { arr[idx1].signal = -100; }
 
 			if (arr[idx1].channel == "?") {
 				for (var i = 0; i < wlan_devices.length; i++) {
@@ -2561,11 +2565,9 @@ function sitesurveycallback(sortby) {
 				}
 			}
 
-			var ssid_new = (sorted[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
-
 			html += '<hr><div class="row' + (rogueap ? ' text-danger' : '') +  '">';
 			html += '<div class="col-xs-6">';
-			html += '<h4><span class="wordbreak">' + ssid_new + '</span></h4>';
+			html += '<h4><span class="wordbreak">' + sorted[idx].ssid + '</span></h4>';
 			html += sorted[idx].mac + '<br>';
 
 			var manuf = getmanuf(sorted[idx].mac);
@@ -2574,8 +2576,8 @@ function sitesurveycallback(sortby) {
 			if (rogueap) { html += '<br>Wrogi AP'; }
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
-			html += 'RSSI ' + sorted[idx].signal.replace(/\..*/,"") + ' dBm<br>';
-			html += 'Kanał ' + sorted[idx].channel + ' (' + sorted[idx].freq/1000 + ' GHz)<br>';
+			html += 'RSSI ' + sorted[idx].signal + ' dBm<br>';
+			html += 'Kanał ' + sorted[idx].channel + ' (' + (sorted[idx].freq/1000).toFixed(3) + ' GHz)<br>';
 			html += (sorted[idx].encryption ? '<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>' : '');
 			var t = modes.indexOf(sorted[idx].mode1);
 			if (t > -1) {html += 'Wi-Fi ' + (t + 2) + ' ';}
@@ -2600,10 +2602,9 @@ function sitesurveycallback(sortby) {
 
 			var a = {};
 			a['mac'] = wifiscanresults[idx].mac;
-			a['ssid'] = (wifiscanresults[idx].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
-			if (a['ssid'] == '') {a['ssid'] = '<bez nazwy>';}
-			a['signal'] = parseInt(wifiscanresults[idx].signal);
-			if (a['signal'] < -100) {continue;}
+			a['ssid'] = wifiscanresults[idx].ssid;
+			a['signal'] = wifiscanresults[idx].signal;
+			if (a['signal'] < -100) { continue; }
 			a['channel'] = parseInt(wifiscanresults[idx].channel);
 			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
 			a['vhtch2'] = parseInt(wifiscanresults[idx].vhtch2);
