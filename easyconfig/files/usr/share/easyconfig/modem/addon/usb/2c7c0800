@@ -132,8 +132,8 @@ if [ "x$MODE_NUM" = "x11" ]; then
 			CID_HEX=$T
 			CID_DEC=$(printf "%d" "0x${CID_HEX}")
 		fi
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}')
-		[ -n "$T" ] && addon 33 "PCI" "$T"
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $9}')
+#		[ -n "$T" ] && addon 33 "PCI" "$T"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}')
 		case $T in
 			0) BW="5";;
