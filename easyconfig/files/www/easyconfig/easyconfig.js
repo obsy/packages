@@ -988,7 +988,6 @@ function showconfig() {
 
 			var wifidesc1 = '';
 			var wifidesc2 = '';
-			if ((config[radios[i]].wlan_hwmode).includes('g')) { wifidesc1 = ' 3, ' + config[radios[i]].wlan_hwmode + ','; }
 			if ((config[radios[i]].wlan_hwmode).includes('n')) { wifidesc1 = ' 4, ' + config[radios[i]].wlan_hwmode + ','; }
 			if ((config[radios[i]].wlan_hwmode).includes('ac')) { wifidesc1 = ' 5, ' + config[radios[i]].wlan_hwmode + ','; }
 			if ((config[radios[i]].wlan_hwmode).includes('ax')) { wifidesc1 = ' 6, ' + config[radios[i]].wlan_hwmode + ','; }
@@ -2543,7 +2542,6 @@ function sitesurveycallback(sortby) {
 		var ts = Date.now()/1000;
 		var sorted = sortJSON(wifiscanresults, sortby, 'asc');
 		var rogueap = false;
-		var modes = ['b', 'g', 'n', 'ac', 'ax'];
 		var counter_all = 0;
 		var counter_2 = 0;
 		var counter_5 = 0;
@@ -2568,20 +2566,31 @@ function sitesurveycallback(sortby) {
 			html += '<hr><div class="row' + (rogueap ? ' text-danger' : '') +  '">';
 			html += '<div class="col-xs-6">';
 			html += '<h4><span class="wordbreak">' + sorted[idx].ssid + '</span></h4>';
-			html += sorted[idx].mac + '<br>';
+			html += sorted[idx].mac;
 
 			var manuf = getmanuf(sorted[idx].mac);
-			if (manuf != '-') { html += manuf + '<br>'; }
-			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += 'widoczność ' + formatDuration(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
+			if (manuf != '-') { html += '<br>' + manuf; }
+			if (parseInt(ts - sorted[idx].timestamp) > 0) {html += '<br>widoczność ' + formatDuration(parseInt(ts - sorted[idx].timestamp), true) + ' temu';}
 			if (rogueap) { html += '<br>Wrogi AP'; }
 			html += '</div>';
 			html += '<div class="col-xs-6 text-right">';
-			html += 'RSSI ' + sorted[idx].signal + ' dBm<br>';
-			html += 'Kanał ' + sorted[idx].channel + ' (' + (sorted[idx].freq/1000).toFixed(3) + ' GHz)<br>';
-			html += (sorted[idx].encryption ? '<span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption + '<br>' : '');
-			var t = modes.indexOf(sorted[idx].mode1);
-			if (t > -1) {html += 'Wi-Fi ' + (t + 2) + ' ';}
-			html += '(802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '') + ')';
+			html += 'RSSI ' + sorted[idx].signal + ' dBm';
+			html += '<br>Kanał ' + sorted[idx].channel + ' (' + (sorted[idx].freq/1000).toFixed(3) + ' GHz)';
+			html += (sorted[idx].encryption ? '<br><span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption : '');
+			var mode = '802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '');
+			switch (sorted[idx].mode1) {
+				case 'ax':
+					html += '<br>Wi-Fi 6 (' + mode + ')';
+					break;
+				case 'ac':
+					html += '<br>Wi-Fi 5 (' + mode + ')';
+					break;
+				case 'n':
+					html += '<br>Wi-Fi 4 (' + mode + ')';
+					break;
+				default:
+					html += '<br>' + mode;
+			}
 			html += (sorted[idx].uptime ? '<br><span class="hidden-vxs">Czas działania </span>' + formatDuration(sorted[idx].uptime, false) : '');
 			if (sorted[idx].bssload > -1) { html += '<br>Liczba klientów: ' + sorted[idx].bssload; }
 			html += '</div></div>';
