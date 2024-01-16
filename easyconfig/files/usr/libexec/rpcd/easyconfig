@@ -857,8 +857,12 @@ for M in $WLAN_MAC; do
 	else
 		CONNECTED_SINCE=',"connected_since":""'
 	fi
+	CAPA=""
+	grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
+	grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
+	grep -qi "^he supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/he_capa 2>/dev/null && CAPA=',"capa":6'
 
-	echo "{${M}${IP}${CONNECTED_SINCE}$(client_data $MAC)},"
+	echo "{${M}${IP}${CONNECTED_SINCE}${CAPA}$(client_data $MAC)},"
 done
 
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)

@@ -3378,6 +3378,19 @@ function hostinfo(id) {
 		}
 		if (host.type == 2) {
 			html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
+			if (host.capa) {
+				switch (host.capa) {
+					case 4:
+						html += createRowForModal('Standard', 'Wi-Fi 4 (802.11n)');
+						break;
+					case 5:
+						html += createRowForModal('Standard', 'Wi-Fi 5 (802.11ac)');
+						break;
+					case 6:
+						html += createRowForModal('Standard', 'Wi-Fi 6 (802.11ax)');
+						break;
+				}
+			}
 			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
 			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
 			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.rx) + '</span>');
