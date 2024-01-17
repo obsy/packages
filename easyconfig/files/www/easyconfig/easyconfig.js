@@ -4469,7 +4469,7 @@ function upgrade_step2() {
 
 			msg += 'Wybierz przycisk "Aktualizacja" aby zainstalować nową wersję oprogramowania. ';
 			msg += 'Zaznaczając "Zachowaj ustawienia" możliwe jest zapisane bieżących ustawień. ';
-			msg += 'Po wykonaniu aktualizacji nastąpi automatyczny restart urządzenia.';
+			msg += 'Po wykonaniu aktualizacji nastąpi ponowne uruchomienie urządzenia.';
 			msg += '<br><br>Nie zmieniaj konfiguracji i nie wyłączaj urządzenia w czasie tego procesu.';
 
 			setDisplay("div_upgrade_step1", false);
@@ -4502,8 +4502,8 @@ function upgrade_step3() {
 		} else {
 			addClasses(e, ["alert-info"]);
 			msg = "<b>Trwa aktualizowanie systemu...</b>";
-			msg += '<br><br>Nie zmieniaj konfiguracji i nie wyłączaj urządzenia w czasie tego procesu. ';
-			msg += 'Po wykonaniu aktualizacji nastąpi automatyczny restart urządzenia.';
+			msg += '<br>Po wykonaniu aktualizacji nastąpi ponowne uruchomienie urządzenia.';
+			msg += '<br><br>Nie zmieniaj konfiguracji i nie wyłączaj urządzenia w czasie tego procesu.';
 			setDisplay("div_upgrade_step1", false);
 		}
 		setDisplay("div_upgrade_step2", false);
