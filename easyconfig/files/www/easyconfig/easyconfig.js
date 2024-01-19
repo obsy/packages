@@ -549,6 +549,20 @@ function enableWan(proto) {
 		document.getElementById('wan_dashboard_url').setAttribute('href', config.wan_dashboard_url);
 		setElementEnabled('wan_dashboard_url', true, false);
 	}
+
+	if (proto == '3g' || proto == 'mbim' || proto == 'ncm' || proto == 'qmi') {
+		modem = 1;
+		setDisplay('menu_ussdsms', config.services.ussdsms);
+		setDisplay('div_status_modem', true);
+		setDisplay('div_system_modem', true);
+		setCookie('easyconfig_status_modem', '1');
+	} else {
+		modem = 0;
+		setDisplay('menu_ussdsms', false);
+		setDisplay('div_status_modem', false);
+		setDisplay('div_system_modem', false);
+		setCookie('easyconfig_status_modem', '0');
+	}
 }
 
 function enableWlanEncryption(encryption, idx) {
@@ -613,6 +627,7 @@ function showDialog(msg, default_value, primary_value, primary_callback) {
 }
 
 var config;
+var modem = -1;
 var counter = 0;
 var token = "00000000000000000000000000000000";
 var expires;
@@ -777,7 +792,7 @@ function login()
 				}
 
 				showconfig();
-				showstatus();
+				btn_pages('status');
 			} else {
 				showMsg('Błąd logowania!', true);
 				setTimeout(function(){ closeMsg(); }, 3000);
@@ -1102,8 +1117,6 @@ function showconfig() {
 		setDisplay('div_button_reset', (config.button_reset != -1));
 
 		setValue('datarec_period', config.datarec_period);
-
-		showmodemsection();
 	})
 }
 
@@ -2100,6 +2113,7 @@ function restartwan() {
 var arrmodemaddon = [];
 
 function showmodem() {
+	if (modem == 0) { return; }
 	ubus_call('"easyconfig", "modem", {}', function(data) {
 		if (data.error)
 			return;
@@ -2259,22 +2273,6 @@ function modemaddon() {
 		html += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value + description);
 	});
 	showMsg(html);
-}
-
-function showmodemsection() {
-	var wan_type = getValue('wan_proto');
-	if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'ncm' || wan_type == 'qmi') {
-		setDisplay('menu_ussdsms', config.services.ussdsms);
-		setDisplay('div_status_modem', true);
-		setDisplay('div_system_modem', true);
-		setCookie('easyconfig_status_modem', '1');
-		showmodem();
-	} else {
-		setDisplay('menu_ussdsms', false);
-		setDisplay('div_status_modem', false);
-		setDisplay('div_system_modem', false);
-		setCookie('easyconfig_status_modem', '0');
-	}
 }
 
 /*****************************************************************************/
@@ -6080,7 +6078,19 @@ function btn_pages(page) {
 
 	if (page == 'status') {
 		showstatus();
-		showmodemsection();
+		var clearid = null;
+		function waitForData(callback) {
+			clearid = window.setInterval(function() {
+				if (modem != -1) {
+					callback();
+				}
+			}, 100);
+		}
+		function readyData() {
+			clearInterval(clearid);
+			showmodem();
+		}
+		waitForData(readyData);
 	}
 
 	if (page == 'config') {
