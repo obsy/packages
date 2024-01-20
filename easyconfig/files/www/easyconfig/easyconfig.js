@@ -1822,11 +1822,17 @@ function showsystem() {
 		var theme = getCookie('easyconfig_darkmode');
 		if (theme == '') { theme = 2; }
 		setValue('theme', theme);
-		setValue('modem_vendor', data.modem.vendor == '' ? '-' : data.modem.vendor);
-		setValue('modem_model', data.modem.product == '' ? '-' : data.modem.product);
-		setValue('modem_revision', data.modem.revision == '' ? '-' : data.modem.revision);
-		setValue('modem_imei', data.modem.imei == '' ? '-' : data.modem.imei);
-		setValue('modem_iccid', data.modem.iccid == '' ? '-' : data.modem.iccid);
+	});
+}
+
+function showmodeminfo() {
+	if (modem == 0) { return; }
+	ubus_call('"easyconfig", "modeminfo", {}', function(data) {
+		setValue('modem_vendor', data.vendor == '' ? '-' : data.vendor);
+		setValue('modem_model', data.product == '' ? '-' : data.product);
+		setValue('modem_revision', data.revision == '' ? '-' : data.revision);
+		setValue('modem_imei', data.imei == '' ? '-' : data.imei);
+		setValue('modem_iccid', data.iccid == '' ? '-' : data.iccid);
 		if (data.simslot.hasOwnProperty('active')) {
 			var e = removeOptions('modem_simslot');
 			var arr = sortJSON(data.simslot.slots, 'index', 'asc');
@@ -6076,21 +6082,22 @@ function btn_pages(page) {
 	setDisplay('div_nightmode', (page == 'nightmode'));
 	setDisplay('div_gps', (page == 'gps'));
 
+	var clearid = null;
+	function waitForData(callback) {
+		clearid = window.setInterval(function() {
+			if (modem != -1) {
+				callback();
+			}
+		}, 100);
+	}
+
 	if (page == 'status') {
 		showstatus();
-		var clearid = null;
-		function waitForData(callback) {
-			clearid = window.setInterval(function() {
-				if (modem != -1) {
-					callback();
-				}
-			}, 100);
-		}
-		function readyData() {
+		function readyDataStatus() {
 			clearInterval(clearid);
 			showmodem();
 		}
-		waitForData(readyData);
+		waitForData(readyDataStatus);
 	}
 
 	if (page == 'config') {
@@ -6099,6 +6106,11 @@ function btn_pages(page) {
 
 	if (page == 'system') {
 		showsystem();
+		function readyDataSystem() {
+			clearInterval(clearid);
+			showmodeminfo();
+		}
+		waitForData(readyDataSystem);
 	}
 
 	if (page == 'watchdog') {
