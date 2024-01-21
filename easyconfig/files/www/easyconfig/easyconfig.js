@@ -1,13 +1,14 @@
 /*****************************************************************************/
 
-function setCookie(cname, cvalue) {
+function setCookie(cname, cvalue, cexpire) {
 	var d = new Date();
-	d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
-	document.cookie = cname + "=" + cvalue + ";" + "expires="+d.toUTCString() + ";path=/";
+	var expire = (cexpire || 31536000);
+	d.setTime(d.getTime() + (expire * 1000));
+	document.cookie = cname + '=' + cvalue + ';' + 'expires=' + d.toUTCString() + ';path=/';
 }
 
 function getCookie(cname) {
-	var name = cname + "=";
+	var name = cname + '=';
 	var ca = document.cookie.split(';');
 	for (var i = 0; i < ca.length; i++) {
 		var c = ca[i];
@@ -18,7 +19,7 @@ function getCookie(cname) {
 			return c.substring(name.length, c.length);
 		}
 	}
-	return "";
+	return '';
 }
 
 function setTheme(mode) {
@@ -49,6 +50,31 @@ function showicon() {
 function easyconfig_onload() {
 	showicon();
 	setTheme(getCookie('easyconfig_darkmode'));
+
+	var inittoken = '00000000000000000000000000000000';
+
+	token = getCookie('easyconfig_token');
+	if (token.length == 32) {
+		ubus('"session", "list", {}', function(data) {
+			if (data.error) {
+				token = inittoken;
+			} else {
+				if (data.result[0] === 0) {
+					if (data.result[1].ubus_rpc_session == token) {
+						loginok(data.result[1], true);
+					} else {
+						token = inittoken;
+					}
+				} else {
+					token = inittoken;
+				}
+			}
+		}, function(status) {
+			token = inittoken;
+		}, false);
+	} else {
+		token = inittoken;
+	}
 }
 
 function string2color(str) {
@@ -661,6 +687,7 @@ var ubus = function(param, successHandler, errorHandler, showWait) {
 				closeMsg();
 			}
 			if (status == 200) {
+				setCookie('easyconfig_token', token, timeout);
 				successHandler && successHandler(
 					responseTypeAware
 					? xhr.response
@@ -763,8 +790,7 @@ function execute(cmd, callback) {
 
 /*****************************************************************************/
 
-function login()
-{
+function login() {
 	var system_user = getValue('system_login');
 	var system_pass = getValue('system_password');
 
@@ -773,26 +799,8 @@ function login()
 			ubus_error(data.error.code);
 		} else {
 			if (data.result[0] === 0) {
-				token = data.result[1].ubus_rpc_session;
-
-				if (expires) {clearTimeout(expires);}
-				expires = setTimeout(function(){ location.reload(); }, data.result[1].expires * 1000);
-				timeout = data.result[1].timeout;
-
-				setDisplay('div_login', false);
-				setDisplay('div_content', true);
 				setDisplay('div_security', (system_pass == '12345678'));
-
-				if (getCookie('easyconfig_status_wan') === '1') {
-					setDisplay('div_status_wan', true);
-				}
-				if (getCookie('easyconfig_status_modem') === '1') {
-					setDisplay('div_status_modem', true);
-					setDisplay('div_system_modem', true);
-				}
-
-				showconfig();
-				btn_pages('status');
+				loginok(data.result[1], false);
 			} else {
 				showMsg('Błąd logowania!', true);
 				setTimeout(function(){ closeMsg(); }, 3000);
@@ -800,6 +808,67 @@ function login()
 		}
 	}, function(status) {
 		showMsg('Błąd logowania!', true);
+		setTimeout(function(){ closeMsg(); }, 3000);
+	}, true);
+}
+
+function loginok(session, showlastpage) {
+	token = session.ubus_rpc_session;
+
+	if (expires) { clearTimeout(expires); }
+	expires = setTimeout(function(){ location.reload(); }, session.expires * 1000);
+	timeout = session.timeout;
+	setCookie('easyconfig_token', token, timeout);
+
+	if (getCookie('easyconfig_status_wan') === '1') {
+		setDisplay('div_status_wan', true);
+	}
+	if (getCookie('easyconfig_status_modem') === '1') {
+		setDisplay('div_status_modem', true);
+		setDisplay('div_system_modem', true);
+	}
+
+	showconfig();
+	var page = 'status';
+	if (showlastpage) {
+		page = getCookie('easyconfig_page');
+		if (page == '' || page == 'logout') {
+			page = 'status';
+		}
+	}
+
+	var clearid = null;
+	function waitForConfig(callback, page) {
+		clearid = window.setInterval(function() {
+			if (typeof config != 'undefined' && typeof config.system_hostname != 'undefined') {
+				callback(page);
+			}
+		}, 100, page);
+	}
+
+	function readyConfig(page) {
+		clearInterval(clearid);
+		setDisplay('div_login', false);
+		setValue('system_password', '');
+		setDisplay('div_content', true);
+		if (page == 'config') {
+			setDisplay('div_config', true);
+		} else {
+			btn_pages(page);
+		}
+	}
+	waitForConfig(readyConfig, page);
+}
+
+function logout() {
+	ubus('"session", "destroy", {}', function(data) {
+		setCookie('easyconfig_token', '', 1);
+		setCookie('easyconfig_page', '', 1);
+		if (expires) { clearTimeout(expires); }
+		document.getElementById('system_password').focus();
+		location.reload();
+	}, function(status) {
+		showMsg('Błąd wylogowania!', true);
 		setTimeout(function(){ closeMsg(); }, 3000);
 	}, true);
 }
@@ -6157,6 +6226,12 @@ function btn_pages(page) {
 	if (page == 'gps') {
 		showgps();
 	}
+
+	if (page == 'logout') {
+		logout();
+	}
+
+	setCookie('easyconfig_page', page, timeout);
 }
 
 window.onload = easyconfig_onload;
