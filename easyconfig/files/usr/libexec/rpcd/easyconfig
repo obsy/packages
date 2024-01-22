@@ -63,7 +63,12 @@ wlancurrentchannels() {
 	if [ -e /sys/class/net/$T/bridge ]; then
 		for I in /sys/class/net/$T/lower_*; do
 			if [ -e $I/phy80211 ]; then
-				iw dev ${I##*lower_} info 2>/dev/null | awk -v PHY=$(cat $I/phy80211/name) '/channel/{if($2 > 14){printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32}else{printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d},\n", PHY, $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1}}'
+				iw dev ${I##*lower_} info 2>/dev/null | \
+					awk -v PHY=$(cat $I/phy80211/name) '/channel/{
+					if($9 >= 5955){printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d, \"freq\":%d},\n", PHY, $2, ($9-$6/2-5955)/5+1, ($9+$6/2-5955)/5+1, $9}else
+					if($9 >= 5160){printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d, \"freq\":%d},\n", PHY, $2, ($9-$6/2-5160)/5+32, ($9+$6/2-5160)/5+32, $9}else
+					{printf "{\"phy\":\"%s\",\"channel\":%d,\"min\":%d,\"max\":%d, \"freq\":%d},\n", PHY, $2, ($9-$6/2-2412)/5+1, ($9+$6/2-2412)/5+1, $9}
+					}'
 			fi
 		done
 	fi
@@ -812,8 +817,10 @@ for R in $RADIOS; do
 		eval $(echo "$T" | jsonfilter -q -e 'T1=@.*.config.hwmode' -e 'T2=@.*.config.band')
 		BAND=2
 		[ "x$T1" = "x11a" ] || [ "x$T2" = "x5g" ] && BAND=5
+		[ "x$T2" = "x6g" ] && BAND=6
+		PHY=$(iwinfo nl80211 phyname $R)
 		for i in $IFNAME; do
-			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"active\":true,\"type\":2 ", w, tx[w], rx[w], signal[w], connected[w], band}}')
+			WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2 ", w, tx[w], rx[w], signal[w], connected[w], band, phy}}')
 		done
 	fi
 done
@@ -898,7 +905,7 @@ done
 
 BANDS=$(iw dev 2>/dev/null | awk '{if($0 ~ /Interface /) {INTERFACE = $2; ssid[INTERFACE] = ""; band[INTERFACE] = "?"}
 if($1 == "ssid") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); ssid[INTERFACE]=t}
-if($1 == "channel") {if($2 < 36){band[INTERFACE] = "2"}else{band[INTERFACE] = "5"}}
+if($1 == "channel") {if($9 >= 5955){band[INTERFACE] = "6"}else if($9 >= 5160){band[INTERFACE] = "5"}else{band[INTERFACE] = "2"}}
 } END { for (t in ssid) {
 	printf "s/,\"desc\":\"%s:\"/,\"desc\":{\"band\":\"%s\",\"ssid\":\"%s\"}/g\n", t, band[t], ssid[t]
 }
@@ -1225,13 +1232,13 @@ show_wifiscan() {
 					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_psk[MAC] = 0; wifi_psk2[MAC] = 0; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""; wifi_bssload[MAC] = -1}
 					if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
 					if($1 == "signal:") {wifi_sig[MAC] = $2}
-					if($1 == "freq:") {wifi_freq[MAC] = $2; if($2<5000){wifi_mode1[MAC] = "g"}else{wifi_mode1[MAC] = "a"}}
+					if($1 == "freq:") {wifi_freq[MAC] = $2; if($2>=5160){wifi_mode1[MAC] = "a"}else{wifi_mode1[MAC] = "g"}}
 					if($0 ~ /primary channel:/) {wifi_chan[MAC] = $4}
 					if($0 ~ /secondary channel offset: no secondary/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT20"}
 					if($0 ~ /secondary channel offset: above/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40+"}
 					if($0 ~ /secondary channel offset: below/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT40-"}
 					if($0 ~ /STA channel width: 20 MHz/) {wifi_mode1[MAC] = "n"; wifi_mode2[MAC] = "HT20"}
-					if($0 ~ /VHT operation:/) {if(wifi_chan[MAC] > 14){wifi_mode1[MAC] = "ac"}; wifi_mode2[MAC] = "VHT20"}
+					if($0 ~ /VHT operation:/) {if(wifi_freq[MAC]>=5160){wifi_mode1[MAC] = "ac"}; wifi_mode2[MAC] = "VHT20"}
 					if($0 ~ /center freq segment 1:/) {wifi_vhtch1[MAC] = $6; if($6>0 && wifi_mode2[MAC] != "VHT80" && $6 != wifi_chan[MAC]){wifi_mode2[MAC] = "VHT40"}}
 					if($0 ~ /center freq segment 2:/) {wifi_vhtch2[MAC] = $6; if($6>0){if(abs(wifi_vhtch2[MAC] - wifi_vhtch1[MAC]) > 16){wifi_mode2[MAC] = "VHT80+80"}else{wifi_mode2[MAC] = "VHT160"}}}
 					if($0 ~ /channel width: 1 \(80 MHz\)/) {wifi_mode2[MAC] = "VHT80"}

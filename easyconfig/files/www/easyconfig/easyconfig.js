@@ -120,6 +120,19 @@ function formatDateTime(s) {
 	return s;
 }
 
+function freq2band(freq) {
+	if (freq >= 2412 && freq <= 2484) {
+		return 2;
+	}
+	if (freq >= 5160 && freq <= 5885) {
+		return 5;
+	}
+	if (freq >= 5955 && freq <= 7115) {
+		return 6;
+	}
+	return 0;
+}
+
 /*****************************************************************************/
 
 function proofreadHost(input) {
@@ -1033,6 +1046,7 @@ function showconfig() {
 
 		var is_radio2 = false;
 		var is_radio5 = false;
+		var is_radio6 = false;
 		var enc = [];
 		enc['none'] = 'Brak';
 		enc['psk'] = 'WPA Personal';
@@ -1047,6 +1061,7 @@ function showconfig() {
 		for (var i = 0; i < radios.length; i++) {
 			is_radio2 = false;
 			is_radio5 = false;
+			is_radio6 = false;
 
 			var html = ('<div>' + document.getElementById('div_radio_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
 			document.getElementById('div_radio_content').insertAdjacentHTML('beforeend', html);
@@ -1063,10 +1078,16 @@ function showconfig() {
 				opt.value = propt;
 				opt.innerHTML = propt + ' (' + obj[propt][1] + ' dBm)' + (obj[propt][2] ? ' DFS' : '');
 				select.appendChild(opt);
-				if (propt > 14) {
-					is_radio5 = true;
-				} else {
-					is_radio2 = true;
+				switch (freq2band(obj[propt][0])) {
+					case 2:
+						is_radio2 = true;
+						break;
+					case 5:
+						is_radio5 = true;
+						break;
+					case 6:
+						is_radio6 = true;
+						break;
 				}
 			}
 
@@ -1078,6 +1099,8 @@ function showconfig() {
 			if (is_radio2) { wifidesc2 = ' 2.4 GHz'; }
 			if (is_radio5) { wifidesc2 = ' 5 GHz'; }
 			if (is_radio2 && is_radio5) { wifidesc2 = ' 2.4/5 GHz'; }
+			if (is_radio6) { wifidesc2 = ' 6 GHz'; }
+			if (is_radio2 && is_radio5 && is_radio6) { wifidesc2 = ' 2.4/5/6 GHz'; }
 			setValue('radio_' + i, 'Wi-Fi' + wifidesc1 + wifidesc2);
 
 			setValue('wlan_enabled_' + i, (config[radios[i]].wlan_disabled != 1));
@@ -1112,7 +1135,7 @@ function showconfig() {
 			setValue('wlan_isolate_' + i, config[radios[i]].wlan_isolate == 1);
 		}
 
-		if (!is_radio2 && !is_radio5) {
+		if (!is_radio2 && !is_radio5 && !is_radio6) {
 			setDisplay('menu_wlan', false);
 			setDisplay('div_status_wlan', false);
 			setDisplay('div_nightmode_wlan', false);
@@ -1158,7 +1181,7 @@ function showconfig() {
 			opt.value = 'leds';
 			opt.innerHTML = 'Włącz/wyłącz diody LED';
 			select.appendChild(opt);
-			if (is_radio2 || is_radio5) {
+			if (is_radio2 || is_radio5 || is_radio6) {
 				opt = document.createElement('option');
 				opt.value = 'rfkill';
 				opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
@@ -1425,10 +1448,11 @@ function saveconfig() {
 			wlan_restart_required = true;
 			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
 			if (wlan_channel > 0) {
+				var band = freq2band(config[radios[i]].wlan_channels[wlan_channel][0]);
 				if (config[radios[i]].wlan_band != '') {
-					cmd.push('uci set wireless.' + radios[i] + '.band=' + ((wlan_channel > 14) ? '5' : '2') + 'g');
+					cmd.push('uci set wireless.' + radios[i] + '.band=' + band + 'g');
 				} else {
-					cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + ((wlan_channel > 14) ? 'a' : 'g'));
+					cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + (band == 2 ? 'g' : 'a'));
 				}
 			}
 		}
@@ -2525,7 +2549,7 @@ function showsitesurvey() {
 }
 
 function sitesurveycallbackfilter(filterby) {
-	var all = ['all', '2', '5'];
+	var all = ['all', '2', '5', '6'];
 	for (var idx = 0; idx < all.length; idx++) {
 		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
 		if (e !== null) {
@@ -2538,7 +2562,7 @@ function sitesurveycallback(sortby) {
 
 	var all;
 	var filterby = 'all';
-	all = ['all', '2', '5'];
+	all = ['all', '2', '5', '6'];
 	for (var idx = 0; idx < all.length; idx++) {
 		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
 		if (e === null) {
@@ -2567,29 +2591,40 @@ function sitesurveycallback(sortby) {
 
 	var html = '';
 	if (wifiscanresults.length > 0) {
-		var is_radio2 = false;
-		var is_radio5 = false;
+		var is_radio2 = 0;
+		var is_radio5 = 0;
+		var is_radio6 = 0;
 		(config.wlan_devices).forEach((item) => {
 			for (var channel in config[item].wlan_channels) {
-				if (channel > 14) {
-					is_radio5 = true;
-				} else {
-					is_radio2 = true;
+				switch (freq2band(config[item].wlan_channels[channel][0])) {
+					case 2:
+						is_radio2 = 1;
+						break;
+					case 5:
+						is_radio5 = 1;
+						break;
+					case 6:
+						is_radio6 = 1;
+						break;
 				}
 			}
 		})
 		html += '<div class="row space">';
 		html += '<div class="col-xs-12 space">';
 		html += '<span>Filtrowanie:</span>';
-		if (is_radio2 && is_radio5) {
+		if (is_radio2 + is_radio5 + is_radio6 >= 2) {
 			html += '<span class="click" onclick="sitesurveycallbackfilter(\'all\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_all"> wszystkie (0) </span></span>|';
 		}
 		if (is_radio2) {
 			html += '<span class="click" onclick="sitesurveycallbackfilter(\'2\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_2"> 2.4 GHz (0) </span></span>';
-			if (is_radio5) { html += '|'; }
+			if (is_radio5 + is_radio6 > 0) { html += '|'; }
 		}
 		if (is_radio5) {
 			html += '<span class="click" onclick="sitesurveycallbackfilter(\'5\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_5"> 5 GHz (0) </span></span>';
+			if (is_radio6) { html += '|'; }
+		}
+		if (is_radio6) {
+			html += '<span class="click" onclick="sitesurveycallbackfilter(\'6\');sitesurveycallback(\'\');"><span id="sitesurvey_filter_6"> 6 GHz (0) </span></span>';
 		}
 		html += '</div>';
 		html += '<div class="col-xs-12">';
@@ -2600,7 +2635,6 @@ function sitesurveycallback(sortby) {
 		html += '<span class="click" onclick="sitesurveycallback(\'freq\');"><span id="sitesurvey_sortby_freq"> kanale </span></span>|';
 		html += '<span class="click" onclick="sitesurveycallback(\'timestamp\');"><span id="sitesurvey_sortby_timestamp"> widoczności </span></span>';
 		html += '</div></div>';
-		html += '<hr>';
 		html += '<div class="row" id="div_channels2" style="display:none">';
 		html += '<div class="col-xs-12"><h3 class="section">Sieci 2.4 GHz</h3><canvas id="channels2" height="400"></canvas></div>';
 		html += '</div>';
@@ -2610,6 +2644,16 @@ function sitesurveycallback(sortby) {
 		html += '<div class="col-xs-12" id="div_channels52"><canvas id="channels52" height="400"></canvas></div>';
 		html += '<div class="col-xs-12" id="div_channels53"><canvas id="channels53" height="400"></canvas></div>';
 		html += '</div>';
+		html += '<div class="row" id="div_channels6" style="display:none">';
+		html += '<div class="col-xs-12"><h3 class="section">Sieci 6 GHz</h3></div>';
+		html += '<div class="col-xs-12" id="div_channels61"><canvas id="channels61" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels62"><canvas id="channels62" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels63"><canvas id="channels63" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels64"><canvas id="channels64" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels65"><canvas id="channels65" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels66"><canvas id="channels66" height="400"></canvas></div>';
+		html += '<div class="col-xs-12" id="div_channels67"><canvas id="channels67" height="400"></canvas></div>';
+		html += '</div>';
 
 		var wlan_devices = config.wlan_devices;
 		var ts = Date.now()/1000;
@@ -2618,14 +2662,24 @@ function sitesurveycallback(sortby) {
 		var counter_all = 0;
 		var counter_2 = 0;
 		var counter_5 = 0;
+		var counter_6 = 0;
 		for (var idx = 0; idx < sorted.length; idx++) {
 			counter_all ++;
-			if (sorted[idx].channel > 14) {
-				counter_5 ++;
-				if (filterby == '2') { continue; }
-			} else {
-				counter_2 ++;
-				if (filterby == '5') { continue; }
+			switch (freq2band(sorted[idx].freq)) {
+				case 2:
+					counter_2 ++;
+					if (filterby != '2' && filterby != 'all') { continue; }
+					break;
+				case 5:
+					counter_5 ++;
+					if (filterby != '5' && filterby != 'all') { continue; }
+					break;
+				case 6:
+					counter_6 ++;
+					if (filterby != '6' && filterby != 'all') { continue; }
+					break;
+				default:
+					break;
 			}
 
 			rogueap = false;
@@ -2652,14 +2706,14 @@ function sitesurveycallback(sortby) {
 			html += (sorted[idx].encryption ? '<br><span class="hidden-vxs">Szyfrowanie </span>' + sorted[idx].encryption : '');
 			var mode = '802.11' + sorted[idx].mode1 + (sorted[idx].mode2 != '' ? ', ' + sorted[idx].mode2 : '');
 			switch (sorted[idx].mode1) {
-				case 'ax':
-					html += '<br>Wi-Fi 6 (' + mode + ')';
+				case 'n':
+					html += '<br>Wi-Fi 4 (' + mode + ')';
 					break;
 				case 'ac':
 					html += '<br>Wi-Fi 5 (' + mode + ')';
 					break;
-				case 'n':
-					html += '<br>Wi-Fi 4 (' + mode + ')';
+				case 'ax':
+					html += '<br>Wi-Fi 6' + (freq2band(sorted[idx].freq) == 6 ? 'E' : '') + ' (' + mode + ')';
 					break;
 				default:
 					html += '<br>' + mode;
@@ -2678,9 +2732,25 @@ function sitesurveycallback(sortby) {
 		var surveydata51 = [];
 		var surveydata52 = [];
 		var surveydata53 = [];
+		var surveydata61 = [];
+		var surveydata62 = [];
+		var surveydata63 = [];
+		var surveydata64 = [];
+		var surveydata65 = [];
+		var surveydata66 = [];
+		var surveydata67 = [];
 		for (var idx = 0; idx < wifiscanresults.length; idx++) {
-			if (filterby == '2') { if (wifiscanresults[idx].channel > 14) { continue; } }
-			if (filterby == '5') { if (wifiscanresults[idx].channel < 36) { continue; } }
+			switch (freq2band(wifiscanresults[idx].freq)) {
+				case 2:
+					if (filterby != '2' && filterby != 'all') { continue; }
+					break;
+				case 5:
+					if (filterby != '5' && filterby != 'all') { continue; }
+					break;
+				case 6:
+					if (filterby != '6' && filterby != 'all') { continue; }
+					break;
+			}
 
 			var a = {};
 			a['mac'] = wifiscanresults[idx].mac;
@@ -2691,44 +2761,78 @@ function sitesurveycallback(sortby) {
 			a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch1);
 			a['vhtch2'] = parseInt(wifiscanresults[idx].vhtch2);
 			a['width'] = wifiscanresults[idx].mode2;
-			if (a['channel'] >= 149) {
-				surveydata53.push(a);
-			} else if (a['channel'] >= 100) {
-				surveydata52.push(a);
-			} else if (a['channel'] >= 36) {
-				surveydata51.push(a);
-			} else {
-				surveydata2.push(a);
-			}
-
-			if (wifiscanresults[idx].mode2 == 'VHT80+80') {
-				var a = {};
-				a['mac'] = wifiscanresults[idx].mac;
-				a['signal'] = parseInt(wifiscanresults[idx].signal);
-				if (a['signal'] < -100) {continue;}
-				a['channel'] = 0;
-				a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch2);
-				a['width'] = wifiscanresults[idx].mode2;
-				if (a['vhtch1'] >= 149) {
-					surveydata53.push(a);
-				} else if (a['vhtch1'] >= 100) {
-					surveydata52.push(a);
-				} else if (a['vhtch1'] >= 36) {
-					surveydata51.push(a);
-				}
+			switch (freq2band(wifiscanresults[idx].freq)) {
+				case 2:
+					surveydata2.push(a);
+					break;
+				case 5:
+					if (a['channel'] >= 149) {
+						surveydata53.push(a);
+					} else if (a['channel'] >= 100) {
+						surveydata52.push(a);
+					} else if (a['channel'] >= 36) {
+						surveydata51.push(a);
+					}
+					if (wifiscanresults[idx].mode2 == 'VHT80+80') {
+						var a = {};
+						a['mac'] = wifiscanresults[idx].mac;
+						a['signal'] = parseInt(wifiscanresults[idx].signal);
+						if (a['signal'] < -100) {continue;}
+						a['channel'] = 0;
+						a['vhtch1'] = parseInt(wifiscanresults[idx].vhtch2);
+						a['width'] = wifiscanresults[idx].mode2;
+						if (a['vhtch1'] >= 149) {
+							surveydata53.push(a);
+						} else if (a['vhtch1'] >= 100) {
+							surveydata52.push(a);
+						} else if (a['vhtch1'] >= 36) {
+							surveydata51.push(a);
+						}
+					}
+					break;
+				case 6:
+					if (a['channel'] >= 193) {
+						surveydata67.push(a);
+					} else if (a['channel'] >= 161) {
+						surveydata66.push(a);
+					} else if (a['channel'] >= 129) {
+						surveydata65.push(a);
+					} else if (a['channel'] >= 97) {
+						surveydata64.push(a);
+					} else if (a['channel'] >= 65) {
+						surveydata63.push(a);
+					} else if (a['channel'] >= 33) {
+						surveydata62.push(a);
+					} else if (a['channel'] >= 1) {
+						surveydata61.push(a);
+					}
+					break;
 			}
 
 		}
-		setDisplay('div_channels2', (surveydata2.length > 0));
-		if (surveydata2.length > 0) {
+		var len = surveydata2.length;
+		setDisplay('div_channels2', (len > 0));
+		if (len > 0) {
 			wifigraph.draw({band: 2, element: 'channels2', data: surveydata2});
 		}
-
-		setDisplay('div_channels5', (surveydata51.length > 0 || surveydata52.length > 0 || surveydata53.length > 0));
-		if (surveydata51.length > 0 || surveydata52.length > 0 || surveydata53.length > 0) {
+		len = surveydata51.length + surveydata52.length + surveydata53.length;
+		setDisplay('div_channels5', (len > 0));
+		if (len > 0) {
 			wifigraph.draw({band: 51, element: 'channels51', data: surveydata51});
 			wifigraph.draw({band: 52, element: 'channels52', data: surveydata52});
 			wifigraph.draw({band: 53, element: 'channels53', data: surveydata53});
+		}
+		len = surveydata61.length + surveydata62.length + surveydata63.length +
+			surveydata64.length + surveydata65.length + surveydata66.length + surveydata67.length;
+		setDisplay('div_channels6', (len > 0));
+		if (len > 0) {
+			wifigraph.draw({band: 61, element: 'channels61', data: surveydata61});
+			wifigraph.draw({band: 62, element: 'channels62', data: surveydata62});
+			wifigraph.draw({band: 63, element: 'channels63', data: surveydata63});
+			wifigraph.draw({band: 64, element: 'channels64', data: surveydata64});
+			wifigraph.draw({band: 65, element: 'channels65', data: surveydata65});
+			wifigraph.draw({band: 66, element: 'channels66', data: surveydata66});
+			wifigraph.draw({band: 67, element: 'channels67', data: surveydata67});
 		}
 
 		all = ['ssid', 'mac', 'signal', 'freq', 'timestamp'];
@@ -2737,7 +2841,7 @@ function sitesurveycallback(sortby) {
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
 
-		if (is_radio2 && is_radio5) {
+		if (is_radio2 + is_radio5 + is_radio6 >= 2) {
 			setValue('sitesurvey_filter_all', ' wszystkie (' + counter_all + ') ');
 		}
 		if (is_radio2) {
@@ -2745,6 +2849,9 @@ function sitesurveycallback(sortby) {
 		}
 		if (is_radio5) {
 			setValue('sitesurvey_filter_5', ' 5 GHz (' + counter_5 + ') ');
+		}
+		if (is_radio6) {
+			setValue('sitesurvey_filter_6', ' 6 GHz (' + counter_6 + ') ');
 		}
 		sitesurveycallbackfilter(filterby);
 	}
@@ -2771,6 +2878,13 @@ wifigraph = {
 	ch51: [36,40,44,48,52,56,60,64],
 	ch52: [100,104,108,112,116,120,124,128,132,136,140,144],
 	ch53: [149,153,157,161,165,169,173],
+	ch61: [1,5,9,13,17,21,25,29],
+	ch62: [33,37,41,45,49,53,57,61],
+	ch63: [65,69,73,77,81,85,89,93],
+	ch64: [97,101,105,109,113,117,121,125],
+	ch65: [129,133,137,141,145,149,153,157],
+	ch66: [161,165,169,173,177,181,185,189],
+	ch67: [193,197,201,205,209,213,217,221,225,229],
 
 	getX: function (graph, channel) {
 		switch (graph.band) {
@@ -2785,6 +2899,27 @@ wifigraph = {
 				break;
 			case 53:
 				return ((channel - 147) * graph.width) / 28 + wifigraph.axisLeft;
+				break;
+			case 61:
+				return ((channel + 1) * graph.width) / 32 + wifigraph.axisLeft;
+				break;
+			case 62:
+				return ((channel - 32) * graph.width) / 30 + wifigraph.axisLeft;
+				break;
+			case 63:
+				return ((channel - 64) * graph.width) / 30 + wifigraph.axisLeft;
+				break;
+			case 64:
+				return ((channel - 96) * graph.width) / 30 + wifigraph.axisLeft;
+				break;
+			case 65:
+				return ((channel - 128) * graph.width) / 30 + wifigraph.axisLeft;
+				break;
+			case 66:
+				return ((channel - 160) * graph.width) / 30 + wifigraph.axisLeft;
+				break;
+			case 67:
+				return ((channel - 192) * graph.width) / 38 + wifigraph.axisLeft;
 				break;
 		}
 	},
@@ -2830,6 +2965,27 @@ wifigraph = {
 			case 53:
 				ch = wifigraph.ch53;
 				break;
+			case 61:
+				ch = wifigraph.ch61;
+				break;
+			case 62:
+				ch = wifigraph.ch62;
+				break;
+			case 63:
+				ch = wifigraph.ch63;
+				break;
+			case 64:
+				ch = wifigraph.ch64;
+				break;
+			case 65:
+				ch = wifigraph.ch65;
+				break;
+			case 66:
+				ch = wifigraph.ch66;
+				break;
+			case 67:
+				ch = wifigraph.ch67;
+				break;
 		}
 		var oldwidth = 0;
 		ctx.textAlign = 'center';
@@ -2840,11 +2996,16 @@ wifigraph = {
 			ctx.lineTo(x, wifigraph.axisTop + graph.height);
 			ctx.stroke();
 			if (oldwidth < x) {
+				var band = graph.band;
+				if (graph.band > 50) { band = 5; }
+				if (graph.band > 60) { band = 6; }
 				ctx.fillStyle = color;
 				for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
-					if (ch[i] >= config.wlan_current_channels[idx].min && ch[i] <= config.wlan_current_channels[idx].max) {
-						ctx.fillStyle = 'red';
-						break;
+					if (freq2band(config.wlan_current_channels[idx].freq) == band) {
+						if (ch[i] >= config.wlan_current_channels[idx].min && ch[i] <= config.wlan_current_channels[idx].max) {
+							ctx.fillStyle = 'red';
+							break;
+						}
 					}
 				}
 				ctx.fillText(ch[i], x, wifigraph.axisTop + graph.height + 15);
@@ -3114,7 +3275,7 @@ function clientscallback(sortby) {
 					}
 					html += '</div>';
 				} else {
-					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
+					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz, wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}
 
 				var title1 = '';
@@ -3135,7 +3296,7 @@ function clientscallback(sortby) {
 					html += '</div>';
 					html += '<div class="col-xs-2"></div>';
 				} else {
-					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4 GHz' : '5 GHz') + '</div>';
+					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz</div>';
 					html += '<div class="col-xs-2 hidden-xs"><span title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
 				}
 				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
@@ -3356,7 +3517,7 @@ function clientslogscallback(first, last) {
 		for (var idx = first; idx <= last; idx++) {
 			var title = '';
 			if (filtered[idx].desc !== '' && typeof filtered[idx].desc.band !== 'undefined') {
-				title = 'Pasmo: ' + (filtered[idx].desc.band == 2 ? '2.4 GHz' : '5 GHz') + ', SSID: ' + filtered[idx].desc.ssid;
+				title = 'Pasmo: ' + (filtered[idx].desc.band == 2 ? '2.4' : filtered[idx].desc.band) + ' GHz, SSID: ' + filtered[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(filtered[idx].id)) + '</div>';
@@ -3450,7 +3611,7 @@ function hostinfo(id) {
 			}
 		}
 		if (host.type == 2) {
-			html += createRowForModal('Pasmo', (host.band == 2 ? '2.4 GHz' : '5 GHz'));
+			html += createRowForModal('Pasmo', (host.band == 2 ? '2.4' : host.band) + ' GHz');
 			if (host.capa) {
 				switch (host.capa) {
 					case 4:
@@ -3460,11 +3621,18 @@ function hostinfo(id) {
 						html += createRowForModal('Standard', 'Wi-Fi 5 (802.11ac)');
 						break;
 					case 6:
-						html += createRowForModal('Standard', 'Wi-Fi 6 (802.11ax)');
+						html += createRowForModal('Standard', 'Wi-Fi 6' + (host.band == 6 ? 'E' : '') + ' (802.11ax)');
 						break;
 				}
 			}
-			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm (~' + calculatedistance(host.band == 2 ? 2412 : 5180, host.signal) + ' m)'));
+			var distance = '';
+			for (var idx = 0; idx < (config.wlan_current_channels).length; idx++) {
+				if (config.wlan_current_channels[idx].phy == host.phy) {
+					distance = ' (~' + calculatedistance(config.wlan_current_channels[idx].freq, host.signal) + ' m)';
+					break;
+				}
+			}
+			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm' + distance));
 			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
 			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.rx) + '</span>');
 			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');
