@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ugps-helper
-PKG_VERSION:=20231107
+PKG_VERSION:=20240126
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/ugps-helper
 	SECTION:=utils
-	CATEGORY:=Utils
+	CATEGORY:=Utilities
 	TITLE:=ugps helper
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
