@@ -326,15 +326,16 @@ WAN_DEVICE=$(uci -q get network.wan.device)
 WAN_PINCODE=$(uci -q get network.wan.pincode)
 WAN_IFNAME=$(ubus call network.interface.wan status 2>/dev/null | jsonfilter -q -e '@.l3_device')
 
+WAN_IFNAME_DEFAULT=""
+WAN_PROTO_DEFAULT=""
 if [ -e /etc/board.json ]; then
 	if $DEVICESECTION; then
-		WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.device')
+		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
 	else
-		WAN_IFNAME_DEFAULT=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
 	fi
-elif [ -e /etc/gargoyle_default_ifs ]; then
-	WAN_IFNAME_DEFAULT=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 fi
+[ "x$WAN_PROTO_DEFAULT" != "xdhcp" ] && WAN_IFNAME_DEFAULT=""
 
 WAN_IFNAME_HILINK=$(grep -EHi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
 [ -z "$WAN_IFNAME_HILINK" ] && WAN_IFNAME_HILINK=$(ls -l /sys/class/net/*/device/driver | grep cdc_ether | sed 's!.*/sys/class/net/\(.*\)/device/.*!\1!')
@@ -1385,18 +1386,20 @@ detect_wan()
 	fi
 
 # wan port
+	WAN_IFNAME_DEFAULT=""
+	WAN_PROTO_DEFAULT=""
 	if [ -e /etc/board.json ]; then
 		if $DEVICESECTION; then
-			T=$(jsonfilter -i /etc/board.json -e '@.network.wan.device')
+			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
 		else
-			T=$(jsonfilter -i /etc/board.json -e '@.network.wan.ifname')
+			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
 		fi
-	elif [ -e /etc/gargoyle_default_ifs ]; then
-		T=$(awk '{print $2}' /etc/gargoyle_default_ifs)
 	fi
-	if [ -n "$T" ]; then
-		echo '{"proto":"dhcp","ifname":"'$T'"}'
-		exit 0
+	if [ "x$WAN_PROTO_DEFAULT" = "xdhcp" ]; then
+		if [ -n "$WAN_IFNAME_DEFAULT" ]; then
+			echo '{"proto":"dhcp","ifname":"'$WAN_IFNAME_DEFAULT'"}'
+			exit 0
+		fi
 	fi
 
 # none
