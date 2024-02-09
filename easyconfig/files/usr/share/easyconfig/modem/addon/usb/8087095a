@@ -1,0 +1,384 @@
+# Fibocom L860
+
+bandwidth() {
+	case $1 in
+		0) echo "1.4";;
+		1) echo "3";;
+		2) echo "5";;
+		3) echo "10";;
+		4) echo "15";;
+		5) echo "20";;
+		*) echo "";;
+	esac
+}
+
+channeltoband()
+{
+	if [ $1 -ge 0 ] && [ $1 -le 599 ]; then
+		echo "1"
+	elif [ $1 -ge 1200 ] && [ $1 -le 1949 ]; then
+		echo "3"
+	elif [ $1 -ge 2750 ] && [ $1 -le 3449 ]; then
+		echo "7"
+	elif [ $1 -ge 3450 ] && [ $1 -le 3799 ]; then
+		echo "8"
+	elif [ $1 -ge 6150 ] && [ $1 -le 6449 ]; then
+		echo "20"
+	else
+		echo "?"
+	fi
+}
+
+
+O=$(sms_tool -d $DEVICE at "AT+MTSM=1")
+
+T=$(echo "$O" | awk -F: '/^\+MTSM:/ {print $2}' | xargs)
+[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+
+if [ -z "$REG" ]; then
+	T=$(echo "$O" | awk -F[,:] '/^\+CREG:/{print $3}')
+	[ "x$T" = "x6" ] && REGOK=1
+fi
+
+if [ "$REGOK" = "1" ]; then
+
+O=$(sms_tool -d $DEVICE at "AT+XLEC?;+XMCI=1;+XCCINFO=1;+XCCINFO?")
+
+if [ "x$MODE_NUM" = "x7" ]; then
+	T=$(echo "$O" | awk -F[,:] '/^\+XCCINFO:/{print $11}' | xargs)
+	if [ -n "$T" ]; then
+		T_DEC=$(printf "%d" "0x$T")
+		addon 23 "TAC" "${T_DEC} ($T)"
+	fi
+
+	PB=""
+	S1B=""
+	S2B=""
+	S3B=""
+	S4B=""
+	BWP=""
+	BWS1=""
+	BWS2=""
+	BWS3=""
+	BWS4=""
+
+	CELLS=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $3}')
+	case $CELLS in
+		"1")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
+			BWP=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				PB=$(band4g ${T/BAND_LTE_/})
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$PB"
+				else
+					addon 30 "Primary band" "$PB @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+			;;
+		"2")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
+			BWP=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			BWS1=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				PB=$(band4g ${T/BAND_LTE_/})
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$(band4g ${T/BAND_LTE_/})"
+				else
+					addon 30 "Primary band" "$(band4g ${T/BAND_LTE_/}) @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S1B=$(band4g $T)
+				if [ -z "$BWS1" ]; then
+					addon 50 "(S1) band" "$S1B"
+				else
+					addon 50 "(S1) band" "$S1B @${BWS1} MHz"
+				fi
+				MODE="${MODE/LTE/LTE_A} / $S1B"
+			fi
+			;;
+		"3")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
+			BWP=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			BWS1=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
+			BWS2=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				PB=$(band4g ${T/BAND_LTE_/})
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$(band4g ${T/BAND_LTE_/})"
+				else
+					addon 30 "Primary band" "$(band4g ${T/BAND_LTE_/}) @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $8}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S1B=$(band4g $T)
+				if [ -z "$BWS1" ]; then
+					addon 50 "(S1) band" "$S1B"
+				else
+					addon 50 "(S1) band" "$S1B @${BWS1} MHz"
+				fi
+				MODE="${MODE/LTE/LTE_A} / $S1B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $9}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S2B=$(band4g $T)
+				if [ -z "$BWS2" ]; then
+					addon 60 "(S2) band" "$S2B"
+				else
+					addon 60 "(S2) band" "$S2B @${BWS2} MHz"
+				fi
+				MODE="$MODE / $S2B"
+			fi
+			;;
+		"4")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
+			BWP=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			BWS1=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
+			BWS2=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
+			BWS3=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $8}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				PB=$(band4g ${T/BAND_LTE_/})
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$PB"
+				else
+					addon 30 "Primary band" "$PB @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $9}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S1B=$(band4g $T)
+				if [ -z "$BWS1" ]; then
+					addon 50 "(S1) band" "$S1B"
+				else
+					addon 50 "(S1) band" "$S1B @${BWS1} MHz"
+				fi
+				MODE="${MODE/LTE/LTE_A} / $S1B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $10}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S2B=$(band4g $T)
+				if [ -z "$BWS2" ]; then
+					addon 60 "(S2) band" "$S2B"
+				else
+					addon 60 "(S2) band" "$S2B @${BWS2} MHz"
+				fi
+				MODE="$MODE / $S2B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $11}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S3B=$(band4g $T)
+				if [ -z "$BWS3" ]; then
+					addon 70 "(S3) band" "$S3B"
+				else
+					addon 70 "(S3) band" "$S3B @${BWS3} MHz"
+				fi
+				MODE="$MODE / $S3B"
+			fi
+			;;
+		"5")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
+			BWP=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			BWS1=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
+			BWS2=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
+			BWS3=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $8}')
+			BWS4=$(bandwidth "$T")
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $9}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				PB=$(band4g ${T/BAND_LTE_/})
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$PB"
+				else
+					addon 30 "Primary band" "$PB @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $10}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S1B=$(band4g $T)
+				if [ -z "$BWS1" ]; then
+					addon 50 "(S1) band" "$S1B"
+				else
+					addon 50 "(S1) band" "$S1B @${BWS1} MHz"
+				fi
+				MODE="${MODE/LTE/LTE_A} / $S1B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $11}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S2B=$(band4g $T)
+				if [ -z "$BWS2" ]; then
+					addon 60 "(S2) band" "S2B"
+				else
+					addon 60 "(S2) band" "S2B @${BWS2} MHz"
+				fi
+				MODE="$MODE / $S2B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $12}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S3B=$(band4g $T)
+				if [ -z "$BWS3" ]; then
+					addon 70 "(S3) band" "$S3B"
+				else
+					addon 70 "(S3) band" "$S3B @${BWS3} MHz"
+				fi
+				MODE="$MODE / $S3B"
+			fi
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $13}')
+			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
+				S4B=$(band4g $T)
+				if [ -z "$BWS4" ]; then
+					addon 80 "(S4) band" "$S4B"
+				else
+					addon 80 "(S4) band" "$S4B @${BWS4} MHz"
+				fi
+				MODE="$MODE / $S4B"
+			fi
+			;;
+	esac
+
+	T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $7}' | xargs)
+	if [ -n "$T" ]; then
+		addon 33 "PCI" "$(printf "%d" "$T")"
+		T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $8}' | xargs)
+		if [ "$T" != "0xFFFFFFFF" ]; then
+			addon 34 "EARFCN DL" "$(printf "%d" "$T")"
+			if [ -z "$PB" ]; then
+				T1=$(channeltoband $(printf "%d" "$T"))
+				PB=$(band4g $T1)
+				if [ -z "$BWP" ]; then
+					addon 30 "Primary band" "$PB"
+				else
+					addon 30 "Primary band" "$PB @${BWP} MHz"
+				fi
+				MODE="$MODE $PB"
+			fi
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $9}' | xargs)
+		[ "$T" != "0xFFFFFFFF" ] && addon 34 "EARFCN UL" "$(printf "%d" "$T")"
+		T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $11}')
+		if [ "$T" != "255" ]; then
+			addon 36 "RSRP" "$((-141 + T)) dBm"
+			N=""
+			case $BWP in
+				"1.4") N=6;;
+				"3") N=15;;
+				"5") N=25;;
+				"10") N=50;;
+				"15") N=75;;
+				"20") N=100;;
+			esac
+			if [ -n "$N" ]; then
+				RSSI=$(echo "$((-141 + T)) $N" | awk '{printf "%d\n", $1 + 10*log(12*$2)/log(10)}')
+				if [ -n "$RSSI" ]; then
+					[ $RSSI -lt -113 ] && RSSI="-113"
+					[ $RSSI -gt -51 ] && RSSI="-51"
+					addon 35 "RSSI" "$RSSI dBm"
+					CSQ_PER=$(((RSSI + 113) * 100 / 62))
+				fi
+			fi
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $12}')
+		[ "$T" != "255" ] && addon 37 "RSRQ" "$((-20 + T/2)) dB"
+#		T=$(echo "$O" | awk -F[,:] '/^\+XMCI: 4/{print $13}')
+#		[ "$T" != "255" ] && addon 38 "SNR" "$T dB"
+	fi
+
+IFS="
+"
+
+	IDX=1
+	POS=50
+	LINES=$(echo "$O" | grep "+XMCI: 5")
+	for LINE in $LINES; do
+		T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 5/{print $7}' | xargs)
+		if [ -n "$T" ]; then
+			addon $((POS + 3)) "(S${IDX}) PCI" "$(printf "%d" "$T")"
+			T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 5/{print $8}' | xargs)
+			if [ "$T" != "0xFFFFFFFF" ]; then
+				addon $((POS + 4)) "(S${IDX}) EARFCN DL" "$(printf "%d" "$T")"
+				case $IDX in
+					1)
+						if [ -z "$S1B" ]; then
+							T1=$(channeltoband $(printf "%d" "$T"))
+							S1B=$(band4g $T1)
+							if [ -z "$BWS1" ]; then
+								addon $POS "(S1) band" "$S1B"
+							else
+								addon $POS "(S1) band" "$S1B @${BWS1} MHz"
+							fi
+							MODE="${MODE/LTE/LTE_A} / $S1B"
+						fi
+						;;
+					2)
+						if [ -z "$S2B" ]; then
+							T1=$(channeltoband $(printf "%d" "$T"))
+							S2B=$(band4g $T1)
+							if [ -z "$BWS2" ]; then
+								addon $POS "(S2) band" "$S2B"
+							else
+								addon $POS "(S2) band" "$S2B @${BWS2} MHz"
+							fi
+							MODE="$MODE / $S2B"
+						fi
+						;;
+					3)
+						if [ -z "$S3B" ]; then
+							T1=$(channeltoband $(printf "%d" "$T"))
+							S3B=$(band4g $T1)
+							if [ -z "$BWS3" ]; then
+								addon $POS "(S3) band" "$S3B"
+							else
+								addon $POS "(S3) band" "$S3B @${BWS3} MHz"
+							fi
+							MODE="$MODE / $S3B"
+						fi
+						;;
+					4)
+						if [ -z "$S4B" ]; then
+							T1=$(channeltoband $(printf "%d" "$T"))
+							S4B=$(band4g $T1)
+							if [ -z "$BWS4" ]; then
+								addon $POS "(S4) band" "$S4B"
+							else
+								addon $POS "(S4) band" "$S4B @${BWS4} MHz"
+							fi
+							MODE="$MODE / $S4B"
+						fi
+						;;
+				esac
+			fi
+			T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 5/{print $9}' | xargs)
+			[ "$T" != "0xFFFFFFFF" ] && addon $((POS + 4)) "(S${IDX}) EARFCN UL" "$(printf "%d" "$T")"
+			T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 5/{print $11}')
+			[ "$T" != "255" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$((-141 + T)) dBm"
+			T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 5/{print $12}')
+			[ "$T" != "255" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$((-20 + T/2)) dB"
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+XMCI: 4/{print $13}')
+#			[ "$T" != "255" ] && addon $((POS + 8)) "(S${IDX}) SNR" "$T dB"
+			IDX=$((IDX + 1))
+			POS=$((POS + 10))
+		fi
+	done
+fi
+
+fi
