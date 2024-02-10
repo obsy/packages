@@ -32,6 +32,8 @@ opengt
  gosub readatcmd
  let $c="AT*ICCID?^m"
  gosub readatcmd
+ let $c="AT+CCID^m"
+ gosub readatcmd
 
  exit 0
 
