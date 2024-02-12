@@ -6163,25 +6163,25 @@ function btn_nightmode_getlocationfromgps() {
 /*****************************************************************************/
 
 function getDD2DMS(dms, type) {
-	function z(n){return (n<10?'0':'')+ +n;}
-	var sign = 1, Abs=0;
-	var days, minutes, secounds, direction;
+	function z(n){return (n < 10 ? '0' : '')+ +n;}
+	var sign = 1, Abs = 0;
+	var degrees, minutes, secounds, direction;
 
-	if(dms < 0)  { sign = -1; }
-	Abs = Math.abs( Math.round(dms * 1000000.));
-	if(type == "lat" && Abs > (90 * 1000000)){
+	if (dms < 0) { sign = -1; }
+	Abs = Math.abs(Math.round(dms * 1000000.));
+	if (type == "lat" && Abs > (90 * 1000000)) {
 		return false;
-	} else if(type == "lon" && Abs > (180 * 1000000)){
+	} else if (type == "lon" && Abs > (180 * 1000000)) {
 		return false;
 	}
 
-	days = Math.floor(Abs / 1000000);
-	minutes = Math.floor(((Abs/1000000) - days) * 60);
-	secounds = ( Math.floor((( ((Abs/1000000) - days) * 60) - minutes) * 100000) *60/100000 ).toFixed();
-	days = days * sign;
-	if(type == 'lat') direction = days<0 ? 'S' : 'N';
-	if(type == 'lon') direction = days<0 ? 'W' : 'E';
-	return (days * sign) + 'º' + z(minutes) + "'" + z(secounds) + "'' " + direction;
+	degrees = Math.floor(Abs / 1000000);
+	minutes = Math.floor(((Abs/1000000) - degrees) * 60);
+	secounds = ( Math.floor((( ((Abs/1000000) - degrees) * 60) - minutes) * 100000) *60/100000 ).toFixed();
+	degrees = degrees * sign;
+	if (type == 'lat') direction = degrees < 0 ? 'S' : 'N';
+	if (type == 'lon') direction = degrees < 0 ? 'W' : 'E';
+	return (degrees * sign) + 'º' + z(minutes) + "'" + z(secounds) + "'' " + direction;
 }
 
 var gpsID = null;
@@ -6269,17 +6269,17 @@ function readgps() {
 }
 
 function showgps() {
-	var url = 'https://unpkg.com/leaflet@1.9.3/dist/leaflet.js';
-	if (!Boolean(document.querySelector('script[src="' + url + '"]'))) {
+	var url = 'https://unpkg.com/leaflet@1.9.4/dist';
+	if (!Boolean(document.querySelector('script[src="' + url + '/leaflet.js"]'))) {
 		var css = document.createElement('link');
 		css.rel = 'stylesheet';
 		css.type = 'text/css';
-		css.href = 'https://unpkg.com/leaflet@1.9.3/dist/leaflet.css';
+		css.href = url + '/leaflet.css';
 		document.getElementsByTagName("head")[0].appendChild(css);
 
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
-		script.src = url;
+		script.src = url + '/leaflet.js';
 		document.getElementsByTagName("head")[0].appendChild(script);
 
 		script.onload = function() {
