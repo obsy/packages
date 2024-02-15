@@ -2382,6 +2382,9 @@ function btn_system_reboot() {
 
 function okreboot() {
 	ubus('"easyconfig", "reboot", {}', function(data) {
+		token = "00000000000000000000000000000000";
+		setCookie('easyconfig_token', '', 1);
+		setCookie('easyconfig_page', '', 1);
 		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać kilka minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
@@ -2394,6 +2397,9 @@ function btn_system_firstboot() {
 
 function okfirstboot() {
 	ubus('"file", "exec", {"command":"firstboot","params":["-r", "-y"]}', function(data) {
+		token = "00000000000000000000000000000000";
+		setCookie('easyconfig_token', '', 1);
+		setCookie('easyconfig_page', '', 1);
 		showMsg("Trwa ponowne uruchomienie urządzenia, może to potrwać kilka minut...", false);
 	}, function(status) {
 		showMsg("Błąd pobierania danych!", true);
