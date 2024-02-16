@@ -2199,14 +2199,21 @@ function oksimslotchange() {
 	});
 }
 
-function restartwan() {
-	closemodembands();
-
-	var cmd = [];
-	cmd.push('ifdown wan');
-	cmd.push('sleep 3');
-	cmd.push('ifup wan');
-	execute(cmd, modembands);
+function restartwan(modal) {
+	switch (modal) {
+		case '4g':
+			closemodembands4g();
+			execute(['ifdown wan', 'sleep 3', 'ifup wan'], modembands4g);
+			break;
+		case '5gnsa':
+			closemodembands5gnsa();
+			execute(['ifdown wan', 'sleep 3', 'ifup wan'], modembands5gnsa);
+			break;
+		case '5gsa':
+			closemodembands5gsa();
+			execute(['ifdown wan', 'sleep 3', 'ifup wan'], modembands5gsa);
+			break;
+	}
 }
 
 var arrmodemaddon = [];
