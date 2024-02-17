@@ -172,7 +172,7 @@ if [ "x$MODE_NUM" = "x11" ]; then
 				if [ -n "$RSSI" ]; then
 					[ $RSSI -lt -113 ] && RSSI="-113"
 					[ $RSSI -gt -51 ] && RSSI="-51"
-					addon 55 "RSSI" "$RSSI dBm"
+					addon 35 "RSSI" "$RSSI dBm"
 					[ -z "$CSQ_PER" ] && CSQ_PER=$(((RSSI + 113) * 100 / 62 ))
 				fi
 			fi
