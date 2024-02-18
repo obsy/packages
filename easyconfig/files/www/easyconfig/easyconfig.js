@@ -1664,13 +1664,17 @@ function showbandwidth(mac) {
 			if (!e || e.offsetParent === null) {
 				clearInterval(bandwidthID);
 				if (mac == '') {
-					setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
-					setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
+					if (bandwidth_old['tx'] > -1) {
+						setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
+						setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
+					}
 				} else {
 					for (var idx = 0; idx < clients.length; idx++) {
 						if (clients[idx].mac == mac && clients[idx].active) {
-							clients[idx].tx = bandwidth_old['tx'];
-							clients[idx].rx = bandwidth_old['rx'];
+							if (bandwidth_old['tx'] > -1) {
+								clients[idx].tx = bandwidth_old['tx'];
+								clients[idx].rx = bandwidth_old['rx'];
+							}
 							clientscallback('');
 							break;
 						}
