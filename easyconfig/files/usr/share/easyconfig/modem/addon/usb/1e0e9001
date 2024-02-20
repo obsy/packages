@@ -24,9 +24,9 @@ case $MODE_NUM in
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $9}')
 		[ -n "$T" ] && addon 34 "EARFCN" "$T"
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $10}')
-		[ -n "$T" ] && addon 34 "Bandwidth DL" "$T MHz"
+		[ -n "$T" ] && addon 32 "Bandwidth DL" "$T MHz"
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $11}')
-		[ -n "$T" ] && addon 34 "Bandwidth UL" "$T MHz"
+		[ -n "$T" ] && addon 31 "Bandwidth UL" "$T MHz"
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $12/10}')
 		[ -n "$T" ] && addon 37 "RSRQ" "$T dB"
 		T=$(echo "$O" | awk -F[,:] '/^\+CPSI: LTE/ {print $13/10}')

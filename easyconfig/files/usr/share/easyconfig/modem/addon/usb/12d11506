@@ -40,7 +40,7 @@ if [ -n "$T" ]; then
 					addon 34 "EARFCN DL" "$T"
 
 					T=$(echo "$O1" | awk -F[,:] '/^\^HFREQINFO/ {printf "%.1f", $7/1000}')
-					addon 31 "Bandwidth DL" "$T MHz"
+					addon 32 "Bandwidth DL" "$T MHz"
 
 					T=$(echo "$O1" | awk -F[,:] '/^\^HFREQINFO/ {print $8}')
 					addon 34 "EARFCN UL" "$T"
