@@ -1832,18 +1832,18 @@ function showstatus() {
 						case 'online':
 							css = ' style="color:green";';
 							status1 = 'Dostępny';
-							status2 = formatDuration(data1.interfaces[i].online, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].online)) +  ')</small>';
+							status2 = formatDuration(data1.interfaces[i].online, true) + '<span class="visible-xs oneline"></span> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].online)) +  ')';
 							break;
 						case 'offline':
 							css = ' style="color:red";';
 							status1 = 'Niedostępny';
-							status2 = 'przestój ' + formatDuration(data1.interfaces[i].offline, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].offline)) +  ')</small>';
+							status2 = 'przestój ' + formatDuration(data1.interfaces[i].offline, true) + '<span class="visible-xs oneline"></span> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].offline)) +  ')';
 							break;
 						case 'notracking':
 							status1 = 'Bez śledzenia';
 							if (data1.interfaces[i].uptime > 0) {
 								css = ' style="color:green";';
-								status2 = formatDuration(data1.interfaces[i].uptime, true) + '<span class="visible-xs oneline"></span><small> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].uptime)) +  ')</small>';
+								status2 = formatDuration(data1.interfaces[i].uptime, true) + '<span class="visible-xs oneline"></span> (od ' + formatDateTime(timestampToDate(Date.now()/1000 - data1.interfaces[i].uptime)) +  ')';
 							} else {
 								css = '';
 								status2 = '-';
@@ -3652,13 +3652,13 @@ function hostinfo(id) {
 			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm' + distance));
 			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
 			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.rx) + '</span>');
-			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><small><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span></small>');
+			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span>');
 		}
 		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));
 	}
 	html += createRowForModal('Pierwszy raz widziany', formatDateTime(host.first_seen));
 	if (!host.active) {
-		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><small><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span></small>');
+		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span>');
 	}
 	showMsg(html, false);
 }
@@ -4185,7 +4185,7 @@ function queriescallback(sortby, order) {
 				cnt ++;
 			}
 		}
-		html += '<div class="row"><div class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</div><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span><small> (' + parseInt(cnt * 100 / filtered.length) + '%)</small></p></div></div>';
+		html += '<div class="row"><div class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</div><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span> (' + parseInt(cnt * 100 / filtered.length) + '%)</p></div></div>';
 		html += '<hr>'
 
 		html += '<div class="form-group row" id="div_queries_hosts">';
