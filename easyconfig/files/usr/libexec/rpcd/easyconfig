@@ -328,13 +328,15 @@ WAN_IFNAME=$(ubus call network.interface.wan status 2>/dev/null | jsonfilter -q 
 
 WAN_IFNAME_DEFAULT=""
 WAN_PROTO_DEFAULT=""
+WAN_PORTS_DEFAULT=""
 if [ -e /etc/board.json ]; then
 	if $DEVICESECTION; then
-		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
+		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol' -e 'WAN_PORTS_DEFAULT=@.network.wan.ports')
 	else
-		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
+		eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol' -e 'WAN_PORTS_DEFAULT=@.network.wan.ports')
 	fi
 fi
+[ -z "$WAN_IFNAME_DEFAULT" ] && [ -n "$WAN_PORTS_DEFAULT" ] && WAN_IFNAME_DEFAULT="br-wan"
 [ "x$WAN_PROTO_DEFAULT" != "xdhcp" ] && WAN_IFNAME_DEFAULT=""
 
 WAN_IFNAME_HILINK=$(grep -EHi "(cdc ethernet control|rndis communications control)" /sys/class/net/*/device/interface 2>/dev/null | cut -f5 -d/)
@@ -1388,13 +1390,15 @@ detect_wan()
 # wan port
 	WAN_IFNAME_DEFAULT=""
 	WAN_PROTO_DEFAULT=""
+	WAN_PORTS_DEFAULT=""
 	if [ -e /etc/board.json ]; then
 		if $DEVICESECTION; then
-			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
+			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.device' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol' -e 'WAN_PORTS_DEFAULT=@.network.wan.ports')
 		else
-			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol')
+			eval $(jsonfilter -i /etc/board.json -e 'WAN_IFNAME_DEFAULT=@.network.wan.ifname' -e 'WAN_PROTO_DEFAULT=@.network.wan.protocol' -e 'WAN_PORTS_DEFAULT=@.network.wan.ports')
 		fi
 	fi
+	[ -z "$WAN_IFNAME_DEFAULT" ] && [ -n "WAN_PORTS_DEFAULT" ] && WAN_IFNAME_DEFAULT="br-wan"
 	if [ "x$WAN_PROTO_DEFAULT" = "xdhcp" ]; then
 		if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 			echo '{"proto":"dhcp","ifname":"'$WAN_IFNAME_DEFAULT'"}'

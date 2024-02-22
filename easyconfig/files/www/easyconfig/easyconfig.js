@@ -538,7 +538,7 @@ function enableWan(proto) {
 			e.appendChild(opt);
 		}
 	}
-	if (proto != 'static' && proto != 'dhcp' && config.wan_ifname_default !== '') {
+	if (proto != 'static' && proto != 'dhcp' && config.wan_ifname_default !== '' && config.wan_ifname_default != 'br-wan') {
 		fields.push('wan_wanport');
 	}
 	if (proto != 'none') {
