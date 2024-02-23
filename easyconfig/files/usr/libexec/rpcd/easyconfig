@@ -464,8 +464,8 @@ echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
 echo '"wan_wanport":"'$WAN_WANPORT'",'
 
 echo '"wan_protos":["none"'
-if grep -q "Vendor=19d2 ProdID=1489" /sys/kernel/debug/usb/devices; then
-	# ZTE MF286R
+T=$(echo $(sed 's/^$/######/g' /sys/kernel/debug/usb/devices) | sed 's/######/\n/g' | awk '/Driver=rndis_host/ && /Driver=cdc_acm/')
+if [ -n "$T" ]; then
 	echo ',"ncm"'
 else
 	if [ -n "$WAN_IFNAME_DEFAULT" ]; then
@@ -1285,28 +1285,12 @@ pincode()
 
 detect_wan()
 {
-# ZTE MF286R
-	if grep -q "Vendor=19d2 ProdID=1489" /sys/kernel/debug/usb/devices; then
-		ifdown wan
-
-		D=/dev/ttyACM0
-		O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
-		if echo "$O" | grep -q "SIM PIN"; then
-			echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
-			exit 0
-		fi
-
-		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
-		echo '{"proto":"ncm","device":"'$D'","apn":"'${APN:-internet}'"}'
-		exit 0
-	fi
-
 # modem usb qmi
 	T=$(grep qmi_wwan /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$T" ]; then
 		F=$(mktemp)
 		DEVICE=""
-		DEVICES=$(ls /dev/cdc-wdm*)
+		DEVICES=$(ls /dev/cdc-wdm* 2>/dev/null)
 		for D in $DEVICES; do
 			echo "" > $F
 			(uqmi -s -d $D --get-pin-status > $F) &
@@ -1321,7 +1305,6 @@ detect_wan()
 				break
 			fi
 		done
-
 		if [ -n "$DEVICE" ]; then
 			if grep -q '"pin1_status":"not_verified"' $F; then
 				rm $F >/dev/null 2>&1
@@ -1338,8 +1321,8 @@ detect_wan()
 	T=$(grep cdc_ncm /sys/kernel/debug/usb/devices 2>/dev/null)
 	if [ -n "$T" ]; then
 		ifdown wan
-		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm*)
-
+		DEVICE=""
+		DEVICES=$(ls /dev/ttyUSB* /dev/cdc-wdm* 2>/dev/null)
 		for D in $DEVICES; do
 			O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
 			if echo "$O" | grep -q "SIM PIN"; then
@@ -1351,17 +1334,41 @@ detect_wan()
 				break
 			fi
 		done
+		if [ -n "$DEVICE" ]; then
+			APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+			echo '{"proto":"ncm","device":"'$DEVICE'","apn":"'${APN:-internet}'"}'
+			exit 0
+		fi
+	fi
 
-		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
-		echo '{"proto":"ncm","device":"'$D'","apn":"'${APN:-internet}'"}'
-		exit 0
+	T=$(echo $(sed 's/^$/######/g' /sys/kernel/debug/usb/devices) | sed 's/######/\n/g' | awk '/Driver=rndis_host/ && /Driver=cdc_acm/')
+	if [ -n "$T" ]; then
+		ifdown wan
+		DEVICE=""
+		DEVICES=$(ls /dev/ttyACM* 2>/dev/null)
+		for D in $DEVICES; do
+			O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
+			if echo "$O" | grep -q "SIM PIN"; then
+				echo '{"proto":"ncm","device":"'$D'","action":"pinrequired"}'
+				exit 0
+			fi
+			if echo "$O" | grep -q "+CPIN"; then
+				DEVICE=$D
+				break
+			fi
+		done
+		if [ -n "$DEVICE" ]; then
+			APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+			echo '{"proto":"ncm","device":"'$DEVICE'","apn":"'${APN:-internet}'"}'
+			exit 0
+		fi
 	fi
 
 # modem usb, generic
 	T=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
 	if [ -n "$T" ]; then
 		ifdown wan
-
+		DEVICE=""
 		for D in $T; do
 			O=$(gcom -d $D -s /usr/share/easyconfig/modem/checkext.gcom)
 			if echo "$O" | grep -q "SIM PIN"; then
@@ -1373,10 +1380,11 @@ detect_wan()
 				break
 			fi
 		done
-
-		APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
-		echo '{"proto":"3g","device":"'$D'","apn":"'${APN:-internet}'"}'
-		exit 0
+		if [ -n "$DEVICE" ]; then
+			APN=$(echo $O | awk -F, '/^\+CGDCONT: 1/{print $3}' | xargs)
+			echo '{"proto":"3g","device":"'$DEVICE'","apn":"'${APN:-internet}'"}'
+			exit 0
+		fi
 	fi
 
 # modem usb hilink or rndis
