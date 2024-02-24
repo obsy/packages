@@ -1314,7 +1314,17 @@ detect_wan()
 			rm $F >/dev/null 2>&1
 			echo '{"proto":"qmi","device":"'$DEVICE'","apn":"internet"}'
 			exit 0
+		else
+			rm $F >/dev/null 2>&1
 		fi
+	fi
+
+# modem usb mbim
+	T=$(grep cdc_mbim /sys/kernel/debug/usb/devices 2>/dev/null)
+	if [ -n "$T" ]; then
+		DEVICE=$(ls /dev/cdc-wdm* | head -n1)
+		echo '{"proto":"mbim","device":"'$DEVICE'","apn":"internet"}'
+		exit 0
 	fi
 
 # modem usb ncm
