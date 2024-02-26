@@ -31,23 +31,54 @@ if [ -n "$T" ]; then
 fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+ZPAS/ {print $2}' | xargs)
-if [ -n "$T" ]; then
-	MODE=$T
-	T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
-	if [ "x$MODE_NUM" = "x7" ]; then
-		MODE="$MODE $(band4g ${T/LTE B/})"
-	else
-		MODE="$MODE $T"
-	fi
-fi
+[ -n "$T" ] && MODE=$T
 
 case "$MODE_NUM" in
+	7*)
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		MODE="$MODE $(band4g ${T/LTE B/})"
+		addon 30 "Primary band" "$(band4g ${T/LTE B/})"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $3}' | xargs)
+		addon 33 "PCI" "$T"
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $5}' | xargs)
+		addon 34 "EARFCN" "$T"
+		;;
 	9*)
-		T=$(echo "$O" | awk -F[,] '/^\+ZCAINFO: /{print $11}')
-		if [ -n "$T" ]; then
-			if [ "$T" != "0" ]; then
-				MODE="$MODE / $(band4g ${T})"
-			fi
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCELLINFO/ {print $4}' | xargs)
+		MODE="$MODE $(band4g ${T/LTE B/})"
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 30 "Primary band" "$(band4g ${T/LTE B/})"
+		fi
+
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCAINFO: /{print $6}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 32 "Bandwidth" "$T MHz"
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCAINFO: /{print $2}' | xargs)
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 33 "PCI" "$T"
+		fi
+		T=$(echo "$O" | awk -F[,:] '/^\+ZCAINFO: /{print $5}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 34 "EARFCN" "$T"
+		fi
+
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO: /{print $13}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			MODE="$MODE / $(band4g ${T})"
+			addon 50 "(S1) band" "$(band4g ${T})"
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO: /{print $15}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 52 "(S1) bandwidth" "$T MHz"
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO: /{print $11}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 53 "(S1) PCI" "$T"
+		fi
+		T=$(echo "$O" | awk -F[,:\;] '/^\+ZCAINFO: /{print $14}')
+		if [ -n "$T" ] && [ "$T" != "0" ]; then
+			addon 54 "(S1) EARFCN" "$T"
 		fi
 		;;
 esac
