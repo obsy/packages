@@ -175,6 +175,10 @@ h3 {
   cursor: pointer;
 }
 
+.margintop {
+  margin-top: 10px;
+}
+
 .space {
   margin-bottom: 10px;
 }

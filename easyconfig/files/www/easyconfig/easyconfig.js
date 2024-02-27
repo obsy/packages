@@ -319,6 +319,20 @@ function createRow4ColForModal(key, value1, value2, value3) {
 		'</div>';
 }
 
+function createRow9ColForModal(arr) {
+	return '<div class="row">' +
+		'<div class="col-xs-1 text-right"><p>' + arr[0] + '</p></div>' +
+		'<div class="col-xs-3 text-left"><p>' + arr[1] + '</p></div>' +
+		'<div class="col-xs-2 text-left"><p>' + arr[2] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[3] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[4] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[5] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[6] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[7] + '</p></div>' +
+		'<div class="col-xs-1 text-left"><p>' + arr[8] + '</p></div>' +
+		'</div>';
+}
+
 /*****************************************************************************/
 
 var modal;
@@ -2277,7 +2291,20 @@ function showmodem() {
 			}
 
 			setValue('modem_operator', data.operator_name == '' ? '-' : data.operator_name);
-			setValue('modem_mode', data.mode == '' ? '-' : data.mode);
+			var mode = (data.mode == '' ? '-' : data.mode);
+			if (mode.toLowerCase().includes('lte') || mode.toLowerCase().includes('5g')) {
+				if (mode.toLowerCase().includes('lte')) {
+					mode = (data.mode).split(' ')[0];
+				}
+				if (mode.toLowerCase().includes('5g')) {
+					mode = (data.mode).split(' ')[0] + ' ' + (data.mode).split(' ')[1];
+				}
+				var count = ((data.mode).match(/\//g) || []).length;
+				if (count > 0) {
+					mode += ' (' + (count + 1) + 'CA)';
+				}
+			}
+			setValue('modem_mode', mode);
 
 			arrmodemaddon.push({'idx':1, 'key':'Technologia', 'value':data.mode});
 			if (data.operator_mcc && data.operator_mcc != '' && data.operator_mnc && data.operator_mnc != '') {
@@ -2322,9 +2349,10 @@ function showmodem() {
 }
 
 function paramdesc(param, value) {
-	var description = '';
 	var pvalue = parseInt(value.split(' ')[0]);
+	var description = '';
 	var color = '';
+	var title = '';
 	switch(param) {
 		case 'rssi':
 			if (pvalue > -65) { color = '#2bdf5a'; description += 'doskonały'; }
@@ -2332,57 +2360,341 @@ function paramdesc(param, value) {
 			if (pvalue > -85 && pvalue <= -75 ) { color = '#f8c200'; description += 'słaby'; }
 			if (pvalue > -95 && pvalue <= -85 ) { color = '#fa0000'; description += 'zły'; }
 			if (pvalue <= -95) { color = '#fa0000'; description += 'bardzo zły'; }
+			title += "> -65 dBm doskonały\n";
+			title += "> -75 dBm i <= -65 dBm dobry\n";
+			title += "> -85 dBm i <= -75 dBm słaby\n";
+			title += "> -95 dBm i <= -85 dBm zły\n";
+			title += "<= -95 dBm bardzo zły";
 			break;
 		case 'rsrp':
 			if (pvalue >= -80) { color = '#2bdf5a'; description += 'doskonały'; }
 			if (pvalue >= -90 && pvalue < -80 ) { color = '#efff12'; description += 'dobry'; }
 			if (pvalue >= -100 && pvalue < -90 ) { color = '#f8c200'; description += 'słaby'; }
 			if (pvalue < -100) { color = '#fa0000'; description += 'zły'; }
+			title += "> -80 dBm doskonały\n";
+			title += ">= -90 dBm i < -80 dBm dobry\n";
+			title += ">= -100 dBm i < -90 dBm słaby\n";
+			title += "< -100 dBm zły";
 			break;
 		case 'rsrq':
 			if (pvalue >= -10) { color = '#2bdf5a'; description += 'doskonały'; }
 			if (pvalue >= -15 && pvalue < -10 ) { color = '#efff12'; description += 'dobry'; }
 			if (pvalue >= -20 && pvalue < -15 ) { color = '#f8c200'; description += 'słaby'; }
 			if (pvalue < -20) { color = '#fa0000'; description += 'zły'; }
-			break;
-		case 'sinr':
-			if (pvalue >= 20) {color = '#2bdf5a'; description += 'doskonały'; }
-			if (pvalue >= 13 && pvalue < 20 ) { color = '#efff12'; description += 'dobry'; }
-			if (pvalue >= 0 && pvalue < 13 ) { color = '#f8c200'; description += 'słaby'; }
-			if (pvalue < 0) { color = '#fa0000'; description += 'zły'; }
+			title += ">= -10 dB doskonały\n";
+			title += ">= -15 dB i < -10 dB dobry\n";
+			title += ">= -20 dB i < -15 dB słaby\n";
+			title += "< -20 dB zły";
 			break;
 	}
-	return ', <span style="color:' + color + '">' + description + '</span>';
+	return ', <span style="color:' + color + '" title="' + title + '">' + description + '</span>';
 }
 
 function modemaddon() {
-	var is4g = false;
-	var description = '';
+	var htmlco = '';
+	var htmlxs = '';
 	var html = '';
+	var pcc = [];
+	var scc1 = [];
+	var scc2 = [];
+	var scc3 = [];
+	var scc4 = [];
 	var sorted = sortJSON(arrmodemaddon, 'idx', 'asc');
 	sorted.forEach(function(e) {
-		if (e.idx == 1) {
-			if ((e.value).search(/LTE/) > -1) { is4g = true; }
-			return;
-		}
-		description = '';
-		if (is4g) {
-			if ((e.key).search(/RSSI/) > -1) {
+		var description = '';
+		switch (e.idx) {
+			// MODE
+			case 1:
+				if ((e.value).search(/^LTE B/) > -1 || (e.value).search(/^LTE_A B/) > -1) {
+					pcc = Array(9).fill('-');
+					pcc[0] = 'PCC';
+					pcc[1] = (e.value).replace(/^LTE /, '').replace(/^LTE_A /, '');
+				}
+				if ((e.value).search(/^5G/) > -1) {
+					pcc = Array(9).fill('-');
+					pcc[0] = 'PCC';
+					pcc[1] = (e.value).replace(/^5G NSA /, '').replace(/^5G SA /, '');
+				}
+				break;
+			// PCC
+			case 30:
+				pcc = Array(9).fill('-');
+				pcc[0] = 'PCC';
+				if ((e.value).includes(' @')) {
+					pcc[1] = (e.value).split(' @')[0];
+					pcc[2] = (e.value).split(' @')[1];
+				} else {
+					pcc[1] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 32:
+				if ((e.key).toLowerCase().includes('bandwidth dl') || (e.key).toLowerCase() == 'bandwidth') {
+					pcc[2] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 33:
+				pcc[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 34:
+				if (!(e.key).toLowerCase().includes('earfcn ul')) {
+					pcc[4] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 35:
 				description = paramdesc('rssi', e.value);
-			}
-			if ((e.key).search(/RSRP/) > -1) {
+				pcc[5] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 36:
 				description = paramdesc('rsrp', e.value);
-			}
-			if ((e.key).search(/RSRQ/) > -1) {
+				pcc[6] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 37:
 				description = paramdesc('rsrq', e.value);
-			}
-			if ((e.key).search(/SINR/) > -1) {
-				description = paramdesc('sinr', e.value);
-			}
+				pcc[7] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 38:
+				if ((e.key).toLowerCase().includes('sinr')) {
+					pcc[8] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			// SCC1
+			case 50:
+				scc1 = Array(9).fill('-');
+				scc1[0] = 'SCC1';
+				if ((e.value).includes(' @')) {
+					scc1[1] = (e.value).split(' @')[0];
+					scc1[2] = (e.value).split(' @')[1];
+				} else {
+					scc1[1] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 52:
+				scc1[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 53:
+				scc1[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 54:
+				if (!(e.key).toLowerCase().includes('earfcn ul')) {
+					scc1[4] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 55:
+				description = paramdesc('rssi', e.value);
+				scc1[5] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 56:
+				description = paramdesc('rsrp', e.value);
+				scc1[6] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 57:
+				description = paramdesc('rsrq', e.value);
+				scc1[7] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 58:
+				if ((e.key).toLowerCase().includes('sinr')) {
+					scc1[8] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			// SCC2
+			case 60:
+				scc2 = Array(9).fill('-');
+				scc2[0] = 'SCC2';
+				if ((e.value).includes(' @')) {
+					scc2[1] = (e.value).split(' @')[0];
+					scc2[2] = (e.value).split(' @')[1];
+				} else {
+					scc2[1] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 62:
+				scc2[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 63:
+				scc2[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 64:
+				if (!(e.key).toLowerCase().includes('earfcn ul')) {
+					scc2[4] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 65:
+				description = paramdesc('rssi', e.value);
+				scc2[5] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 66:
+				description = paramdesc('rsrp', e.value);
+				scc2[6] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 67:
+				description = paramdesc('rsrq', e.value);
+				scc2[7] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 68:
+				if ((e.key).toLowerCase().includes('sinr')) {
+					scc2[8] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			// SCC3
+			case 70:
+				scc3 = Array(9).fill('-');
+				scc3[0] = 'SCC3';
+				if ((e.value).includes(' @')) {
+					scc3[1] = (e.value).split(' @')[0];
+					scc3[2] = (e.value).split(' @')[1];
+				} else {
+					scc3[1] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 72:
+				scc3[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 73:
+				scc3[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 74:
+				if (!(e.key).toLowerCase().includes('earfcn ul')) {
+					scc3[4] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 75:
+				description = paramdesc('rssi', e.value);
+				scc3[5] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 76:
+				description = paramdesc('rsrp', e.value);
+				scc3[6] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 77:
+				description = paramdesc('rsrq', e.value);
+				scc3[7] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 78:
+				if ((e.key).toLowerCase().includes('sinr')) {
+					scc3[8] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			// SCC4
+			case 80:
+				scc4 = Array(9).fill('-');
+				scc4[0] = 'SCC4';
+				if ((e.value).includes(' @')) {
+					scc4[1] = (e.value).split(' @')[0];
+					scc4[2] = (e.value).split(' @')[1];
+				} else {
+					scc4[1] = e.value;
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 82:
+				scc4[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 83:
+				scc4[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 84:
+				if (!(e.key).toLowerCase().includes('earfcn ul')) {
+					scc4[4] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 85:
+				description = paramdesc('rssi', e.value);
+				scc4[5] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 86:
+				description = paramdesc('rsrp', e.value);
+				scc4[6] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 87:
+				description = paramdesc('rsrq', e.value);
+				scc4[7] = e.value + description.replace(', ', '<br>');
+				htmlxs += createRowForModal(e.key, e.value + description);
+				break;
+			case 88:
+				if ((e.key).toLowerCase().includes('sinr')) {
+					scc4[8] = e.value;
+				} else {
+					html += createRowForModal(e.key, e.value);
+				}
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			default:
+				if (e.idx < 30) {
+					htmlco += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value);
+				} else {
+					html += createRowForModal(e.key, e.value);
+					htmlxs += createRowForModal(e.key, e.value);
+				}
 		}
-		html += createRowForModal((e.key == 'Temperature' ? 'Temperatura' : e.key), e.value + description);
 	});
-	showMsg(html);
+	htmlco += '<div class="visible-xs-block visible-sm-block">' + htmlxs + '</div>';
+	var table = (pcc.length + scc1.length + scc2.length + scc3.length + scc4.length > 0);
+	if (table) { htmlco += '<div class="margintop hidden-xs hidden-sm">' + html; }
+	if (pcc.length > 0) {
+		htmlco += createRow9ColForModal(['', 'Pasmo', 'Szerokość', 'PCI', 'EARFCN', 'RSSI', 'RSRP', 'RSRQ', 'SINR']);
+		htmlco += createRow9ColForModal(pcc);
+	}
+	if (scc1.length > 0) { htmlco += createRow9ColForModal(scc1); }
+	if (scc2.length > 0) { htmlco += createRow9ColForModal(scc2); }
+	if (scc3.length > 0) { htmlco += createRow9ColForModal(scc3); }
+	if (scc4.length > 0) { htmlco += createRow9ColForModal(scc4); }
+	if (table) { htmlco += '</div>'; }
+	showMsg(htmlco);
 }
 
 /*****************************************************************************/
