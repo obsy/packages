@@ -186,6 +186,15 @@ DEVICE=$($RES/detect.sh)
 if [ -z "$DEVICE" ]; then
 	echo '{"error":"Device not found"}'
 	exit 0
+elif [ ! -e "$DEVICE" ]; then
+	uci -q del easyconfig.modem.device
+	uci commit easyconfig
+	rm /var/state/easyconfig_modem 2>/dev/null
+	DEVICE=$($RES/detect.sh)
+	if [ -z "$DEVICE" ]; then
+		echo '{"error":"Device not found"}'
+		exit 0
+	fi
 fi
 
 O=""
