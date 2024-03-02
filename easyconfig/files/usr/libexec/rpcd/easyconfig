@@ -2020,6 +2020,7 @@ leds() {
 		echo 0 > $i/brightness
 		done
 		touch /tmp/led_off
+		[ -e /etc/easyconfig_leds.user ] && env -i ACTION="off" /bin/sh /etc/easyconfig_leds.user
 	else
 		rm /tmp/led_off 2>/dev/null
 		/etc/init.d/led start >/dev/null 2>&1
@@ -2036,6 +2037,7 @@ leds() {
 				fi
 			done
 		fi
+		[ -e /etc/easyconfig_leds.user ] && env -i ACTION="on" /bin/sh /etc/easyconfig_leds.user
 	fi
 	echo '{"response":"done"}'
 }
