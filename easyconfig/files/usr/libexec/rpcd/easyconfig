@@ -1519,8 +1519,19 @@ upgrade() {
 		exit 0
 	fi
 
-	BOARD=$(sed 's/,/_/g' /tmp/sysinfo/board_name)
-	T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS | tail -n1)
+	if [ "$ARCH" = "x86" ]; then
+		FS=$(mount | awk '/^\/dev\/root on/{print $5}')
+		if [ -e /sys/firmware/efi ]; then
+			EFI="-efi"
+		else
+			EFI=""
+		fi
+		BOARD="x86-64-generic-${FS}-combined${EFI}.img"
+		T=$(grep -E "mifi.*$BOARD" $FSUMS | tail -n1)
+	else
+		BOARD=$(sed 's/,/_/g' /tmp/sysinfo/board_name)
+		T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS | tail -n1)
+	fi
 	rm $FSUMS >/dev/null 2>&1
 	if [ -z "$T" ]; then
 		echo '{"error":2}'
