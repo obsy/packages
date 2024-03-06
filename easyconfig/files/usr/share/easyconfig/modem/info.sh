@@ -225,7 +225,7 @@ if [ -n "$COPS_NUM" ]; then
 fi
 
 if [ -z "$FORCE_PLMN" ]; then
-	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
+	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}' | awk '{if(NF==2 && $1==$2){print $1}else{print $0}}')
 else
 	[ -n "$COPS_NUM" ] && COPS=$(awk -F[\;] '/^'$COPS_NUM';/ {print $2}' $RES/mccmnc.dat)
 fi
