@@ -1520,7 +1520,7 @@ upgrade() {
 	fi
 
 	if [ "$ARCH" = "x86" ]; then
-		FS=$(mount | awk '/^\/dev\/root on/{print $5}')
+		FS=$(ubus call system board | jsonfilter -e '@.rootfs_type')
 		if [ -e /sys/firmware/efi ]; then
 			EFI="-efi"
 		else
