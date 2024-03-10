@@ -1,3 +1,4 @@
+# Quectel RG500Q-EA
 # Quectel RG502Q-EA
 # Quectel RM500U-CNV
 # Quectel RM520N-GL
@@ -304,6 +305,8 @@ if [ -n "$T" ]; then
 				[ -n "$T5" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $9}')
 				[ -n "$T5" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T5 dB"
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $11}' | xargs)
+				[ -n "$T5" ] && addon $((POS + 8)) "(S${IDX}) SINR" "$T5 dB"
 				;;
 			*"NR N"*)
 				B=$(echo $T | sed 's/NR N\(.*\)/\1/')
@@ -381,6 +384,17 @@ if [ -n "$T" ]; then
 					[ -n "$T5" ] && [ "$T5" != "-" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T5 dBm"
 					T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}')
 					[ -n "$T5" ] && [ "$T5" != "-" ] && addon $((POS + 7)) "(S${IDX}) RSRQ" "$T5 dB"
+
+					T6=$(echo "$O" | awk -F[,:] '/^\+QENG: "NR5G-NSA"/{print $2}' | xargs)
+					if [ "x$T6" = "xNR5G-NSA" ]; then
+						T6=$(echo "$O" | awk -F[,:] '/^\+QENG: "NR5G-NSA"/{print $6}')
+						[ -n "$T6" ] && [ "$T6" != "-" ] && addon $((POS + 6)) "(S${IDX}) RSRP" "$T6 dBm"
+						T6=$(echo "$O" | awk -F[,:] '/^\+QENG: "NR5G-NSA"/{print $8}')
+						[ -n "$T6" ] && [ "$T6" != "-" ] && addon $((POS + 7)) "(S${IDX}) RSRP" "$T6 dB"
+						# without calculating?
+						T6=$(echo "$O" | awk -F[,:] '/^\+QENG: "NR5G-NSA"/{print $7}')
+						[ -n "$T6" ] && [ "$T6" != "-" ] && addon $((POS + 8)) "(S${IDX}) SINR" "$T6 dB"
+					fi
 				fi
 				;;
 		esac
