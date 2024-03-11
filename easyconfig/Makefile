@@ -30,7 +30,7 @@ endef
 define Package/easyconfig/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	/etc/uci-defaults/zz-easyconfig.sh
+	[ -e /etc/uci-defaults/zz-easyconfig.sh ] && /etc/uci-defaults/zz-easyconfig.sh
 	/etc/init.d/rpcd restart
 	/etc/init.d/cron restart
 fi
@@ -41,7 +41,7 @@ define Package/easyconfig/postrm
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	/etc/init.d/rpcd restart
-	sed -i '/easyconfig_wlanlogs.sh/d' /etc/crontabs/root
+	sed -i '/easyconfig_logs.sh/d' /etc/crontabs/root
 	sed -i '/easyconfig_statistics.sh/d' /etc/crontabs/root
 	/etc/init.d/cron restart
 fi
