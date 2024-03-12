@@ -2406,20 +2406,14 @@ function modemaddon() {
 			// MODE
 			case 1:
 				if ((e.value).search(/^LTE B/) > -1 || (e.value).search(/^LTE_A B/) > -1) {
-					pcc = Array(9).fill('-');
-					pcc[0] = 'PCC';
 					pcc[1] = (e.value).replace(/^LTE /, '').replace(/^LTE_A /, '');
 				}
 				if ((e.value).search(/^5G/) > -1) {
-					pcc = Array(9).fill('-');
-					pcc[0] = 'PCC';
 					pcc[1] = (e.value).replace(/^5G NSA /, '').replace(/^5G SA /, '');
 				}
 				break;
 			// PCC
 			case 30:
-				pcc = Array(9).fill('-');
-				pcc[0] = 'PCC';
 				if ((e.value).includes(' @')) {
 					pcc[1] = (e.value).split(' @')[0];
 					pcc[2] = (e.value).split(' @')[1];
@@ -2471,8 +2465,6 @@ function modemaddon() {
 				break;
 			// SCC1
 			case 50:
-				scc1 = Array(9).fill('-');
-				scc1[0] = 'SCC1';
 				if ((e.value).includes(' @')) {
 					scc1[1] = (e.value).split(' @')[0];
 					scc1[2] = (e.value).split(' @')[1];
@@ -2522,8 +2514,6 @@ function modemaddon() {
 				break;
 			// SCC2
 			case 60:
-				scc2 = Array(9).fill('-');
-				scc2[0] = 'SCC2';
 				if ((e.value).includes(' @')) {
 					scc2[1] = (e.value).split(' @')[0];
 					scc2[2] = (e.value).split(' @')[1];
@@ -2573,8 +2563,6 @@ function modemaddon() {
 				break;
 			// SCC3
 			case 70:
-				scc3 = Array(9).fill('-');
-				scc3[0] = 'SCC3';
 				if ((e.value).includes(' @')) {
 					scc3[1] = (e.value).split(' @')[0];
 					scc3[2] = (e.value).split(' @')[1];
@@ -2624,8 +2612,6 @@ function modemaddon() {
 				break;
 			// SCC4
 			case 80:
-				scc4 = Array(9).fill('-');
-				scc4[0] = 'SCC4';
 				if ((e.value).includes(' @')) {
 					scc4[1] = (e.value).split(' @')[0];
 					scc4[2] = (e.value).split(' @')[1];
@@ -2683,17 +2669,46 @@ function modemaddon() {
 		}
 	});
 	htmlco += '<div class="visible-xs-block visible-sm-block">' + htmlxs + '</div>';
-	var table = (pcc.length + scc1.length + scc2.length + scc3.length + scc4.length > 0);
-	if (table) { htmlco += '<div class="margintop hidden-xs hidden-sm">' + html; }
-	if (pcc.length > 0) {
-		htmlco += createRow9ColForModal(['', 'Pasmo', 'Szerokość', 'PCI', 'EARFCN', 'RSSI', 'RSRP', 'RSRQ', 'SINR']);
-		htmlco += createRow9ColForModal(pcc);
+	if (pcc.length + scc1.length + scc2.length + scc3.length + scc4.length > 0) {
+		htmlco += '<div class="margintop hidden-xs hidden-sm">' + html;
+		if (pcc.length > 0) {
+			pcc[0] = 'PCC';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof pcc[idx] === 'undefined') { pcc[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(['', 'Pasmo', 'Szerokość', 'PCI', 'EARFCN', 'RSSI', 'RSRP', 'RSRQ', 'SINR']);
+			htmlco += createRow9ColForModal(pcc);
+		}
+		if (scc1.length > 0) {
+			scc1[0] = 'SCC1';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof scc1[idx] === 'undefined') { scc1[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(scc1);
+		}
+		if (scc2.length > 0) {
+			scc2[0] = 'SCC2';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof scc2[idx] === 'undefined') { scc2[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(scc2);
+		}
+		if (scc3.length > 0) {
+			scc3[0] = 'SCC3';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof scc3[idx] === 'undefined') { scc3[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(scc3);
+		}
+		if (scc4.length > 0) {
+			scc4[0] = 'SCC4';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof scc4[idx] === 'undefined') { scc4[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(scc4);
+		}
+		htmlco += '</div>';
 	}
-	if (scc1.length > 0) { htmlco += createRow9ColForModal(scc1); }
-	if (scc2.length > 0) { htmlco += createRow9ColForModal(scc2); }
-	if (scc3.length > 0) { htmlco += createRow9ColForModal(scc3); }
-	if (scc4.length > 0) { htmlco += createRow9ColForModal(scc4); }
-	if (table) { htmlco += '</div>'; }
 	showMsg(htmlco);
 }
 
