@@ -2,7 +2,7 @@
 
 O=$(sms_tool -d $DEVICE at "at!gstatus?")
 
-T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}')
+T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
 [ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
 
 if [ "$REGOK" = "1" ]; then
