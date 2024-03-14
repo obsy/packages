@@ -2,5 +2,6 @@
 config 3ginfo
 	option device ''
 	option http_port '81'
+	option language 'pl'
 	option network 'wan'
 	option pincode ''

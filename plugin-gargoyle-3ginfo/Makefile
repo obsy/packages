@@ -13,7 +13,7 @@ define Package/plugin-gargoyle-3ginfo
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=3ginfo for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
-	DEPENDS:=+gargoyle +3ginfo-text
+	DEPENDS:=+gargoyle +3ginfo-text-old
 	PKGARCH:=all
 endef
 
