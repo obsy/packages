@@ -25,7 +25,12 @@ function translate() {
 //	this._lang = 'en';
 
 	fetch(`/i18n/${this._lang}.json`)
-		.then((res) => res.json())
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			throw new Error('Something went wrong');
+		})
 		.then((translation) => {
 			this._translation = translation;
 			this._elements = document.querySelectorAll("[data-i18n]");
@@ -37,8 +42,8 @@ function translate() {
 				}
 			});
 		})
-		.catch(() => {
-			//console.error(`Could not load ${this._lang}.json.`);
+		.catch((error) => {
+			console.log(`Could not load ${this._lang}, en will be used`);
 		});
 }
 
@@ -686,7 +691,7 @@ function modemaddon(idx) {
 			for (var idx = 0; idx <= 9; idx++) {
 				if (typeof pcc[idx] === 'undefined') { pcc[idx] = '-'; }
 			}
-			htmlco += createRow9ColForModal(['', 'Pasmo', 'Szerokość', 'PCI', 'EARFCN', 'RSSI', 'RSRP', 'RSRQ', 'SINR']);
+			htmlco += createRow9ColForModal(['', _t('Band'), _t('Bandwidth'), 'PCI', 'EARFCN', 'RSSI', 'RSRP', 'RSRQ', 'SINR']);
 			htmlco += createRow9ColForModal(pcc);
 		}
 		if (scc1.length > 0) {

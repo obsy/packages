@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20240314
+PKG_VERSION:=20240316
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -59,7 +59,7 @@ define Build/Compile
 endef
 
 define Package/3ginfo-old/install
-	$(CP) ./files-old/* $(1)
+	$(CP) ./files-html-old/* $(1)
 endef
 
 define Package/3ginfo-lite/install
@@ -90,7 +90,7 @@ exit 0
 endef
 
 define Package/3ginfo/install
-	$(CP) ./files/* $(1)
+	$(CP) ./files-html/* $(1)
 
 	$(SED) 's/?v=1/?v='${PKG_VERSION}'/g' $(1)/usr/share/3ginfo/html/index.html
 
