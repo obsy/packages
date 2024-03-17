@@ -1,14 +1,47 @@
 #!/bin/sh
 
-WGET=""
-[ -e /usr/libexec/wget-ssl ] && WGET="/usr/libexec/wget-ssl"
-[ -e /usr/libexec/wget-nossl ] && WGET="/usr/libexec/wget-nossl"
-[ -z "$WGET" ] && exit 0
-
 IP=$1
 ARG=$2
 
-[ -z "$IP" ] && exit 0
+error() {
+	if [ -z "$ARG" ] || [ "$ARG" = "product" ]; then
+cat <<EOF
+{
+"vendor":"",
+"product":"",
+"revision":"",
+"imei":"",
+"iccid":""
+}
+EOF
+	fi
+	if [ -z "$ARG" ] || [ "$ARG" = "params" ]; then
+cat <<EOF
+{
+"csq":"",
+"signal":"",
+"operator_name":"",
+"operator_mcc":"",
+"operator_mnc":"",
+"mode":"",
+"registration":"",
+"lac_dec":"",
+"lac_hex":"",
+"cid_dec":"",
+"cid_hex":"",
+"addon":[]
+}
+EOF
+	fi
+	exit 0
+}
+
+WGET=""
+[ -e /usr/libexec/wget-ssl ] && WGET="/usr/libexec/wget-ssl"
+[ -e /usr/libexec/wget-nossl ] && WGET="/usr/libexec/wget-nossl"
+[ -z "$WGET" ] && error
+
+[ -z "$IP" ] && error
 
 getvaluen() {
 	echo $(awk -F[\<\>] '/<'$2'>/ {print $3}' /tmp/$1 | sed 's/[^0-9]//g')
