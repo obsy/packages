@@ -3,7 +3,13 @@
 O=$(sms_tool -d $DEVICE at "at+temp")
 
 T=$(echo "$O" | awk -F: '/xo_therm_buf:/ {print $2}' | xargs)
-[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+if [ -n "$T" ]; then
+	addon 10 "Temperature" "$T &deg;C"
+else
+	O=$(sms_tool -d $DEVICE at "at^temp?")
+	T=$(echo "$O" | awk '{gsub("C","");print $2}' | sort -r | head -n 1)
+	[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+fi
 
 if [ "$REGOK" = "1" ]; then
 
