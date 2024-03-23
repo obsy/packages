@@ -1,0 +1,9 @@
+#!/bin/sh
+[ "${ACTION}" = "released" ] || exit 0
+
+T=$(uci show easyconfig | awk -F[=.] '/=wol/{print $2}')
+for i in $T; do
+	[ "x$(uci -q get easyconfig.$i.button)" = "x1" ] && ubus call easyconfig wolwakeup '{"mac":"'$(uci -q get easyconfig.$i.mac)'","broadcast":'$(uci -q get easyconfig.$i.broadcast)'}'
+done
+
+exit 0

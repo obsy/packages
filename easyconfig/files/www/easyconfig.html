@@ -46,6 +46,9 @@
 	<div id="menu_gps" style="display:none;">
 		<a href="#" onclick="btn_pages('gps');"><i data-feather="map-pin" class="iconwithtext"></i>GPS</a>
 	</div>
+	<div id="menu_wol" style="display:none;">
+		<a href="#" onclick="btn_pages('wol');"><i data-feather="trending-up" class="iconwithtext"></i>WoL</a>
+	</div>
 	<a href="#" onclick="btn_pages('logout');"><i data-feather="log-out" class="iconwithtext"></i>Wyloguj</a>
 </div>
 
@@ -1467,6 +1470,20 @@
 		<div id="gps_map"></div>
 	</div>
 
+	<div id="div_wol" style="display:none;">
+		<h3 class="section">Wake on LAN</h3>
+
+		<div id="div_wol_content">
+			<div class="alert alert-warning">Brak urządzeń do wybudzenia</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="woldetails('');" value="Nowy">
+			<input type="button" class="btn btn-default" onclick="showwol();" value="Odśwież">
+		</div>
+	</div>
+
 </div>
 
 </div>
@@ -2242,6 +2259,58 @@
 			<input type="button" class="btn btn-default" onclick="cancelzerotier();" value="Anuluj">
 			<input type="button" class="btn btn-default" onclick="removezerotier();" value="Usuń">
 			<input type="button" class="btn btn-primary" onclick="savezerotier();" value="Zapisz zmiany">
+		</div>
+		</form>
+	</div>
+</div>
+
+<div id="div_wol_details" class="modal">
+	<div class="row modal-content">
+		<div class="text-center space">Wake on LAN</div>
+		<input id="wol_section" type="hidden">
+		<div class="error text-center space"><span id="wol_error"></span></div>
+
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="wol_description" class="col-xs-4 col-sm-3 control-label">Opis</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="wol_description" type="text" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="wol_mac" class="col-xs-4 col-sm-3 control-label">Adres MAC</label>
+			<div class="col-xs-8 col-sm-9">
+			<input id="wol_mac" type="text" class="form-control" onkeyup="proofreadMAC(this);">
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wol_broadcast">
+			<label for="wol_broadcast" class="col-xs-4 col-sm-3 control-label">Wysyłanie na adres rozgłoszeniowy</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="wol_broadcast" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_wol_button">
+			<label for="wol_button" class="col-xs-4 col-sm-3 control-label">Wybudzanie przyciskiem</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="wol_button" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			</div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cancelwol();" value="Anuluj">
+			<input type="button" class="btn btn-default" onclick="wolwakeupfromdetails();" value="Wybudź">
+			<input type="button" class="btn btn-default" onclick="removewol();" value="Usuń">
+			<input type="button" class="btn btn-primary" onclick="savewol();" value="Zapisz zmiany">
 		</div>
 		</form>
 	</div>

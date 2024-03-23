@@ -646,6 +646,9 @@ if [ -n "$BUTTON" ]; then
 	if grep -q "forwarding" /etc/rc.button/$BUTTON; then
 		ACTION="killswitch"
 	fi
+	if grep -q "wol" /etc/rc.button/$BUTTON; then
+		ACTION="wol"
+	fi
 fi
 echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
 
@@ -738,11 +741,16 @@ echo '"modemband4g":'$MB4G','
 echo '"modemband5gnsa":'$MB5GNSA','
 echo '"modemband5gsa":'$MB5GSA','
 
-
 if ubus list | grep -q gps; then
 	echo '"gps":true,'
 else
 	echo '"gps":false,'
+fi
+
+if [ -e /usr/bin/etherwake ]; then
+	echo '"wol":true,'
+else
+	echo '"wol":false,'
 fi
 
 echo '},'
@@ -2055,6 +2063,37 @@ leds() {
 
 ##############################################################################
 
+show_wol() {
+	echo '{"result":['
+	T=$(uci show easyconfig | awk -F[=.] '/=wol/{print $2}')
+	for i in $T; do
+		echo '{'
+		echo '"section":"'${i}'",'
+		echo '"description":"'$(escapeJSON "$(uci -q get easyconfig.$i.description)")'",'
+		echo '"mac":"'$(uci -q get easyconfig.$i.mac)'",'
+		echo '"broadcast":'$(uci -q get easyconfig.$i.broadcast)','
+		echo '"button":'$(uci -q get easyconfig.$i.button)
+		echo '},'
+	done
+	echo ']}'
+}
+
+wolwakeup() {
+	read input;
+	json_load "$input"
+	json_get_vars mac broadcast
+	if [ -n "$mac" ]; then
+		if [ "x$broadcast" = "x1" ]; then
+			/usr/bin/etherwake -b -i br-lan "$mac"
+		else
+			/usr/bin/etherwake -i br-lan "$mac"
+		fi
+	fi
+	echo "{}"
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
@@ -2088,7 +2127,9 @@ case "$1" in
 		echo '"geolocation":{},'
 		echo '"adblock":{},'
 		echo '"nightmode":{},'
-		echo '"leds":{"action":"string"}'
+		echo '"leds":{"action":"string"}',
+		echo '"wol":{}',
+		echo '"wolwakeup":{"mac":"string","broadcast":"string"}'
 		echo '}'
 	;;
 	call)
@@ -2185,6 +2226,12 @@ case "$1" in
 				;;
 			leds)
 				leds
+				;;
+			wol)
+				show_wol
+				;;
+			wolwakeup)
+				wolwakeup
 				;;
 		esac
 	;;

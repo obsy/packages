@@ -180,6 +180,10 @@ function proofreadussd(input) {
 	proofreadText(input, validateussd, 0);
 }
 
+function proofreadMAC(input) {
+	proofreadText(input, validateMAC, 0);
+}
+
 function validateHost(name) {
 	var errorCode = 0;
 
@@ -272,6 +276,22 @@ function validateussd(name) {
 		errorCode = 1;
 	} else if (name.match(/[^0-9\*#]/) !== null) {
 		errorCode = 2;
+	}
+	return errorCode;
+}
+
+function validateMAC(mac) {
+	var errorCode = 0;
+	var fields = mac.split(/:/);
+	if (fields.length != 6) {
+		errorCode = 2;
+	} else {
+		for (var idx = 0; idx < 6 && errorCode == 0; idx++) {
+			field = fields[idx];
+			if (field.match(/^[0-9A-Fa-f]{2}$/) == null) {
+				errorCode = 1;
+			}
+		}
 	}
 	return errorCode;
 }
@@ -1184,6 +1204,9 @@ function showconfig() {
 		// gps
 		setDisplay('menu_gps', config.services.gps);
 
+		// wol
+		setDisplay('menu_wol', config.services.wol);
+
 		// button
 		if (config.button.code != '') {
 			select = removeOptions('system_button');
@@ -1199,6 +1222,12 @@ function showconfig() {
 				opt = document.createElement('option');
 				opt.value = 'rfkill';
 				opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
+				select.appendChild(opt);
+			}
+			if (config.services.wol) {
+				opt = document.createElement('option');
+				opt.value = 'wol';
+				opt.innerHTML = 'Wybudzenie przez Wake on LAN';
 				select.appendChild(opt);
 			}
 			if ((config.services.vpn).length > 0) {
@@ -6638,6 +6667,115 @@ function showgps() {
 
 /*****************************************************************************/
 
+function showwol() {
+	ubus_call('"easyconfig", "wol", {}', function(data) {
+		var sorted = sortJSON(data.result, 'description', 'asc');
+		if (sorted.length > 0) {
+			var html = '<div class="row space">';
+			html += '<div class="col-xs-6">Opis</div>'
+			html += '<div class="col-xs-4">Adres MAC</div>'
+			html += '<div class="col-xs-2">Wybudzanie</div>'
+			html += '</div>';
+			for (var idx = 0; idx < sorted.length; idx++) {
+				html += '<hr><div class="row space">';
+				html += '<div class="col-xs-6 click" onclick="woldetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description == '' ? sorted[idx].mac : sorted[idx].description) + '</div>';
+				html += '<div class="col-xs-4">' + sorted[idx].mac + '</div>';
+				html += '<div class="col-xs-2"><span class="click" onclick="wolwakeup(\'' + sorted[idx].mac + '\',\'' + sorted[idx].broadcast + '\');" title="wybudź"><i data-feather="power"></i></span></div>';
+				html += '</div>';
+			}
+			setValue('div_wol_content', html);
+			showicon();
+		} else {
+			setValue('div_wol_content', '<div class="alert alert-warning">Brak urządzeń do wybudzenia</div>');
+		}
+	})
+}
+
+function woldetails(data) {
+	var json = {};
+	try {
+		json = JSON.parse(atob(data));
+	} catch (error) {
+		json.section = '';
+		json.description = '';
+		json.mac = '';
+		json.broadcast = 0;
+		json.button = 0;
+	}
+	setValue('wol_error', '');
+	setValue('wol_section', json.section);
+	setValue('wol_description', json.description);
+	setValue('wol_mac', json.mac);
+	setValue('wol_broadcast', json.broadcast);
+	setDisplay('div_wol_button', config.button.code != '');
+	setValue('wol_button', json.button);
+	setDisplay('div_wol_details', true);
+}
+
+function savewol() {
+	var cmd = [];
+
+	setValue('wol_error', '');
+
+	var mac = getValue('wol_mac');
+	if (mac == '') {
+		setValue('wol_error', 'Błąd w polu ' + getLabelText('wol_mac'));
+		return;
+	}
+	if (validateMAC(mac) != 0) {
+		setValue('wol_error', 'Błąd w polu ' + getLabelText('wol_mac'));
+		return;
+	}
+
+	cancelwol();
+
+	var section = getValue('wol_section');
+	if (section == '') {
+		cmd.push('uci add easyconfig wol');
+		section = '@wol[-1]';
+	}
+	cmd.push('uci set easyconfig.' + section + '.description=\\\"' + escapeShell(getValue('wol_description')) + '\\\"');
+	cmd.push('uci set easyconfig.' + section + '.mac=\\\"' + mac + '\\\"');
+	cmd.push('uci set easyconfig.' + section + '.broadcast=' + (getValue('wol_broadcast') ? '1' : '0'));
+	if (config.button.code != '') {
+		cmd.push('uci set easyconfig.' + section + '.button=' + (getValue('wol_button') ? '1' : '0'));
+	} else {
+		cmd.push('uci set easyconfig.' + section + '.button=0');
+	}
+	cmd.push('uci commit');
+	execute(cmd, showwol);
+}
+
+function cancelwol() {
+	setDisplay('div_wol_details', false);
+}
+
+function removewol() {
+	cancelwol();
+	setValue('dialog_val', getValue('wol_section'));
+	showDialog('Usunąć WoL dla "' + getValue('wol_mac') + '"?<br><br>' + getValue('wol_description'), 'Anuluj', 'Usuń', okremovewol);
+}
+
+function okremovewol() {
+	var cmd = [];
+	cmd.push('uci -q del easyconfig.' + getValue('dialog_val'));
+	cmd.push('uci commit');
+	execute(cmd, showwol);
+}
+
+function wolwakeupfromdetails() {
+	var mac = getValue('wol_mac');
+	if (mac != '' && validateMAC(mac) == 0) {
+		wolwakeup(mac, (getValue('wol_broadcast') ? '1' : '0'));
+	}
+}
+
+function wolwakeup(mac, broadcast) {
+	ubus_call('"easyconfig", "wolwakeup", {"mac":"' + mac + '","broadcast":"' + broadcast + '"}', function(data) {});
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = '250px';
 }
@@ -6662,6 +6800,7 @@ function btn_pages(page) {
 	setDisplay('div_adblock', (page == 'adblock'));
 	setDisplay('div_nightmode', (page == 'nightmode'));
 	setDisplay('div_gps', (page == 'gps'));
+	setDisplay('div_wol', (page == 'wol'));
 
 	var clearid = null;
 	function waitForData(callback) {
@@ -6737,6 +6876,10 @@ function btn_pages(page) {
 
 	if (page == 'gps') {
 		showgps();
+	}
+
+	if (page == 'wol') {
+		showwol();
 	}
 
 	if (page == 'logout') {
