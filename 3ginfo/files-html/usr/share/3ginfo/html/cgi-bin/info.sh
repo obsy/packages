@@ -29,12 +29,12 @@ parse_section() {
 		fi
 	fi
 	echo "["
-	$RES/infonetwork.sh "$network"
+	$RES/infonetwork.sh "$network" | tr -d '\n'
 	echo ","
 	if [ -n "$ECM" ]; then
 		$ECM params
 	else
-		$RES/infoparams.sh "$device"
+		$RES/infoparams.sh "$device" | tr -d '\n'
 	fi
 	echo "]"
 	SEPARATOR=","

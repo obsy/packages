@@ -25,7 +25,7 @@ parse_section() {
 		if [ -n "$pincode" ] && [ ! -e /var/state/3ginfo-pincode ]; then
 			[ -n "$device" ] && sms_tool -d "$device" at "at+cpin=\"$pincode\""
 		fi
-		$RES/infoproduct.sh "$device"
+		$RES/infoproduct.sh "$device" | tr -d '\n'
 	fi
 	SEPARATOR=","
 }
