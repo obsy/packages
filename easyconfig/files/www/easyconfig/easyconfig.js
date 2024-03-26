@@ -6226,7 +6226,6 @@ function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
 		if (config.services.adblock) {
 			setDisplay('div_adblock_adblock', true);
-			document.getElementById('btn_adblock_check').style.display = 'inline-block';
 			var tmp = data.domains == '' ? '-' : data.domains
 			if (data.domains == '0') {
 				if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
@@ -6347,12 +6346,12 @@ function saveadblock_easyconfig() {
 }
 
 function checkdomain() {
+	if (checkField('adblock_domain', validateHost)) { return; }
+
 	if (!getValue('adblock_enabled')) {
 		showMsg("Blokada domen jest wyłączona. Nie można sprawdzić domeny");
-		return
+		return;
 	}
-
-	if (checkField('adblock_domain', validateHost)) {return;}
 
 	ubus_call('"file", "exec", {"command":"/etc/init.d/adblock","params":["query","' + getValue('adblock_domain') + '"]}', function(data) {
 		if (data.stdout) {
@@ -6362,7 +6361,7 @@ function checkdomain() {
 }
 
 function blacklistdomain() {
-	if (checkField('adblock_domain', validateHost)) {return;}
+	if (checkField('adblock_domain', validateHost)) { return; }
 
 	var domain = getValue('adblock_domain');
 
@@ -6409,7 +6408,7 @@ function okremovefromblacklist() {
 }
 
 function whitelistdomain() {
-	if (checkField('adblock_domain', validateHost)) {return;}
+	if (checkField('adblock_domain', validateHost)) { return; }
 
 	var domain = getValue('adblock_domain');
 
@@ -6718,10 +6717,6 @@ function savewol() {
 	setValue('wol_error', '');
 
 	var mac = getValue('wol_mac');
-	if (mac == '') {
-		setValue('wol_error', 'Błąd w polu ' + getLabelText('wol_mac'));
-		return;
-	}
 	if (validateMAC(mac) != 0) {
 		setValue('wol_error', 'Błąd w polu ' + getLabelText('wol_mac'));
 		return;
@@ -6765,7 +6760,7 @@ function okremovewol() {
 
 function wolwakeupfromdetails() {
 	var mac = getValue('wol_mac');
-	if (mac != '' && validateMAC(mac) == 0) {
+	if (validateMAC(mac) == 0) {
 		wolwakeup(mac, (getValue('wol_broadcast') ? '1' : '0'));
 	}
 }
