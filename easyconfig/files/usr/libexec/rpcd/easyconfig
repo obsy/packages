@@ -2081,13 +2081,24 @@ show_wol() {
 wolwakeup() {
 	read input;
 	json_load "$input"
-	json_get_vars mac broadcast
-	if [ -n "$mac" ]; then
-		if [ "x$broadcast" = "x1" ]; then
-			/usr/bin/etherwake -b -i br-lan "$mac"
+	json_get_vars section
+	if [ -n "$section" ]; then
+		if [ "$section" = "all" ]; then
+			T=$(uci show easyconfig | awk -F[=.] '/=wol/{print $2}')
 		else
-			/usr/bin/etherwake -i br-lan "$mac"
+			T="$section"
 		fi
+		for i in $T; do
+			mac=$(uci -q get easyconfig.$i.mac)
+			if [ -n "$mac" ]; then
+				broadcast=$(uci -q get easyconfig.$i.broadcast)
+				if [ "x$broadcast" = "x1" ]; then
+					/usr/bin/etherwake -b -i br-lan "$mac"
+				else
+					/usr/bin/etherwake -i br-lan "$mac"
+				fi
+			fi
+		done
 	fi
 	echo "{}"
 }
@@ -2129,7 +2140,7 @@ case "$1" in
 		echo '"nightmode":{},'
 		echo '"leds":{"action":"string"}',
 		echo '"wol":{}',
-		echo '"wolwakeup":{"mac":"string","broadcast":"string"}'
+		echo '"wolwakeup":{"section":"string"}'
 		echo '}'
 	;;
 	call)

@@ -6679,13 +6679,15 @@ function showwol() {
 				html += '<hr><div class="row space">';
 				html += '<div class="col-xs-6 click" onclick="woldetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description == '' ? sorted[idx].mac : sorted[idx].description) + '</div>';
 				html += '<div class="col-xs-4">' + sorted[idx].mac + '</div>';
-				html += '<div class="col-xs-2"><span class="click" onclick="wolwakeup(\'' + sorted[idx].mac + '\',\'' + sorted[idx].broadcast + '\');" title="wybudź"><i data-feather="power"></i></span></div>';
+				html += '<div class="col-xs-2"><span class="click" onclick="wolwakeup(\'' + sorted[idx].section + '\');" title="wybudź"><i data-feather="power"></i></span></div>';
 				html += '</div>';
 			}
 			setValue('div_wol_content', html);
 			showicon();
+			document.getElementById('btn_wol_wakeupall').disabled = false;
 		} else {
 			setValue('div_wol_content', '<div class="alert alert-warning">Brak urządzeń do wybudzenia</div>');
+			document.getElementById('btn_wol_wakeupall').disabled = true;
 		}
 	})
 }
@@ -6748,7 +6750,7 @@ function cancelwol() {
 function removewol() {
 	cancelwol();
 	setValue('dialog_val', getValue('wol_section'));
-	showDialog('Usunąć WoL dla "' + getValue('wol_mac') + '"?<br><br>' + getValue('wol_description'), 'Anuluj', 'Usuń', okremovewol);
+	showDialog('Usunąć Wake on LAN dla "' + getValue('wol_mac') + '"?<br><br>' + getValue('wol_description'), 'Anuluj', 'Usuń', okremovewol);
 }
 
 function okremovewol() {
@@ -6759,14 +6761,13 @@ function okremovewol() {
 }
 
 function wolwakeupfromdetails() {
-	var mac = getValue('wol_mac');
-	if (validateMAC(mac) == 0) {
-		wolwakeup(mac, (getValue('wol_broadcast') ? '1' : '0'));
-	}
+	var section = getValue('wol_section');
+	if (section != '') { wolwakeup(section); }
 }
 
-function wolwakeup(mac, broadcast) {
-	ubus_call('"easyconfig", "wolwakeup", {"mac":"' + mac + '","broadcast":"' + broadcast + '"}', function(data) {});
+function wolwakeup(section) {
+	if (section == '') { section = 'all'; }
+	ubus_call('"easyconfig", "wolwakeup", {"section":"' + section + '"}', function(data) {});
 }
 
 /*****************************************************************************/

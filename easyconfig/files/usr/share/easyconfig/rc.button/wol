@@ -3,7 +3,7 @@
 
 T=$(uci show easyconfig | awk -F[=.] '/=wol/{print $2}')
 for i in $T; do
-	[ "x$(uci -q get easyconfig.$i.button)" = "x1" ] && ubus call easyconfig wolwakeup '{"mac":"'$(uci -q get easyconfig.$i.mac)'","broadcast":'$(uci -q get easyconfig.$i.broadcast)'}'
+	[ "x$(uci -q get easyconfig.$i.button)" = "x1" ] && ubus call easyconfig wolwakeup '{"section":"'${i}'"}'
 done
 
 exit 0
