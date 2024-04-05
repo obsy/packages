@@ -16,7 +16,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/oscam
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+libopenssl +libusb-1.0 +libpcsclite +librt +libpthread
+  DEPENDS:=+libopenssl +libusb-1.0 +libpcsclite +librt +libpthread +libdvbcsa
   TITLE:=OSCam is an Open Source Conditional Access Module software
 endef
 
@@ -28,7 +28,8 @@ CMAKE_OPTIONS += \
 	-DCS_CONFDIR=/etc/oscam \
 	-DUSE_LIBUSB=1 \
 	-DUSE_LIBCRYPT=1 \
-	-DUSE_PCSC=1
+	-DUSE_PCSC=1 \
+	-DHAVE_LIBDVBCSA=1
 
 define Package/oscam/conffiles
 /etc/oscam/oscam.user
