@@ -5,6 +5,7 @@ if [ "$REGOK" = "1" ]; then
 if [ "x$MODE_NUM" = "x7" ]; then
 
 	O=$(sms_tool -d $DEVICE at "AT+BMTCELLINFO")
+	echo "$O" | grep "^+BMTCELLINFO" | grep -q ",LAC_ID:" && O=$(echo "$O"| sed 's/,[ ]*/\n/g')
 
 	T=$(echo "$O" | awk -F[,:] '/^TAC:/ {print $2}' | xargs)
 	if [ -n "$T" ]; then
