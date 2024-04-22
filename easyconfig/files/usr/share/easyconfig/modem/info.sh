@@ -218,14 +218,14 @@ fi
 COPS=""
 COPS_MCC=""
 COPS_MNC=""
-COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
+COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS:\s*.,2/ {print $2}')
 if [ -n "$COPS_NUM" ]; then
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:3}
 fi
 
 if [ -z "$FORCE_PLMN" ]; then
-	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}' | awk '{if(NF==2 && $1==$2){print $1}else{print $0}}')
+	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS:\s*.,0/ {print $2}' | awk '{if(NF==2 && $1==$2){print $1}else{print $0}}')
 else
 	[ -n "$COPS_NUM" ] && COPS=$(awk -F[\;] '/^'$COPS_NUM';/ {print $2}' $RES/mccmnc.dat)
 fi
@@ -239,6 +239,8 @@ case "$T" in
 	2*) REG="2";;
 	3*) REG="3";;
 	5*) REG="5";;
+	6*) REG="6";;
+	7*) REG="7";;
 	*) REG="";;
 esac
 
@@ -278,7 +280,7 @@ fi
 
 if [ -e /usr/bin/sms_tool ]; then
 	REGOK=0
-	[ "x$REG" = "x1" ] || [ "x$REG" = "x5" ] && REGOK=1
+	[ "x$REG" = "x1" ] || [ "x$REG" = "x5" ] || [ "x$REG" = "x6" ] || [ "x$REG" = "x7" ] && REGOK=1
 	VIDPID=$(getdevicevendorproduct $DEVICE)
 	if [ -e "$RES/addon/$VIDPID" ]; then
 		ADDON=""

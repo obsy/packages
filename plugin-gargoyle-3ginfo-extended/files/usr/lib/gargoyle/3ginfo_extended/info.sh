@@ -198,7 +198,7 @@ else
 fi
 
 # COPS numeric
-COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: .,2/ {print $2}')
+COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS:\s*.,2/ {print $2}')
 if [ "x$COPS_NUM" = "x" ]; then
 	COPS_NUM=""
 	COPS_MCC=""
@@ -212,25 +212,21 @@ fi
 
 if [ -z "$FORCE_PLMN" ]; then
 	# COPS alphanumeric
-	T=$(echo "$O" | awk -F[\"] '/^\+COPS: .,0/ {print $2}')
+	T=$(echo "$O" | awk -F[\"] '/^\+COPS:\s*.,0/ {print $2}')
 	[ "x$T" != "x" ] && COPS="$T"
 fi
 
 # CREG
 eval $(echo "$O" | awk -F[,] '/^\+CREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";LAC_HEX=\"%X\";CID_HEX=\"%X\";LAC_DEC=\"%d\";CID_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, "0x"$4, "0x"$3, "0x"$4, $5}')
 case "$T" in
-	0*)
-		REG="0";;
-	1*)
-		REG="1";;
-	2*)
-		REG="2";;
-	3*)
-		REG="3";;
-	5*)
-		REG="5";;
-	*)
-		REG="";;
+	0*) REG="0";;
+	1*) REG="1";;
+	2*) REG="2";;
+	3*) REG="3";;
+	5*) REG="5";;
+	6*) REG="6";;
+	7*) REG="7";;
+	*) REG="";;
 esac
 
 # MODE
@@ -269,7 +265,7 @@ fi
 
 if [ -e /usr/bin/sms_tool ]; then
 	REGOK=0
-	[ "x$REG" = "x1" ] || [ "x$REG" = "x5" ] && REGOK=1
+	[ "x$REG" = "x1" ] || [ "x$REG" = "x5" ] || [ "x$REG" = "x6" ] || [ "x$REG" = "x7" ] && REGOK=1
 	VIDPID=$(getdevicevendorproduct $DEVICE)
 	if [ -e "$RES/addon/$VIDPID" ]; then
 		ADDON=""

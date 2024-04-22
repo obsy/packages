@@ -2289,6 +2289,12 @@ function showmodem() {
 			case "5":
 				setValue('modem_registration', 'Zalogowana do sieci w roamingu');
 				break;
+			case "6":
+				setValue('modem_registration', 'Zalogowana do sieci macierzystej, tylko SMS');
+				break;
+			case "7":
+				setValue('modem_registration', 'Zalogowana do sieci w roamingu, tylko SMS');
+				break;
 			default:
 				setValue('modem_registration', data.registration == '' ? '-' : data.registration);
 		}
