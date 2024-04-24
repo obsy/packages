@@ -184,11 +184,7 @@ RES="/usr/share/3ginfo"
 
 DEVICE=$1
 if [ -z "$DEVICE" ]; then
-	if [ $FORMAT = "2" ]; then
-		echo '{"error":"Device not found"}'
-	else
-		echo "Device not found"
-	fi
+	echo '{"error":"Device not found"}'
 	exit 0
 fi
 
@@ -306,5 +302,4 @@ cat <<EOF
 "addon":[$ADDON]
 }
 EOF
-
 exit 0
