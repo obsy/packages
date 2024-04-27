@@ -63,6 +63,16 @@ case "$MODE_NUM" in
 		;;
 esac
 
+T=$(echo "$O" | awk -F[,:] '/^\+QNWINFO:/{print $4}')
+if [ -n "$T" ]; then
+	case $T in
+		*"LTE BAND"*)
+			B=$(echo $T | sed 's/"LTE BAND \(.*\)"/\1/')
+			MODE="$MODE $(band4g ${B})"
+			;;
+	esac
+fi
+
 T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $5}')
 if [ -n "$T" ]; then
 	case $T in
