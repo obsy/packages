@@ -199,7 +199,7 @@ fi
 
 # CSQ
 CSQ=$(echo "$O" | awk -F[,\ ] '/^\+(csq|CSQ)/ {print $2}')
-[ "x$CSQ" = "x" ] && CSQ=-1
+[ -z "$CSQ" ] && CSQ=-1
 if [ $CSQ -ge 0 ] && [ $CSQ -le 31 ]; then
 	CSQ_PER=$((CSQ * 100/31))
 else

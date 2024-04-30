@@ -2,24 +2,22 @@
 
 if [ "$REGOK" = "1" ]; then
 
-# COPS numeric
+# COPS
+COPS=""
+COPS_MCC=""
+COPS_MNC=""
 COPS_NUM=$(echo "$O" | awk -F[\"] '/^\+COPS: \(.,2/ {print $2}')
-if [ "x$COPS_NUM" = "x" ]; then
-	COPS_NUM="-"
-	COPS_MCC="-"
-	COPS_MNC="-"
-else
+if [ -n "$COPS_NUM" ]; then
 	COPS_MCC=${COPS_NUM:0:3}
 	COPS_MNC=${COPS_NUM:3:3}
-	COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 fi
-[ "x$COPS" = "x" ] && COPS=$COPS_NUM
 
 if [ -z "$FORCE_PLMN" ]; then
-	# COPS alphanumeric
-	T=$(echo "$O" | awk -F[\"] '/^\+COPS: \(.,0/ {print $2}')
-	[ "x$T" != "x" ] && COPS="$T"
+	COPS=$(echo "$O" | awk -F[\"] '/^\+COPS: \(.,0/ {print $2)' | awk '{if(NF==2 && $1==$2){print $1}else{print $0}}')
+else
+	[ -n "$COPS_NUM" ] && COPS=$(awk -F[\;] '/'$COPS_NUM'/ {print $2}' $RES/mccmnc.dat)
 fi
+[ -z "$COPS" ] && COPS=$COPS_NUM
 
 O=$(sms_tool -d $DEVICE at "at+cesq")
 T=$(echo "$O" | awk -F[,:] '/^\+CESQ/ {print $2}' | xargs)
