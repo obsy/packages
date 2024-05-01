@@ -241,29 +241,33 @@ case $(cat /tmp/sysinfo/board_name) in
 			if [ -n "$DEVICE" ]; then
 				O=$(sms_tool -d $DEVICE at "AT+ZRTEMP")
 				BATT=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $2}' | xargs)
-				if [ "x$BATT" = "x" ]; then
-					echo '{"Bateria":"Brak odczytu"}'
-				fi
-				if [ "x$BATT" = "x0" ]; then
-					echo '{"Bateria":"Nie zainstalowana"}'
-				fi
-				if [ "x$BATT" = "x1" ]; then
-					echo '{"Bateria":"Obecna"}'
-					CHARGING=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $3}' | xargs)
-					if [ "x$CHARGING" = "x0" ]; then
-						echo ',{"Ładowanie baterii":"Nie"}'
-					fi
-					if [ "x$CHARGING" = "x1" ]; then
-						echo ',{"Ładowanie baterii":"Tak"}'
-					fi
-					if [ "x$CHARGING" = "x2" ]; then
-						echo ',{"Ładowanie baterii":"W pełni naładowana"}'
-					fi
-					BATTERY_LEVEL=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $4}' | xargs)
-					echo ',{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
-					BATTERY_TEMP=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $7}' | xargs)
-					echo ',{"Temperatura baterii":"'${BATTERY_TEMP}' &deg;C"}'
-				fi
+				case "$BATT" in
+					0)
+						echo '{"Bateria":"Nie zainstalowana"}'
+						;;
+					1)
+						echo '{"Bateria":"Obecna"}'
+						CHARGING=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $3}' | xargs)
+						case "$CHARGING" in
+							0)
+								echo ',{"Ładowanie baterii":"Nie"}'
+								;;
+							1)
+								echo ',{"Ładowanie baterii":"Tak"}'
+								;;
+							2)
+								echo ',{"Ładowanie baterii":"W pełni naładowana"}'
+								;;
+						esac
+						BATTERY_LEVEL=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $4}' | xargs)
+						echo ',{"Poziom naładowania":"'${BATTERY_LEVEL}'%"}'
+						BATTERY_TEMP=$(echo "$O" | awk -F [:,] '/^\+ZRTEMP/{print $7}' | xargs)
+						echo ',{"Temperatura baterii":"'${BATTERY_TEMP}' &deg;C"}'
+						;;
+					*)
+						echo '{"Bateria":"Brak odczytu"}'
+						;;
+				esac
 			fi
 		fi
 		;;
@@ -1173,24 +1177,22 @@ show_sms() {
 		exit 0
 	fi
 
-	[ "x$action" = "x" ] && action="read"
-	if [ "x$action" = "xread" ]; then
-		STORAGE=""
-		T=$(uci -q get easyconfig.sms.storage)
-		[ "x$T" = "x" ] || STORAGE="-s $T"
-		O=$(sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null)
-		[ -n "$O" ] && echo "$O" || echo '{"msg":[]}'
-	fi
-
-	if [ "x$action" = "xsend" ]; then
-		T=$(sms_tool -d $DEVICE send "$arg1" "$arg2")
-		echo "{\"response\":\"$T\"}" | tr '\n' ' '
-	fi
-
-	if [ "x$action" = "xdelete" ]; then
-		T=$(sms_tool -d $DEVICE delete "$arg1")
-		echo "{\"response\":\"$T\"}" | tr '\n' ' '
-	fi
+	case "$action" in
+		"delete")
+			T=$(sms_tool -d $DEVICE delete "$arg1")
+			echo "{\"response\":\"$T\"}" | tr '\n' ' '
+			;;
+		"send")
+			T=$(sms_tool -d $DEVICE send "$arg1" "$arg2")
+			echo "{\"response\":\"$T\"}" | tr '\n' ' '
+			;;
+		*)
+			STORAGE=""
+			T=$(uci -q get easyconfig.sms.storage)
+			[ -n "$T" ] && STORAGE="-s $T"
+			O=$(sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null)
+			[ -n "$O" ] && echo "$O" || echo '{"msg":[]}'
+	esac
 }
 
 ##############################################################################
