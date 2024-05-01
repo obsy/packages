@@ -1192,6 +1192,7 @@ show_sms() {
 			[ -n "$T" ] && STORAGE="-s $T"
 			O=$(sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null)
 			[ -n "$O" ] && echo "$O" || echo '{"msg":[]}'
+			;;
 	esac
 }
 
