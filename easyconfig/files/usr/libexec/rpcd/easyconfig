@@ -274,6 +274,15 @@ case $(cat /tmp/sysinfo/board_name) in
 	"zte,mf286r")
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		;;
+	*)
+		T=0
+		FILES=$(grep -s -l "ath10k_hwmon\|ath11k_hwmon" /sys/class/hwmon/hwmon*/name)
+		for FILE in $FILES; do
+			T1=$(awk '{printf "%d\n", $0/1000}' $(dirname $FILE)/temp1_input 2>/dev/null)
+			[ -n "$T1" ] && [ $T1 -gt $T ] && T=$T1
+		done
+		[ $T -gt 0 ] && printf '{"Temperatura Wi-Fi":"%d &deg;C"},' $T
+		;;
 esac
 echo ']'
 
