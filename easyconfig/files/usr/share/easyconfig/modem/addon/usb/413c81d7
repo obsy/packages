@@ -16,6 +16,7 @@ if [ "$REGOK" = "1" ]; then
 O=$(sms_tool -d $DEVICE at "at^ca_info?;^debug?")
 
 O1=$(echo "$O" | sed -n '/^RAT:/,/^SCell1:/p')
+[ -z "$O1" ] && O1=$(echo "$O" | sed -n '/^EARFCN/,/^SCell1:/p')
 
 T=$(echo "$O1" | awk '/TAC:/ {print $2}')
 if [ -n "$T" ]; then
