@@ -42,19 +42,18 @@ fi
 
 case "$MODE_NUM" in
 	7*)
-		if echo "$O" | grep -q -i "+QCAINFO.*SCC"; then
-			MODE="LTE_A"
-		fi
+		MODE="LTE"
+		echo "$O" | grep -q -i "+QCAINFO.*SCC" && MODE="LTE_A"
 		;;
 	11*)
 		MODE="5G SA"
 		;;
 	13*)
+		MODE="LTE"
 		if echo "$O" | grep -q -i "+QCAINFO.*NR5G"; then
 			MODE="5G NSA"
 		else
 			if echo "$O" | grep -q -i "+QCAINFO.*PCC.*LTE"; then
-				MODE="LTE"
 				if echo "$O" | grep -q -i "+QCAINFO.*SCC"; then
 					MODE="LTE_A"
 				fi
@@ -62,16 +61,6 @@ case "$MODE_NUM" in
 		fi
 		;;
 esac
-
-T=$(echo "$O" | awk -F[,:] '/^\+QNWINFO:/{print $4}')
-if [ -n "$T" ]; then
-	case $T in
-		*"LTE BAND"*)
-			B=$(echo $T | sed 's/"LTE BAND \(.*\)"/\1/')
-			MODE="$MODE $(band4g ${B})"
-			;;
-	esac
-fi
 
 T=$(echo "$O" | awk -F[,:] '/^\+QCAINFO: "(pcc|PCC)"/{print $5}')
 if [ -n "$T" ]; then
@@ -109,6 +98,23 @@ if [ -n "$T" ]; then
 			esac
 		done
 	fi
+else
+	case "$MODE_NUM" in
+		7 | 13)
+			T=$(echo "$O" | awk -F[,:] '/^\+QNWINFO:.*LTE.*/{print $4}')
+			if [ -n "$T" ]; then
+				B=$(echo $T | sed 's/"LTE BAND \(.*\)"/\1/')
+				MODE="$MODE $(band4g ${B})"
+			fi
+			;;
+		11*)
+			T=$(echo "$O" | awk -F[,:] '/^\+QNWINFO:.*NR5G.*/{print $4}')
+			if [ -n "$T" ]; then
+				B=$(echo $T | sed 's/"NR5G BAND \(.*\)"/\1/')
+				MODE="$MODE $(band5g ${B})"
+			fi
+			;;
+	esac
 fi
 
 if [ "x$MODE_NUM" = "x7" ]; then
