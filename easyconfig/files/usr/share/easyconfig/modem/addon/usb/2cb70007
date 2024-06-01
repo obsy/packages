@@ -1,4 +1,4 @@
-# Fibocom L860
+# Fibocom L850
 
 bandwidth() {
 	case $1 in
@@ -28,12 +28,6 @@ channeltoband()
 		echo "?"
 	fi
 }
-
-
-O=$(sms_tool -d $DEVICE at "AT+MTSM=1")
-
-T=$(echo "$O" | awk -F: '/^\+MTSM:/ {print $2}' | xargs)
-[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
 
 if [ "$REGOK" = "1" ]; then
 
