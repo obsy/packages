@@ -457,7 +457,10 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 	fi
 fi
 
+REVISION=$(awk -F\' '/DISTRIB_REVISION/{print $2}' /etc/openwrt_release)
+
 echo '{'
+echo '"revision":"'$REVISION'",'
 echo '"devicesection":'$DEVICESECTION','
 echo '"system_hostname":"'$HOSTNAME'",'
 echo '"wan_proto":"'$WAN_PROTO'",'
@@ -573,6 +576,7 @@ for R in $RADIOS; do
 			WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
 			[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
 			WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
+			WLAN_MACADDR=$(uci -q get wireless.$WLAN_SEC.macaddr)
 			break
 		done
 		[ -z "$WLAN_SSID" ] && WLAN_DISABLED=1
@@ -587,6 +591,7 @@ for R in $RADIOS; do
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
+	echo '"wlan_macaddr":"'$WLAN_MACADDR'",'
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	O=$(iwinfo $R info 2>/dev/null)
 	HWMODE=$(echo "$O" | awk -F: '/HW Mode/{gsub(" ","",$3);print $3}')
