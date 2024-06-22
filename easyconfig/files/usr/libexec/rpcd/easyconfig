@@ -600,7 +600,7 @@ for R in $RADIOS; do
 	echo '"wlan_phy":"'$PHY'",'
 	echo '"wlan_channels":{'
 	O=""
-	[ -n "$PHY" ] && O=$(iw phy $PHY info | grep -v "(disabled)" | grep -v "(no IR)" | awk '/\* [0-9]+ MHz/{dfs="false";if(index($0, "radar detection") != 0){dfs="true"};gsub(/\[|\]|\(|\)/,""); printf ",\"%d\":[\"%s\",\"%s\",%s]", $4, $2, $5, dfs}')
+	[ -n "$PHY" ] && O=$(iw phy $PHY info | grep -v "(disabled)" | grep -v "(no IR)" | awk '/\* [0-9\.]+ MHz/{dfs="false";if(index($0, "radar detection") != 0){dfs="true"};gsub(/\[|\]|\(|\)/,""); printf ",\"%d\":[\"%s\",\"%s\",%s]", $4, $2, $5, dfs}')
 	if [ -z "$O" ]; then
 		echo '"'$WLAN_CHANNEL'":["","",false]'
 	else
