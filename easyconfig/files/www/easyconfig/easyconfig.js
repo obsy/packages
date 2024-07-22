@@ -573,7 +573,7 @@ function enableWan(proto) {
 		}
 	}
 	if (proto != 'dhcp' && proto != 'static' && proto != 'unknown' && config.wan_ifname_default !== '' && config.wan_ifname_default != 'br-wan') {
-		fields.push('wan_wanport');
+		fields.push('wan_waninlan');
 	}
 	if (proto != 'none' && proto != 'unknown') {
 		fields.push('wan_metered');
@@ -586,7 +586,7 @@ function enableWan(proto) {
 		setValue('wan_lanto_interface2', tmp);
 	}
 
-	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_wanport', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
+	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_waninlan', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -1062,7 +1062,7 @@ function showconfig() {
 		setValue('wan_dns1', (config.wan_dns.length > 0 ? config.wan_dns[0] : ''));
 		setValue('wan_dns2', (config.wan_dns.length > 1 ? config.wan_dns[1] : ''));
 		setValue('wan_proto', (config.wan_proto in wan) ? config.wan_proto : 'unknown');
-		setValue('wan_wanport', (config.wan_wanport == 'bridge'));
+		setValue('wan_waninlan', config.wan_waninlan);
 		if (config.wan_proto == 'dhcp') {
 			if (config.wan_ifname == config.wan_ifname_hilink) {
 				setValue('wan_proto', 'dhcp_hilink');
@@ -1369,12 +1369,12 @@ function saveconfig() {
 				cmd.push('T=$(uci -q get network.lan.device)');
 				cmd.push('SEC=$(uci show network | awk -F. \'/\\\\\.name=\'\\\\\'\'\'$T\'\'\\\\\'\'$/{print $2}\')');
 				cmd.push('uci -q del_list network.$SEC.ports=' + config.wan_ifname_default);
-				if (use_wanport && getValue('wan_wanport')) {
+				if (use_wanport && getValue('wan_waninlan')) {
 					cmd.push('uci add_list network.$SEC.ports=' + config.wan_ifname_default);
 				}
 			} else {
 				cmd.push('T=$(uci -q get network.lan.ifname | sed \'s|' + config.wan_ifname_default + '||\' | xargs)');
-				if (use_wanport && getValue('wan_wanport')) {
+				if (use_wanport && getValue('wan_waninlan')) {
 					cmd.push('uci set network.lan.ifname=\\\"$T ' + config.wan_ifname_default + '\\\"');
 				} else {
 					cmd.push('uci set network.lan.ifname=\\\"$T\\\"');

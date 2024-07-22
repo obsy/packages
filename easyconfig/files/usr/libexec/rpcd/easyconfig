@@ -434,7 +434,7 @@ if [ "x$WAN_PROTO" = "xqmi" ]; then
 	WAN_MODEM_MODE=$(uci -q get network.wan.modes)
 fi
 
-WAN_WANPORT="none";
+WAN_WANINLAN="false"
 if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 	if $DEVICESECTION; then
 		T=$(uci -q get network.lan.device)
@@ -443,7 +443,7 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 			if [ -n "$SEC" ]; then
 				case "$(uci -q get network.$SEC.ports)" in
 					*$WAN_IFNAME_DEFAULT*)
-					WAN_WANPORT="bridge"
+					WAN_WANINLAN="true"
 					;;
 				esac
 			fi
@@ -451,7 +451,7 @@ if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 	else
 		case "$(uci -q get network.lan.ifname)" in
 			*$WAN_IFNAME_DEFAULT*)
-			WAN_WANPORT="bridge"
+			WAN_WANINLAN="true"
 			;;
 		esac
 	fi
@@ -477,7 +477,7 @@ echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
 echo '"wan_dashboard_url":"'$WAN_DASHBOARD_URL'",'
 echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
-echo '"wan_wanport":"'$WAN_WANPORT'",'
+echo '"wan_waninlan":'$WAN_WANINLAN','
 
 echo '"wan_protos":["none"'
 T=$(echo $(sed 's/^$/######/g' /sys/kernel/debug/usb/devices) | sed 's/######/\n/g' | awk '/Driver=rndis_host/ && /Driver=cdc_acm/')
