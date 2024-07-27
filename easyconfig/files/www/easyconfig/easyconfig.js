@@ -2046,7 +2046,7 @@ function savemodemsettings() {
 	cmd.push('uci set easyconfig.modem.force_plmn=' + (getValue('modemsettings_modem_force_plmn') ? '1' : '0'));
 	cmd.push('uci set easyconfig.sms.storage=' + getValue('modemsettings_sms_storage'));
 	cmd.push('uci set easyconfig.ussd.raw_input=' + (getValue('modemsettings_ussd_raw_input') ? '1' : '0'));
-	cmd.push('uci set easyconfig.ussd.raw_output=' + (getValue('modemsettings_ussd_raw_output') ? '1' : '0'));
+	cmd.push('uci set easyconfig.ussd.raw_output=' + getValue('modemsettings_ussd_raw_output'));
 	cmd.push('uci commit easyconfig');
 	execute(cmd, showsystem);
 }
@@ -2058,7 +2058,7 @@ function modemsettings() {
 		setValue('modemsettings_modem_force_plmn', data.modem_force_plmn == 1);
 		setValue('modemsettings_sms_storage', data.sms_storage);
 		setValue('modemsettings_ussd_raw_input', data.ussd_raw_input == 1);
-		setValue('modemsettings_ussd_raw_output', data.ussd_raw_output == 1);
+		setValue('modemsettings_ussd_raw_output', data.ussd_raw_output);
 		setDisplay('div_modemsettings', true);
 	})
 }

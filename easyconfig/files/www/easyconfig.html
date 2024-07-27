@@ -1716,7 +1716,7 @@
 				</div>
 			</div>
 			<div class="form-group mmarginbottom">
-				<label for="modemsettings_ussd_raw_input" class="col-xs-6 control-label">Odbieranie USSD bez dekodowana PDU</label>
+				<label for="modemsettings_ussd_raw_input" class="col-xs-6 control-label">Wysyłanie USSD bez kodowana PDU</label>
 				<div class="col-xs-6">
 				<label class="switch">
 					<input id="modemsettings_ussd_raw_input" type="checkbox">
@@ -1724,13 +1724,16 @@
 				</label>
 				</div>
 			</div>
-			<div class="form-group mmarginbottom">
-				<label for="modemsettings_ussd_raw_output" class="col-xs-6 control-label">Wysyłanie USSD bez kodowana PDU</label>
-				<div class="col-xs-6">
-				<label class="switch">
-					<input id="modemsettings_ussd_raw_output" type="checkbox">
-					<div class="slider round"></div>
-				</label>
+			<div class="form-group">
+				<label for="modemsettings_ussd_raw_output" class="hidden-xs col-sm-6 control-label">Odbieranie USSD</label>
+				<label for="modemsettings_ussd_raw_output" class="visible-xs col-xs-12 control-label text-left">Odbieranie USSD</label>
+				<div class="col-xs-12 col-sm-6">
+				<select id="modemsettings_ussd_raw_output" class="form-control">
+					<option value="1">bez dekodowania</option>
+					<option value="0">z automatycznym wykrywaniem kodowania</option>
+					<option value="2">z dekodowaniem 7BIT</option>
+					<option value="3">z dekodowaniem UCS</option>
+				</select>
 				</div>
 			</div>
 		</form>

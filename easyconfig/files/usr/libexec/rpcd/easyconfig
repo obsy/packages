@@ -1143,7 +1143,7 @@ setsimslot() {
 ##############################################################################
 
 show_ussd() {
-	read input;
+	read input
 	json_load "$input"
 	json_get_vars code
 	if [ -z "$code" ]; then
@@ -1153,7 +1153,11 @@ show_ussd() {
 		T=$(uci -q get easyconfig.ussd.raw_input)
 		[ "x$T" = "x1" ] && OPT="$OPT -R"
 		T=$(uci -q get easyconfig.ussd.raw_output)
-		[ "x$T" = "x1" ] && OPT="$OPT -r"
+		case "$T" in
+			1) OPT="$OPT -r";;
+			2) OPT="$OPT -c 0";;
+			3) OPT="$OPT -c 2";;
+		esac
 		DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
 		if [ -n "$DEVICE" ]; then
 			T=$(sms_tool -d $DEVICE $OPT ussd "$code" 2>/dev/null)
