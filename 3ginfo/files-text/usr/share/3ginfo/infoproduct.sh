@@ -5,7 +5,7 @@
 #
 
 DEVICE=$1
-if [ -n "$DEVICE" ]; then
+if [ -n "$DEVICE" ] && [ -e "$DEVICE" ]; then
 	O=$(gcom -d "$DEVICE" -s /usr/share/3ginfo/vendorproduct.gcom)
 	T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
 	[ -n "$T" ] && VENDOR="$T"
