@@ -1,5 +1,6 @@
 # Quectel EP06
 # Quectel EG06
+# Quectel EM06
 
 O=$(sms_tool -d $DEVICE at "at+qtemp")
 
