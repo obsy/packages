@@ -22,7 +22,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 	T=$(echo "$O" | awk -F[,:] '/^SINR:/ {print $2}' | xargs)
 	[ -n "$T" ] && addon 38 "SINR" "$T dB"
 
-	T=$(echo "$O" | awk -F[,:] '/^ACTIVE BAND:/ {print $2}' | xargs)
+	T=$(echo "$O" | awk -F[,:] 'BEGIN{IGNORECASE=1} /^ACTIVE BAND:/ {print $2}' | xargs)
 	[ -n "$T" ] && MODE="LTE $(band4g ${T})"
 
 	T=$(echo "$O" | awk -F[,:] '/^PCI:/ {print $2}' | xargs)
