@@ -1777,7 +1777,7 @@ show_vpn_status()
 
 	if [ "x$PROTO" = "xwireguard" ]; then
 		echo ',"peers":['
-		T=$(wg show $interface dump)
+		T=$(wg show $interface dump 2>/dev/null)
 		PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$interface'/{print $2}')
 		for PEER in $PEERS; do
 			PUBKEY=$(uci -q get network.$PEER.public_key)
