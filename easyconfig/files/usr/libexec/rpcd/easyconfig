@@ -1260,9 +1260,9 @@ show_wifiscan() {
 	if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 		for I in /sys/class/net/$BRIDGE/lower_*; do
 			if [ -e $I/phy80211 ]; then
-				iw dev ${I##*lower_} scan -u 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("(on","");
+				iw dev ${I##*lower_} scan -u 2>/dev/null | awk 'function abs(value){return (value<0?-value:value)}{gsub("\\(on","");
 					if($0 ~ /^BSS.*/) {MAC = $2; wifi_enc[MAC] = ""; wifi_psk[MAC] = 0; wifi_psk2[MAC] = 0; wifi_chan[MAC] = "?"; wifi_mode1[MAC] = ""; wifi_mode2[MAC] = ""; wifi_bssload[MAC] = -1}
-					if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); wifi_ssid[MAC]=t}
+					if($1 == "SSID:") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/"/, "\\\"", t); wifi_ssid[MAC]=t}
 					if($1 == "signal:") {wifi_sig[MAC] = $2}
 					if($1 == "freq:") {wifi_freq[MAC] = $2; if($2>=5160){wifi_mode1[MAC] = "a"}else{wifi_mode1[MAC] = "g"}}
 					if($0 ~ /primary channel:/) {wifi_chan[MAC] = $4}
