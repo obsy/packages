@@ -44,7 +44,16 @@ if [ "$REGOK" = "1" ]; then
 O=$(sms_tool -d $DEVICE at "AT+GTCCINFO?;+GTCAINFO?")
 
 if [ "x$MODE_NUM" = "x7" ] || [ "x$MODE_NUM" = "x13" ]; then
+	if [ "x$MODE_NUM" = "x7" ]; then
+		LINE=$(echo "$O" | grep -A 10 "^+GTCCINFO:" | grep '^1,9')
+		if [ -n "$LINE" ]; then
+			MODE_NUM=13
+			MODE="LTE"
+		fi
+	fi
+
 	LINE=$(echo "$O" | grep -A 10 "^+GTCCINFO:" | grep '^1,4,'$((COPS_MCC * 1))','$((COPS_MNC * 1))'')
+	[ -z "$LINE" ] && LINE=$(echo "$O" | grep -A 10 "^+GTCCINFO:" | grep '^1,4,'$((COPS_MCC * 1))',')
 
 	T=$(echo "$LINE" | awk -F, '{print $5}')
 	if [ -n "$T" ]; then
