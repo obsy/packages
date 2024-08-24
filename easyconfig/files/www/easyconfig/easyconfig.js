@@ -6274,6 +6274,7 @@ var adblock_lists;
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
 		if (config.services.adblock) {
+			setDisplay('btn_adblock_checkdomain', true);
 			setDisplay('div_adblock_adblock', true);
 			var tmp = data.domains == '' ? '-' : data.domains
 			if (data.domains == '0') {
@@ -6315,7 +6316,9 @@ function showadblock() {
 				setValue('adblock_' + adblock_lists[i].section, adblock_lists[i].enabled);
 			}
 		} else {
+			setDisplay('btn_adblock_checkdomain', false);
 			setDisplay('div_adblock_easyconfig', true);
+			setValue('adblock_enabled_easyconfig', data.enabled);
 		}
 
 		html = '';
