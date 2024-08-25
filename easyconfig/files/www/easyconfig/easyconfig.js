@@ -6274,11 +6274,11 @@ var adblock_lists;
 function showadblock() {
 	ubus_call('"easyconfig", "adblock", {}', function(data) {
 		if (config.services.adblock) {
-			setDisplay('btn_adblock_checkdomain', true);
+			document.getElementById('btn_adblock_checkdomain').style.display = 'inline-block';
 			setDisplay('div_adblock_adblock', true);
-			var tmp = data.domains == '' ? '-' : data.domains
+			var tmp = (data.domains == '' ? '-' : data.domains);
 			if (data.domains == '0') {
-				if (data.status == 'running') { tmp += ' (trwa uruchamianie)' }
+				if (data.status == 'running') { tmp += ' (trwa uruchamianie)'; }
 			}
 			setValue('adblock_domains', tmp);
 			setValue('adblock_enabled', data.enabled);
