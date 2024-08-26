@@ -383,7 +383,7 @@ fi
 
 [ -n "$WAN_DNS" ] && WAN_DNS='"'$(echo $WAN_DNS | sed 's/ /","/g')'"'
 
-if [ -e /etc/config/stubby ]; then
+if [ -e /etc/init.d/stubby ]; then
 	STUBBY="true"
 	T=$(uci -q get stubby.global.listen_address)
 	T1=$(uci -q get dhcp.@dnsmasq[0].server | sed 's/#/@/g')
@@ -710,17 +710,17 @@ VPN=""
 [ -f /usr/lib/pppd/*/pptp.so ] && VPN=${VPN}'"pptp",'
 [ -e /lib/netifd/proto/sstp.sh ] && VPN=${VPN}'"sstp",'
 [ -e /lib/netifd/proto/wireguard.sh ] && VPN=${VPN}'"wireguard",'
-[ -e /etc/config/openvpn ] && VPN=${VPN}'"openvpn",'
-[ -e /etc/config/zerotier ] && VPN=${VPN}'"zerotier",'
+[ -e /etc/init.d/openvpn ] && VPN=${VPN}'"openvpn",'
+[ -e /etc/init.d/zerotier ] && VPN=${VPN}'"zerotier",'
 echo '"vpn":['$VPN'],'
 
-if [ -e /etc/config/adblock ]; then
+if [ -e /etc/init.d/adblock ]; then
 	echo '"adblock":true,'
 else
 	echo '"adblock":false,'
 fi
 
-if [ -e /etc/config/nft-qos ]; then
+if [ -e /etc/init.d/nft-qos ]; then
 	echo '"nftqos":true,'
 else
 	echo '"nftqos":false,'
@@ -1963,7 +1963,7 @@ adblock_bwlist()
 
 show_adblock()
 {
-	if [ ! -e /etc/config/adblock ]; then
+	if [ ! -e /etc/init.d/adblock ]; then
 		json_init
 		/etc/init.d/easyconfig_adblock enabled && json_add_boolean "enabled" 1 || json_add_boolean "enabled" 0
 		adblock_bwlist
