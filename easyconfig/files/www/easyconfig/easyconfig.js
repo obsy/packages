@@ -6319,6 +6319,7 @@ function showadblock() {
 			setDisplay('btn_adblock_checkdomain', false);
 			setDisplay('div_adblock_easyconfig', true);
 			setValue('adblock_enabled_easyconfig', data.enabled);
+			setValue('adblock_forcedns_easyconfig', data.forcedns);
 		}
 
 		html = '';
@@ -6385,6 +6386,20 @@ function saveadblock() {
 
 function saveadblock_easyconfig() {
 	var cmd = [];
+
+	if (getValue('adblock_forcedns_easyconfig')) {
+		cmd.push('uci set firewall.dns_53_redirect=redirect');
+		cmd.push('uci set firewall.dns_53_redirect.name=\\\"Adblock DNS, port 53\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src=lan');
+		cmd.push('uci set firewall.dns_53_redirect.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
+		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
+		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
+	} else {
+		cmd.push('uci -q del firewall.dns_53_redirect');
+	}
+	cmd.push('uci commit');
+	cmd.push('/etc/init.d/firewall restart');
 
 	if (getValue('adblock_enabled_easyconfig')) {
 		cmd.push('/etc/init.d/easyconfig_adblock enable');

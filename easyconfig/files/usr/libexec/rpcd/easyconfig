@@ -1966,6 +1966,9 @@ show_adblock()
 	if [ ! -e /etc/init.d/adblock ]; then
 		json_init
 		/etc/init.d/easyconfig_adblock enabled && json_add_boolean "enabled" 1 || json_add_boolean "enabled" 0
+		T=$(uci -q get firewall.dns_53_redirect)
+		[ "x$T" = "xredirect" ] && FORCEDNS="1" || FORCEDNS="0"
+		json_add_boolean "forcedns" $FORCEDNS
 		adblock_bwlist
 		json_dump
 		exit 0
