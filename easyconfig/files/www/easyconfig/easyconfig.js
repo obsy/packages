@@ -1869,7 +1869,7 @@ function showstatus() {
 						html += '</tr><tr>';
 					}
 				}
-				html += '</tr></table></center>'
+				html += '</tr></table></center>';
 				setValue('div_status_lan_ports', html);
 				feather.replace({'width':36, 'height':36});
 				setDisplay('div_status_lan_ports', true);
@@ -2923,7 +2923,7 @@ var wifiscanresults;
 
 function showsitesurvey() {
 	ubus_call('"easyconfig", "wifiscan", {}', function(data) {
-		var arr = [...new Map((data.result).map(v => [JSON.stringify([v.mac,v.ssid,v.freq,v.signal,v.channel,v.encryption,v.mode1,v.mode2,v.vhtch1,v.vhtch2]), v])).values()]
+		var arr = [...new Map((data.result).map(v => [JSON.stringify([v.mac,v.ssid,v.freq,v.signal,v.channel,v.encryption,v.mode1,v.mode2,v.vhtch1,v.vhtch2]), v])).values()];
 
 		var wlan_devices = config.wlan_devices;
 
@@ -3437,7 +3437,7 @@ wifigraph = {
 	},
 
 	plot: function (graph) {
-		var ctx = graph.context
+		var ctx = graph.context;
 		var data = sortJSON(graph.data, 'signal', 'desc');
 
 		ctx.textAlign = 'center';
@@ -3639,8 +3639,8 @@ function clientscallback(sortby) {
 				clients[idx].first_seen = '-';
 				clients[idx].last_seen = '-';
 				if (clients[idx].tx === undefined) {
-					clients[idx].tx = 0
-					clients[idx].rx = 0
+					clients[idx].tx = 0;
+					clients[idx].rx = 0;
 				}
 			}
 			total += clients[idx].tx + clients[idx].rx;
@@ -3900,7 +3900,7 @@ function timestampToDate(ts) {
 }
 
 function clientslogscallback(first, last) {
-	var selected = 'all'
+	var selected = 'all';
 	var e = document.getElementById('clientslogs_hosts');
 	if (e != null) {
 		selected = e.options[e.selectedIndex].value;
@@ -4104,7 +4104,7 @@ function hostblock(id) {
 	if (host.block == 1) { setValue('hostblock_permanent', true); }
 	if (host.block == 2) {
 		setValue('hostblock_temporary', true);
-		var code = [64,32,16,8,4,2,1]
+		var code = [64,32,16,8,4,2,1];
 		var hours = (host.blockdata).match(/.{1,2}/g);
 		if (hours.length == 24) {
 			for (var i = 0; i < 24; i++) {
@@ -4152,7 +4152,7 @@ function okhostblock() {
 	}
 	if (action == 2) {
 		var bc = document.getElementById('hostblock_off').style.backgroundColor;
-		var code = [64,32,16,8,4,2,1]
+		var code = [64,32,16,8,4,2,1];
 		var hex = '';
 		for (var i = 0; i < 24; i++) {
 			var sum = 0;
@@ -4560,7 +4560,7 @@ function showqueries() {
 }
 
 function queriescallback(sortby, order) {
-	var selected = 'all'
+	var selected = 'all';
 	var e = document.getElementById('queries_hosts');
 	if (e != null) {
 		selected = e.options[e.selectedIndex].value;
@@ -4591,7 +4591,7 @@ function queriescallback(sortby, order) {
 			}
 		}
 		html += '<div class="row"><div class="col-xs-6 text-right">Liczba zapytań o niedostępne domeny</div><div class="col-xs-6"><p>' + cnt + '<span class="visible-xs oneline"></span> (' + parseInt(cnt * 100 / filtered.length) + '%)</p></div></div>';
-		html += '<hr>'
+		html += '<hr>';
 
 		html += '<div class="form-group row" id="div_queries_hosts">';
 		html += '<div class="col-xs-offset-6 col-xs-6 col-sm-offset-4 col-sm-4"><select id="queries_hosts" class="form-control" onchange="queriescallback(\'id\', \'desc\');">';
@@ -5234,8 +5234,8 @@ function savevpnkillswitch() {
 			cmd.push('uci set firewall.@forwarding[-1].dest=wan');
 		}
 	}
-	cmd.push('uci commit firewall')
-	cmd.push('/etc/init.d/firewall restart')
+	cmd.push('uci commit firewall');
+	cmd.push('/etc/init.d/firewall restart');
 	execute(cmd, showvpn);
 }
 
@@ -5246,10 +5246,10 @@ function showvpn() {
 		var sorted = sortJSON(data.result, 'name', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
-			html += '<div class="col-xs-12 col-sm-4">Nazwa</div>'
-			html += '<div class="col-xs-3 col-sm-3">Typ</div>'
-			html += '<div class="col-xs-7 col-sm-4">Status</div>'
-			html += '<div class="col-xs-2 col-sm-1"></div>'
+			html += '<div class="col-xs-12 col-sm-4">Nazwa</div>';
+			html += '<div class="col-xs-3 col-sm-3">Typ</div>';
+			html += '<div class="col-xs-7 col-sm-4">Status</div>';
+			html += '<div class="col-xs-2 col-sm-1"></div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row space"><div class="col-xs-12 col-sm-4 click" onclick="vpndetails(\'' + sorted[idx].proto + '\',\'' + sorted[idx].interface + '\',\'' + (sorted[idx].section ? sorted[idx].section : '') + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
@@ -6738,9 +6738,9 @@ function showwol() {
 		var sorted = sortJSON(data.result, 'description', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
-			html += '<div class="col-xs-6">Opis</div>'
-			html += '<div class="col-xs-4">Adres MAC</div>'
-			html += '<div class="col-xs-2">Wybudzanie</div>'
+			html += '<div class="col-xs-6">Opis</div>';
+			html += '<div class="col-xs-4">Adres MAC</div>';
+			html += '<div class="col-xs-2">Wybudzanie</div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row space">';
