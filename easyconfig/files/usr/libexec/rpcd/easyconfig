@@ -565,6 +565,7 @@ for R in $RADIOS; do
 	WLAN_ENCRYPTION=""
 	WLAN_KEY=""
 	WLAN_ISOLATE=0
+	WLAN_MACADDR=""
 	if [ -n "$T" ]; then
 		for T1 in $T; do
 			[ "x$(uci -q get wireless.$T1.network)" = "xlan" ] || continue
