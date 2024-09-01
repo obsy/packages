@@ -1497,8 +1497,8 @@ function saveconfig() {
 
 		if (section == '') {
 			wlan_restart_required = true;
-			cmd.push('uci add wireless wifi-iface');
-			section = '@wifi-iface[-1]';
+			cmd.push('uci set wireless.lan_' + radios[i] + '=wifi-iface');
+			section = 'lan_' + radios[i];
 			config[radios[i]].wlan_section = section;
 			cmd.push('uci set wireless.' + section + '.device=' + radios[i]);
 		}
