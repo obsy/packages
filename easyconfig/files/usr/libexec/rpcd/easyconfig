@@ -554,41 +554,40 @@ done
 echo "],"
 for R in $RADIOS; do
 	echo '"'$R'":{'
-	WLAN_DISABLED=$(uci -q get wireless.$R.disabled)
+	WLAN_RADIO_DISABLED=$(uci -q get wireless.$R.disabled)
 	WLAN_TXPOWER=$(uci -q get wireless.$R.txpower)
 	WLAN_CHANNEL=$(uci -q get wireless.$R.channel)
 	WLAN_BAND=$(uci -q get wireless.$R.band)
 	[ "x$WLAN_CHANNEL" = "xauto" ] && WLAN_CHANNEL=0
 	T=$(uci -q show wireless | awk -F. '/device='\'''${R}''\''$/{print $2}')
-	WLAN_SEC=""
+	WLAN_DISABLED=1
 	WLAN_SSID=""
 	WLAN_ENCRYPTION=""
 	WLAN_KEY=""
 	WLAN_ISOLATE=0
 	WLAN_MACADDR=""
+	WLAN_SEC=""
 	if [ -n "$T" ]; then
 		for T1 in $T; do
 			[ "x$(uci -q get wireless.$T1.network)" = "xlan" ] || continue
 			[ "x$(uci -q get wireless.$T1.mode)" = "xap" ] || continue
 			WLAN_SEC=$T1
+			WLAN_DISABLED=$(uci -q get wireless.$WLAN_SEC.disabled)
 			WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
 			WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
 			WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
-			WLAN_DISABLED1=$(uci -q get wireless.$WLAN_SEC.disabled)
-			[ "x$WLAN_DISABLED1" = "x1" ] && WLAN_DISABLED=1
 			WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
 			WLAN_MACADDR=$(uci -q get wireless.$WLAN_SEC.macaddr)
 			break
 		done
 		[ -z "$WLAN_SSID" ] && WLAN_DISABLED=1
-	else
-		WLAN_DISABLED=1
 	fi
+	[ "x$WLAN_RADIO_DISABLED" = "x1" ] && WLAN_DISABLED=1
 	echo '"wlan_disabled":'${WLAN_DISABLED:-0}','
 	echo '"wlan_txpower":"'$WLAN_TXPOWER'",'
-	echo '"wlan_ssid":"'$(escapeJSON "$WLAN_SSID")'",'
 	echo '"wlan_channel":"'$WLAN_CHANNEL'",'
 	echo '"wlan_band":"'$WLAN_BAND'",'
+	echo '"wlan_ssid":"'$(escapeJSON "$WLAN_SSID")'",'
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
