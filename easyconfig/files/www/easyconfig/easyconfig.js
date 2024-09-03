@@ -1506,26 +1506,26 @@ function saveconfig() {
 		if (getValue('wlan_enabled_' + i)) {
 			if (config[radios[i]].wlan_disabled == 1) {
 				wlan_restart_required = true;
-				cmd.push('uci -q del wireless.' + radios[i] + '.disabled');
 			}
+			cmd.push('uci -q del wireless.' + radios[i] + '.disabled');
 		} else {
 			if (config[radios[i]].wlan_disabled != 1) {
 				wlan_restart_required = true;
-				cmd.push('uci set wireless.' + radios[i] + '.disabled=1');
 			}
+			cmd.push('uci set wireless.' + radios[i] + '.disabled=1');
 		}
 
 		wlan_channel = getValue('wlan_channel_' + i);
 		if (config[radios[i]].wlan_channel != wlan_channel) {
 			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
-			if (wlan_channel > 0) {
-				var band = freq2band(config[radios[i]].wlan_channels[wlan_channel][0]);
-				if (config[radios[i]].wlan_band != '') {
-					cmd.push('uci set wireless.' + radios[i] + '.band=' + band + 'g');
-				} else {
-					cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + (band == 2 ? 'g' : 'a'));
-				}
+		}
+		cmd.push('uci set wireless.' + radios[i] + '.channel=' + wlan_channel);
+		if (wlan_channel > 0) {
+			var band = freq2band(config[radios[i]].wlan_channels[wlan_channel][0]);
+			if (config[radios[i]].wlan_band != '') {
+				cmd.push('uci set wireless.' + radios[i] + '.band=' + band + 'g');
+			} else {
+				cmd.push('uci set wireless.' + radios[i] + '.hwmode=11' + (band == 2 ? 'g' : 'a'));
 			}
 		}
 		if (wlan_channel > 0) {
@@ -1534,8 +1534,8 @@ function saveconfig() {
 			var curtxpower = Math.round(txpower * maxtxpower / 100);
 			if (config[radios[i]].wlan_txpower != curtxpower) {
 				wlan_restart_required = true;
-				cmd.push('uci set wireless.' + radios[i] + '.txpower=' + curtxpower);
 			}
+			cmd.push('uci set wireless.' + radios[i] + '.txpower=' + curtxpower);
 		} else {
 			cmd.push('uci -q del wireless.' + radios[i] + '.txpower');
 		}
@@ -1550,48 +1550,48 @@ function saveconfig() {
 		}
 		if (config[radios[i]].wlan_ssid != wlan_ssid) {
 			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + section + '.ssid=\\\"' + escapeShell(wlan_ssid) + '\\\"');
 		}
+		cmd.push('uci set wireless.' + section + '.ssid=\\\"' + escapeShell(wlan_ssid) + '\\\"');
 		wlan_encryption = getValue('wlan_encryption_' + i);
 		if (config[radios[i]].wlan_encryption != wlan_encryption) {
 			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + section + '.encryption=\\\"'+wlan_encryption+'\\\"');
 		}
+		cmd.push('uci set wireless.' + section + '.encryption=\\\"'+wlan_encryption+'\\\"');
 		wlan_key = getValue('wlan_key_' + i);
-		if (config[radios[i]].wlan_key != wlan_key) {
-			if (wlan_encryption != 'none') {
-				if (wlan_key.length < 8) {
-					showMsg('Błąd w polu ' + getLabelText('wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
-					return;
-				}
+		if (wlan_encryption != 'none') {
+			if (wlan_key.length < 8) {
+				showMsg('Błąd w polu ' + getLabelText('wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków', true);
+				return;
 			}
-			wlan_restart_required = true;
-			cmd.push('uci set wireless.' + section + '.key=\\\"' + escapeShell(wlan_key) + '\\\"');
 		}
+		if (config[radios[i]].wlan_key != wlan_key) {
+			wlan_restart_required = true;
+		}
+		cmd.push('uci set wireless.' + section + '.key=\\\"' + escapeShell(wlan_key) + '\\\"');
 
 		if (getValue('wlan_isolate_' + i)) {
 			if (config[radios[i]].wlan_isolate == 0) {
 				wlan_restart_required = true;
-				cmd.push('uci set wireless.' + section + '.isolate=1');
 			}
+			cmd.push('uci set wireless.' + section + '.isolate=1');
 		} else {
 			if (config[radios[i]].wlan_isolate != 0) {
 				wlan_restart_required = true;
-				cmd.push('uci -q del wireless.' + section + '.isolate');
 			}
+			cmd.push('uci -q del wireless.' + section + '.isolate');
 		}
 
 		if (revision > 20293 && (config[radios[i]].wlan_macaddr === 'random' || config[radios[i]].wlan_macaddr === '')) {
 			if (getValue('wlan_macaddr_' + i)) {
 				if (config[radios[i]].wlan_macaddr != 'random') {
 					wlan_restart_required = true;
-					cmd.push('uci set wireless.' + section + '.macaddr=random');
 				}
+				cmd.push('uci set wireless.' + section + '.macaddr=random');
 			} else {
 				if (config[radios[i]].wlan_macaddr == 'random') {
 					wlan_restart_required = true;
-					cmd.push('uci -q del wireless.' + section + '.macaddr');
 				}
+				cmd.push('uci -q del wireless.' + section + '.macaddr');
 			}
 		}
 
