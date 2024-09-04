@@ -2129,11 +2129,96 @@ wolwakeup() {
 
 ##############################################################################
 
+show_networks() {
+	echo '{"result":['
+	NETWORKS=$(uci show network | awk -F. '/\.proto='\''static'\''/{print $2}')
+	for SEC in $NETWORKS; do
+		[ "$SEC" = "lan" ] && continue
+		[ "$SEC" = "loopback" ] && continue
+		[ "$SEC" = "wan" ] && continue
+		[ "$SEC" = "wan6" ] && continue
+		echo '{"section":"'$SEC'",'
+		echo '"description":"'$(escapeJSON "$(uci -q get network.$SEC.description)")'",'
+		echo '"proto":"'$(uci -q get network.$SEC.proto)'",'
+		echo '"ipaddr":"'$(uci -q get network.$SEC.ipaddr)'",'
+		echo '"netmask":"'$(uci -q get network.$SEC.netmask)'",'
+		T=$(uci -q get network.$SEC.device)
+		echo '"device":"'$T'",'
+		BRIDGE=""
+		T1=$(uci show network | awk -F. '/\.name='\'''$T''\''$/{print $2}')
+		[ -n "$T1" ] && [ "x$(uci -q get network.$T1.type)" = "xbridge" ] && BRIDGE=$T1
+		echo '"bridge":"'$BRIDGE'",'
+		T=$(uci show firewall | awk -F. '/\.network='\'''$SEC''\''$/{print $2}')
+		echo '"zone":"'$T'",'
+		echo '"forwarding":['
+		RULES=$(uci show firewall | awk -F. '/\.src='\'''$SEC''\''$/{print $2}')
+		for RULE in $RULES; do
+			if [ "x$(uci -q get firewall.${RULE})" = "xforwarding" ]; then
+				echo '{"'$(uci -q get firewall.${RULE}.dest)'":"'${RULE}'"},'
+			fi
+		done
+		echo '],'
+		DHCP="1"
+		T=$(uci -q get dhcp.$SEC.ignore)
+		[ "x$T" = "x1" ] && DHCP=0
+		echo '"dhcp":'$DHCP','
+		echo '"interfaces":['
+
+		RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
+		for R in $RADIOS; do
+			echo '{"type":"wireless","'$R'":{'
+			WLAN_DISABLED_RADIO=$(uci -q get wireless.$R.disabled)
+			T=$(uci -q show wireless | awk -F. '/device='\'''${R}''\''$/{print $2}')
+			WLAN_DISABLED=1
+			WLAN_SSID=""
+			WLAN_ENCRYPTION="psk2"
+			WLAN_KEY=""
+			WLAN_ISOLATE=0
+			WLAN_HIDDEN=0
+			WLAN_MACADDR=""
+			WLAN_SEC=""
+			if [ -n "$T" ]; then
+				for T1 in $T; do
+					[ "x$(uci -q get wireless.$T1.network)" = "x$SEC" ] || continue
+					[ "x$(uci -q get wireless.$T1.mode)" = "xap" ] || continue
+					WLAN_SEC=$T1
+					WLAN_SSID=$(uci -q get wireless.$WLAN_SEC.ssid)
+					WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
+					WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
+					WLAN_DISABLED=$(uci -q get wireless.$WLAN_SEC.disabled)
+					WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
+					WLAN_HIDDEN=$(uci -q get wireless.$WLAN_SEC.hidden)
+					WLAN_MACADDR=$(uci -q get wireless.$WLAN_SEC.macaddr)
+					break
+				done
+				[ -z "$WLAN_SSID" ] && WLAN_DISABLED=1
+			fi
+			echo '"radio_disabled":'${WLAN_DISABLED_RADIO:-0}','
+			echo '"disabled":'${WLAN_DISABLED:-0}','
+			echo '"ssid":"'$(escapeJSON "$WLAN_SSID")'",'
+			echo '"encryption":"'$WLAN_ENCRYPTION'",'
+			echo '"key":"'$(escapeJSON "$WLAN_KEY")'",'
+			echo '"isolate":'${WLAN_ISOLATE:-0}','
+			echo '"hidden":'${WLAN_HIDDEN:-0}','
+			echo '"macaddr":"'$WLAN_MACADDR'",'
+			echo '"section":"'$WLAN_SEC'"'
+			echo '}},'
+		done
+
+		echo ']'
+		echo '},'
+	done
+	echo ']}'
+}
+
+##############################################################################
+
 case "$1" in
 	list)
 		echo '{'
 		echo '"status":{},'
 		echo '"config":{},'
+		echo '"networks":{},'
 		echo '"system":{},'
 		echo '"watchdog":{},'
 		echo '"clients":{},'
@@ -2174,6 +2259,9 @@ case "$1" in
 				;;
 			config)
 				show_config
+				;;
+			networks)
+				show_networks
 				;;
 			system)
 				show_system

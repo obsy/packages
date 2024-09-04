@@ -353,6 +353,15 @@ function createRow9ColForModal(arr) {
 		'</div>';
 }
 
+function getRevision() {
+	var revision = 0;
+	var tmp = config.revision.match(/^r([0-9]*)-[0-9a-f]*/);
+	if (tmp.length > 0) {
+		revision = parseInt(tmp[1]) || 0;
+	}
+	return revision;
+}
+
 /*****************************************************************************/
 
 var modal;
@@ -638,8 +647,8 @@ function enableWan(proto) {
 	}
 }
 
-function enableWlanEncryption(encryption, idx) {
-	setElementEnabled('wlan_key' + idx, (encryption != 'none' && encryption != ''), false);
+function enableWlanEncryption(prefix, encryption, idx) {
+	setElementEnabled(prefix + 'wlan_key' + idx, (encryption != 'none' && encryption != ''), false);
 }
 
 function enableWlanTXPower(channel, idx) {
@@ -984,6 +993,26 @@ wan['dhcp_hilink'] = 'Modem komórkowy (HiLink lub RNDIS)';
 wan['-'] = ' ';
 wan['detect'] = 'Wykryj...';
 
+function setEncryption(element, encryption) {
+	var enc = [];
+	enc['none'] = 'Brak';
+	enc['psk'] = 'WPA Personal';
+	enc['psk2'] = 'WPA2 Personal';
+	if (config.services.sae) {
+		enc['sae-mixed'] = 'WPA2/WPA3 Personal';
+		enc['sae'] = 'WPA3 Personal';
+	}
+
+	var select = removeOptions(element);
+	for (var propt in enc) {
+		var opt = document.createElement('option');
+		opt.value = propt;
+		opt.innerHTML = enc[propt];
+		select.appendChild(opt);
+	}
+	setValue(element, encryption);
+}
+
 function showconfig() {
 	ubus_call('"easyconfig", "config", {}', function(data) {
 		config = data;
@@ -1084,23 +1113,11 @@ function showconfig() {
 		// wlan
 		showChannelRange(config.wlan_current_channels);
 
-		var revision = 0;
-		var tmp = config.revision.match(/^r([0-9]*)-[0-9a-f]*/);
-		if (tmp.length > 0) {
-			revision = parseInt(tmp[1]) || 0;
-		}
+		var revision = getRevision();
 
 		var is_radio2 = false;
 		var is_radio5 = false;
 		var is_radio6 = false;
-		var enc = [];
-		enc['none'] = 'Brak';
-		enc['psk'] = 'WPA Personal';
-		enc['psk2'] = 'WPA2 Personal';
-		if (config.services.sae) {
-			enc['sae-mixed'] = 'WPA2/WPA3 Personal';
-			enc['sae'] = 'WPA3 Personal';
-		}
 
 		setValue('div_radio_content', '');
 		var radios = config.wlan_devices;
@@ -1148,6 +1165,7 @@ function showconfig() {
 			if (is_radio6) { wifidesc2 = ' 6 GHz'; }
 			if (is_radio2 && is_radio5 && is_radio6) { wifidesc2 = ' 2.4/5/6 GHz'; }
 			setValue('radio_' + i, 'Wi-Fi' + wifidesc1 + wifidesc2);
+			config[radios[i]]['description'] = 'Wi-Fi' + wifidesc1 + wifidesc2;
 
 			setValue('wlan_enabled_' + i, (config[radios[i]].wlan_disabled != 1));
 			setValue('wlan_channel_' + i, config[radios[i]].wlan_channel);
@@ -1166,18 +1184,9 @@ function showconfig() {
 			}
 			setValue('wlan_txpower_' + i, txpower);
 			setValue('wlan_ssid_' + i, config[radios[i]].wlan_ssid);
-
-			var select = removeOptions('wlan_encryption_' + i);
-			for (var propt in enc) {
-				var opt = document.createElement('option');
-				opt.value = propt;
-				opt.innerHTML = enc[propt];
-				select.appendChild(opt);
-			}
-			setValue('wlan_encryption_' + i, config[radios[i]].wlan_encryption);
-
+			setEncryption('wlan_encryption_' + i, config[radios[i]].wlan_encryption);
 			setValue('wlan_key_' + i, config[radios[i]].wlan_key);
-			enableWlanEncryption(config[radios[i]].wlan_encryption, '_' + i);
+			enableWlanEncryption('', config[radios[i]].wlan_encryption, '_' + i);
 			setValue('wlan_isolate_' + i, config[radios[i]].wlan_isolate == 1);
 
 			if (revision > 20293 && (config[radios[i]].wlan_macaddr === 'random' || config[radios[i]].wlan_macaddr === '')) {
@@ -1275,15 +1284,15 @@ function showconfig() {
 	})
 }
 
-function copywireless(idx) {
+function copywireless(prefix, idx) {
 	var previdx = parseInt(idx.replace('_', '')) - 1;
-	setValue('wlan_enabled' + idx, getValue('wlan_enabled_' + previdx));
-	setValue('wlan_ssid' + idx, getValue('wlan_ssid_' + previdx));
-	setValue('wlan_encryption' + idx, getValue('wlan_encryption_' + previdx));
-	setValue('wlan_key' + idx, getValue('wlan_key_' + previdx));
-	setValue('wlan_isolate' + idx, getValue('wlan_isolate_' + previdx));
-	setValue('wlan_macaddr' + idx, getValue('wlan_macaddr_' + previdx));
-	enableWlanEncryption(getValue('wlan_encryption_' + previdx), idx);
+	setValue(prefix + 'wlan_enabled' + idx, getValue(prefix + 'wlan_enabled_' + previdx));
+	setValue(prefix + 'wlan_ssid' + idx, getValue(prefix + 'wlan_ssid_' + previdx));
+	setValue(prefix + 'wlan_encryption' + idx, getValue(prefix + 'wlan_encryption_' + previdx));
+	setValue(prefix + 'wlan_key' + idx, getValue(prefix + 'wlan_key_' + previdx));
+	setValue(prefix + 'wlan_isolate' + idx, getValue(prefix + 'wlan_isolate_' + previdx));
+	setValue(prefix + 'wlan_macaddr' + idx, getValue(prefix + 'wlan_macaddr_' + previdx));
+	enableWlanEncryption(prefix, getValue(prefix + 'wlan_encryption_' + previdx), idx);
 }
 
 function saveconfig() {
@@ -1484,11 +1493,8 @@ function saveconfig() {
 	}
 
 	// wlan
-	var revision = 0;
-	var tmp = config.revision.match(/^r([0-9]*)-[0-9a-f]*/);
-	if (tmp.length > 0) {
-		 revision = parseInt(tmp[1]) || 0;
-	}
+	var revision = getRevision();
+
 	var wlan_restart_required = false;
 
 	var radios = config.wlan_devices;
@@ -6839,6 +6845,405 @@ function wolwakeup(section) {
 
 /*****************************************************************************/
 
+function shownetworks() {
+	ubus_call('"easyconfig", "networks", {}', function(data) {
+		var sorted = sortJSON(data.result, 'description', 'asc');
+		if (sorted.length > 0) {
+			var html = '<div class="row space">';
+			html += '<div class="col-xs-6">Opis</div>';
+			html += '<div class="col-xs-3">Adresacja</div>';
+			html += '<div class="col-xs-3">Aktywne sieci</div>';
+			html += '</div>';
+			for (var idx = 0; idx < sorted.length; idx++) {
+				if (sorted[idx].description == '') {
+					sorted[idx].description = sorted[idx].section;
+				}
+				html += '<hr><div class="row space">';
+				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + sorted[idx].description + '</div>';
+				html += '<div class="col-xs-3">' + sorted[idx].ipaddr + '</div>';
+				html += '<div class="col-xs-3">';
+				var w = 0;
+				for (var i = 0; i < (sorted[idx].interfaces).length; i++) {
+					for (var key in sorted[idx].interfaces[i]) {
+						if (key == 'type') { continue; }
+						var t = sorted[idx].interfaces[i][key];
+						if (t.disabled != 1) {
+							w += 1;
+						}
+					}
+				}
+				html += '' + w;
+				html += '</div>';
+				html += '</div>';
+			}
+			setValue('div_networks_content', html);
+			showicon();
+		} else {
+			setValue('div_networks_content', '<div class="alert alert-warning">Brak sieci dodatkowych</div>');
+		}
+	})
+}
+
+function networkdetails(data) {
+	var json = {};
+	try {
+		json = JSON.parse(atob(data));
+	} catch (error) {
+		json['section'] = '';
+		json['description'] = '';
+		json['proto'] = 'static';
+		json['ipaddr'] = '172.16.0.1';
+		json['netmask'] = '255.255.255.0';
+		json['device'] = '';
+		json['bridge'] = '';
+		json['zone'] = '';
+		json['forwarding'] = [];
+		json['dhcp'] = 1;
+		json['interfaces'] = [];
+		var radios = config.wlan_devices;
+		for (var i = 0; i < radios.length; i++) {
+			var obj = {};
+			obj['type'] = 'wireless';
+			obj[radios[i]] = {};
+			obj[radios[i]]['disabled'] = 1;
+			obj[radios[i]]['ssid'] = '';
+			obj[radios[i]]['encryption'] = 'psk2';
+			obj[radios[i]]['key'] = '';
+			obj[radios[i]]['isolate'] = 0;
+			obj[radios[i]]['hidden'] = 0;
+			obj[radios[i]]['macaddr'] = '';
+			obj[radios[i]]['section'] = '';
+			json.interfaces[i] = obj;
+		}
+		data = btoa(JSON.stringify(json));
+	}
+	setValue('network_data', data);
+	setValue('network_error', '');
+	setValue('network_description', json.description);
+	setValue('network_ipaddr', json.ipaddr);
+	setValue('network_netmask', json.netmask);
+	setValue('network_dhcp', json.dhcp);
+	setValue('network_towan', false);
+	(json.forwarding).forEach(function(f) {
+		if (f.hasOwnProperty('wan')) {
+			setValue('network_towan', true);
+		}
+	});
+
+	setValue('div_network_interfaces_content', '');
+
+	var revision = getRevision();
+
+	var radios = config.wlan_devices;
+	for (var i = 0; i < radios.length; i++) {
+		var vap = null;
+		(json.interfaces).forEach(function(obj) {
+			if (obj.hasOwnProperty(radios[i])) {
+				vap = obj[radios[i]];
+			}
+		})
+		if (!vap) {
+			continue;
+		}
+
+		var html = ('<div>' + document.getElementById('div_network_radio_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
+		document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
+		if (i > 0) { setDisplay('div_network_wlan_copy_link_' + i, true); }
+		setValue('network_radio_' + i, config[radios[i]].description);
+
+		setValue('network_wlan_enabled_' + i, vap.disabled != 1);
+		var msg = '';
+		if (vap.radio_disabled == 1) {
+			msg = 'UWAGA: interfejs radiowy jest wyłączony!';
+		}
+		setValue('div_network_wlan_enabled_desc1_' + i, msg);
+		setValue('div_network_wlan_enabled_desc2_' + i, msg);
+		setValue('network_wlan_ssid_' + i, vap.ssid);
+		setEncryption('network_wlan_encryption_' + i, vap.encryption);
+		setValue('network_wlan_key_' + i, vap.key);
+		enableWlanEncryption('network_', vap.encryption, '_' + i);
+		setValue('network_wlan_isolate_' + i, vap.isolate == 1);
+		setValue('network_wlan_hidden_' + i, vap.hidden == 1);
+
+		if (revision > 20293 && (vap.macaddr === 'random' || vap.macaddr === '')) {
+			setValue('network_wlan_macaddr_' + i, vap.macaddr === 'random');
+			setDisplay('div_network_wlan_macaddr_' + i, true);
+		} else {
+			setDisplay('div_network_wlan_macaddr_' + i, false);
+		}
+	}
+
+	setDisplay('div_network_details', true);
+}
+
+function cancelnetwork() {
+	setDisplay('div_network_details', false);
+}
+
+function removenetwork() {
+	cancelnetwork();
+	setValue('dialog_val', getValue('network_data'));
+	showDialog('Usunąć sieć dodatkową "' + getValue('network_description') + '"?', 'Anuluj', 'Usuń', okremovenetwork);
+}
+
+function okremovenetwork() {
+	var json = JSON.parse(atob(getValue('dialog_val')));
+
+	var cmd = [];
+	if (json.section) {
+		cmd.push('uci -q del network.' + json.section);
+	}
+	if (json.bridge) {
+		cmd.push('uci -q del network.' + json.bridge);
+	}
+	cmd.push('uci -q del dhcp.' + json.section);
+	if (json.zone) {
+		cmd.push('uci -q del firewall.' + json.zone);
+	}
+	cmd.push('uci -q del firewall.' + json.section + '_dhcp');
+	cmd.push('uci -q del firewall.' + json.section + '_dns');
+	var t = '';
+	(json.forwarding).forEach(function(f) {
+		if (f.hasOwnProperty('wan')) {
+			t = f['wan'];
+		}
+	});
+	if (t != '') {
+		cmd.push('uci -q del firewall.' + t);
+	}
+	for (var i = 0; i < json.interfaces.length; i++) {
+		for (var key in json.interfaces[i]) {
+			if (key == 'type') { continue; }
+			t = json.interfaces[i][key];
+			if (t.section != '') {
+				cmd.push('uci -q del wireless.' + t.section);
+			}
+		}
+	}
+	cmd.push('uci commit');
+	cmd.push('reload_config');
+	cmd.push('wifi');
+	cmd.push('/etc/init.d/dnsmasq restart');
+	cmd.push('/etc/init.d/firewall restart');
+	execute(cmd, shownetworks);
+}
+
+function savenetwork() {
+	var cmd = [];
+
+	if (getValue('network_description') == '') {
+		setValue('network_error', 'Błąd w polu ' + getLabelText('network_description'));
+		return;
+	}
+	if (validateIP(getValue('network_ipaddr')) != 0) {
+		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr'));
+		return;
+	}
+
+	var json = JSON.parse(atob(getValue('network_data')));
+	if (json.section == '') {
+		json.section = Math.random().toString(36).substring(2, 10);
+		cmd.push('uci set network.' + json.section + '=interface');
+		json.device = 'br-' + json.section;
+		cmd.push('uci add network device');
+		json.bridge = '@device[-1]'
+		cmd.push('uci set network.' + json.bridge + '.name=' + json.device);
+		cmd.push('uci set network.' + json.bridge + '.type=bridge');
+		cmd.push('uci set network.' + json.bridge + '.bridge_empty=1');
+	}
+
+	cmd.push('uci set network.' + json.section + '.description=\\\"' + escapeShell(getValue('network_description')) + '\\\"');
+	cmd.push('uci set network.' + json.section + '.proto=static');
+	cmd.push('uci set network.' + json.section + '.device=' + json.device);
+	if (json.bridge != '') {
+		cmd.push('uci set network.' + json.bridge + '.name=' + json.device);
+	}
+	cmd.push('uci set network.' + json.section + '.ipaddr=' + getValue('network_ipaddr'));
+	cmd.push('uci set network.' + json.section + '.netmask=' + getValue('network_netmask'));
+	cmd.push('uci set dhcp.' + json.section + '=dhcp');
+	cmd.push('uci set dhcp.' + json.section + '.interface=' + json.section);
+	if (getValue('network_dhcp')) {
+		cmd.push('uci set dhcp.' + json.section + '.start=100');
+		cmd.push('uci set dhcp.' + json.section + '.limit=150');
+		cmd.push('uci set dhcp.' + json.section + '.leasetime=2h');
+	} else {
+		cmd.push('uci -q del dhcp.' + json.section + '.start');
+		cmd.push('uci -q del dhcp.' + json.section + '.limit');
+		cmd.push('uci -q del dhcp.' + json.section + '.leasetime');
+		cmd.push('uci set dhcp.' + json.section + '.ignore=1');
+	}
+	if (json.zone == '') {
+		cmd.push('uci add firewall zone');
+		json.zone = '@zone[-1]';
+	}
+	cmd.push('uci set firewall.' + json.zone + '.name=' + json.section);
+	cmd.push('uci -q del_list firewall.' + json.zone + '.network=' + json.section);
+	cmd.push('uci add_list firewall.' + json.zone + '.network=' + json.section);
+	cmd.push('uci set firewall.' + json.zone + '.input=REJECT');
+	cmd.push('uci set firewall.' + json.zone + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + json.zone + '.forward=REJECT');
+
+	cmd.push('uci set firewall.' + json.section + '_dhcp=rule');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.name=\\\"' + json.section + ' DHCP, ports 67-68\\\"');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.src=' + json.section);
+	cmd.push('uci set firewall.' + json.section + '_dhcp.proto=udp');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.src_port=67-68');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.dest_port=67-68');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.target=ACCEPT');
+	cmd.push('uci set firewall.' + json.section + '_dhcp.family=ipv4');
+
+	cmd.push('uci set firewall.' + json.section + '_dns=rule');
+	cmd.push('uci set firewall.' + json.section + '_dns.name=\\\"' + json.section + ' DNS, port 53\\\"');
+	cmd.push('uci set firewall.' + json.section + '_dns.src=' + json.section);
+	cmd.push('uci set firewall.' + json.section + '_dns.dest_port=53');
+	cmd.push('uci set firewall.' + json.section + '_dns.target=ACCEPT');
+	cmd.push('uci set firewall.' + json.section + '_dns.family=ipv4');
+	cmd.push('uci set firewall.' + json.section + '_dns.proto=tcpudp');
+
+	var t = '';
+	(json.forwarding).forEach(function(f) {
+		if (f.hasOwnProperty('wan')) {
+			t = f['wan'];
+		}
+	});
+	if (getValue('network_towan')) {
+		if (t == '') {
+			cmd.push('uci add firewall forwarding');
+			t = '@forwarding[-1]';
+		}
+		cmd.push('uci set firewall.' + t + '.src=' + json.section);
+		cmd.push('uci set firewall.' + t + '.dest=wan');
+	} else {
+		if (t != '') {
+			cmd.push('uci -q del firewall.' + t);
+		}
+	}
+
+	// wlan
+	var revision = getRevision();
+
+	var wlan_restart_required = false;
+
+	var radios = config.wlan_devices;
+	for (var i = 0; i < radios.length; i++) {
+		var vap = null;
+		(json.interfaces).forEach(function(obj) {
+			if (obj.hasOwnProperty(radios[i])) {
+				vap = obj[radios[i]];
+			}
+		})
+		if (!vap) {
+			continue;
+		}
+
+		var section = vap.section;
+
+		if (section == '') {
+			wlan_restart_required = true;
+			section = json.section + '_' + radios[i];
+			cmd.push('uci set wireless.' + section + '=wifi-iface');
+			cmd.push('uci set wireless.' + section + '.device=' + radios[i]);
+			cmd.push('uci set wireless.' + section + '.mode=ap');
+			cmd.push('uci set wireless.' + section + '.network=' + json.section);
+		}
+
+		var wlan_enabled = getValue('network_wlan_enabled_' + i);
+		if (wlan_enabled) {
+			if (vap.disabled == 1) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci -q del wireless.' + section + '.disabled');
+		} else {
+			if (vap.disabled != 1) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci set wireless.' + section + '.disabled=1');
+		}
+
+		var wlan_ssid = getValue('network_wlan_ssid_' + i);
+		if (wlan_ssid == '') {
+			setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i));
+			return;
+		}
+		if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
+			setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki');
+			return;
+		}
+		if (vap.ssid != wlan_ssid) {
+			wlan_restart_required = true;
+		}
+		cmd.push('uci set wireless.' + section + '.ssid=\\\"' + escapeShell(wlan_ssid) + '\\\"');
+		var wlan_encryption = getValue('network_wlan_encryption_' + i);
+		if (vap.encryption != wlan_encryption) {
+			wlan_restart_required = true;
+		}
+		cmd.push('uci set wireless.' + section + '.encryption=' + wlan_encryption);
+
+		wlan_key = getValue('network_wlan_key_' + i);
+		if (wlan_encryption != 'none') {
+			if (wlan_key.length < 8) {
+				setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków');
+				return;
+			}
+		}
+		if (vap.key != wlan_key) {
+			wlan_restart_required = true;
+		}
+		cmd.push('uci set wireless.' + section + '.key=\\\"' + escapeShell(wlan_key) + '\\\"');
+
+		if (getValue('network_wlan_isolate_' + i)) {
+			if (vap.isolate == 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci set wireless.' + section + '.isolate=1');
+		} else {
+			if (vap.isolate != 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci -q del wireless.' + section + '.isolate');
+		}
+
+		if (getValue('network_wlan_hidden_' + i)) {
+			if (vap.hidden == 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci set wireless.' + section + '.hidden=1');
+		} else {
+			if (vap.hidden != 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci -q del wireless.' + section + '.hidden');
+		}
+
+		if (revision > 20293 && (vap.macaddr === 'random' || vap.macaddr === '')) {
+			if (getValue('network_wlan_macaddr_' + i)) {
+				if (vap.macaddr != 'random') {
+					wlan_restart_required = true;
+				}
+				cmd.push('uci set wireless.' + section + '.macaddr=random');
+			} else {
+				if (vap.macaddr == 'random') {
+					wlan_restart_required = true;
+				}
+				cmd.push('uci -q del wireless.' + section + '.macaddr');
+			}
+		}
+	}
+
+	cancelnetwork();
+
+	cmd.push('uci commit');
+	cmd.push('reload_config');
+	if (wlan_restart_required) {
+		cmd.push('wifi');
+	}
+	cmd.push('/etc/init.d/dnsmasq restart');
+	cmd.push('/etc/init.d/firewall restart');
+	execute(cmd, shownetworks);
+}
+
+/*****************************************************************************/
+
 function opennav() {
 	document.getElementById("menu").style.width = '250px';
 }
@@ -6851,6 +7256,7 @@ function btn_pages(page) {
 	closenav();
 	setDisplay('div_status', (page == 'status'));
 	setDisplay('div_config', (page == 'config'));
+	setDisplay('div_networks', (page == 'networks'));
 	setDisplay('div_system', (page == 'system'));
 	setDisplay('div_watchdog', (page == 'watchdog'));
 	setDisplay('div_sitesurvey', (page == 'sitesurvey'));
@@ -6894,6 +7300,10 @@ function btn_pages(page) {
 			showmodeminfo();
 		}
 		waitForData(readyDataSystem);
+	}
+
+	if (page == 'networks') {
+		shownetworks();
 	}
 
 	if (page == 'watchdog') {
