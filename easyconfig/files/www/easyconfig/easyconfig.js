@@ -1175,12 +1175,37 @@ function showconfig() {
 				txpower = 100;
 			} else {
 				var maxtxpower = config[radios[i]].wlan_channels[config[radios[i]].wlan_channel][1];
-				var curtxpower = config[radios[i]].wlan_txpower * 100 / maxtxpower;
-				txpower = 20;
-				if (curtxpower > 20) { txpower = 40; }
-				if (curtxpower > 40) { txpower = 60; }
-				if (curtxpower > 60) { txpower = 80; }
-				if (curtxpower > 80) { txpower = 100; }
+				txpower = -1;
+				var power20 = Math.round(20 * maxtxpower / 100);
+				var power40 = Math.round(40 * maxtxpower / 100);
+				var power60 = Math.round(60 * maxtxpower / 100);
+				var power80 = Math.round(80 * maxtxpower / 100);
+				var power100 = Math.round(100 * maxtxpower / 100);
+				switch (parseInt(config[radios[i]].wlan_txpower)) {
+					case power20:
+						txpower = 20;
+						break;
+					case power40:
+						txpower = 40;
+						break;
+					case power60:
+						txpower = 60;
+						break;
+					case power80:
+						txpower = 80;
+						break;
+					case power100:
+						txpower = 100;
+						break;
+				}
+				if (txpower == -1) {
+					var curtxpower = config[radios[i]].wlan_txpower * 100 / maxtxpower;
+					txpower = 20;
+					if (curtxpower > 20) { txpower = 40; }
+					if (curtxpower > 40) { txpower = 60; }
+					if (curtxpower > 60) { txpower = 80; }
+					if (curtxpower > 80) { txpower = 100; }
+				}
 			}
 			setValue('wlan_txpower_' + i, txpower);
 			setValue('wlan_ssid_' + i, config[radios[i]].wlan_ssid);
