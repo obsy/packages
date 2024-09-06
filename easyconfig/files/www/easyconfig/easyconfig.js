@@ -1213,14 +1213,13 @@ function showconfig() {
 			setValue('wlan_key_' + i, config[radios[i]].wlan_key);
 			enableWlanEncryption('', config[radios[i]].wlan_encryption, '_' + i);
 			setValue('wlan_isolate_' + i, config[radios[i]].wlan_isolate == 1);
-
+			setValue('wlan_hidden_' + i, config[radios[i]].wlan_hidden == 1);
 			if (revision > 20293 && (config[radios[i]].wlan_macaddr === 'random' || config[radios[i]].wlan_macaddr === '')) {
 				setValue('wlan_macaddr_' + i, config[radios[i]].wlan_macaddr === 'random');
 				setDisplay('div_wlan_macaddr_' + i, true);
 			} else {
 				setDisplay('div_wlan_macaddr_' + i, false);
 			}
-
 		}
 
 		if (!is_radio2 && !is_radio5 && !is_radio6) {
@@ -1316,6 +1315,7 @@ function copywireless(prefix, idx) {
 	setValue(prefix + 'wlan_encryption' + idx, getValue(prefix + 'wlan_encryption_' + previdx));
 	setValue(prefix + 'wlan_key' + idx, getValue(prefix + 'wlan_key_' + previdx));
 	setValue(prefix + 'wlan_isolate' + idx, getValue(prefix + 'wlan_isolate_' + previdx));
+	setValue(prefix + 'wlan_hidden' + idx, getValue(prefix + 'wlan_hidden_' + previdx));
 	setValue(prefix + 'wlan_macaddr' + idx, getValue(prefix + 'wlan_macaddr_' + previdx));
 	enableWlanEncryption(prefix, getValue(prefix + 'wlan_encryption_' + previdx), idx);
 }
@@ -1610,6 +1610,18 @@ function saveconfig() {
 				wlan_restart_required = true;
 			}
 			cmd.push('uci -q del wireless.' + section + '.isolate');
+		}
+
+		if (getValue('wlan_hidden_' + i)) {
+			if (config[radios[i]].wlan_hidden == 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci set wireless.' + section + '.hidden=1');
+		} else {
+			if (config[radios[i]].wlan_hidden != 0) {
+				wlan_restart_required = true;
+			}
+			cmd.push('uci -q del wireless.' + section + '.hidden');
 		}
 
 		if (revision > 20293 && (config[radios[i]].wlan_macaddr === 'random' || config[radios[i]].wlan_macaddr === '')) {

@@ -565,6 +565,7 @@ for R in $RADIOS; do
 	WLAN_ENCRYPTION=""
 	WLAN_KEY=""
 	WLAN_ISOLATE=0
+	WLAN_HIDDEN=0
 	WLAN_MACADDR=""
 	WLAN_SEC=""
 	if [ -n "$T" ]; then
@@ -577,6 +578,7 @@ for R in $RADIOS; do
 			WLAN_ENCRYPTION=$(uci -q get wireless.$WLAN_SEC.encryption)
 			WLAN_KEY=$(uci -q get wireless.$WLAN_SEC.key)
 			WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
+			WLAN_HIDDEN=$(uci -q get wireless.$WLAN_SEC.hidden)
 			WLAN_MACADDR=$(uci -q get wireless.$WLAN_SEC.macaddr)
 			break
 		done
@@ -591,6 +593,7 @@ for R in $RADIOS; do
 	echo '"wlan_encryption":"'$WLAN_ENCRYPTION'",'
 	echo '"wlan_key":"'$(escapeJSON "$WLAN_KEY")'",'
 	echo '"wlan_isolate":'${WLAN_ISOLATE:-0}','
+	echo '"wlan_hidden":'${WLAN_HIDDEN:-0}','
 	echo '"wlan_macaddr":"'$WLAN_MACADDR'",'
 	echo '"wlan_section":"'$WLAN_SEC'",'
 	O=$(iwinfo $R info 2>/dev/null)
