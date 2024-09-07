@@ -4054,7 +4054,6 @@ function calculatedistance(frequency, signal) {
 
 function hostinfo(id) {
 	var html = '';
-	var vendor = '-';
 	var host;
 	for (var i = 0; i < clients.length; i++) {
 		if (clients[i].id == id) {
