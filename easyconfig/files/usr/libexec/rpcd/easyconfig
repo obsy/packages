@@ -2208,7 +2208,30 @@ show_networks() {
 			echo '}},'
 		done
 
-		echo ']'
+		echo '],'
+		WLAN_CLIENTS=0
+		LAN_CLIENTS=0
+		TPORTS1=""
+		BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
+		if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+			T=$(brctl showmacs $BRIDGE 2>/dev/null)
+			for I in /sys/class/net/$BRIDGE/lower_*; do
+				IFNAME=${I##*lower_}
+				if [ -e $I/phy80211 ]; then
+					CNT=$(iw dev $IFNAME station dump | grep -c Station)
+					WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
+				else
+					if [ -e /sys/class/net/$BRIDGE/brif/$IFNAME/port_no ]; then
+						PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
+						CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+						TPORTS1="${TPORTS1} ${IFNAME};${CNT}"
+						LAN_CLIENTS=$((LAN_CLIENTS+CNT))
+					fi
+				fi
+			done
+		fi
+		echo '"wlan_clients":'$WLAN_CLIENTS','
+		echo '"lan_clients":'$LAN_CLIENTS
 		echo '},'
 	done
 	echo ']}'

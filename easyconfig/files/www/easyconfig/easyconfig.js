@@ -6881,14 +6881,24 @@ function wolwakeup(section) {
 
 /*****************************************************************************/
 
+function subnet2Mask(subnet) {
+	return subnet
+		.split('.')
+		.reduce((nbb, byte) => (
+			[...Array(8).reverse().keys()]
+				.reduce((nb, i) => (nb + ((byte >> i) & 1)), nbb)), 0)
+}
+
 function shownetworks() {
 	ubus_call('"easyconfig", "networks", {}', function(data) {
 		var sorted = sortJSON(data.result, 'description', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
 			html += '<div class="col-xs-6">Opis</div>';
-			html += '<div class="col-xs-3">Adresacja</div>';
-			html += '<div class="col-xs-3">Aktywne sieci</div>';
+			html += '<div class="hidden-xs col-xs-3">Klientów bezprzewodowych</div>';
+			html += '<div class="hidden-xs col-xs-3">Klientów przewodowych</div>';
+			html += '<div class="visible-xs col-xs-3">Klientów bezprzew.</div>';
+			html += '<div class="visible-xs col-xs-3">Klientów przew.</div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				if (sorted[idx].description == '') {
@@ -6896,20 +6906,8 @@ function shownetworks() {
 				}
 				html += '<hr><div class="row space">';
 				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + sorted[idx].description + '</div>';
-				html += '<div class="col-xs-3">' + sorted[idx].ipaddr + '</div>';
-				html += '<div class="col-xs-3">';
-				var w = 0;
-				for (var i = 0; i < (sorted[idx].interfaces).length; i++) {
-					for (var key in sorted[idx].interfaces[i]) {
-						if (key == 'type') { continue; }
-						var t = sorted[idx].interfaces[i][key];
-						if (t.disabled != 1) {
-							w += 1;
-						}
-					}
-				}
-				html += '' + w;
-				html += '</div>';
+				html += '<div class="col-xs-3">' + sorted[idx].wlan_clients + '</div>';
+				html += '<div class="col-xs-3">' + sorted[idx].lan_clients + '</div>';
 				html += '</div>';
 			}
 			setValue('div_networks_content', html);
