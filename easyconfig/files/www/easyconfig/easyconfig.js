@@ -53,6 +53,28 @@ function easyconfig_onload() {
 
 	var inittoken = '00000000000000000000000000000000';
 
+	function mask2Subnet(val) {
+		return [255, 255, 255, 255]
+			.map(() => [...Array(8).keys()]
+			.reduce((rst) => (rst * 2 + (val-- > 0)), 0))
+			.join('.')
+	}
+
+	var tmp;
+	var e1 = removeOptions('wan_netmask');
+	var e2 = removeOptions('network_netmask');
+	for (var idx = 0; idx <= 32; idx++) {
+		tmp = mask2Subnet(idx);
+		var opt = document.createElement('option');
+		opt.value = tmp;
+		opt.innerHTML = '/' + idx + ' (' + tmp + ')';
+		e1.appendChild(opt);
+		opt = document.createElement('option');
+		opt.value = tmp;
+		opt.innerHTML = '/' + idx + ' (' + tmp + ')';
+		e2.appendChild(opt);
+	}
+
 	token = getCookie('easyconfig_token');
 	if (token.length == 32) {
 		ubus('"session", "list", {}', function(data) {
