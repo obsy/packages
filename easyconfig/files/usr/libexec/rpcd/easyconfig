@@ -198,8 +198,9 @@ echo '"vpn_up":'${VPN_UP:-false}','
 
 wlancurrentchannels
 
+BOARDNAME=$(cat /tmp/sysinfo/board_name)
 echo '"sensors":['
-case $(cat /tmp/sysinfo/board_name) in
+case "$BOARDNAME" in
 	"cellc,rtl30vw"|\
 	"zte,mf286d")
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
@@ -291,6 +292,14 @@ if [ -e /etc/config/mwan3 ]; then
 fi
 
 simslot
+
+echo ',"ports_mapping":['
+case "$BOARDNAME" in
+	"teltonika,rut955"*)
+		echo '{"eth1":"WAN"}'
+		;;
+esac
+echo ']'
 
 echo '}'
 }
