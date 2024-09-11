@@ -4120,6 +4120,9 @@ function hostinfo(id) {
 					case 6:
 						html += createRowForModal('Standard', 'Wi-Fi 6' + (host.band == 6 ? 'E' : '') + ' (802.11ax)');
 						break;
+					case 7:
+						html += createRowForModal('Standard', 'Wi-Fi 7 (802.11be)');
+						break;
 				}
 			}
 			var distance = '';

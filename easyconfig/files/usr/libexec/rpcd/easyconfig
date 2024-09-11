@@ -886,6 +886,7 @@ for M in $WLAN_MAC; do
 	grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
 	grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
 	grep -qi "^he supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/he_capa 2>/dev/null && CAPA=',"capa":6'
+	grep -qi "^eht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/eht_capa 2>/dev/null && CAPA=',"capa":7'
 
 	echo "{${M}${IP}${CONNECTED_SINCE}${CAPA}$(client_data $MAC)},"
 done
