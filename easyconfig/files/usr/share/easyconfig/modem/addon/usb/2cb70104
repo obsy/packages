@@ -1,72 +1,7 @@
-# Fibocom FM150
+O=$(sms_tool -d /dev/ttyUSB1 at 'AT+CGMM?')
 
-if [ "$REGOK" = "1" ]; then
-
-
-if [ "x$MODE_NUM" = "x7" ]; then
-	O=$(sms_tool -d $DEVICE at "at+gtccinfo?;+gtcainfo?")
-
-	if echo "$O" | grep -E "^SCC[1-9]:"; then
-		MODE="LTE_A"
-	fi
-
-	T1=$(echo "$O" | grep -A 3 'LTE service cell' | grep '1,4,'${COPS_MCC}','${COPS_MNC}',')
-	if [ -n "$T1" ]; then
-		T=$(echo "$T1" | awk -F, '{print $5}')
-		if [ -n "$T" ]; then
-			T_DEC=$(printf "%d" "0x$T")
-			addon 23 "TAC" "${T_DEC} ($T)"
-		fi
-		T=$(echo "$T1" | awk -F, '{print $8}')
-		[ -n "$T" ] && addon 33 "PCI" "$T"
-		T=$(echo "$T1" | awk -F, '{print $7}')
-		if [ -n "$T" ]; then
-			T_DEC=$(printf "%d" "0x$T")
-			addon 34 "EARFCN" "${T_DEC}"
-		fi
-		T=$(echo "$T1" | awk -F, '{print $11}')
-		if [ -n "$T" ]; then
-			if [ $T -ge -100 ] || [ $T -le 100 ]; then
-				T=$(echo "$T" | awk -F, '{printf "%0.1f", $T/2}')
-				addon 38 "RSSNR" "$T dB"
-			fi
-		fi
-		T=$(echo "$T1" | awk -F, '{print $13}')
-		[ -n "$T" ] && addon 36 "RSRP" "$((T - 141)) dBm"
-		T=$(echo "$T1" | awk -F, '{print $14}')
-		if [ -n "$T" ]; then
-			T2=$(echo "$T" | awk '{printf "%0.1f", ($1-34)/2-3 }')
-			addon 37 "RSRQ" "$T2 dB"
-		fi
-
-		T=$(echo "$T1" | awk -F, '{print $9}')
-		if [ -n "$T" ]; then
-			B=$((T - 100))
-			addon 30 "Primary band" "$(band4g $B)"
-			MODE="$MODE $(band4g ${B})"
-		fi
-	fi
-
-IFS="
-"
-
-	IDX=1
-	LINES=$(echo "$O" | grep -E "^SCC[0-9]: ")
-	for LINE in $LINES; do
-		POS=$(((IDX + 4) * 10))
-
-		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $4}')
-		B=$((T - 100))
-		MODE="$MODE / $(band4g ${B})"
-
-		addon $POS "(S'${IDX}') band" "$(band4g ${B})"
-		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $5}')
-		[ -n "$T" ] && addon $((POS + 3)) "(S'${IDX}') PCI" "$T"
-		T=$(echo "$LINE" | awk -F[:,] '/^SCC'$IDX': 1,0/{print $6}')
-		[ -n "$T" ] && addon $((POS + 4)) "(S'${IDX}') EARFCN" "$T"
-
-		IDX=$((IDX + 1))
-	done
-fi
-
+if echo "$O" | grep -q "FM150"; then
+	. $RES/addon/usb/2cb70104.fm150
+elif echo "$O" | grep -q "FM190"; then
+	. $RES/addon/usb/2cb70104.fm190
 fi
