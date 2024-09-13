@@ -6927,7 +6927,13 @@ function subnet2Mask(subnet) {
 
 function shownetworks() {
 	ubus_call('"easyconfig", "networks", {}', function(data) {
-		var sorted = sortJSON(data.result, 'description', 'asc');
+		var ports = naturalSortJSON(data.ports, 'port');
+
+		document.getElementById('btn_network_new').addEventListener('click', function() {
+			networkdetails(btoa(JSON.stringify(ports)), {});
+		});
+
+		var sorted = sortJSON(data.networks, 'description', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
 			html += '<div class="col-xs-6">Opis</div>';
@@ -6941,7 +6947,7 @@ function shownetworks() {
 					sorted[idx].description = sorted[idx].section;
 				}
 				html += '<hr><div class="row space">';
-				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + sorted[idx].description + '</div>';
+				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(ports)) + '\',\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + sorted[idx].description + '</div>';
 				html += '<div class="col-xs-3">' + sorted[idx].wlan_clients + '</div>';
 				html += '<div class="col-xs-3">' + sorted[idx].lan_clients + '</div>';
 				html += '</div>';
@@ -6954,7 +6960,13 @@ function shownetworks() {
 	})
 }
 
-function networkdetails(data) {
+function networkdetails(ports, data) {
+	var physicalports = [];
+	try {
+		physicalports = JSON.parse(atob(ports));
+	} catch (error) {
+		physicalports = [];
+	}
 	var json = {};
 	try {
 		json = JSON.parse(atob(data));
@@ -6969,11 +6981,11 @@ function networkdetails(data) {
 		json['zone'] = '';
 		json['forwarding'] = [];
 		json['dhcp'] = 1;
-		json['interfaces'] = [];
+		json['wireless'] = [];
+		json['wire'] = [];
 		var radios = config.wlan_devices;
 		for (var i = 0; i < radios.length; i++) {
 			var obj = {};
-			obj['type'] = 'wireless';
 			obj[radios[i]] = {};
 			obj[radios[i]]['disabled'] = 1;
 			obj[radios[i]]['ssid'] = '';
@@ -6983,11 +6995,12 @@ function networkdetails(data) {
 			obj[radios[i]]['hidden'] = 0;
 			obj[radios[i]]['macaddr'] = '';
 			obj[radios[i]]['section'] = '';
-			json.interfaces[i] = obj;
+			json['wireless'][i] = obj;
 		}
 		data = btoa(JSON.stringify(json));
 	}
 	setValue('network_data', data);
+	setValue('network_ports', ports);
 	setValue('network_error', '');
 	setValue('network_description', json.description);
 	setValue('network_ipaddr', json.ipaddr);
@@ -7007,7 +7020,7 @@ function networkdetails(data) {
 	var radios = config.wlan_devices;
 	for (var i = 0; i < radios.length; i++) {
 		var vap = null;
-		(json.interfaces).forEach(function(obj) {
+		(json.wireless).forEach(function(obj) {
 			if (obj.hasOwnProperty(radios[i])) {
 				vap = obj[radios[i]];
 			}
@@ -7016,7 +7029,7 @@ function networkdetails(data) {
 			continue;
 		}
 
-		var html = ('<div>' + document.getElementById('div_network_radio_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
+		var html = ('<div>' + document.getElementById('div_network_wireless_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
 		document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
 		if (i > 0) { setDisplay('div_network_wlan_copy_link_' + i, true); }
 		setValue('network_radio_' + i, config[radios[i]].description);
@@ -7043,6 +7056,24 @@ function networkdetails(data) {
 		}
 	}
 
+	var cnt = physicalports.length;
+	if (cnt > 0) {
+		var html = '<div>' + document.getElementById('div_network_wire_header_template').innerHTML + '</div>';
+		document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
+		setValue('network_port_cnt', cnt);
+		for (var i = 0; i < cnt; i++) {
+			html = ('<div>' + document.getElementById('div_network_wire_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
+			document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
+			setValue('network_port_data_' + i, btoa(JSON.stringify(physicalports[i])));
+			setValue('network_port_label_' + i, physicalports[i].port.toUpperCase());
+			setValue('network_port_' + i, json.wire.indexOf(physicalports[i].port) > -1);
+			var desc = physicalports[i].description == '' ? physicalports[i].network : physicalports[i].description;
+			if (desc == 'lan') { desc = 'Sieć lokalna'; }
+			setValue('network_port_desc1_' + i, desc);
+			setValue('network_port_desc2_' + i, desc);
+		}
+	}
+
 	setDisplay('div_network_details', true);
 }
 
@@ -7053,17 +7084,25 @@ function cancelnetwork() {
 function removenetwork() {
 	cancelnetwork();
 	setValue('dialog_val', getValue('network_data'));
+	setValue('dialog_val1', getValue('network_ports'));
 	showDialog('Usunąć sieć dodatkową "' + getValue('network_description') + '"?', 'Anuluj', 'Usuń', okremovenetwork);
 }
 
 function okremovenetwork() {
 	var json = JSON.parse(atob(getValue('dialog_val')));
+	var physicalports = JSON.parse(atob(getValue('dialog_val1')));
 
 	var cmd = [];
 	if (json.section) {
 		cmd.push('uci -q del network.' + json.section);
 	}
 	if (json.bridge) {
+		for (var idx = 0; idx < physicalports.length; idx++) {
+			if (physicalports[idx].bridge == json.bridge) {
+				cmd.push('uci -q del_list network.' + physicalports[idx].lanbridge + '.ports=' + physicalports[idx].port);
+				cmd.push('uci add_list network.' + physicalports[idx].lanbridge + '.ports=' + physicalports[idx].port);
+			}
+		}
 		cmd.push('uci -q del network.' + json.bridge);
 	}
 	cmd.push('uci -q del dhcp.' + json.section);
@@ -7081,10 +7120,9 @@ function okremovenetwork() {
 	if (t != '') {
 		cmd.push('uci -q del firewall.' + t);
 	}
-	for (var i = 0; i < json.interfaces.length; i++) {
-		for (var key in json.interfaces[i]) {
-			if (key == 'type') { continue; }
-			t = json.interfaces[i][key];
+	for (var i = 0; i < json.wireless.length; i++) {
+		for (var key in json.wireless[i]) {
+			t = json.wireless[i][key];
 			if (t.section != '') {
 				cmd.push('uci -q del wireless.' + t.section);
 			}
@@ -7197,7 +7235,7 @@ function savenetwork() {
 	var radios = config.wlan_devices;
 	for (var i = 0; i < radios.length; i++) {
 		var vap = null;
-		(json.interfaces).forEach(function(obj) {
+		(json.wireless).forEach(function(obj) {
 			if (obj.hasOwnProperty(radios[i])) {
 				vap = obj[radios[i]];
 			}
@@ -7298,6 +7336,26 @@ function savenetwork() {
 				cmd.push('uci -q del wireless.' + section + '.macaddr');
 			}
 		}
+	}
+
+	// lan
+	var cnt = getValue('network_port_cnt');
+	var portdata;
+	for (var idx = 0; idx < cnt; idx++) {
+		portdata = JSON.parse(atob(getValue('network_port_data_' + idx)));
+		if (getValue('network_port_' + idx)) {
+			cmd.push('uci -q del_list network.' + portdata.bridge + '.ports=' + portdata.port);
+			cmd.push('uci add_list network.' + json.bridge + '.ports=' + portdata.port);
+		} else {
+			if (portdata.bridge == json.bridge) {
+				cmd.push('uci -q del_list network.' + json.bridge + '.ports=' + portdata.port);
+				cmd.push('uci -q del_list network.' + portdata.lanbridge + '.ports=' + portdata.port);
+				cmd.push('uci add_list network.' + portdata.lanbridge + '.ports=' + portdata.port);
+			}
+		}
+	}
+	if (cnt > 0) {
+		cmd.push('uci set network.' + portdata.lanbridge + '.bridge_empty=1');
 	}
 
 	cancelnetwork();

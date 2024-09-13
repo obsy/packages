@@ -2143,7 +2143,31 @@ wolwakeup() {
 ##############################################################################
 
 show_networks() {
-	echo '{"result":['
+	echo '{'
+
+	LANDEVICE=$(uci get network.lan.device)
+	LANBRIDGE=$(uci show network | awk -F. '/\.name='\'''$LANDEVICE''\''/{print $2}')
+
+	T=$(jsonfilter -i /etc/board.json -e '@.network.lan.ports' | jsonfilter -q -e '@.*')
+	[ -z "$T" ] && T=$(jsonfilter -i /etc/board.json -e '@.network.lan.device')
+	echo '"ports":['
+	if [ ! -e /sbin/swconfig ]; then
+		for PORT in $T; do
+			NETWORK=""
+			DESCRIPTION=""
+			BRIDGE=$(uci show network | awk -F. '/'\'''$PORT''\''/{print $2}')
+			if [ -n "$BRIDGE" ]; then
+				DEVICE=$(uci -q get network.$BRIDGE.name)
+				if [ -n "$DEVICE" ]; then
+					NETWORK=$(uci show network | awk -F. '/\.device='\'''$DEVICE''\''/{print $2}')
+					[ -n "$NETWORK" ] && DESCRIPTION=$(escapeJSON "$(uci -q get network.$NETWORK.description)")
+				fi
+			fi
+			echo '{"port":"'$PORT'","network":"'$NETWORK'","bridge":"'$BRIDGE'","description":"'$DESCRIPTION'","lanbridge":"'$LANBRIDGE'"},'
+		done
+	fi
+	echo '],'
+	echo '"networks":['
 	NETWORKS=$(uci show network | awk -F. '/\.proto='\''static'\''/{print $2}')
 	for SEC in $NETWORKS; do
 		[ "$SEC" = "lan" ] && continue
@@ -2175,11 +2199,11 @@ show_networks() {
 		T=$(uci -q get dhcp.$SEC.ignore)
 		[ "x$T" = "x1" ] && DHCP=0
 		echo '"dhcp":'$DHCP','
-		echo '"interfaces":['
+		echo '"wireless":['
 
 		RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 		for R in $RADIOS; do
-			echo '{"type":"wireless","'$R'":{'
+			echo '{"'$R'":{'
 			WLAN_DISABLED_RADIO=$(uci -q get wireless.$R.disabled)
 			T=$(uci -q show wireless | awk -F. '/device='\'''${R}''\''$/{print $2}')
 			WLAN_DISABLED=1
@@ -2221,7 +2245,7 @@ show_networks() {
 		echo '],'
 		WLAN_CLIENTS=0
 		LAN_CLIENTS=0
-		TPORTS1=""
+		TPORTS=""
 		BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 		if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			T=$(brctl showmacs $BRIDGE 2>/dev/null)
@@ -2234,12 +2258,13 @@ show_networks() {
 					if [ -e /sys/class/net/$BRIDGE/brif/$IFNAME/port_no ]; then
 						PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 						CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
-						TPORTS1="${TPORTS1} ${IFNAME};${CNT}"
 						LAN_CLIENTS=$((LAN_CLIENTS+CNT))
+						TPORTS='"'${IFNAME}'",'${TPORTS}
 					fi
 				fi
 			done
 		fi
+		echo '"wire":['${TPORTS}'],'
 		echo '"wlan_clients":'$WLAN_CLIENTS','
 		echo '"lan_clients":'$LAN_CLIENTS
 		echo '},'

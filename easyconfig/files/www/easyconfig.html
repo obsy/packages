@@ -656,7 +656,7 @@
 
 		<h3 class="section"></h3>
 		<div class="text-center">
-			<input type="button" class="btn btn-default" onclick="networkdetails('');" value="Nowa">
+			<input id="btn_network_new" type="button" class="btn btn-default" value="Nowa">
 			<input type="button" class="btn btn-default" onclick="shownetworks();" value="Odśwież">
 		</div>
 	</div>
@@ -2337,6 +2337,7 @@
 	<div class="row modal-content">
 		<div class="text-center space">Sieć dodatkowa</div>
 		<input id="network_data" type="hidden">
+		<input id="network_ports" type="hidden">
 		<div class="error text-center space"><span id="network_error"></span></div>
 
 		<form class="form-horizontal">
@@ -2382,7 +2383,7 @@
 			</div>
 		</div>
 
-		<div id="div_network_radio_template" style="display:none;">
+		<div id="div_network_wireless_template" style="display:none;">
 			<h3 class="section" id="network_radio_idx">Wi-Fi</h3>
 			<div class="form-group">
 				<label for="network_wlan_enabled_idx" class="col-xs-4 col-sm-3 control-label">Wi-Fi włączone</label>
@@ -2455,6 +2456,30 @@
 				</div>
 			</div>
 		</div>
+
+		<div id="div_network_wire_header_template" style="display:none;">
+			<h3 class="section">Porty ethernet</h3>
+			<div class="row">
+				<div class="col-xs-4 col-sm-3 text-right"><p>Nazwa portu</p></div>
+				<div class="col-xs-8 col-sm-9"><p>Dołączony&nbsp;&nbsp;&nbsp;Przypisanie do sieci</p></div>
+				<input id="network_port_cnt" type="hidden">
+			</div>
+		</div>
+		<div id="div_network_wire_template" style="display:none;">
+			<div class="form-group">
+				<input id="network_port_data_idx" type="hidden">
+				<label for="network_port_idx" class="col-xs-4 col-sm-3 control-label"><span id="network_port_label_idx"></span></label>
+				<div class="col-xs-8 col-sm-9">
+				<label class="switch">
+					<input id="network_port_idx" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted"><span id="network_port_desc1_idx"></span></small></em></span>
+				<div class="visible-xs"><em><small class="form-text text-muted"><span id="network_port_desc2_idx"></span></small></em></div>
+				</div>
+			</div>
+		</div>
+
 		<div id="div_network_interfaces_content"></div>
 
 		<h3 class="section"></h3>
