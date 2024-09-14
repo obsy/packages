@@ -6928,10 +6928,7 @@ function subnet2Mask(subnet) {
 function shownetworks() {
 	ubus_call('"easyconfig", "networks", {}', function(data) {
 		var ports = naturalSortJSON(data.ports, 'port');
-
-		document.getElementById('btn_network_new').addEventListener('click', function() {
-			networkdetails(btoa(JSON.stringify(ports)), {});
-		});
+		var ipaddrs = [];
 
 		var sorted = sortJSON(data.networks, 'description', 'asc');
 		if (sorted.length > 0) {
@@ -6943,6 +6940,10 @@ function shownetworks() {
 			html += '<div class="visible-xs col-xs-3">Klientów przew.</div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
+				ipaddrs.push({ipaddr: sorted[idx].ipaddr, section: sorted[idx].section, description: sorted[idx].description});
+			}
+			for (var idx = 0; idx < sorted.length; idx++) {
+				sorted[idx].ipaddrs = ipaddrs;
 				if (sorted[idx].description == '') {
 					sorted[idx].description = sorted[idx].section;
 				}
@@ -6957,32 +6958,21 @@ function shownetworks() {
 		} else {
 			setValue('div_networks_content', '<div class="alert alert-warning">Brak sieci dodatkowych</div>');
 		}
-	})
-}
 
-function networkdetails(ports, data) {
-	var physicalports = [];
-	try {
-		physicalports = JSON.parse(atob(ports));
-	} catch (error) {
-		physicalports = [];
-	}
-	var json = {};
-	try {
-		json = JSON.parse(atob(data));
-	} catch (error) {
-		json['section'] = '';
-		json['description'] = '';
-		json['proto'] = 'static';
-		json['ipaddr'] = '172.16.0.1';
-		json['netmask'] = '255.255.255.0';
-		json['device'] = '';
-		json['bridge'] = '';
-		json['zone'] = '';
-		json['forwarding'] = [];
-		json['dhcp'] = 1;
-		json['wireless'] = [];
-		json['wire'] = [];
+		var newnetwork = {};
+		newnetwork['section'] = '';
+		newnetwork['description'] = '';
+		newnetwork['proto'] = 'static';
+		newnetwork['ipaddr'] = '172.16.0.1';
+		newnetwork['ipaddrs'] = ipaddrs;
+		newnetwork['netmask'] = '255.255.255.0';
+		newnetwork['device'] = '';
+		newnetwork['bridge'] = '';
+		newnetwork['zone'] = '';
+		newnetwork['forwarding'] = [];
+		newnetwork['dhcp'] = 1;
+		newnetwork['wireless'] = [];
+		newnetwork['wire'] = [];
 		var radios = config.wlan_devices;
 		for (var i = 0; i < radios.length; i++) {
 			var obj = {};
@@ -6995,10 +6985,19 @@ function networkdetails(ports, data) {
 			obj[radios[i]]['hidden'] = 0;
 			obj[radios[i]]['macaddr'] = '';
 			obj[radios[i]]['section'] = '';
-			json['wireless'][i] = obj;
+			newnetwork['wireless'][i] = obj;
 		}
-		data = btoa(JSON.stringify(json));
-	}
+
+		document.getElementById('btn_network_new').addEventListener('click', function() {
+			networkdetails(btoa(JSON.stringify(ports)), btoa(JSON.stringify(newnetwork)));
+		});
+	})
+}
+
+function networkdetails(ports, data) {
+	var physicalports = JSON.parse(atob(ports));
+	var json = JSON.parse(atob(data));
+
 	setValue('network_data', data);
 	setValue('network_ports', ports);
 	setValue('network_error', '');
@@ -7143,7 +7142,8 @@ function savenetwork() {
 		setValue('network_error', 'Błąd w polu ' + getLabelText('network_description'));
 		return;
 	}
-	if (validateIP(getValue('network_ipaddr')) != 0) {
+	var ipaddr = getValue('network_ipaddr');
+	if (validateIP(ipaddr) != 0) {
 		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr'));
 		return;
 	}
@@ -7159,6 +7159,15 @@ function savenetwork() {
 		cmd.push('uci set network.' + json.bridge + '.type=bridge');
 		cmd.push('uci set network.' + json.bridge + '.bridge_empty=1');
 	}
+	var usedinnetwork = '';
+	if (config.lan_ipaddr == ipaddr) { usedinnetwork = 'Sieć lokalna'; }
+	for (var idx = 0; idx < json.ipaddrs.length; idx++) {
+		if (json.ipaddrs[idx].ipaddr == ipaddr && json.ipaddrs[idx].section != json.section) { usedinnetwork = json.ipaddrs[idx].description; }
+	}
+	if (usedinnetwork) {
+		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br>adres jest już wykorzystywany w sieci "' + usedinnetwork + '"');
+		return;
+	}
 
 	cmd.push('uci set network.' + json.section + '.description=\\\"' + escapeShell(getValue('network_description')) + '\\\"');
 	cmd.push('uci set network.' + json.section + '.proto=static');
@@ -7166,7 +7175,7 @@ function savenetwork() {
 	if (json.bridge != '') {
 		cmd.push('uci set network.' + json.bridge + '.name=' + json.device);
 	}
-	cmd.push('uci set network.' + json.section + '.ipaddr=' + getValue('network_ipaddr'));
+	cmd.push('uci set network.' + json.section + '.ipaddr=' + ipaddr);
 	cmd.push('uci set network.' + json.section + '.netmask=' + getValue('network_netmask'));
 	cmd.push('uci set dhcp.' + json.section + '=dhcp');
 	cmd.push('uci set dhcp.' + json.section + '.interface=' + json.section);
