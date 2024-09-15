@@ -155,6 +155,17 @@ function freq2band(freq) {
 	return 0;
 }
 
+String.prototype.escapeHTML = function() {
+       var tagsToReplace = {
+               '&': '&amp;',
+               '<': '&lt;',
+               '>': '&gt;'
+       };
+       return this.replace(/[&<>]/g, function(tag) {
+               return tagsToReplace[tag] || tag;
+       });
+};
+
 /*****************************************************************************/
 
 function proofreadHost(input) {
@@ -3761,7 +3772,7 @@ function clientscallback(sortby) {
 				}
 				html += '<hr><div class="row">';
 
-				html += '<div class="col-xs-9 visible-xs-block"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-9 visible-xs-block"><span style="color:' + string2color(sorted[idx].mac) + '">&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].displayname).escapeHTML() + '</span></div>';
 				html += '<div class="col-xs-3 visible-xs-block text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12 visible-xs-block">' + limitations;
 				html += 'MAC: ' + sorted[idx].mac + (sorted[idx].ip == '' ? '' : ', IP: ' + sorted[idx].ip) + ', ';
@@ -3782,7 +3793,7 @@ function clientscallback(sortby) {
 					title1 = ' title="' + sorted[idx].percent + '% udziału w ruchu"';
 					title2 = ' title="połączony: ' + formatDuration(sorted[idx].connected, false) + '"';
 				}
-				html += '<div class="col-xs-3 hidden-xs"><span style="color:' + string2color(sorted[idx].mac) + '"' + title1 + '>&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');"' + title2 + '>' + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-3 hidden-xs"><span style="color:' + string2color(sorted[idx].mac) + '"' + title1 + '>&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');"' + title2 + '>' + (sorted[idx].displayname).escapeHTML() + '</span></div>';
 				html += '<div class="col-xs-3 hidden-xs">' + limitations + '<span title="adres MAC">' + sorted[idx].mac + '</span><br><span title="adres IP">' + sorted[idx].ip + '</span></div>';
 				html += '<div class="col-xs-3 hidden-xs" title="sposób połączenia">';
 				if (sorted[idx].type == 1) {
@@ -3804,7 +3815,7 @@ function clientscallback(sortby) {
 			} else {
 				if (sorted[idx].active) { continue; }
 				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + sorted[idx].displayname + '</span></div>';
+				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + (sorted[idx].displayname).escapeHTML() + '</span></div>';
 				html += '<div class="col-xs-3 text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) +  (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen)) + '</div>';
 				html += '</div>';
@@ -3898,7 +3909,7 @@ function clientscallback(sortby) {
 						var e1 = document.getElementById('div_clients_pie_tooltip');
 						e1.style.top = (e.pageY + 15) + 'px';
 						e1.style.left = (e.pageX + 15) + 'px';
-						setValue('div_clients_pie_tooltip', sorted[idx].displayname + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
+						setValue('div_clients_pie_tooltip', (sorted[idx].displayname).escapeHTML() + ': ' + bytesToSize(sorted[idx].tx + sorted[idx].rx) + ' (' +  sorted[idx].percent + '%), połączony ' + formatDuration(sorted[idx].connected, false));
 						setDisplay('div_clients_pie_tooltip', true);
 						break;
 					}
@@ -3937,7 +3948,7 @@ function clientsstats() {
 			if (sorted[idx1].active) { continue; }
 			if ((sorted[idx1].first_seen).startsWith(toDate)) {
 				cnt += 1;
-				html1 += createRowForModal(sorted[idx1].displayname, formatDateTime(sorted[idx1].first_seen));
+				html1 += createRowForModal((sorted[idx1].displayname).escapeHTML(), formatDateTime(sorted[idx1].first_seen));
 			}
 		}
 		html += formatDateTime(toDate) + ' (' + toHumanReadableDate + '): ' + cnt  + '<br>';
@@ -3960,7 +3971,7 @@ function showclientslogs() {
 			var mac = logs[idx].mac;
 			if (!(mac in lookup)) {
 				lookup[mac] = 1;
-				hosts.push({'mac': mac, 'username': logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname + ' / ' + logs[idx].mac : logs[idx].mac)});
+				hosts.push({'mac': mac, 'username': logs[idx].username != '' ? logs[idx].username : (logs[idx].dhcpname != '' ? logs[idx].dhcpname : logs[idx].mac)});
 			}
 		}
 		logs_hosts = sortJSON(hosts, 'username', 'asc');
@@ -4002,7 +4013,7 @@ function clientslogscallback(first, last) {
 		html += '<div class="col-xs-12 col-sm-offset-6 col-sm-6"><select id="clientslogs_hosts" class="form-control" onchange="clientslogscallback(0,9);">';
 		html += '<option value="all">Wszyscy</option>';
 		for (var idx = 0; idx < logs_hosts.length; idx++) {
-			html += '<option value="' + logs_hosts[idx].mac + '">' + logs_hosts[idx].username + '</option>';
+			html += '<option value="' + logs_hosts[idx].mac + '">' + (logs_hosts[idx].username).escapeHTML() + '</option>';
 		}
 		html += '</select></div></div>';
 
@@ -4020,7 +4031,7 @@ function clientslogscallback(first, last) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(filtered[idx].id)) + '</div>';
 			html += '<div class="col-xs-6 col-sm-3" title="' + title + '">' + (filtered[idx].event == 'connect' ? 'połączenie' : 'rozłączenie') + '</div>';
-			html += '<div class="col-xs-12 col-sm-6">' + ((selected != 'all') ? title : (filtered[idx].username != '' ? filtered[idx].username : (filtered[idx].dhcpname != '' ? filtered[idx].dhcpname + ' / ' + filtered[idx].mac : filtered[idx].mac))) + '</div>';
+			html += '<div class="col-xs-12 col-sm-6">' + ((selected != 'all') ? title : (filtered[idx].username != '' ? (filtered[idx].username).escapeHTML() : (filtered[idx].dhcpname != '' ? filtered[idx].dhcpname : filtered[idx].mac))) + '</div>';
 			html += '</div>';
 		}
 		html += '<div class="row">';
@@ -4059,7 +4070,7 @@ function hostmenu(id) {
 			break;
 		}
 	}
-	var html = host.displayname + '<hr>';
+	var html = (host.displayname).escapeHTML() + '<hr>';
 
 	html += '<p><span class="click" onclick="closeMsg();hostinfo(' + (host.active_id > -1 ? host.active_id : host.id) + ');">informacje</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span></p>';
@@ -4095,7 +4106,7 @@ function hostinfo(id) {
 		}
 	}
 
-	html += createRowForModal('Nazwa', (host.username == '' ? '-' : host.username));
+	html += createRowForModal('Nazwa', (host.username == '' ? '-' : (host.username).escapeHTML()));
 	html += createRowForModal('MAC', host.mac);
 	html += createRowForModal('Producent', getmanuf(host.mac));
 	html += createRowForModal('Nazwa rzeczywista', (host.dhcpname == '' ? '-' : host.dhcpname));
@@ -4155,7 +4166,7 @@ function hostblock(id) {
 		}
 	}
 	setValue('hostblock_mac', host.mac);
-	setValue('hostblock_name', host.displayname);
+	setValue('hostblock_name', (host.displayname).escapeHTML());
 
 	var days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
 
@@ -4284,7 +4295,7 @@ function hostnameedit(id) {
 
 	setValue('hostname_mac', host.mac);
 	setValue('hostname_name', host.displayname);
-	setValue('hostname_name1', host.displayname);
+	setValue('hostname_name1', (host.displayname).escapeHTML());
 	setDisplay('div_hostname', true);
 	document.getElementById('hostname_name').focus();
 }
@@ -4319,7 +4330,7 @@ function hostip(id) {
 	}
 
 	setValue('hostip_mac', host.mac);
-	setValue('hostip_name', host.displayname);
+	setValue('hostip_name', (host.displayname).escapeHTML());
 	setValue('hostip_ip', (host.staticdhcp == '' ? host.ip : host.staticdhcp));
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
@@ -4404,7 +4415,7 @@ function hostqos(id) {
 	}
 
 	setValue('hostqos_mac', host.mac);
-	setValue('hostqos_name', host.displayname);
+	setValue('hostqos_name', (host.displayname).escapeHTML());
 	setValue('hostqos_ip', host.ip);
 
 	// KB/s to Mb/s
@@ -4499,7 +4510,7 @@ function hoststatistics(id, type, limit) {
 			break;
 		}
 	}
-	hoststatisticsmodal(host.mac, 'Statystyka transferu dla "' + host.displayname + '"', type, limit);
+	hoststatisticsmodal(host.mac, 'Statystyka transferu dla "' + (host.displayname).escapeHTML() + '"', type, limit);
 }
 
 function hoststatisticsmodal(mac, title, type, limit) {
@@ -4585,7 +4596,7 @@ function hostremovedata(id) {
 	}
 
 	setValue('dialog_val', (host.mac).replace(/:/g, '_'));
-	showDialog('Usunąć dane dla "' + host.displayname + '"?', 'Anuluj', 'Usuń', okremovetraffic);
+	showDialog('Usunąć dane dla "' + (host.displayname).escapeHTML() + '"?', 'Anuluj', 'Usuń', okremovetraffic);
 }
 
 function hostlogs(id) {
@@ -4641,7 +4652,7 @@ function queriescallback(sortby, order) {
 	var selected = 'all';
 	var e = document.getElementById('queries_hosts');
 	if (e != null) {
-		selected = e.options[e.selectedIndex].value;
+		selected = atob(e.options[e.selectedIndex].value);
 	}
 	var tmp = getValue('queries_host');
 	if (tmp != '') { selected = tmp; }
@@ -4673,9 +4684,9 @@ function queriescallback(sortby, order) {
 
 		html += '<div class="form-group row" id="div_queries_hosts">';
 		html += '<div class="col-xs-offset-6 col-xs-6 col-sm-offset-4 col-sm-4"><select id="queries_hosts" class="form-control" onchange="queriescallback(\'id\', \'desc\');">';
-		html += '<option value="all">Wszyscy</option>';
+		html += '<option value="' + btoa('all') + '">Wszyscy</option>';
 		for (var idx = 0; idx < queries_hosts.length; idx++) {
-			html += '<option value="' + queries_hosts[idx].host + '">' + queries_hosts[idx].host + '</option>';
+			html += '<option value="' + btoa(queries_hosts[idx].host) + '">' + (queries_hosts[idx].host).escapeHTML() + '</option>';
 		}
 		html += '</select></div></div>';
 
@@ -4689,7 +4700,7 @@ function queriescallback(sortby, order) {
 		for (var idx = 0; idx < sorted.length; idx++) {
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-4">' + formatDateTime(sorted[idx].time) + '</div>';
-			html += '<div class="col-xs-6 col-sm-4">' + sorted[idx].host + '</div>';
+			html += '<div class="col-xs-6 col-sm-4">' + (sorted[idx].host).escapeHTML() + '</div>';
 			if (sorted[idx].nxdomain) {
 				html += '<div class="col-xs-12 col-sm-4 text-muted" title="brak domeny">' + sorted[idx].query + '</div>';
 			} else {
@@ -4708,7 +4719,7 @@ function queriescallback(sortby, order) {
 			var e = document.getElementById('queries_sortby_' + all[idx]);
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
-		setValue('queries_hosts', selected);
+		setValue('queries_hosts', btoa(selected));
 	}
 }
 
@@ -5330,7 +5341,7 @@ function showvpn() {
 			html += '<div class="col-xs-2 col-sm-1"></div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
-				html += '<hr><div class="row space"><div class="col-xs-12 col-sm-4 click" onclick="vpndetails(\'' + sorted[idx].proto + '\',\'' + sorted[idx].interface + '\',\'' + (sorted[idx].section ? sorted[idx].section : '') + '\');">' + (sorted[idx].name).replace(',', '<br>') + '</div>';
+				html += '<hr><div class="row space"><div class="col-xs-12 col-sm-4 click" onclick="vpndetails(\'' + sorted[idx].proto + '\',\'' + sorted[idx].interface + '\',\'' + (sorted[idx].section ? sorted[idx].section : '') + '\');">' + (sorted[idx].name).replace(',', '<br>').escapeHTML() + '</div>';
 				html += '<div class="col-xs-3 col-sm-3">' + vpntype(sorted[idx].proto) + '</div>';
 				if (sorted[idx].up) {
 					if (sorted[idx].proto == 'zerotier') {
@@ -6822,7 +6833,7 @@ function showwol() {
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				html += '<hr><div class="row space">';
-				html += '<div class="col-xs-6 click" onclick="woldetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description == '' ? sorted[idx].mac : sorted[idx].description) + '</div>';
+				html += '<div class="col-xs-6 click" onclick="woldetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description == '' ? sorted[idx].mac : (sorted[idx].description).escapeHTML()) + '</div>';
 				html += '<div class="col-xs-4">' + sorted[idx].mac + '</div>';
 				html += '<div class="col-xs-2"><span class="click" onclick="wolwakeup(\'' + sorted[idx].section + '\');" title="wybudź"><i data-feather="power"></i></span></div>';
 				html += '</div>';
@@ -6948,7 +6959,7 @@ function shownetworks() {
 					sorted[idx].description = sorted[idx].section;
 				}
 				html += '<hr><div class="row space">';
-				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(ports)) + '\',\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + sorted[idx].description + '</div>';
+				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(ports)) + '\',\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
 				html += '<div class="col-xs-3">' + sorted[idx].wlan_clients + '</div>';
 				html += '<div class="col-xs-3">' + sorted[idx].lan_clients + '</div>';
 				html += '</div>';
@@ -7165,7 +7176,7 @@ function savenetwork() {
 		if (json.ipaddrs[idx].ipaddr == ipaddr && json.ipaddrs[idx].section != json.section) { usedinnetwork = json.ipaddrs[idx].description; }
 	}
 	if (usedinnetwork) {
-		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br>adres jest już wykorzystywany w sieci "' + usedinnetwork + '"');
+		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br>adres jest już wykorzystywany w sieci "' + usedinnetwork.escapeHTML() + '"');
 		return;
 	}
 
