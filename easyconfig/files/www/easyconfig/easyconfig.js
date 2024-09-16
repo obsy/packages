@@ -3638,7 +3638,18 @@ var clients;
 
 function showclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
-		clients = data.result;
+
+		function updateArray(a, b) {
+			return a.map(itemA => {
+				const matchingItemB = b.find(itemB => itemB.section === itemA.network);
+			  	if (matchingItemB) {
+					return { ...itemA, network: matchingItemB.network };
+			  	}
+			  return itemA;
+			});
+		}
+
+		clients = updateArray(data.result, data.networks);
 		clientscallback('');
 	});
 }
@@ -3713,7 +3724,7 @@ function clientscallback(sortby) {
 		html += '</div></div>';
 
 		var total = 0;
-		for (var idx = 0; idx < clients.length; idx++) {
+		for (var idx = 0, n = clients.length; idx < n; idx++) {
 			if (!clients[idx].active) {
 				clients[idx].active_id = -1;
 				clients[idx].ip = '';
@@ -3738,7 +3749,7 @@ function clientscallback(sortby) {
 			html += '<div id="div_clients_pie_tooltip" class="tooltip"></div>';
 		}
 
-		for (var idx = 0; idx < clients.length; idx++) {
+		for (var idx = 0, n = clients.length; idx < n; idx++) {
 			clients[idx].percent = parseInt((clients[idx].tx + clients[idx].rx) * 100 / total);
 			if (clients[idx].dhcpname == '*') { clients[idx].dhcpname = ''; }
 			clients[idx].displayname = (clients[idx].username != '' ? clients[idx].username : (clients[idx].dhcpname != '' ? clients[idx].dhcpname : clients[idx].mac ));
@@ -3763,7 +3774,7 @@ function clientscallback(sortby) {
 		var any_active = false;
 		var any_all = false;
 		var sorted = sortJSON(clients, sortby, 'asc');
-		for (var idx = 0; idx < sorted.length; idx++) {
+		for (var idx = 0, n = sorted.length; idx < n; idx++) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
 				var limitations = '';
@@ -3782,9 +3793,9 @@ function clientscallback(sortby) {
 					if (obj) {
 						html += ' ' + portlabel(sorted[idx].port);
 					}
-					html += '</div>';
+					html += ', ' + (sorted[idx].network).escapeHTML() + '</div>';
 				} else {
-					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz, wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
+					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz, ' + (sorted[idx].network).escapeHTML() + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}
 
 				var title1 = '';
@@ -3793,7 +3804,7 @@ function clientscallback(sortby) {
 					title1 = ' title="' + sorted[idx].percent + '% udziału w ruchu"';
 					title2 = ' title="połączony: ' + formatDuration(sorted[idx].connected, false) + '"';
 				}
-				html += '<div class="col-xs-3 hidden-xs"><span style="color:' + string2color(sorted[idx].mac) + '"' + title1 + '>&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');"' + title2 + '>' + (sorted[idx].displayname).escapeHTML() + '</span></div>';
+				html += '<div class="col-xs-3 hidden-xs"><span style="color:' + string2color(sorted[idx].mac) + '"' + title1 + '>&#9608;</span>&nbsp;<span class="click" onclick="hostnameedit(' + sorted[idx].id + ');"' + title2 + '>' + (sorted[idx].displayname).escapeHTML() + '</span><br>' + (sorted[idx].network).escapeHTML() + '</div>';
 				html += '<div class="col-xs-3 hidden-xs">' + limitations + '<span title="adres MAC">' + sorted[idx].mac + '</span><br><span title="adres IP">' + sorted[idx].ip + '</span></div>';
 				html += '<div class="col-xs-3 hidden-xs" title="sposób połączenia">';
 				if (sorted[idx].type == 1) {
@@ -3903,7 +3914,7 @@ function clientscallback(sortby) {
 				var p = c.getImageData(x, y, 1, 1).data;
 				var hex = rgb2hex('rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')');
 				setDisplay('div_clients_pie_tooltip', false);
-				for (var idx = 0; idx < sorted.length; idx++) {
+				for (var idx = 0, n = sorted.length; idx < n; idx++) {
 					if (!sorted[idx].active) { continue; }
 					if (string2color(sorted[idx].mac) == hex) {
 						var e1 = document.getElementById('div_clients_pie_tooltip');
@@ -4154,6 +4165,7 @@ function hostinfo(id) {
 	if (!host.active) {
 		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span>');
 	}
+	html += createRowForModal('Sieć', host.network == '' ? '-' : (host.network).escapeHTML());
 	showMsg(html, false);
 }
 
@@ -6960,8 +6972,16 @@ function shownetworks() {
 				}
 				html += '<hr><div class="row space">';
 				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(ports)) + '\',\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
-				html += '<div class="col-xs-3">' + sorted[idx].wlan_clients + '</div>';
-				html += '<div class="col-xs-3">' + sorted[idx].lan_clients + '</div>';
+				if (sorted[idx].wlan_clients == 0) {
+					html += '<div class="col-xs-3">0</div>';
+				} else {
+					html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].wlan_clients + ' &rarr;</a></div>';
+				}
+				if (sorted[idx].lan_clients == 0) {
+					html += '<div class="col-xs-3">0</div>';
+				} else {
+					html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].lan_clients + ' &rarr;</a></div>';
+				}
 				html += '</div>';
 			}
 			setValue('div_networks_content', html);

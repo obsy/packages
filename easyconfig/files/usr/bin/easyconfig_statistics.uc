@@ -16,9 +16,10 @@ let RX = shift(ARGV);
 let CONNECTED = shift(ARGV);
 let DHCPNAME = shift(ARGV);
 let TYPE = shift(ARGV);
+let NETWORK = shift(ARGV);
 
 if (!MAC || !IFNAME || !TYPE) {
-	warn("Usage: easyconfig_statistics.uc <MAC> <IFNAME> <TX> <RX> <CONNECTED> <DHCPNAME> <TYPE>\n");
+	warn("Usage: easyconfig_statistics.uc <MAC> <IFNAME> <TX> <RX> <CONNECTED> <DHCPNAME> <TYPE> <NETWORK>\n");
 	exit(1);
 }
 
@@ -123,6 +124,7 @@ db[MAC][IFNAME].last_tx = TX;
 db[MAC][IFNAME].last_rx = RX;
 db[MAC][IFNAME].last_seen = ts_now;
 db[MAC].last_seen = ts_now;
+db[MAC].last_network = NETWORK;
 
 writefile(filename, db);
 
