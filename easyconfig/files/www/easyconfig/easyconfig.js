@@ -7097,7 +7097,7 @@ function networkdetails(ports, data) {
 			setValue('network_port_data_' + i, btoa(JSON.stringify(physicalports[i])));
 			setValue('network_port_label_' + i, physicalports[i].port.toUpperCase());
 			setValue('network_port_' + i, json.wire.indexOf(physicalports[i].port) > -1);
-			var desc = physicalports[i].description == '' ? physicalports[i].network : physicalports[i].description;
+			var desc = physicalports[i].description == '' ? physicalports[i].network : (physicalports[i].description).escapeHTML();
 			if (desc == 'lan') { desc = 'Sieć lokalna'; }
 			setValue('network_port_desc1_' + i, desc);
 			setValue('network_port_desc2_' + i, desc);
