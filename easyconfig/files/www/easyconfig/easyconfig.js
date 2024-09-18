@@ -1050,6 +1050,8 @@ function showconfig() {
 	ubus_call('"easyconfig", "config", {}', function(data) {
 		config = data;
 
+		setDisplay('menu_networks', config.devicesection);
+
 		// wan
 		var e = removeOptions('wan_proto');
 		var arr = config.wan_protos;
