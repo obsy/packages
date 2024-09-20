@@ -5659,7 +5659,7 @@ function removeopenvpn() {
 	cancelopenvpn();
 	setValue('dialog_val', getValue('vpn_openvpn_interface'));
 	setValue('dialog_val1', getValue('vpn_openvpn_section'));
-	showDialog('Usunąć VPN "' + getValue('vpn_openvpn_name') + '" (typu ' + vpntype('openvpn') + ')?', 'Anuluj', 'Usuń', okremoveopenvpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_openvpn_name').escapeHTML() + '" (typu ' + vpntype('openvpn') + ')?', 'Anuluj', 'Usuń', okremoveopenvpn);
 }
 
 function okremoveopenvpn() {
@@ -5810,7 +5810,7 @@ function cancelpptp() {
 function removepptp() {
 	cancelpptp();
 	setValue('dialog_val', getValue('vpn_pptp_interface'));
-	showDialog('Usunąć VPN "' + getValue('vpn_pptp_name') + '" (typu ' + vpntype('pptp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_pptp_name').escapeHTML() + '" (typu ' + vpntype('pptp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
 }
 
 function okremovevpn() {
@@ -5922,7 +5922,7 @@ function cancelsstp() {
 function removesstp() {
 	cancelsstp();
 	setValue('dialog_val', getValue('vpn_sstp_interface'));
-	showDialog('Usunąć VPN "' + getValue('vpn_sstp_name') + '" (typu ' + vpntype('sstp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
+	showDialog('Usunąć VPN "' + getValue('vpn_sstp_name').escapeHTML() + '" (typu ' + vpntype('sstp') + ')?', 'Anuluj', 'Usuń', okremovevpn);
 }
 
 function savesstp() {
@@ -6298,7 +6298,7 @@ function removezerotiernetwork(idx) {
 function removezerotier() {
 	cancelzerotier();
 	setValue('dialog_val', getValue('vpn_zerotier_section'));
-	showDialog('Usunąć VPN "' + getValue('vpn_zerotier_name') + '" (typu ' + vpntype('zerotier') + ')?', 'Anuluj', 'Usuń', okremovezerotier);
+	showDialog('Usunąć VPN "' + getValue('vpn_zerotier_name').escapeHTML() + '" (typu ' + vpntype('zerotier') + ')?', 'Anuluj', 'Usuń', okremovezerotier);
 }
 
 function okremovezerotier() {
@@ -7117,7 +7117,7 @@ function removenetwork() {
 	cancelnetwork();
 	setValue('dialog_val', getValue('network_data'));
 	setValue('dialog_val1', getValue('network_ports'));
-	showDialog('Usunąć sieć dodatkową "' + getValue('network_description') + '"?', 'Anuluj', 'Usuń', okremovenetwork);
+	showDialog('Usunąć sieć dodatkową "' + getValue('network_description').escapeHTML() + '"?', 'Anuluj', 'Usuń', okremovenetwork);
 }
 
 function okremovenetwork() {
