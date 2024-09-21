@@ -2263,10 +2263,16 @@ show_networks() {
 		done
 
 		echo '],'
+		BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
+		T=$(uci show network | awk -F. '/\.name='\'''$BRIDGE''\''/{print $2}')
+		TPORTS=""
+		if [ -n "$T" ]; then
+			TPORTS=$(uci -q get network.$T.ports)
+			[ -n "$TPORTS" ] && TPORTS='"'$(echo $TPORTS | sed 's/ /","/g')'"'
+		fi
+		echo '"wire":['${TPORTS}'],'
 		WLAN_CLIENTS=0
 		LAN_CLIENTS=0
-		TPORTS=""
-		BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 		if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			T=$(brctl showmacs $BRIDGE 2>/dev/null)
 			for I in /sys/class/net/$BRIDGE/lower_*; do
@@ -2279,12 +2285,10 @@ show_networks() {
 						PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 						CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
 						LAN_CLIENTS=$((LAN_CLIENTS+CNT))
-						TPORTS='"'${IFNAME}'",'${TPORTS}
 					fi
 				fi
 			done
 		fi
-		echo '"wire":['${TPORTS}'],'
 		echo '"wlan_clients":'$WLAN_CLIENTS','
 		echo '"lan_clients":'$LAN_CLIENTS
 		echo '},'

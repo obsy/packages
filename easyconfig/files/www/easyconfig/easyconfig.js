@@ -6969,11 +6969,12 @@ function shownetworks() {
 			}
 			for (var idx = 0; idx < sorted.length; idx++) {
 				sorted[idx].ipaddrs = ipaddrs;
+				sorted[idx].ports = ports;
 				if (sorted[idx].description == '') {
 					sorted[idx].description = sorted[idx].section;
 				}
 				html += '<hr><div class="row space">';
-				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(ports)) + '\',\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
+				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
 				if (sorted[idx].wlan_clients == 0) {
 					html += '<div class="col-xs-3">0</div>';
 				} else {
@@ -6993,6 +6994,7 @@ function shownetworks() {
 		}
 
 		var newnetwork = {};
+		newnetwork['ports'] = ports;
 		newnetwork['section'] = '';
 		newnetwork['description'] = '';
 		newnetwork['proto'] = 'static';
@@ -7022,17 +7024,15 @@ function shownetworks() {
 		}
 
 		document.getElementById('btn_network_new').addEventListener('click', function() {
-			networkdetails(btoa(JSON.stringify(ports)), btoa(JSON.stringify(newnetwork)));
+			networkdetails(btoa(JSON.stringify(newnetwork)));
 		});
 	})
 }
 
-function networkdetails(ports, data) {
-	var physicalports = JSON.parse(atob(ports));
+function networkdetails(data) {
 	var json = JSON.parse(atob(data));
 
 	setValue('network_data', data);
-	setValue('network_ports', ports);
 	setValue('network_error', '');
 	setValue('network_description', json.description);
 	setValue('network_ipaddr', json.ipaddr);
@@ -7088,7 +7088,7 @@ function networkdetails(ports, data) {
 		}
 	}
 
-	var cnt = physicalports.length;
+	var cnt = json.ports.length;
 	if (cnt > 0) {
 		var html = '<div>' + document.getElementById('div_network_wire_header_template').innerHTML + '</div>';
 		document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
@@ -7096,10 +7096,10 @@ function networkdetails(ports, data) {
 		for (var i = 0; i < cnt; i++) {
 			html = ('<div>' + document.getElementById('div_network_wire_template').innerHTML + '</div>').replaceAll('_idx', '_' + i);
 			document.getElementById('div_network_interfaces_content').insertAdjacentHTML('beforeend', html);
-			setValue('network_port_data_' + i, btoa(JSON.stringify(physicalports[i])));
-			setValue('network_port_label_' + i, physicalports[i].port.toUpperCase());
-			setValue('network_port_' + i, json.wire.indexOf(physicalports[i].port) > -1);
-			var desc = physicalports[i].description == '' ? physicalports[i].network : (physicalports[i].description).escapeHTML();
+			setValue('network_port_data_' + i, btoa(JSON.stringify(json.ports[i])));
+			setValue('network_port_label_' + i, json.ports[i].port.toUpperCase());
+			setValue('network_port_' + i, json.wire.indexOf(json.ports[i].port) > -1);
+			var desc = json.ports[i].description == '' ? json.ports[i].network : (json.ports[i].description).escapeHTML();
 			if (desc == 'lan') { desc = 'Sieć lokalna'; }
 			setValue('network_port_desc1_' + i, desc);
 			setValue('network_port_desc2_' + i, desc);
@@ -7116,23 +7116,21 @@ function cancelnetwork() {
 function removenetwork() {
 	cancelnetwork();
 	setValue('dialog_val', getValue('network_data'));
-	setValue('dialog_val1', getValue('network_ports'));
 	showDialog('Usunąć sieć dodatkową "' + getValue('network_description').escapeHTML() + '"?', 'Anuluj', 'Usuń', okremovenetwork);
 }
 
 function okremovenetwork() {
 	var json = JSON.parse(atob(getValue('dialog_val')));
-	var physicalports = JSON.parse(atob(getValue('dialog_val1')));
 
 	var cmd = [];
 	if (json.section) {
 		cmd.push('uci -q del network.' + json.section);
 	}
 	if (json.bridge) {
-		for (var idx = 0; idx < physicalports.length; idx++) {
-			if (physicalports[idx].bridge == json.bridge) {
-				cmd.push('uci -q del_list network.' + physicalports[idx].lanbridge + '.ports=' + physicalports[idx].port);
-				cmd.push('uci add_list network.' + physicalports[idx].lanbridge + '.ports=' + physicalports[idx].port);
+		for (var idx = 0; idx < json.ports.length; idx++) {
+			if (json.ports[idx].bridge == json.bridge) {
+				cmd.push('uci -q del_list network.' + json.ports[idx].lanbridge + '.ports=' + json.ports[idx].port);
+				cmd.push('uci add_list network.' + json.ports[idx].lanbridge + '.ports=' + json.ports[idx].port);
 			}
 		}
 		cmd.push('uci -q del network.' + json.bridge);
@@ -7163,8 +7161,6 @@ function okremovenetwork() {
 	cmd.push('uci commit');
 	cmd.push('reload_config');
 	cmd.push('wifi');
-	cmd.push('/etc/init.d/dnsmasq restart');
-	cmd.push('/etc/init.d/firewall restart');
 	execute(cmd, shownetworks);
 }
 
@@ -7407,8 +7403,6 @@ function savenetwork() {
 	if (wlan_restart_required) {
 		cmd.push('wifi');
 	}
-	cmd.push('/etc/init.d/dnsmasq restart');
-	cmd.push('/etc/init.d/firewall restart');
 	execute(cmd, shownetworks);
 }
 
