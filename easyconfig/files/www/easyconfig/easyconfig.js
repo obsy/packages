@@ -476,6 +476,12 @@ function removeClasses(element, classes) {
 	}
 }
 
+function showError(element, input, msg) {
+	setValue(element, msg);
+	setDisplay(element, msg != '');
+	if (input && msg != '') { document.getElementById(input).focus(); }
+}
+
 /*****************************************************************************/
 
 function enableDns(value) {
@@ -888,7 +894,7 @@ function login() {
 			ubus_error(data.error.code);
 		} else {
 			if (data.result[0] === 0) {
-				setDisplay('div_security', (system_pass == '12345678'));
+				if (system_pass == '12345678') { showError('div_security', '', '<strong>UWAGA!</strong> Wymagana jest zmiana domyślnego hasła do routera!'); }
 				loginok(data.result[1], false);
 			} else {
 				showMsg('Błąd logowania!', true);
@@ -1745,7 +1751,7 @@ function saveconfig() {
 	execute(cmd, function(){
 		cleanField('password1');
 		cleanField('password2');
-		setDisplay('div_security', (pass1 == '12345678'));
+		if (system_pass == '12345678') { showError('div_security', '', '<strong>UWAGA!</strong> Wymagana jest zmiana domyślnego hasła do routera!'); }
 		showconfig();
 	});
 }
@@ -5439,7 +5445,7 @@ function vpnstatuszerotier(section) {
 function vpndetails(proto, interface, section) {
 	ubus_call('"easyconfig", "vpndetails", {"proto":"' + proto + '","interface":"' + interface + '","section":"' + section + '"}', function(data) {
 		if (data.proto == 'openvpn') {
-			setValue('vpn_openvpn_error', '');
+			showError('vpn_openvpn_error', '', '');
 			setValue('vpn_openvpn_interface', interface);
 			setValue('vpn_openvpn_section', data.section);
 			setValue('vpn_openvpn_name', data.name);
@@ -5454,7 +5460,7 @@ function vpndetails(proto, interface, section) {
 			setDisplay('div_vpn_openvpn', true);
 		}
 		if (data.proto == 'pptp') {
-			setValue('vpn_pptp_error', '');
+			showError('vpn_pptp_error', '', '');
 			setValue('vpn_pptp_interface', interface);
 			setValue('vpn_pptp_name', data.name);
 			setValue('vpn_pptp_auto', data.autostart);
@@ -5469,7 +5475,7 @@ function vpndetails(proto, interface, section) {
 			setDisplay('div_vpn_pptp', true);
 		}
 		if (data.proto == 'sstp') {
-			setValue('vpn_sstp_error', '');
+			showError('vpn_sstp_error', '', '');
 			setValue('vpn_sstp_interface', interface);
 			setValue('vpn_sstp_name', data.name);
 			setValue('vpn_sstp_auto', data.autostart);
@@ -5483,7 +5489,7 @@ function vpndetails(proto, interface, section) {
 			setDisplay('div_vpn_sstp', true);
 		}
 		if (data.proto == 'wireguard') {
-			setValue('vpn_wireguard_error', '');
+			showError('vpn_wireguard_error', '', '');
 			setValue('vpn_wireguard_interface', interface);
 			setValue('vpn_wireguard_auto', data.autostart);
 			if (data.trigger == 'wan') { setValue('vpn_wireguard_auto', 2); }
@@ -5521,7 +5527,7 @@ function vpndetails(proto, interface, section) {
 			setDisplay('div_vpn_wireguard', true);
 		}
 		if (data.proto == 'zerotier') {
-			setValue('vpn_zerotier_error', '');
+			showError('vpn_zerotier_error', '', '');
 			setValue('vpn_zerotier_section', section);
 			setValue('vpn_zerotier_name', data.name);
 			setValue('vpn_zerotier_enabled', data.enabled);
@@ -5571,7 +5577,7 @@ function savevpnnew() {
 	setDisplay('div_vpn_new', false);
 
 	if (getValue('vpn_new') == 'openvpn') {
-		setValue('vpn_openvpn_error', '');
+		showError('vpn_openvpn_error', '', '');
 		var interface = Math.random().toString(36).substring(2, 10);
 		setValue('vpn_openvpn_interface', interface);
 		setValue('vpn_openvpn_section', interface);
@@ -5586,7 +5592,7 @@ function savevpnnew() {
 		setDisplay('div_vpn_openvpn', true);
 	}
 	if (getValue('vpn_new') == 'pptp') {
-		setValue('vpn_pptp_error', '');
+		showError('vpn_pptp_error', '', '');
 		setValue('vpn_pptp_interface', Math.random().toString(36).substring(2, 10));
 		setValue('vpn_pptp_name', '');
 		setValue('vpn_pptp_auto', 0);
@@ -5600,7 +5606,7 @@ function savevpnnew() {
 		setDisplay('div_vpn_pptp', true);
 	}
 	if (getValue('vpn_new') == 'sstp') {
-		setValue('vpn_sstp_error', '');
+		showError('vpn_sstp_error', '', '');
 		setValue('vpn_sstp_interface', Math.random().toString(36).substring(2, 10));
 		setValue('vpn_sstp_name', '');
 		setValue('vpn_sstp_auto', 0);
@@ -5613,7 +5619,7 @@ function savevpnnew() {
 		setDisplay('div_vpn_sstp', true);
 	}
 	if (getValue('vpn_new') == 'wireguard') {
-		setValue('vpn_wireguard_error', '');
+		showError('vpn_wireguard_error', '', '');
 		setValue('vpn_wireguard_interface', Math.random().toString(36).substring(2, 10));
 		setValue('vpn_wireguard_auto', 0);
 		setValue('vpn_wireguard_button', false);
@@ -5634,7 +5640,7 @@ function savevpnnew() {
 		setDisplay('div_vpn_wireguard', true);
 	}
 	if (getValue('vpn_new') == 'zerotier') {
-		setValue('vpn_zerotier_error', '');
+		showError('vpn_zerotier_error', '', '');
 		setValue('vpn_zerotier_section', Math.random().toString(36).substring(2, 10));
 		setValue('vpn_zerotier_name', '');
 		setValue('vpn_zerotier_enabled', true);
@@ -5685,32 +5691,32 @@ function okremoveopenvpn() {
 function saveopenvpn() {
 	var cmd = [];
 
-	setValue('vpn_openvpn_error', '');
+	showError('vpn_openvpn_error', '', '');
 	if (getValue('vpn_openvpn_name') == '') {
-		setValue('vpn_openvpn_error', 'Błąd w polu ' + getLabelText('vpn_openvpn_name'));
+		showError('vpn_openvpn_error', 'vpn_openvpn_name', 'Błąd w polu ' + getLabelText('vpn_openvpn_name'));
 		return;
 	}
 	if (getValue('vpn_openvpn_username') != '') {
 		if (getValue('vpn_openvpn_password') == '') {
-			setValue('vpn_openvpn_error', 'Błąd w polu ' + getLabelText('vpn_openvpn_password'));
+			showError('vpn_openvpn_error', 'vpn_openvpn_password', 'Błąd w polu ' + getLabelText('vpn_openvpn_password'));
 			return;
 		}
 	}
 	var configtext = getValue('vpn_openvpn_configtext');
 	if (configtext == '') {
-		setValue('vpn_openvpn_error', 'Błąd w polu ' + getLabelText('vpn_openvpn_configtext'));
+		showError('vpn_openvpn_error', 'vpn_openvpn_configtext', 'Błąd w polu ' + getLabelText('vpn_openvpn_configtext'));
 		return;
 	} else {
 		if (configtext.indexOf('client') == -1) {
-			setValue('vpn_openvpn_error', 'Plik konfiguracyjny nie zawiera opcji "client"');
+			showError('vpn_openvpn_error', 'vpn_openvpn_configtext', 'Plik konfiguracyjny nie zawiera opcji "client"');
 			return;
 		}
 		if (configtext.indexOf('remote') == -1) {
-			setValue('vpn_openvpn_error', 'Plik konfiguracyjny nie zawiera opcji "remote"');
+			showError('vpn_openvpn_error', 'vpn_openvpn_configtext', 'Plik konfiguracyjny nie zawiera opcji "remote"');
 			return;
 		}
 		if (configtext.indexOf('dev') == -1) {
-			setValue('vpn_openvpn_error', 'Plik konfiguracyjny nie zawiera opcji "dev"');
+			showError('vpn_openvpn_error', 'vpn_openvpn_configtext', 'Plik konfiguracyjny nie zawiera opcji "dev"');
 			return;
 		}
 	}
@@ -5831,13 +5837,13 @@ function okremovevpn() {
 function savepptp() {
 	var cmd = [];
 
-	setValue('vpn_pptp_error', '');
+	showError('vpn_pptp_error', '', '');
 	if (getValue('vpn_pptp_name') == '') {
-		setValue('vpn_pptp_error', 'Błąd w polu ' + getLabelText('vpn_pptp_name'));
+		showError('vpn_pptp_error', 'vpn_pptp_name', 'Błąd w polu ' + getLabelText('vpn_pptp_name'));
 		return;
 	}
 	if (validateHost(getValue('vpn_pptp_server')) != 0) {
-		setValue('vpn_pptp_error', 'Błąd w polu ' + getLabelText('vpn_pptp_server'));
+		showError('vpn_pptp_error', 'vpn_pptp_server', 'Błąd w polu ' + getLabelText('vpn_pptp_server'));
 		return;
 	}
 
@@ -5928,13 +5934,13 @@ function removesstp() {
 function savesstp() {
 	var cmd = [];
 
-	setValue('vpn_sstp_error', '');
+	showError('vpn_sstp_error', '', '');
 	if (getValue('vpn_sstp_name') == '') {
-		setValue('vpn_sstp_error', 'Błąd w polu ' + getLabelText('vpn_sstp_name'));
+		showError('vpn_sstp_error', 'vpn_sstp_name', 'Błąd w polu ' + getLabelText('vpn_sstp_name'));
 		return;
 	}
 	if (validateHost(getValue('vpn_sstp_server')) != 0) {
-		setValue('vpn_sstp_error', 'Błąd w polu ' + getLabelText('vpn_sstp_server'));
+		showError('vpn_sstp_error', 'vpn_sstp_server', 'Błąd w polu ' + getLabelText('vpn_sstp_server'));
 		return;
 	}
 
@@ -6088,19 +6094,19 @@ function okremovewireguard() {
 function savewireguard() {
 	var cmd = [];
 
-	setValue('vpn_wireguard_error', '');
+	showError('vpn_wireguard_error', '', '');
 	if (validateLengthRange(getValue('vpn_wireguard_privkey'), 44, 44) != 0) {
-		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_privkey'));
+		showError('vpn_wireguard_error', 'vpn_wireguard_privkey', 'Błąd w polu ' + getLabelText('vpn_wireguard_privkey'));
 		return;
 	}
 	if (validateLengthRange(getValue('vpn_wireguard_pubkey'), 44, 44) != 0) {
-		setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey') + '<br>Klucz prywatny ma nieprawidłową długość lub format');
+		showError('vpn_wireguard_error', 'vpn_wireguard_pubkey', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey') + '<br><br>Klucz prywatny ma nieprawidłową długość lub format');
 		return;
 	}
 	var tmp = getValue('vpn_wireguard_port');
 	if (tmp != '') {
 		if (validateNumericRange(tmp, 0, 65535) != 0) {
-			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_port'));
+			showError('vpn_wireguard_error', 'vpn_wireguard_port', 'Błąd w polu ' + getLabelText('vpn_wireguard_port'));
 			return;
 		}
 	}
@@ -6110,7 +6116,7 @@ function savewireguard() {
 		e = document.getElementById('vpn_wireguard_ips_' + idx);
 		if (e) {
 			if (validateIPWithMask(e.value) != 0) {
-				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx));
+				showError('vpn_wireguard_error', 'vpn_wireguard_ips_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx));
 				return;
 			}
 		}
@@ -6122,31 +6128,31 @@ function savewireguard() {
 		if (!e) { continue; }
 
 		if (validateLengthRange(e.value, 1, 255) != 0) {
-			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_description_' + idx));
+			showError('vpn_wireguard_error', 'vpn_wireguard_description_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_description_' + idx));
 			return;
 		}
 		if (validateLengthRange(getValue('vpn_wireguard_pubkey_' + idx), 44, 44) != 0) {
-			setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey_' + idx));
+			showError('vpn_wireguard_error', 'vpn_wireguard_pubkey_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_pubkey_' + idx));
 			return;
 		}
 		tmp = getValue('vpn_wireguard_pskey_' + idx);
 		if (tmp != '') {
 			if (validateLengthRange(tmp, 44, 44) != 0) {
-				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_pskey_' + idx));
+				showError('vpn_wireguard_error', 'vpn_wireguard_pskey_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_pskey_' + idx));
 				return;
 			}
 		}
 		tmp = getValue('vpn_wireguard_endpoint_host_' + idx);
 		if (tmp != '') {
 			if (validateHost(tmp) != 0) {
-				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_host_' + idx));
+				showError('vpn_wireguard_error', 'vpn_wireguard_endpoint_host_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_host_' + idx));
 				return;
 			}
 		}
 		tmp = getValue('vpn_wireguard_endpoint_port_' + idx);
 		if (tmp != '') {
 			if (validateNumericRange(tmp, 0, 65535) != 0) {
-				setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_port_' + idx));
+				showError('vpn_wireguard_error', 'vpn_wireguard_endpoint_port_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_endpoint_port_' + idx));
 				return;
 			}
 		}
@@ -6155,7 +6161,7 @@ function savewireguard() {
 			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
 			if (e) {
 				if (validateIPWithMask(e.value) != 0) {
-					setValue('vpn_wireguard_error', 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy));
+					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ips_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy));
 					return;
 				}
 			}
@@ -6314,9 +6320,9 @@ function okremovezerotier() {
 function savezerotier() {
 	var cmd = [];
 
-	setValue('vpn_zerotier_error', '');
+	showError('vpn_zerotier_error', '', '');
 	if (getValue('vpn_zerotier_name') == '') {
-		setValue('vpn_zerotier_error', 'Błąd w polu ' + getLabelText('vpn_zerotier_name'));
+		showError('vpn_zerotier_error', 'vpn_zerotier_name', 'Błąd w polu ' + getLabelText('vpn_zerotier_name'));
 		return;
 	}
 	var cnt = getValue('vpn_zerotier_network');
@@ -6324,7 +6330,7 @@ function savezerotier() {
 		e = document.getElementById('vpn_zerotier_network_' + idx);
 		if (e) {
 				if (validateLengthRange(getValue('vpn_zerotier_network_' + idx), 16, 16) != 0) {
-					setValue('vpn_zerotier_error', 'Błąd w polu ' + getLabelText('vpn_zerotier_network_' + idx));
+					showError('vpn_zerotier_error', 'vpn_zerotier_network_' + idx, 'Błąd w polu ' + getLabelText('vpn_zerotier_network_' + idx));
 					return;
 				}
 		}
@@ -6873,7 +6879,7 @@ function woldetails(data) {
 		json.broadcast = 0;
 		json.button = 0;
 	}
-	setValue('wol_error', '');
+	showError('wol_error', '', '');
 	setValue('wol_section', json.section);
 	setValue('wol_description', json.description);
 	setValue('wol_mac', json.mac);
@@ -6886,11 +6892,10 @@ function woldetails(data) {
 function savewol() {
 	var cmd = [];
 
-	setValue('wol_error', '');
-
+	showError('wol_error', '', '');
 	var mac = getValue('wol_mac');
 	if (validateMAC(mac) != 0) {
-		setValue('wol_error', 'Błąd w polu ' + getLabelText('wol_mac'));
+		showError('wol_error', 'wol_mac', 'Błąd w polu ' + getLabelText('wol_mac'));
 		return;
 	}
 
@@ -7033,7 +7038,7 @@ function networkdetails(data) {
 	var json = JSON.parse(atob(data));
 
 	setValue('network_data', data);
-	setValue('network_error', '');
+	showError('network_error', '', '');
 	setValue('network_description', json.description);
 	setValue('network_ipaddr', json.ipaddr);
 	setValue('network_netmask', json.netmask);
@@ -7167,13 +7172,14 @@ function okremovenetwork() {
 function savenetwork() {
 	var cmd = [];
 
+	showError('network_error', '', '');
 	if (getValue('network_description') == '') {
-		setValue('network_error', 'Błąd w polu ' + getLabelText('network_description'));
+		showError('network_error', 'network_description', 'Błąd w polu ' + getLabelText('network_description'));
 		return;
 	}
 	var ipaddr = getValue('network_ipaddr');
 	if (validateIP(ipaddr) != 0) {
-		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr'));
+		showError('network_error', 'network_ipaddr', 'Błąd w polu ' + getLabelText('network_ipaddr'));
 		return;
 	}
 
@@ -7194,7 +7200,7 @@ function savenetwork() {
 		if (json.ipaddrs[idx].ipaddr == ipaddr && json.ipaddrs[idx].section != json.section) { usedinnetwork = json.ipaddrs[idx].description; }
 	}
 	if (usedinnetwork) {
-		setValue('network_error', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br>adres jest już wykorzystywany w sieci "' + usedinnetwork.escapeHTML() + '"');
+		showError('network_error', 'network_ipaddr', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br><br>adres jest już wykorzystywany w sieci "' + usedinnetwork.escapeHTML() + '"');
 		return;
 	}
 
@@ -7308,11 +7314,11 @@ function savenetwork() {
 
 		var wlan_ssid = getValue('network_wlan_ssid_' + i);
 		if (wlan_ssid == '') {
-			setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i));
+			showError('network_error', 'network_wlan_ssid_' + i, 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i));
 			return;
 		}
 		if (validateLengthRange(wlan_ssid, 1, 32) != 0) {
-			setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki');
+			showError('network_error', 'network_wlan_ssid_' + i, 'Błąd w polu ' + getLabelText('network_wlan_ssid_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Nazwa Wi-Fi nie może być dłuższa niż 32 znaki');
 			return;
 		}
 		if (vap.ssid != wlan_ssid) {
@@ -7328,7 +7334,7 @@ function savenetwork() {
 		wlan_key = getValue('network_wlan_key_' + i);
 		if (wlan_encryption != 'none') {
 			if (wlan_key.length < 8) {
-				setValue('network_error', 'Błąd w polu ' + getLabelText('network_wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków');
+				showError('network_error', 'network_wlan_key_' + i, 'Błąd w polu ' + getLabelText('network_wlan_key_' + i) + ' dla ' + getValue('radio_' + i) + '<br><br>Hasło do Wi-Fi musi mieć co najmniej 8 znaków');
 				return;
 			}
 		}
