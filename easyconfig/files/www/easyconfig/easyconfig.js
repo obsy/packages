@@ -6959,14 +6959,17 @@ function shownetworks() {
 	ubus_call('"easyconfig", "networks", {}', function(data) {
 		var ports = naturalSortJSON(data.ports, 'port');
 		var ipaddrs = [];
+		var has_wireless = config.wlan_devices.length;
 
 		var sorted = sortJSON(data.networks, 'description', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
 			html += '<div class="col-xs-6">Opis</div>';
-			html += '<div class="hidden-xs col-xs-3">Klientów bezprzewodowych</div>';
+			if (has_wireless) {
+				html += '<div class="hidden-xs col-xs-3">Klientów bezprzewodowych</div>';
+				html += '<div class="visible-xs col-xs-3">Klientów bezprzew.</div>';
+			}
 			html += '<div class="hidden-xs col-xs-3">Klientów przewodowych</div>';
-			html += '<div class="visible-xs col-xs-3">Klientów bezprzew.</div>';
 			html += '<div class="visible-xs col-xs-3">Klientów przew.</div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
@@ -6980,10 +6983,12 @@ function shownetworks() {
 				}
 				html += '<hr><div class="row space">';
 				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
-				if (sorted[idx].wlan_clients == 0) {
-					html += '<div class="col-xs-3">0</div>';
-				} else {
-					html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].wlan_clients + ' &rarr;</a></div>';
+				if (has_wireless) {
+					if (sorted[idx].wlan_clients == 0) {
+						html += '<div class="col-xs-3">0</div>';
+					} else {
+						html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].wlan_clients + ' &rarr;</a></div>';
+					}
 				}
 				if (sorted[idx].lan_clients == 0) {
 					html += '<div class="col-xs-3">0</div>';
