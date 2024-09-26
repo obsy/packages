@@ -2,7 +2,7 @@
 'use strict';
 
 //
-// (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
+// (c) 2023-2024 Cezary Jackiewicz <cezary@eko.one.pl>
 //
 
 import { readfile, writefile } from "fs";
