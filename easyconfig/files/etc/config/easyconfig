@@ -18,6 +18,7 @@ config service 'watchdog'
 
 config service 'sms'
 	option storage ''
+	option join '1'
 
 config service 'ussd'
 	option raw_input '1'

@@ -1080,6 +1080,7 @@ show_modemsettings() {
 	MODEM_FORCE_QMI=$(uci -q get easyconfig.modem.force_qmi)
 	MODEM_FORCE_PLMN=$(uci -q get easyconfig.modem.force_plmn)
 	SMS_STORAGE=$(uci -q get easyconfig.sms.storage)
+	SMS_JOIN=$(uci -q get easyconfig.sms.join)
 	USSD_RAW_INPUT=$(uci -q get easyconfig.ussd.raw_input)
 	USSD_RAW_OUTPUT=$(uci -q get easyconfig.ussd.raw_output)
 	echo "{"
@@ -1087,6 +1088,7 @@ show_modemsettings() {
 	echo ',"modem_force_qmi":'${MODEM_FORCE_QMI:-0}
 	echo ',"modem_force_plmn":'${MODEM_FORCE_PLMN:-0}
 	echo ',"sms_storage":"'${SMS_STORAGE}'"'
+	echo ',"sms_join":'${SMS_JOIN:-1}
 	echo ',"ussd_raw_input":'${USSD_RAW_INPUT:-1}
 	echo ',"ussd_raw_output":'${USSD_RAW_OUTPUT:-1}
 	echo "}"
@@ -1230,19 +1232,24 @@ show_sms() {
 
 	case "$action" in
 		"delete")
-			T=$(sms_tool -d $DEVICE delete "$arg1")
-			echo "{\"response\":\"$T\"}" | tr '\n' ' '
+			RES="Deleted message"
+			for idx in $arg1; do
+				T=$(sms_tool -d $DEVICE delete "$arg1")
+				echo "$T" | grep -qi "error deleting message" && RES="error deleting message"
+			done
+			echo "{\"response\":\"$RES\"}"
 			;;
 		"send")
 			T=$(sms_tool -d $DEVICE send "$arg1" "$arg2")
 			echo "{\"response\":\"$T\"}" | tr '\n' ' '
 			;;
 		*)
+			JOIN=$(uci -q get easyconfig.sms.join)
 			STORAGE=""
 			T=$(uci -q get easyconfig.sms.storage)
 			[ -n "$T" ] && STORAGE="-s $T"
 			O=$(sms_tool -d $DEVICE $STORAGE -j -f "%Y%m%d%H%M%S" recv 2>/dev/null)
-			[ -n "$O" ] && echo "$O" || echo '{"msg":[]}'
+			[ -n "$O" ] && echo "$O" | sed 's/"msg"/"join":'${JOIN:-1}',"msg"/' || echo '{"join":1,"msg":[]}'
 			;;
 	esac
 }

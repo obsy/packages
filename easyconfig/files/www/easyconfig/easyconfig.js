@@ -2140,6 +2140,7 @@ function savemodemsettings() {
 	cmd.push('uci set easyconfig.modem.force_qmi=' + (getValue('modemsettings_modem_force_qmi') ? '1' : '0'));
 	cmd.push('uci set easyconfig.modem.force_plmn=' + (getValue('modemsettings_modem_force_plmn') ? '1' : '0'));
 	cmd.push('uci set easyconfig.sms.storage=' + getValue('modemsettings_sms_storage'));
+	cmd.push('uci set easyconfig.sms.join=' + (getValue('modemsettings_sms_join') ? '1' : '0'));
 	cmd.push('uci set easyconfig.ussd.raw_input=' + (getValue('modemsettings_ussd_raw_input') ? '1' : '0'));
 	cmd.push('uci set easyconfig.ussd.raw_output=' + getValue('modemsettings_ussd_raw_output'));
 	cmd.push('uci commit easyconfig');
@@ -2152,6 +2153,7 @@ function modemsettings() {
 		setValue('modemsettings_modem_force_qmi', data.modem_force_qmi == 1);
 		setValue('modemsettings_modem_force_plmn', data.modem_force_plmn == 1);
 		setValue('modemsettings_sms_storage', data.sms_storage);
+		setValue('modemsettings_sms_join', data.sms_join);
 		setValue('modemsettings_ussd_raw_input', data.ussd_raw_input == 1);
 		setValue('modemsettings_ussd_raw_output', data.ussd_raw_output);
 		setDisplay('div_modemsettings', true);
@@ -5080,18 +5082,46 @@ function readsms() {
 	ubus_call('"easyconfig", "sms", {"action":"read","arg1":"","arg2":""}', function(data) {
 		var html = '';
 		var arr = data.msg;
+
+		var disabled = [];
+		for (var idx = 0, n = arr.length; idx < n; idx++) {
+			arr[idx].joined = [];
+			arr[idx].joined.push(arr[idx].index);
+			if (data.join && arr[idx].part && arr[idx].reference) {
+				if (arr[idx].part == 1) {
+					for (var part = 2; part <= arr[idx].total; part++) {
+						var obj = arr.find(o => o.part == part && o.reference == arr[idx].reference);
+						if (obj) {
+							arr[idx].content += obj.content;
+							arr[idx].joined.push(obj.index);
+							disabled.push(obj.index);
+						} else {
+							arr[idx].content += ' (...) ';
+						}
+					}
+				}
+			}
+		}
+
 		if (arr.length > 0) {
 			var sorted = sortJSON(arr, 'timestamp', 'asc');
-			for (var idx = 0; idx < sorted.length; idx++) {
-				html += '<hr><div class="row">';
-				html += '<div class="col-xs-10">Od: ' + sorted[idx].sender + ', odebrano: ' + formatDateTime(sorted[idx].timestamp);
-				if (sorted[idx].part) {
-					html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
+			for (var idx = 0, n = sorted.length; idx < n; idx++) {
+				var found = disabled.find((e) => e == arr[idx].index);
+				if (!found) {
+					html += '<hr><div class="row">';
+					html += '<div class="col-xs-10">Od: ' + sorted[idx].sender + ', odebrano: ' + formatDateTime(sorted[idx].timestamp);
+					if (sorted[idx].part) {
+						if (data.join) {
+							html += ' (' + sorted[idx].joined.length + ' z ' + sorted[idx].total + ')';
+						} else {
+							html += ' (' + sorted[idx].part + '/' + sorted[idx].total + ')';
+						}
+					}
+					html += '</div>';
+					html += '<div class="col-xs-2 text-right"><span class="click" title="usuń" onclick="removesms(\'' + (sorted[idx].joined).join(' ') + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></span></div>';
+					html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
+					html += '</div>';
 				}
-				html += '</div>';
-				html += '<div class="col-xs-2 text-right"><span class="click" title="usuń" onclick="removesms(\'' + sorted[idx].index + '\',\'' + sorted[idx].sender + '\',\'' + sorted[idx].timestamp + '\');"><i data-feather="trash-2"></i></span></div>';
-				html += '<div class="col-xs-12">' + (sorted[idx].content).replace(/\n/g,"<br>") + '</div>';
-				html += '</div>';
 			}
 			html += '<hr><p>Liczba wiadomości: ' + arr.length + '</p>';
 		} else {
@@ -5102,15 +5132,15 @@ function readsms() {
 	});
 }
 
-function removesms(index, sender, timestamp) {
-	setValue('dialog_val', index);
+function removesms(ids, sender, timestamp) {
+	setValue('dialog_val', ids);
 	showDialog('Usunąć wiadomość od "' + sender + '" otrzymaną ' + formatDateTime(timestamp) + '?', 'Anuluj', 'Usuń', okremovesms);
 }
 
 function okremovesms() {
-	var index = getValue('dialog_val');
+	var ids = getValue('dialog_val');
 
-	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + index + '","arg2":""}', function(data) {
+	ubus_call('"easyconfig", "sms", {"action":"delete","arg1":"' + ids + '","arg2":""}', function(data) {
 		if ((data.response).match(/Deleted message/) == null) {
 			showMsg('Wystąpił problem z usunięciem wiadomości');
 		} else {
