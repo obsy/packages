@@ -1234,7 +1234,7 @@ show_sms() {
 		"delete")
 			RES="Deleted message"
 			for idx in $arg1; do
-				T=$(sms_tool -d $DEVICE delete "$arg1")
+				T=$(sms_tool -d $DEVICE delete "$idx")
 				echo "$T" | grep -qi "error deleting message" && RES="error deleting message"
 			done
 			echo "{\"response\":\"$RES\"}"
