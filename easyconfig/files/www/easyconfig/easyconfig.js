@@ -1751,7 +1751,7 @@ function saveconfig() {
 	execute(cmd, function(){
 		cleanField('password1');
 		cleanField('password2');
-		if (system_pass == '12345678') { showError('div_security', '', '<strong>UWAGA!</strong> Wymagana jest zmiana domyślnego hasła do routera!'); }
+		if (pass1 == '12345678') { showError('div_security', '', '<strong>UWAGA!</strong> Wymagana jest zmiana domyślnego hasła do routera!'); }
 		showconfig();
 	});
 }
