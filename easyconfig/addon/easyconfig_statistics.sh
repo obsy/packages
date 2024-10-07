@@ -123,6 +123,7 @@ update_entry() {
 # lan
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -q -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+	T=$(brctl showmacs $BRIDGE 2>/dev/null)
 	for I in /sys/class/net/$BRIDGE/lower_*; do
 		IFNAME=${I##*lower_}
 		if [ -e $I/phy80211 ]; then
@@ -133,7 +134,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			done
 		else
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-			STATIONS=$(brctl showmacs $BRIDGE 2>/dev/null | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+			STATIONS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}')
 			for S in $STATIONS; do
 				DHCPNAME=$(awk '/'$S'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
 				update_entry "$S" "$IFNAME" 0 0 999 "$DHCPNAME" 1

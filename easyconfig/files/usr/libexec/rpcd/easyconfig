@@ -911,16 +911,16 @@ for SEC in $NETWORKS; do
 	NETWORKLIST="{\"section\":\"$SEC\",\"network\":\"$NETWORK\"},${NETWORKLIST}"
 	BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 	if [ -e /sys/class/net/$BRIDGE/bridge ]; then
+		T=$(brctl showmacs $BRIDGE 2>/dev/null)
 		for I in /sys/class/net/$BRIDGE/lower_*; do
 			if [ ! -e $I/phy80211 ]; then
 				IFNAME=${I##*lower_}
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-				LAN_MACS=$(brctl showmacs $BRIDGE | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+				LAN_MACS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}')
 				for M in $LAN_MACS; do
 					IP=$(awk '/'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
 					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
-
 					echo "{\"mac\":\"$M\"${IP},\"active\":true,\"port\":\"${IFNAME}\",\"type\":1,\"network\":\"${SEC}\"$(client_data $M)},"
 				done
 			fi
