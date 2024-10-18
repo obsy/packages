@@ -125,17 +125,17 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		addon 23 "TAC" "${T_DEC} ($T)"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 		addon 38 "SINR" "$T dB"
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
-		case $T in
-			0*) T1="1.4";;
-			1*) T1="3";;
-			2*) T1="5";;
-			3*) T1="10";;
-			4*) T1="15";;
-			5*) T1="20";;
-			*) T1="";;
-		esac
-		[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
+#		case $T in
+#			0*) T1="1.4";;
+#			1*) T1="3";;
+#			2*) T1="5";;
+#			3*) T1="10";;
+#			4*) T1="15";;
+#			5*) T1="20";;
+#			*) T1="";;
+#		esac
+#		[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}')
 		case $T in
 			0*) T1="1.4";;
@@ -215,17 +215,17 @@ if [ "x$MODE_NUM" = "x13" ]; then
 
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 			addon 38 "SINR" "$T dB"
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
-			case $T in
-				0*) T1="1.4";;
-				1*) T1="3";;
-				2*) T1="5";;
-				3*) T1="10";;
-				4*) T1="15";;
-				5*) T1="20";;
-				*) T1="";;
-			esac
-			[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
+#			case $T in
+#				0*) T1="1.4";;
+#				1*) T1="3";;
+#				2*) T1="5";;
+#				3*) T1="10";;
+#				4*) T1="15";;
+#				5*) T1="20";;
+#				*) T1="";;
+#			esac
+#			[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $11}')
 			case $T in
 				0*) T1="1.4";;
@@ -244,17 +244,17 @@ if [ "x$MODE_NUM" = "x13" ]; then
 				addon 23 "TAC" "${T_DEC} ($T)"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 				addon 38 "SINR" "$T dB"
-				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
-				case $T in
-					0*) T1="1.4";;
-					1*) T1="3";;
-					2*) T1="5";;
-					3*) T1="10";;
-					4*) T1="15";;
-					5*) T1="20";;
-					*) T1="";;
-				esac
-				[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+#				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
+#				case $T in
+#					0*) T1="1.4";;
+#					1*) T1="3";;
+#					2*) T1="5";;
+#					3*) T1="10";;
+#					4*) T1="15";;
+#					5*) T1="20";;
+#					*) T1="";;
+#				esac
+#				[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}')
 				case $T in
 					0*) T1="1.4";;
@@ -330,6 +330,26 @@ if [ -n "$T" ]; then
 		T4=""
 		case $T in
 			*"LTE BAND"*)
+				UL=0
+				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $12}' | xargs)
+				if [ "x$T5" = "x1" ]; then
+					T6=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $13}' | xargs)
+					if [ -n "$T6" ]; then
+						case $T6 in
+							6*) T7="1.4";;
+							15*) T7="3";;
+							25*) T7="5";;
+							50*) T7="10";;
+							75*) T7="15";;
+							100*) T7="20";;
+							*) T7="";;
+						esac
+						[ -n "$T7" ] && addon 152 "(UL S) Bandwidth" "$T7 MHz"
+					fi
+					T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $14}' | xargs)
+					[ -n "$T5" ] && addon 154 "(UL S) EARFCN" "$T5"
+					UL=1
+				fi
 				B=$(echo $T | sed 's/"LTE BAND \(.*\)"/\1/')
 				T2=$(band4g ${B})
 				case $T3 in
@@ -344,7 +364,10 @@ if [ -n "$T" ]; then
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $3}' | xargs)
 				[ -n "$T5" ] && addon $((POS + 4)) "(S${IDX}) EARFCN" "$T5"
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $7}' | xargs)
-				[ -n "$T5" ] && addon $((POS + 3)) "(S${IDX}) PCI" "$T5"
+				if [ -n "$T5" ]; then
+					addon $((POS + 3)) "(S${IDX}) PCI" "$T5"
+					[ "$UL" = "1" ] && addon 153 "(UL S) PCI" "$T5"
+				fi
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $10}' | xargs)
 				[ -n "$T5" ] && addon $((POS + 5)) "(S${IDX}) RSSI" "$T5 dBm"
 				T5=$(echo "$LINE" | awk -F[,:] '/^\+QCAINFO: "(scc|SCC)"/{print $8}' | xargs)
@@ -449,6 +472,7 @@ if [ -n "$T" ]; then
 		else
 			addon $POS "(S${IDX}) band" "${T2} @${T4} MHz"
 		fi
+		[ "$UL" = "1" ] && addon 150 "(UL S) band" "$T2"
 
 		IDX=$((IDX + 1))
 	done
