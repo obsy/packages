@@ -2598,9 +2598,15 @@ function modemaddon() {
 				}
 				htmlxs += createRowForModal(e.key, e.value);
 				break;
+			case 31:
+				pcc[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
 			case 32:
-				if ((e.key).toLowerCase().includes('bandwidth dl') || (e.key).toLowerCase() == 'bandwidth') {
+				if (pcc[2] === 'undefined') {
 					pcc[2] = e.value;
+				} else {
+					pcc[2] = e.value + ' DL<br>' + pcc[2] + ' UL'
 				}
 				htmlxs += createRowForModal(e.key, e.value);
 				break;

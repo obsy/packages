@@ -125,17 +125,17 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		addon 23 "TAC" "${T_DEC} ($T)"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 		addon 38 "SINR" "$T dB"
-#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
-#		case $T in
-#			0*) T1="1.4";;
-#			1*) T1="3";;
-#			2*) T1="5";;
-#			3*) T1="10";;
-#			4*) T1="15";;
-#			5*) T1="20";;
-#			*) T1="";;
-#		esac
-#		[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
+		case $T in
+			0*) T1="1.4";;
+			1*) T1="3";;
+			2*) T1="5";;
+			3*) T1="10";;
+			4*) T1="15";;
+			5*) T1="20";;
+			*) T1="";;
+		esac
+		[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}')
 		case $T in
 			0*) T1="1.4";;
@@ -215,17 +215,17 @@ if [ "x$MODE_NUM" = "x13" ]; then
 
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 			addon 38 "SINR" "$T dB"
-#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
-#			case $T in
-#				0*) T1="1.4";;
-#				1*) T1="3";;
-#				2*) T1="5";;
-#				3*) T1="10";;
-#				4*) T1="15";;
-#				5*) T1="20";;
-#				*) T1="";;
-#			esac
-#			[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
+			case $T in
+				0*) T1="1.4";;
+				1*) T1="3";;
+				2*) T1="5";;
+				3*) T1="10";;
+				4*) T1="15";;
+				5*) T1="20";;
+				*) T1="";;
+			esac
+			[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $11}')
 			case $T in
 				0*) T1="1.4";;
@@ -244,17 +244,17 @@ if [ "x$MODE_NUM" = "x13" ]; then
 				addon 23 "TAC" "${T_DEC} ($T)"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
 				addon 38 "SINR" "$T dB"
-#				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
-#				case $T in
-#					0*) T1="1.4";;
-#					1*) T1="3";;
-#					2*) T1="5";;
-#					3*) T1="10";;
-#					4*) T1="15";;
-#					5*) T1="20";;
-#					*) T1="";;
-#				esac
-#				[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
+				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
+				case $T in
+					0*) T1="1.4";;
+					1*) T1="3";;
+					2*) T1="5";;
+					3*) T1="10";;
+					4*) T1="15";;
+					5*) T1="20";;
+					*) T1="";;
+				esac
+				[ -n "$T1" ] && addon 31 "Bandwidth UL" "$T1 MHz"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $13}')
 				case $T in
 					0*) T1="1.4";;
