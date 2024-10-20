@@ -1539,6 +1539,7 @@
 			Statyczny adres IP dla "<span id="hostip_name"></span>"
 		</div>
 
+		<div class="alert alert-info text-center">Rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP</div>
 		<form class="form-horizontal">
 		<div class="form-group">
 			<label for="hostip_ip" class="hidden-xs col-sm-3 control-label">Statyczny adres IP</label>
@@ -1548,18 +1549,13 @@
 			<em><small class="form-text text-muted">obecny statyczny adres IP: <span id="hostip_ipaddr"></span></small></em>
 			</div>
 		</div>
-		<div class="form-group mmarginbottom">
+		<div id="div_hostip_disconnect" class="form-group mmarginbottom">
 			<label for="hostip_disconnect" class="col-xs-4 col-sm-3 control-label">Rozłącz klienta</label>
 			<div class="col-xs-8 col-sm-9">
 			<label class="switch">
 				<input id="hostip_disconnect" type="checkbox">
 				<div class="slider round"></div>
 			</label>
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-12 col-sm-9 col-sm-offset-3">
-			<em><small class="form-text text-muted">rozłączenie klienta może być niezbędne do pobrania statycznego adresu IP</small></em>
 			</div>
 		</div>
 		</form>

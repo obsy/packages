@@ -4387,7 +4387,7 @@ function hostip(id) {
 	var e = document.getElementById('hostip_ip');
 	proofreadText(e, validateIP, 0);
 	setValue('hostip_disconnect', false);
-
+	setDisplay('div_hostip_disconnect', host.type == 2)
 	setValue('hostip_ipaddr', (host.staticdhcp == '' ? 'brak' : host.staticdhcp));
 	setDisplay('div_hostip', true);
 	e.focus();
