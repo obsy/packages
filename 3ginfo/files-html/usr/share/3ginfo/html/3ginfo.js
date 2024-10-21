@@ -414,6 +414,7 @@ function modemaddon(idx) {
 	var scc2 = [];
 	var scc3 = [];
 	var scc4 = [];
+	var ulscc = [];
 	var sorted = sortJSON(arrmodemaddon[idx], 'idx', 'asc');
 	sorted.forEach(function(e) {
 		var description = '';
@@ -437,9 +438,15 @@ function modemaddon(idx) {
 				}
 				htmlxs += createRowForModal(_t(e.key), e.value);
 				break;
+			case 31:
+				pcc[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
 			case 32:
-				if ((e.key).toLowerCase().includes('bandwidth dl') || (e.key).toLowerCase() == 'bandwidth') {
+				if (pcc[2] === 'undefined') {
 					pcc[2] = e.value;
+				} else {
+					pcc[2] = e.value + ' DL<br>' + pcc[2] + ' UL'
 				}
 				htmlxs += createRowForModal(_t(e.key), e.value);
 				break;
@@ -674,6 +681,22 @@ function modemaddon(idx) {
 				}
 				htmlxs += createRowForModal(_t(e.key), e.value);
 				break;
+			case 150:
+				ulscc[1] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 152:
+				ulscc[2] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 153:
+				ulscc[3] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
+			case 154:
+				ulscc[4] = e.value;
+				htmlxs += createRowForModal(e.key, e.value);
+				break;
 			default:
 				if (e.idx < 30) {
 					htmlco += createRowForModal(_t(e.key), e.value);
@@ -721,6 +744,13 @@ function modemaddon(idx) {
 				if (typeof scc4[idx] === 'undefined') { scc4[idx] = '-'; }
 			}
 			htmlco += createRow9ColForModal(scc4);
+		}
+		if (ulscc.length > 0) {
+			ulscc[0] = 'UL SCC';
+			for (var idx = 0; idx <= 9; idx++) {
+				if (typeof ulscc[idx] === 'undefined') { ulscc[idx] = '-'; }
+			}
+			htmlco += createRow9ColForModal(ulscc);
 		}
 		htmlco += '</div>';
 	}
