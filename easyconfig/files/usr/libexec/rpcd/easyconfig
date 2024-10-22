@@ -783,6 +783,14 @@ else
 	echo '"wol":false,'
 fi
 
+FLOWOFFLOADING="false"
+T=$(uci show firewall | awk -F[.=] '/=defaults$/{print $2}')
+if [ -n "$T" ]; then
+	T1=$(uci -q get firewall.@defaults[0].flow_offloading)
+	[ "x$T1" = "x1" ] && FLOWOFFLOADING="true"
+fi
+echo '"flowoffloading":'$FLOWOFFLOADING','
+
 echo '},'
 
 echo '}'

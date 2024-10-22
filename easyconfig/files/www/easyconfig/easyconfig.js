@@ -4127,7 +4127,11 @@ function hostmenu(id) {
 	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostblock(' + host.id + ');">blokady</span></p>';
 	if (config.services.nftqos) {
-		html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
+		if (config.services.flowoffloading) {
+			html += '<p><span class="text-muted">limity</span</p>';
+		} else {
+			html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
+		}
 	}
 	if (config.lan_dhcp_enabled) {
 		html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
