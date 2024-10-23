@@ -1809,7 +1809,7 @@ function bandwidthcallback(val) {
 	document.getElementById('bandwidth_bytes').style.fontWeight = val ? 700 : 400;
 }
 
-function showbandwidth(mac) {
+function showbandwidth(mac, section) {
 	var html = '';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Wysłano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Pobrano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
@@ -1835,8 +1835,8 @@ function showbandwidth(mac) {
 				clearInterval(bandwidthID);
 				if (mac == '') {
 					if (bandwidth_old['tx'] > -1) {
-						setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
-						setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
+						setValue('wan_tx', '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(bandwidth_old['tx']) + '</span>');
+						setValue('wan_rx', '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(bandwidth_old['rx']) + '</span>');
 					}
 				} else {
 					for (var idx = 0; idx < clients.length; idx++) {
@@ -1856,7 +1856,7 @@ function showbandwidth(mac) {
 			if (mac == '') {
 				source = '"network.device", "status", {"name":"' + config.wan_ifname + '"}';
 			} else {
-				source = '"easyconfig", "clientbandwidth", {"mac":"' + mac + '"}';
+				source = '"easyconfig", "clientbandwidth", {"mac":"' + mac + '", "section":"' + section + '"}';
 			}
 			ubus_call_nomsg(source, function(data) {
 				var tx = 0;
@@ -1921,8 +1921,8 @@ function showstatus() {
 		setValue('system_time', data.system_time == '' ? '-' : formatDateTime(data.system_time));
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
 		setValue('lan_clients', data.lan_clients + ' &rarr;');
-		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(data.wan_rx) + '</span>');
-		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\');">' + bytesToSize(data.wan_tx) + '</span>');
+		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_rx) + '</span>');
+		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
 		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.wan_uptime_since) + ')');
 		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '0' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
@@ -3681,11 +3681,11 @@ function showclients() {
 
 		function updateArray(a, b) {
 			return a.map(itemA => {
-				const matchingItemB = b.find(itemB => itemB.section === itemA.network);
-			  	if (matchingItemB) {
+				const matchingItemB = b.find(itemB => itemB.section === itemA.section);
+				if (matchingItemB) {
 					return { ...itemA, network: matchingItemB.network };
-			  	}
-			  return itemA;
+				}
+			return itemA;
 			});
 		}
 
@@ -3857,7 +3857,7 @@ function clientscallback(sortby) {
 					html += '<div class="col-xs-2"></div>';
 				} else {
 					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz</div>';
-					html += '<div class="col-xs-2 hidden-xs"><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\');" title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\');" title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
+					html += '<div class="col-xs-2 hidden-xs"><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\',\'' + sorted[idx].section + '\');" title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\');" title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
 				}
 				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
 
@@ -4199,8 +4199,8 @@ function hostinfo(id) {
 				}
 			}
 			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm' + distance));
-			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.tx) + '</span>');
-			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\');">' + bytesToSize(host.rx) + '</span>');
+			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\',\'' + host.section + '\');">' + bytesToSize(host.tx) + '</span>');
+			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\',\'' + host.section + '\');">' + bytesToSize(host.rx) + '</span>');
 			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span>');
 		}
 		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));

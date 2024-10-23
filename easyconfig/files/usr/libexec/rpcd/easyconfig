@@ -874,7 +874,7 @@ for R in $RADIOS; do
 			[ "x$T2" = "x6g" ] && BAND=6
 			PHY=$(iwinfo nl80211 phyname $R)
 			for i in $IFNAME; do
-				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"network\":\"%s\" ", w, tx[w], rx[w], signal[w], connected[w], band, phy, network}}')
+				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, tx[w], rx[w], signal[w], connected[w], band, phy, network}}')
 			done
 		fi
 	done
@@ -929,7 +929,7 @@ for SEC in $NETWORKS; do
 					IP=$(awk '/'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
 					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
-					echo "{\"mac\":\"$M\"${IP},\"active\":true,\"port\":\"${IFNAME}\",\"type\":1,\"network\":\"${SEC}\"$(client_data $M)},"
+					echo "{\"mac\":\"$M\"${IP},\"active\":true,\"port\":\"${IFNAME}\",\"type\":1,\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $M)},"
 				done
 			fi
 		done
@@ -946,7 +946,7 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 		TYPE=""
 		NETWORK=""
 		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type' -e 'NETWORK=@["'$M'"].last_network')
-		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2},\"network\":\"$(escapeJSON "$NETWORK")\"$(client_data ${M//_/:})},"
+		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2},\"section\":\"\",\"network\":\"$(escapeJSON "$NETWORK")\"$(client_data ${M//_/:})},"
 	done
 fi
 
@@ -1035,7 +1035,7 @@ show_clientstatistics() {
 show_clientbandwidth() {
 	read input;
 	json_load "$input"
-	json_get_vars mac
+	json_get_vars mac section
 
 	echo '{"result":['
 
@@ -1044,7 +1044,12 @@ show_clientbandwidth() {
 		exit 0
 	fi
 
-	IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="lan"].ifname')
+	if [ -z "$section" ]; then
+		echo ']}'
+		exit 0
+	fi
+
+	IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="'$section'"].ifname')
 	for i in $IFNAMES; do
 		iw dev $i station get $mac 2>/dev/null | awk -v ifname=$i -v search=$mac '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3}} END {for (w in station) {if(w == search){printf "{\"ifname\":\"%s\",\"tx_bytes\":%s,\"rx_bytes\":%s},", ifname, tx[w], rx[w]}}}'
 	done
