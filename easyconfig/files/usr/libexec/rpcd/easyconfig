@@ -2329,7 +2329,7 @@ case "$1" in
 		echo '"clients":{},'
 		echo '"clientslogs":{},'
 		echo '"clientstatistics":{"mac":"string"},'
-		echo '"clientbandwidth":{"mac":"string"},'
+		echo '"clientbandwidth":{"mac":"string","section":"string"},'
 		echo '"traffic":{},'
 		echo '"modem":{},'
 		echo '"modemsettings":{},'
