@@ -1346,6 +1346,7 @@ function showconfig() {
 		setDisplay('div_button_reset', (config.button_reset != -1));
 
 		setValue('datarec_period', config.datarec_period);
+		setValue('firewall_flowoffloading', config.services.flowoffloading);
 	})
 }
 
@@ -1725,6 +1726,12 @@ function saveconfig() {
 	}
 
 	cmd.push('uci set easyconfig.global.datarec_period=' + getValue('datarec_period'));
+
+	var flow = '0';
+	if (getValue('firewall_flowoffloading')) { flow = '1'; }
+	cmd.push('T=$(uci show firewall | awk -F[.=] \'/=defaults$/{print $2}\')');
+	cmd.push('uci set firewall.$T.flow_offloading=' + flow);
+	cmd.push('uci set firewall.$T.flow_offloading_hw=' + flow);
 
 	// commit & restart services
 	cmd.push('uci commit');
