@@ -874,7 +874,7 @@ for R in $RADIOS; do
 			[ "x$T2" = "x6g" ] && BAND=6
 			PHY=$(iwinfo nl80211 phyname $R)
 			for i in $IFNAME; do
-				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, tx[w], rx[w], signal[w], connected[w], band, phy, network}}')
+				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, rx[w], tx[w], signal[w], connected[w], band, phy, network}}')
 			done
 		fi
 	done
@@ -1023,7 +1023,7 @@ show_clientstatistics() {
 					json_select "$D"
 					json_get_vars total_tx total_rx
 					json_select ..
-					echo "{\"ifname\":\"$I\",\"date\":\"$D\",\"tx\":$total_tx,\"rx\":$total_rx},"
+					echo "{\"ifname\":\"$I\",\"date\":\"$D\",\"tx\":$total_rx,\"rx\":$total_tx},"
 				fi
 			done
 			json_select ..
@@ -1051,7 +1051,7 @@ show_clientbandwidth() {
 
 	IFNAMES=$(ubus call network.wireless status | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="'$section'"].ifname')
 	for i in $IFNAMES; do
-		iw dev $i station get $mac 2>/dev/null | awk -v ifname=$i -v search=$mac '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3}} END {for (w in station) {if(w == search){printf "{\"ifname\":\"%s\",\"tx_bytes\":%s,\"rx_bytes\":%s},", ifname, tx[w], rx[w]}}}'
+		iw dev $i station get $mac 2>/dev/null | awk -v ifname=$i -v search=$mac '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3}} END {for (w in station) {if(w == search){printf "{\"ifname\":\"%s\",\"tx_bytes\":%s,\"rx_bytes\":%s},", ifname, rx[w], tx[w]}}}'
 	done
 	echo ']}'
 }
