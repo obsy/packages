@@ -277,7 +277,7 @@ case "$BOARDNAME" in
 		;;
 	*)
 		T=0
-		FILES=$(grep -s -l "ath10k_hwmon\|ath11k_hwmon" /sys/class/hwmon/hwmon*/name)
+		FILES=$(grep -s -l "ath10k_hwmon\|ath11k_hwmon\|mt7915_phy" /sys/class/hwmon/hwmon*/name)
 		for FILE in $FILES; do
 			T1=$(awk '{printf "%d\n", $0/1000}' $(dirname $FILE)/temp1_input 2>/dev/null)
 			[ -n "$T1" ] && [ $T1 -gt $T ] && T=$T1
