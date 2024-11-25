@@ -133,7 +133,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 		else
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-			CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | wc -l)
+			CNT=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u | wc -l)
 			TPORTS1="${TPORTS1} ${IFNAME};${CNT}"
 			LAN_CLIENTS=$((LAN_CLIENTS+CNT))
 		fi
@@ -924,7 +924,7 @@ for SEC in $NETWORKS; do
 			if [ ! -e $I/phy80211 ]; then
 				IFNAME=${I##*lower_}
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-				LAN_MACS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+				LAN_MACS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u)
 				for M in $LAN_MACS; do
 					IP=$(awk '/'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
 					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)

@@ -50,7 +50,7 @@ for SEC in $NETWORKS; do
 				done
 			else
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-				STATIONS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}')
+				STATIONS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u)
 				for S in $STATIONS; do
 					DHCPNAME=$(awk '/'$S'/{if ($4 != "*") {print $4}}' /tmp/dhcp.leases)
 					easyconfig_statistics.uc "$S" "$IFNAME" 0 0 999 "$DHCPNAME" 1 "$NETWORK"
