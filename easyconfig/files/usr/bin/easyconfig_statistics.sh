@@ -61,7 +61,7 @@ for SEC in $NETWORKS; do
 done
 
 # wan
-IFNAME=$(ubus call network.interface.wan status | jsonfilter -q -e @.l3_device)
+IFNAME=$(ubus call network.interface.wan status 2>/dev/null | jsonfilter -q -e @.l3_device)
 [ -n "$IFNAME" ] && easyconfig_statistics.uc "wan" "$IFNAME" $(cat /sys/class/net/$IFNAME/statistics/tx_bytes) $(cat /sys/class/net/$IFNAME/statistics/rx_bytes) 999 "" 0 ""
 
 PERIOD=$(uci -q get easyconfig.global.datarec_period)
