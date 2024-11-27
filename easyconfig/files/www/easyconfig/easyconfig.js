@@ -4134,11 +4134,7 @@ function hostmenu(id) {
 	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostblock(' + host.id + ');">blokady</span></p>';
 	if (config.services.nftqos) {
-		if (config.services.flowoffloading) {
-			html += '<p><span class="text-muted">limity</span</p>';
-		} else {
-			html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
-		}
+		html += '<p><span class="click" onclick="closeMsg();hostqos(' + host.id + ');">limity</span></p>';
 	}
 	if (config.lan_dhcp_enabled) {
 		html += '<p><span class="click" onclick="closeMsg();hostip(' + host.id + ');">statyczny adres IP</span></p>';
@@ -4479,11 +4475,14 @@ function hostqos(id) {
 
 	setValue('hostqos_mac', host.mac);
 	setValue('hostqos_name', (host.displayname).escapeHTML());
-	setValue('hostqos_ip', host.ip);
+	setValue('hostqos_ip', host.ip ? host.ip : host.staticdhcp);
 
 	// KB/s to Mb/s
 	setValue('hostqos_upload', parseInt(host.qos.bwup * 8 / 1024));
 	setValue('hostqos_download', parseInt(host.qos.bwdown * 8 / 1024));
+
+	setDisplay('div_hostqos_flowoffloading', config.services.flowoffloading);
+	setDisplay('div_hostqos_ip', !host.ip && !host.staticdhcp);
 
 	setDisplay('div_hostqos', true);
 	document.getElementById('hostqos_upload').focus();
