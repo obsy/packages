@@ -10,15 +10,19 @@ if [ ! -s $BACKUPDIR/$PKGSLIST ]; then
 	exit 0
 fi
 
+RET=0
+apk update
 while read -r pkg; do
-	[ -n "$pkg" ] && apk add $pkg
+	if [ -n "$pkg" ]; then
+		apk add $pkg
+		T=$?
+		[ "x$T" != "x0" ] && RET=$T
+	fi
 done < $BACKUPDIR/$PKGSLIST
-
-/usr/bin/backuppkgslist.sh
 
 if [ -n "$1" ]; then
 	echo ""
 	echo "Zainstalowano pakiety użytkownika"
 fi
 
-exit 0
+exit $RET
