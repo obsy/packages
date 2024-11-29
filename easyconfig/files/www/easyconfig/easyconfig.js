@@ -4416,8 +4416,8 @@ function removehostip() {
 	cmd.push('/etc/init.d/dnsmasq restart');
 
 	if (config.services.nftqos) {
-		cmd.push('uci -q del nft-qos.m' + nmac + 'up');
-		cmd.push('uci -q del nft-qos.m' + nmac + 'down');
+		cmd.push('uci -q del nft-qos.m' + nmac + 'up.ipaddr');
+		cmd.push('uci -q del nft-qos.m' + nmac + 'down.ipaddr');
 		cmd.push('uci commit nft-qos');
 		cmd.push('/etc/init.d/nft-qos restart');
 	}
