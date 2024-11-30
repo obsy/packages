@@ -123,7 +123,8 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}')
 		T_DEC=$(printf "%d" "0x$T")
 		addon 23 "TAC" "${T_DEC} ($T)"
-		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+#		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 		addon 38 "SINR" "$T dB"
 		T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
 		case $T in
@@ -213,7 +214,8 @@ if [ "x$MODE_NUM" = "x13" ]; then
 			T_DEC=$(printf "%d" "0x$T")
 			addon 23 "TAC" "${T_DEC} ($T)"
 
-			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+#			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $16}' | xargs)
 			addon 38 "SINR" "$T dB"
 			T=$(echo "$LINE" | awk -F[,:] '/^\+QENG:/ {print $10}')
 			case $T in
@@ -242,7 +244,8 @@ if [ "x$MODE_NUM" = "x13" ]; then
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $14}')
 				T_DEC=$(printf "%d" "0x$T")
 				addon 23 "TAC" "${T_DEC} ($T)"
-				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+#				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | awk '{printf "%.1f\n", 0.2*$1*10 - 20}')
+				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $18}' | xargs)
 				addon 38 "SINR" "$T dB"
 				T=$(echo "$O" | awk -F[,:] '/^\+QENG:/ {print $12}')
 				case $T in
