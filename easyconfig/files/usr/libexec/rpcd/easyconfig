@@ -2090,14 +2090,21 @@ show_nightmode()
 	SUNRISE=""
 	SUNSET=""
 	if [ -n "$LAT" ] && [ -n "$LON" ]; then
-		[ "x${LAT:0:1}" = "x-" ] && LAT="${LAT:1}S" || LAT="${LAT}N"
-		[ "x${LON:0:1}" = "x-" ] && LON="${LON:1}W" || LON="${LON}.E"
 		if [ -e /usr/bin/sunwait ]; then
-			T=$(sunwait -p $LAT $LON)
-			SUNRISE=$(echo "$T" | awk '/Sun rises/{print $3}')
-			SUNSET=$(echo "$T" | awk '/Sun rises/{print $6}')
-			SUNRISE="${SUNRISE:0:2}:${SUNRISE:2:2}"
-			SUNSET="${SUNSET:0:2}:${SUNSET:2:2}"
+			[ "${LAT:0:1}" = "-" ] && LAT="${LAT:1}S" || LAT="${LAT}N"
+			if sunwait 2>&1 | grep -q "options: -p"; then
+				[ "${LON:0:1}" = "-" ] && LON="${LON:1}W" || LON="${LON}.E"
+				T=$(sunwait -p $LAT $LON)
+				SUNRISE=$(echo "$T" | awk '/Sun rises/{print $3}')
+				SUNSET=$(echo "$T" | awk '/Sun rises/{print $6}')
+				SUNRISE="${SUNRISE:0:2}:${SUNRISE:2:2}"
+				SUNSET="${SUNSET:0:2}:${SUNSET:2:2}"
+			else
+				[ "${LON:0:1}" = "-" ] && LON="${LON:1}W" || LON="${LON}E"
+				T=$(sunwait list $LAT $LON)
+				SUNRISE=$(echo "$T" | awk '{gsub(",","");print $1}')
+				SUNSET=$(echo "$T" | awk '{print $2}')
+			fi
 		fi
 	fi
 	echo '"sunrise":"'$SUNRISE'",'
