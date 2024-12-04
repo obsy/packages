@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=3ginfo
-PKG_VERSION:=20240424
+PKG_VERSION:=20241204
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -21,7 +21,7 @@ endef
 define Package/3ginfo-lite
 $(call Package/3ginfo/Default)
 	TITLE+= (lite version)
-	DEPENDS:=+comgt
+	DEPENDS:=+comgt +@BUSYBOX_DEFAULT_AWK
 endef
 
 define Package/3ginfo-qmisignal
@@ -48,7 +48,7 @@ endef
 define Package/3ginfo-text
 $(call Package/3ginfo/Default)
 	TITLE+= (text version)
-	DEPENDS:=+comgt +sms-tool
+	DEPENDS:=+comgt +sms-tool +@BUSYBOX_DEFAULT_AWK
 endef
 
 define Package/3ginfo-text/conffiles

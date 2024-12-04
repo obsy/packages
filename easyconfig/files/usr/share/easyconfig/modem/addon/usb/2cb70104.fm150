@@ -12,7 +12,7 @@ if [ -z "$REG" ] || [ "x$MODE_NUM" = "x11" ]; then
 	TAC_HEX=""
 	CID_HEX=""
 	TAC_DEC=""
-	eval $(echo "$O" | awk -F[,] '/^\+C5GREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";TAC_HEX=\"%X\";CID_HEX=\"%s\";TAC_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, $4, "0x"$3, $5}')
+	eval $(echo "$O" | busybox awk -F[,] '/^\+C5GREG/ {gsub(/[[:space:]"]+/,"");printf "T=\"%d\";TAC_HEX=\"%X\";CID_HEX=\"%s\";TAC_DEC=\"%d\";MODE_NUM=\"%d\"", $2, "0x"$3, $4, "0x"$3, $5}')
 	case "$T" in
 		0*) REG="0";;
 		1*) REG="1";;

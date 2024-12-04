@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo_extended
-PKG_VERSION:=20240423
+PKG_VERSION:=20241204
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -13,7 +13,7 @@ define Package/plugin-gargoyle-3ginfo-extended
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=3ginfo extended for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
-	DEPENDS:=+gargoyle +sms-tool +comgt
+	DEPENDS:=+gargoyle +sms-tool +comgt +@BUSYBOX_DEFAULT_AWK
 	PKGARCH:=all
 endef
 
