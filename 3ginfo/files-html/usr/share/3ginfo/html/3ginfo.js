@@ -443,7 +443,7 @@ function modemaddon(idx) {
 				htmlxs += createRowForModal(e.key, e.value);
 				break;
 			case 32:
-				if (pcc[2] === 'undefined') {
+				if (typeof pcc[2] === 'undefined') {
 					pcc[2] = e.value;
 				} else {
 					pcc[2] = e.value + ' DL<br>' + pcc[2] + ' UL'

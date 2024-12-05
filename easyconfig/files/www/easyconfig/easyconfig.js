@@ -2610,7 +2610,7 @@ function modemaddon() {
 				htmlxs += createRowForModal(e.key, e.value);
 				break;
 			case 32:
-				if (pcc[2] === 'undefined') {
+				if (typeof pcc[2] === 'undefined') {
 					pcc[2] = e.value;
 				} else {
 					pcc[2] = e.value + ' DL<br>' + pcc[2] + ' UL'
@@ -3783,7 +3783,7 @@ function clientscallback(sortby) {
 			} else {
 				clients[idx].first_seen = '-';
 				clients[idx].last_seen = '-';
-				if (clients[idx].tx === undefined) {
+				if (typeof clients[idx].tx === 'undefined') {
 					clients[idx].tx = 0;
 					clients[idx].rx = 0;
 				}
@@ -6769,7 +6769,7 @@ function btn_nightmode_getlocation() {
 
 function btn_nightmode_getlocationfromgps() {
 	ubus_call('"gps", "info", {}', function(data) {
-		if (data.age == undefined) {
+		if (typeof data.age === 'undefined') {
 			showMsg('Błąd odczytu lokalizacji', true);
 		} else {
 			setValue('nightmode_led_auto_latitude', data.latitude);
@@ -6826,7 +6826,7 @@ function readgps() {
 			return;
 		}
 		ubus_call_nomsg('"gps", "info", {}', function(data) {
-			if (data.age == undefined) {
+			if (typeof data.age === 'undefined') {
 				setValue('gps_fixtime', 'brak sygnału GPS');
 				setValue('gps_latitude', '-');
 				setValue('gps_latitudedms', '-');
