@@ -455,10 +455,18 @@ function modemaddon(idx) {
 				htmlxs += createRowForModal(_t(e.key), e.value);
 				break;
 			case 34:
-				if (!(e.key).toLowerCase().includes('earfcn ul')) {
-					pcc[4] = e.value;
+				if ((e.key).toLowerCase().includes('earfcn ul')) {
+					if (typeof pcc[4] === 'undefined') {
+						pcc[4] = e.value + ' UL';
+					} else {
+						pcc[4] = pcc[4] + ' DL<br>' + e.value + ' UL';
+					}
 				} else {
-					html += createRowForModal(_t(e.key), e.value);
+					if (typeof pcc[4] === 'undefined') {
+						pcc[4] = e.value;
+					} else {
+						pcc[4] = e.value + ' DL<br>' + pcc[4];
+					}
 				}
 				htmlxs += createRowForModal(_t(e.key), e.value);
 				break;
