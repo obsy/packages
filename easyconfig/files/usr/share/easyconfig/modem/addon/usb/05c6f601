@@ -1,0 +1,46 @@
+# MEIG SLM750-V
+
+O=$(sms_tool -d $DEVICE at "at+temp")
+
+T=$(echo "$O" | awk -F[,:] '/^\+TEMP/ {print $3}' | sort -r | head -n1 | xargs)
+[ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
+
+if [ "$REGOK" = "1" ]; then
+
+O=$(sms_tool -d $DEVICE at "AT+SGCELLINFOEX?")
+if [ "x$MODE_NUM" = "x7" ]; then
+	B=$(echo "$O" | awk -F[:] '/^BAND:/ {print $2}' | xargs)
+	[ -n "$B" ] && MODE="LTE $(band4g ${B})"
+	T=$(echo "$O" | awk -F[:] '/^TAC_ID:/ {print $2}' | xargs)
+	if [ -n "$T" ]; then
+		T_HEX=$(printf "%X" "$T")
+		addon 23 "TAC" "${T} (${T_HEX})"
+	fi
+	T=$(echo "$O" | awk -F[:] '/^PHYSICAL_CELL_ID:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 33 "PCI" "$T"
+	T=$(echo "$O" | awk -F[:] '/^DL CHANNEL:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 34 "EARFCN DL" "$T"
+	T=$(echo "$O" | awk -F[:] '/^UL CHANNEL:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 34 "EARFCN UL" "$T"
+	T=$(echo "$O" | awk -F[:] '/^RSSI:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 35 "RSSI" "$T dBm"
+	T=$(echo "$O" | awk -F[:] '/^RSRP:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 36 "RSRP" "$T dBm"
+	T=$(echo "$O" | awk -F[:] '/^RSRQ:/ {print $2}' | xargs)
+	[ -n "$T" ] && addon 37 "RSRQ" "$T dB"
+	T=$(echo "$O" | awk -F[:] '/^SINR:/ {printf "%.1f\n", $2/5-20}' | xargs)
+	[ -n "$T" ] && addon 38 "SINR" "$T dB"
+	T=$(echo "$O" | awk -F[:] '/^LTE_BANDWIDTH:/ {print $2}' | xargs)
+	case $T in
+		6) T1="1.4";;
+		15) T1="3";;
+		25) T1="5";;
+		50) T1="10";;
+		75) T1="15";;
+		100) T1="20";;
+		*) T1="";;
+	esac
+	[ -n "$T1" ] && addon 32 "Bandwidth" "$T1 MHz"
+fi
+
+fi
