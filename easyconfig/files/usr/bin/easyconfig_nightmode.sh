@@ -55,6 +55,6 @@ else
 	fi
 fi
 
-[ $OFF -eq 1 ] && ubus call easyconfig leds '{"action":"off"}'
+[ $OFF -eq 1 ] && ubus call easyconfig leds '{"action":"off"}' > /dev/null
 
 exit 0
