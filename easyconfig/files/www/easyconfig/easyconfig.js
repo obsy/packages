@@ -5374,7 +5374,7 @@ function upvpn(proto, interface, section) {
 		execute(cmd, showvpn);
 	} else if (proto == 'zerotier') {
 		var cmd = [];
-		cmd.push('uci set zerotier.' + section + '.enabled=1');
+		cmd.push('uci set zerotier.global.enabled=1');
 		cmd.push('/etc/init.d/zerotier reload');
 		cmd.push('uci revert zerotier');
 		execute(cmd, showvpn);
@@ -5394,7 +5394,7 @@ function downvpn(proto, interface, section) {
 		execute(cmd, showvpn);
 	} else if (proto == 'zerotier') {
 		var cmd = [];
-		cmd.push('uci set zerotier.' + section + '.enabled=0');
+		cmd.push('uci set zerotier.global.enabled=0');
 		cmd.push('/etc/init.d/zerotier reload');
 		cmd.push('uci revert zerotier');
 		execute(cmd, showvpn);
@@ -5508,14 +5508,11 @@ function vpnstatus(interface) {
 function vpnstatuszerotier(section) {
 	ubus_call('"easyconfig", "vpnstatuszerotier", {"section":"' + section + '"}', function(data) {
 		var html = '';
-		for (var idx = 0; idx < data.networks.length; idx++) {
-			if (idx > 0) { html += '<br>'; }
-			html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + data.networks[idx].ipaddr + '</span>');
-			html += createRowForModal('Sieć', data.networks[idx].id);
-			html += createRowForModal('Nazwa', data.networks[idx].name);
-			html += createRowForModal('Typ', data.networks[idx].type);
-			html += createRowForModal('Status', data.networks[idx].status);
-		}
+		html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + data.network.ipaddr + '</span>');
+		html += createRowForModal('Sieć', data.network.id);
+		html += createRowForModal('Nazwa', data.network.name);
+		html += createRowForModal('Typ', data.network.type);
+		html += createRowForModal('Status', data.network.status);
 		showMsg(html);
 	});
 }
@@ -5609,14 +5606,7 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_zerotier_section', section);
 			setValue('vpn_zerotier_name', data.name);
 			setValue('vpn_zerotier_enabled', data.enabled);
-
-			setValue('vpn_zerotier_network_content', '');
-			setValue('vpn_zerotier_network', 0);
-			for (var idx = 0; idx < data.join.length; idx++) {
-				addzerotiernetwork();
-				setValue('vpn_zerotier_network_' + idx, data.join[idx]);
-			}
-
+			setValue('vpn_zerotier_network', data.id);
 			setDisplay('div_vpn_zerotier', true);
 		}
 	})
@@ -5720,13 +5710,9 @@ function savevpnnew() {
 	if (getValue('vpn_new') == 'zerotier') {
 		showError('vpn_zerotier_error', '', '');
 		setValue('vpn_zerotier_section', Math.random().toString(36).substring(2, 10));
-		setValue('vpn_zerotier_name', '');
 		setValue('vpn_zerotier_enabled', true);
-
-		setValue('vpn_zerotier_network_content', '');
-		setValue('vpn_zerotier_network', 0);
-		addzerotiernetwork();
-
+		setValue('vpn_zerotier_name', '');
+		setValue('vpn_zerotier_network', '');
 		setDisplay('div_vpn_zerotier', true);
 	}
 }
@@ -6366,19 +6352,6 @@ function cancelzerotier() {
 	setDisplay('div_vpn_zerotier', false);
 }
 
-function addzerotiernetwork() {
-	var idx = getValue('vpn_zerotier_network');
-	if (idx == '') { idx = 0; }
-	var html = ('<div id="div_vpn_zerotier_network_idx">' + document.getElementById('div_vpn_zerotier_network_template').innerHTML + '</div>').replaceAll('_idx', '_' + idx);
-	document.getElementById('vpn_zerotier_network_content').insertAdjacentHTML('beforeend', html);
-	idx++;
-	setValue('vpn_zerotier_network', idx);
-}
-
-function removezerotiernetwork(idx) {
-	document.getElementById('div_vpn_zerotier_network' + idx).remove();
-}
-
 function removezerotier() {
 	cancelzerotier();
 	setValue('dialog_val', getValue('vpn_zerotier_section'));
@@ -6389,9 +6362,14 @@ function okremovezerotier() {
 	var cmd = [];
 
 	cmd.push('uci -q del zerotier.' + getValue('dialog_val'));
+	cmd.push('T=$(uci show zerotier | awk \'/=network$/\' | wc -l)');
+	cmd.push('if [ \\\"$T\\\" = \\\"0\\\" ]; then');
+	cmd.push(' uci set zerotier.global.enabled=0');
+	cmd.push(' uci del zerotier.global.secret');
+	cmd.push('fi');
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/zerotier restart');
-
+console.log(cmd);
 	execute(cmd, showvpn);
 }
 
@@ -6403,33 +6381,18 @@ function savezerotier() {
 		showError('vpn_zerotier_error', 'vpn_zerotier_name', 'Błąd w polu ' + getLabelText('vpn_zerotier_name'));
 		return;
 	}
-	var cnt = getValue('vpn_zerotier_network');
-	for (var idx = 0; idx < cnt; idx++) {
-		e = document.getElementById('vpn_zerotier_network_' + idx);
-		if (e) {
-				if (validateLengthRange(getValue('vpn_zerotier_network_' + idx), 16, 16) != 0) {
-					showError('vpn_zerotier_error', 'vpn_zerotier_network_' + idx, 'Błąd w polu ' + getLabelText('vpn_zerotier_network_' + idx));
-					return;
-				}
-		}
+	if (validateLengthRange(getValue('vpn_zerotier_network'), 16, 16) != 0) {
+		showError('vpn_zerotier_error', 'vpn_zerotier_network', 'Błąd w polu ' + getLabelText('vpn_zerotier_network'));
+		return;
 	}
 
 	cancelzerotier();
 
+	cmd.push('uci set zerotier.global.enabled=' + (getValue('vpn_zerotier_enabled') ? '1' : '0'));
 	var section = getValue('vpn_zerotier_section');
-	cmd.push('uci set zerotier.' + section + '=zerotier');
+	cmd.push('uci set zerotier.' + section + '=network');
 	cmd.push('uci set zerotier.' + section + '.name=\\\"' + escapeShell(getValue('vpn_zerotier_name')) + '\\\"');
-	cmd.push('uci set zerotier.' + section + '.enabled=' + (getValue('vpn_zerotier_enabled') ? '1' : '0'));
-
-	cmd.push('uci -q del zerotier.' + section + '.join');
-	var cnt = getValue('vpn_zerotier_network');
-	for (var idx = 0; idx < cnt; idx++) {
-		e = document.getElementById('vpn_zerotier_network_' + idx);
-		if (e) {
-			cmd.push('uci add_list zerotier.' + section + '.join=' + getValue('vpn_zerotier_network_' + idx));
-		}
-	}
-
+	cmd.push('uci set zerotier.' + section + '.id=' + getValue('vpn_zerotier_network'));
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/zerotier restart');
 

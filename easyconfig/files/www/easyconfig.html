@@ -2258,6 +2258,18 @@
 
 		<form class="form-horizontal">
 		<div class="form-group">
+			<label for="vpn_zerotier_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_zerotier_enabled" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">włączenie dotyczy wszystkich sieci ZeroTier</small></em></span>
+			<div class="visible-xs"><em><small class="form-text text-muted">włączenie dotyczy wszystkich sieci ZeroTier</small></em></div>
+			</div>
+		</div>
+
+		<div class="form-group">
 			<label for="vpn_zerotier_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
 			<div class="col-xs-8 col-sm-9">
 			<input id="vpn_zerotier_name" type="text" class="form-control">
@@ -2265,28 +2277,10 @@
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_zerotier_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="vpn_zerotier_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			</div>
-		</div>
-
-		<input id="vpn_zerotier_network" type="hidden">
-		<div id="div_vpn_zerotier_network_template" style="display:none">
-		<div class="form-group">
-			<label for="vpn_zerotier_network_idx" class="col-xs-4 col-sm-3 control-label">Sieć</label>
+			<label for="vpn_zerotier_network" class="col-xs-4 col-sm-3 control-label">Sieć</label>
 			<div class="col-xs-8 col-sm-9 input-group">
-				<input id="vpn_zerotier_network_idx" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 16, 16);">
-				<span class="click input-group-element" title="usuń sieć" onclick="removezerotiernetwork('_idx');"><i data-feather="trash-2"></i></span>
+				<input id="vpn_zerotier_network" type="text" class="form-control" onkeyup="proofreadLengthRange(this, 16, 16);">
 			</div>
-		</div>
-		</div>
-		<div id="vpn_zerotier_network_content"></div>
-		<div class="text-right">
-			<input type="button" class="btn btn-default" onclick="addzerotiernetwork();" value="Nowa sieć">
 		</div>
 
 		<h3 class="section"></h3>
