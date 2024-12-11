@@ -6369,7 +6369,7 @@ function okremovezerotier() {
 	cmd.push('fi');
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/zerotier restart');
-console.log(cmd);
+
 	execute(cmd, showvpn);
 }
 
