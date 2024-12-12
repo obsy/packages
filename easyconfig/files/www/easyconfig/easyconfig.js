@@ -5491,7 +5491,7 @@ function vpnstatus(interface) {
 		if (data.proto == 'wireguard') {
 			for (var idx = 0; idx < data.peers.length; idx++) {
 				html += '<br>';
-				html += createRowForModal('Nazwa połączenia', data.peers[idx].name);
+				html += createRowForModal('Nazwa połączenia', (data.peers[idx].name).escapeHTML());
 				html += createRowForModal('Wysłano', bytesToSize(data.peers[idx].tx));
 				html += createRowForModal('Pobrano', bytesToSize(data.peers[idx].rx));
 				t = '-';
@@ -5510,7 +5510,7 @@ function vpnstatuszerotier(section) {
 		var html = '';
 		html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + data.network.ipaddr + '</span>');
 		html += createRowForModal('Sieć', data.network.id);
-		html += createRowForModal('Nazwa', data.network.name);
+		html += createRowForModal('Nazwa', (data.network.name).escapeHTML());
 		html += createRowForModal('Typ', data.network.type);
 		html += createRowForModal('Status', data.network.status);
 		showMsg(html);
