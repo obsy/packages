@@ -1,0 +1,9 @@
+#!/bin/sh
+F=/sys/class/thermal/thermal_zone*/temp
+T=0
+for f in $F; do
+	[ -e $f ] || continue
+	T1=$(cat $f)
+	[ $T1 -gt $T ] && T=$T1
+done
+[ $T -gt 0 ] && echo "$T" | awk '{printf "CPU max temperature: %.2f C\n", $1/1000}'

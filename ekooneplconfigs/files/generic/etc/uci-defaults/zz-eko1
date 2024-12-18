@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
+uci set system.@system[0].zonename='Europe/Warsaw'
+uci commit system
+
+exit 0
+
