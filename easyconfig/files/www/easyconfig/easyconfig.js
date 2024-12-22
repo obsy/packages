@@ -593,6 +593,9 @@ function enableWan(proto) {
 	if (proto == 'static') {
 		fields = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns1', 'wan_dns2'];
 	}
+	if (proto == 'pppoe') {
+		fields = ['wan_username', 'wan_password', 'wan_lcpef', 'wan_lcpei'];
+	}
 	if (proto == 'mbim') {
 		fields = ['wan_apn', 'wan_device', 'wan_pincode'];
 	}
@@ -634,7 +637,7 @@ function enableWan(proto) {
 		setValue('wan_lanto_interface2', tmp);
 	}
 
-	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_waninlan', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
+	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_username', 'wan_password', 'wan_lcpef', 'wan_lcpei', 'wan_waninlan', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -1023,6 +1026,7 @@ var wan = [];
 wan['none'] = 'Brak';
 wan['dhcp'] = 'Port WAN (DHCP)';
 wan['static'] = 'Port WAN (Statyczny IP)';
+wan['pppoe'] = 'PPPoE';
 wan['3g'] = 'Modem komórkowy (RAS)';
 wan['mbim'] = 'Modem komórkowy (MBIM)';
 wan['modemmanager'] = 'Modem komórkowy';
@@ -1132,6 +1136,13 @@ function showconfig() {
 		setValue('wan_dns1', (config.wan_dns.length > 0 ? config.wan_dns[0] : ''));
 		setValue('wan_dns2', (config.wan_dns.length > 1 ? config.wan_dns[1] : ''));
 		setValue('wan_proto', (config.wan_proto in wan) ? config.wan_proto : 'unknown');
+		setValue('wan_username', config.wan_username);
+		setValue('wan_password', config.wan_password);
+		var keepalive = (config.wan_keepalive).split(' ');
+		if (keepalive.length == 2) {
+			setValue('wan_lcpef', parseInt(keepalive[0]));
+			setValue('wan_lcpei', parseInt(keepalive[1]));
+		}
 		setValue('wan_waninlan', config.wan_waninlan);
 		if (config.wan_proto == 'dhcp') {
 			if (config.wan_ifname == config.wan_ifname_hilink) {
@@ -1381,6 +1392,9 @@ function saveconfig() {
 		cmd.push('uci -q del network.wan.service');
 		cmd.push('uci -q del network.wan.modes');
 		cmd.push('uci -q del network.wan.mode');
+		cmd.push('uci -q del network.wan.username');
+		cmd.push('uci -q del network.wan.password');
+		cmd.push('uci -q del network.wan.keepalive');
 
 		var use_dns = getValue('wan_dns');
 		var use_wanport = true;
@@ -1401,6 +1415,29 @@ function saveconfig() {
 			cmd.push('uci set network.wan.netmask=' + getValue('wan_netmask'));
 			cmd.push('uci set network.wan.gateway=' + getValue('wan_gateway'));
 			use_dns = 'custom';
+			use_wanport = false;
+		}
+		if (wan_type == 'pppoe') {
+			if (config.devicesection) {
+				cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
+			} else {
+				cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
+			}
+			cmd.push('uci set network.wan.username=\\\"' + escapeShell(getValue('wan_username')) + '\\\"');
+			cmd.push('uci set network.wan.password=\\\"' + escapeShell(getValue('wan_password')) + '\\\"');
+			var lcpef = getValue('wan_lcpef');
+			if (validateNumericRange(lcpef, 0, 999) > 1) {
+				showMsg('Błąd w polu ' + getLabelText('wan_lcpef'), true);
+				return;
+			}
+			var lcpei = getValue('wan_lcpei');
+			if (validateNumericRange(lcpei, 1, 999) > 1) {
+				showMsg('Błąd w polu ' + getLabelText('wan_lcpei'), true);
+				return;
+			}
+			if (lcpef && lcpei) {
+				cmd.push('uci set network.wan.keepalive=\\\"' + lcpef + ' ' + lcpei + '\\\"');
+			}
 			use_wanport = false;
 		}
 		if (wan_type == '3g' || wan_type == 'mbim' || wan_type == 'modemmanager' || wan_type == 'ncm' || wan_type == 'qmi') {

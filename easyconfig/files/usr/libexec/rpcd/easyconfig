@@ -468,6 +468,10 @@ fi
 
 REVISION=$(awk -F\' '/DISTRIB_REVISION/{print $2}' /etc/openwrt_release)
 
+WAN_USERNAME=$(uci -q get network.wan.username)
+WAN_PASSWORD=$(uci -q get network.wan.password)
+WAN_KEEPALIVE=$(uci -q get network.wan.keepalive)
+
 echo '{'
 echo '"revision":"'$REVISION'",'
 echo '"devicesection":'$DEVICESECTION','
@@ -486,6 +490,9 @@ echo '"wan_ifname_default":"'$WAN_IFNAME_DEFAULT'",'
 echo '"wan_ifname_hilink":"'$WAN_IFNAME_HILINK'",'
 echo '"wan_dashboard_url":"'$WAN_DASHBOARD_URL'",'
 echo '"wan_modem_mode":"'$WAN_MODEM_MODE'",'
+echo '"wan_username":"'$(escapeJSON "$WAN_USERNAME")'",'
+echo '"wan_password":"'$(escapeJSON "$WAN_PASSWORD")'",'
+echo '"wan_keepalive":"'$(escapeJSON "$WAN_KEEPALIVE")'",'
 echo '"wan_waninlan":'$WAN_WANINLAN','
 
 echo '"wan_protos":["none"'
@@ -495,6 +502,7 @@ if [ -n "$T" ]; then
 else
 	if [ -n "$WAN_IFNAME_DEFAULT" ]; then
 		echo ',"dhcp","static"'
+		[ -f /usr/lib/pppd/*/pppoe.so ] && echo ',"pppoe"'
 	fi
 	tty=$(ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)
 	if [ -n "$tty" ]; then
