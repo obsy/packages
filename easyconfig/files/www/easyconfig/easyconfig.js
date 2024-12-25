@@ -3773,7 +3773,7 @@ function clientscallback(sortby) {
 	if (sortby == '') {
 		sortby = 'displayname';
 		if (filterby == 'active') {
-			all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type'];
+			all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type', 'ip'];
 		} else {
 			all = ['displayname', 'mac', 'last_seen'];
 		}
@@ -3808,7 +3808,8 @@ function clientscallback(sortby) {
 			html += '<span class="click" onclick="clientscallback(\'rx\');"><span id="clients_sortby_rx"> pobrano </span></span>|';
 			html += '<span class="click" onclick="clientscallback(\'percent\');"><span id="clients_sortby_percent"> udziale w ruchu </span></span>|';
 			html += '<span class="click" onclick="clientscallback(\'connected\');"><span id="clients_sortby_connected"> czasie połączenia </span></span>|';
-			html += '<span class="click" onclick="clientscallback(\'type\');"><span id="clients_sortby_type"> typie połączenia </span></span>';
+			html += '<span class="click" onclick="clientscallback(\'type\');"><span id="clients_sortby_type"> typie połączenia </span></span>|';
+			html += '<span class="click" onclick="clientscallback(\'ip\');"><span id="clients_sortby_ip"> adresie IP </span></span>';
 		} else {
 			html += '<span class="click" onclick="clientscallback(\'mac\');"><span id="clients_sortby_mac"> MAC </span></span>|';
 			html += '<span class="click" onclick="clientscallback(\'last_seen\');"><span id="clients_sortby_last_seen"> ostatniej widoczności </span></span>';
@@ -3938,7 +3939,7 @@ function clientscallback(sortby) {
 	setValue('div_clients_content', html);
 
 	if (clients.length > 0) {
-		all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type', 'mac', 'last_seen'];
+		all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type', 'ip', 'mac', 'last_seen'];
 		for (var idx = 0; idx < all.length; idx++) {
 			var e = document.getElementById('clients_sortby_' + all[idx]);
 			if (e === null) {
