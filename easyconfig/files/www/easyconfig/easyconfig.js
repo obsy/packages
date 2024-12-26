@@ -3754,6 +3754,14 @@ function clientscallbackfilter(filterby) {
 	}
 }
 
+function clientscallbackfilterall(filterbyall) {
+	var all = ['all', 'week', 'month', 'year'];
+	for (var idx = 0; idx < all.length; idx++) {
+		var e = document.getElementById('clients_filterall_' + all[idx]);
+		e.style.fontWeight = (filterbyall == all[idx]) ? 700 : 400;
+	}
+}
+
 function clientscallback(sortby) {
 
 	var all;
@@ -3766,6 +3774,18 @@ function clientscallback(sortby) {
 		}
 		if (e.style.fontWeight == 700) {
 			filterby = all[idx];
+			break;
+		}
+	}
+	var filterbyall = 'all';
+	all = ['all', 'week', 'month', 'year'];
+	for (var idx = 0; idx < all.length; idx++) {
+		var e = document.getElementById('clients_filterall_' + all[idx]);
+		if (e === null) {
+			break;
+		}
+		if (e.style.fontWeight == 700) {
+			filterbyall = all[idx];
 			break;
 		}
 	}
@@ -3791,6 +3811,21 @@ function clientscallback(sortby) {
 
 	var counter_active = 0;
 	var counter_all = 0;
+	var counter_all_all = 0;
+	var counter_all_week = 0;
+	var counter_all_month = 0;
+	var counter_all_year = 0;
+
+	function tformatDate(ts) {
+		function z(n) { return (n < 10 ? '0' : '' ) + n;}
+		var d = new Date(ts);
+		return '' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + z(d.getHours()) + z(d.getMinutes());
+	}
+
+	var now = new Date();
+	var sweekago = tformatDate(new Date(now.getTime() - (60*60*24*7*1000)));
+	var smonthago = tformatDate(new Date(now.getTime() - (60*60*24*30*1000)));
+	var syearago = tformatDate(new Date(now.getTime() - (60*60*24*365*1000)));
 
 	var html = '';
 	if (clients.length > 0) {
@@ -3800,6 +3835,15 @@ function clientscallback(sortby) {
 		html += '<span class="click" onclick="clientscallbackfilter(\'all\');clientscallback(\'\');"><span id="clients_filter_all"> wszyscy (0) </span></span>';
 		html += '</div>';
 		html += '<div class="col-xs-3 text-right"><span class="click" title="nowi klienci" onclick="clientsstats();"><i data-feather="bar-chart-2"></i></span></div>';
+		if (filterby == 'all') {
+			html += '<div class="col-xs-12 space">';
+			html += '<span>Pokaż</span>';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'all\');clientscallback(\'\');"><span id="clients_filterall_all"> wszystkich </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'week\');clientscallback(\'\');"><span id="clients_filterall_week"> z ostatniego tygodnia </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'month\');clientscallback(\'\');"><span id="clients_filterall_month"> z ostatnich 30 dni </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'year\');clientscallback(\'\');"><span id="clients_filterall_year"> z ostatniego roku </span></span>';
+			html += '</div>'
+		}
 		html += '<div class="col-xs-12">';
 		html += '<span>Sortowanie po</span>';
 		html += '<span class="click" onclick="clientscallback(\'displayname\');"><span id="clients_sortby_displayname"> nazwie </span></span>|';
@@ -3862,6 +3906,10 @@ function clientscallback(sortby) {
 				}
 			} else {
 				counter_all ++;
+				counter_all_all = counter_all;
+				if (clients[idx].last_seen >= sweekago) { counter_all_week ++; }
+				if (clients[idx].last_seen >= smonthago) { counter_all_month ++; }
+				if (clients[idx].last_seen >= syearago) { counter_all_year ++; }
 			}
 		}
 		var any_active = false;
@@ -3918,11 +3966,27 @@ function clientscallback(sortby) {
 				any_active = true;
 			} else {
 				if (sorted[idx].active) { continue; }
-				html += '<hr><div class="row">';
-				html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + (sorted[idx].displayname).escapeHTML() + '</span></div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
-				html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) +  (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen)) + '</div>';
-				html += '</div>';
+				var show = false;
+				switch (filterbyall) {
+					case 'week':
+						if (sorted[idx].last_seen >= sweekago) { show = true; }
+						break;
+					case 'month':
+						if (sorted[idx].last_seen >= smonthago) { show = true; }
+						break;
+					case 'year':
+						if (sorted[idx].last_seen >= syearago) { show = true; }
+						break;
+					default:
+						show = true;
+				}
+				if (show) {
+					html += '<hr><div class="row">';
+					html += '<div class="col-xs-9"><span class="click" onclick="hostnameedit(' + sorted[idx].id + ');">' + (sorted[idx].active_id > -1 ? '<span title="aktywny" style="color:green">&#9679;</span>&nbsp;' : '') + (sorted[idx].displayname).escapeHTML() + '</span></div>';
+					html += '<div class="col-xs-3 text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
+					html += '<div class="col-xs-12">MAC: ' + sorted[idx].mac + ', pierwszy raz: ' + formatDateTime(sorted[idx].first_seen) +  (sorted[idx].active_id > -1 ? ', <span style="color:green">aktywny</span>' : ', ostatni raz: ' + formatDateTime(sorted[idx].last_seen)) + '</div>';
+					html += '</div>';
+				}
 				any_all = true;
 			}
 		}
@@ -3947,10 +4011,24 @@ function clientscallback(sortby) {
 			}
 			e.style.fontWeight = (sortby == all[idx]) ? 700 : 400;
 		}
+		all = ['all', 'week', 'month', 'year'];
+		for (var idx = 0; idx < all.length; idx++) {
+			var e = document.getElementById('clients_filterall_' + all[idx]);
+			if (e === null) {
+				continue;
+			}
+			e.style.fontWeight = (filterbyall == all[idx]) ? 700 : 400;
+		}
 		showicon();
 
 		setValue('clients_filter_active', ' aktywni (' + counter_active + ') ');
 		setValue('clients_filter_all', ' wszyscy (' + counter_all + ') ');
+		if (filterby == 'all') {
+			setValue('clients_filterall_all', ' wszystkich (' + counter_all_all + ') ');
+			setValue('clients_filterall_week', ' z ostatniego tygodnia (' + counter_all_week + ') ');
+			setValue('clients_filterall_month', ' z ostatnich 30 dni (' + counter_all_month + ') ');
+			setValue('clients_filterall_year', ' z ostatniego roku (' + counter_all_year + ') ');
+		}
 		clientscallbackfilter(filterby);
 
 		if (filterby == 'active' && total > 0) {
@@ -4085,7 +4163,7 @@ function showclientslogs() {
 }
 
 function timestampToDate(ts) {
-	function z(n){return (n<10?'0':'')+ +n;}
+	function z(n) { return (n < 10 ? '0' : '' ) + n;}
 	var d = new Date(ts * 1000);
 	return '' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds());
 }
