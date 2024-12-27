@@ -3726,6 +3726,32 @@ function bytesToSize(bytes) {
 	return parseFloat((bytes / Math.pow(1024, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
+function clientspie_toogle() {
+	var showclientspie = getCookie('easyconfig_clientspie');
+	if (showclientspie === '0') {
+		setDisplay('div_clients_pie', true);
+		setCookie('easyconfig_clientspie', '1');
+		setValue('div_clients_showpie', '<span class="click" title="ukryj wykres" onclick="clientspie_toogle();"><i data-feather="eye-off"></i></span>');
+	} else {
+		setDisplay('div_clients_pie', false);
+		setCookie('easyconfig_clientspie', '0');
+		setValue('div_clients_showpie', '<span class="click" title="pokaż wykres" onclick="clientspie_toogle();"><i data-feather="eye"></i></span>');
+	}
+	showicon();
+}
+
+function clientspie_show() {
+	var showclientspie = getCookie('easyconfig_clientspie');
+	if (showclientspie === '0') {
+		setDisplay('div_clients_pie', false);
+		setValue('div_clients_showpie', '<span class="click" title="pokaż wykres" onclick="clientspie_toogle();"><i data-feather="eye"></i></span>');
+	} else {
+		setDisplay('div_clients_pie', true);
+		setValue('div_clients_showpie', '<span class="click" title="ukryj wykres" onclick="clientspie_toogle();"><i data-feather="eye-off"></i></span>');
+	}
+	showicon();
+}
+
 var clients;
 
 function showclients() {
@@ -3882,6 +3908,7 @@ function clientscallback(sortby) {
 		}
 
 		if (filterby == 'active' && total > 0) {
+			html += '<div class="row"><div id="div_clients_showpie" class="col-xs-12 text-right click"><span class="click" title="ukryj wykres" onclick="clientspie_toogle();"><i data-feather="eye-off"></i></span></div></div>';
 			html += '<div id="div_clients_pie"><canvas id="clients_pie" height="400"></canvas><div class="text-center text-muted"><em><small>podział wg udziału w ruchu dla klientów bezprzewodowych</em></small></div></div>';
 			html += '<div id="div_clients_pie_tooltip" class="tooltip"></div>';
 		}
@@ -4099,6 +4126,7 @@ function clientscallback(sortby) {
 			};
 
 			document.getElementById('clients_pie').addEventListener('mousemove', clients_pie_tooltip, false);
+			clientspie_show();
 		}
 	}
 }
