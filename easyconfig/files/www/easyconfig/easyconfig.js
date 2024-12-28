@@ -3864,10 +3864,10 @@ function clientscallback(sortby) {
 		if (filterby == 'all') {
 			html += '<div class="col-xs-12 space">';
 			html += '<span>Pokaż</span>';
-			html += '<span class="click" onclick="clientscallbackfilterall(\'all\');clientscallback(\'\');"><span id="clients_filterall_all"> wszystkich </span></span>|';
-			html += '<span class="click" onclick="clientscallbackfilterall(\'week\');clientscallback(\'\');"><span id="clients_filterall_week"> z ostatniego tygodnia </span></span>|';
-			html += '<span class="click" onclick="clientscallbackfilterall(\'month\');clientscallback(\'\');"><span id="clients_filterall_month"> z ostatnich 30 dni </span></span>|';
-			html += '<span class="click" onclick="clientscallbackfilterall(\'year\');clientscallback(\'\');"><span id="clients_filterall_year"> z ostatniego roku </span></span>';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'week\');clientscallback(\'\');"><span id="clients_filterall_week"> z ostatniego tygodnia (0) </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'month\');clientscallback(\'\');"><span id="clients_filterall_month"> z ostatnich 30 dni (0) </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'year\');clientscallback(\'\');"><span id="clients_filterall_year"> z ostatniego roku (0) </span></span>|';
+			html += '<span class="click" onclick="clientscallbackfilterall(\'all\');clientscallback(\'\');"><span id="clients_filterall_all"> wszystko (0) </span></span>';
 			html += '</div>'
 		}
 		html += '<div class="col-xs-12">';
@@ -4051,10 +4051,10 @@ function clientscallback(sortby) {
 		setValue('clients_filter_active', ' aktywni (' + counter_active + ') ');
 		setValue('clients_filter_all', ' wszyscy (' + counter_all + ') ');
 		if (filterby == 'all') {
-			setValue('clients_filterall_all', ' wszystkich (' + counter_all_all + ') ');
 			setValue('clients_filterall_week', ' z ostatniego tygodnia (' + counter_all_week + ') ');
 			setValue('clients_filterall_month', ' z ostatnich 30 dni (' + counter_all_month + ') ');
 			setValue('clients_filterall_year', ' z ostatniego roku (' + counter_all_year + ') ');
+			setValue('clients_filterall_all', ' wszystko (' + counter_all_all + ') ');
 		}
 		clientscallbackfilter(filterby);
 
