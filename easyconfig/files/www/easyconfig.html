@@ -1411,10 +1411,24 @@
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_on();" value="Włącz">
 			</div>
 		</div>
-		<div class="row">
+		<div class="row space">
 			<div class="col-xs-6 text-right">Wyłączenie Wi-Fi</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_off();" value="Wyłącz">
+			</div>
+		</div>
+
+		<hr>
+		<div class="row space">
+			<div class="form-group">
+				<label for="wifiup" class="col-xs-4 col-sm-3 control-label">Godzina włączenia Wi-Fi</label>
+				<div class="col-xs-8 col-sm-9"><select id="wifiup" class="form-control"></select></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group">
+				<label for="wifidown" class="col-xs-4 col-sm-3 control-label">Godzina wyłączenia Wi-Fi</label>
+				<div class="col-xs-8 col-sm-9"><select id="wifidown" class="form-control"></select></div>
 			</div>
 		</div>
 	</div>
@@ -1430,6 +1444,20 @@
 		<div class="col-xs-6 text-right">Wyłączenie LED</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_nightmode_leds_off();" value="Wyłącz">
+		</div>
+	</div>
+
+	<hr>
+	<div class="row space">
+		<div class="form-group">
+			<label for="ledson" class="col-xs-4 col-sm-3 control-label">Godzina włączenia LED</label>
+			<div class="col-xs-8 col-sm-9"><select id="ledson" class="form-control"></select></div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-group">
+			<label for="ledsoff" class="col-xs-4 col-sm-3 control-label">Godzina wyłączenia LED</label>
+			<div class="col-xs-8 col-sm-9"><select id="ledsoff" class="form-control"></select></div>
 		</div>
 	</div>
 

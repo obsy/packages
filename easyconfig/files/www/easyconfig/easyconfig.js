@@ -6817,6 +6817,49 @@ function okremovefromwhitelist() {
 
 function shownightmode() {
 	ubus_call('"easyconfig", "nightmode", {}', function(data) {
+		var e1 = removeOptions('wifidown');
+		var e2 = removeOptions('wifiup');
+		var e3 = removeOptions('ledsoff');
+		var e4 = removeOptions('ledson');
+		var opt1 = document.createElement('option');
+		opt1.value = '';
+		opt1.innerHTML = 'nie ustawiono';
+		e1.appendChild(opt1);
+		var opt2 = document.createElement('option');
+		opt2.value = '';
+		opt2.innerHTML = 'nie ustawiono';
+		e2.appendChild(opt2);
+		var opt3 = document.createElement('option');
+		opt3.value = '';
+		opt3.innerHTML = 'nie ustawiono';
+		e3.appendChild(opt3);
+		var opt4 = document.createElement('option');
+		opt4.value = '';
+		opt4.innerHTML = 'nie ustawiono';
+		e4.appendChild(opt4);
+		for (var i = 0; i < 24; i++) {
+			var opt1 = document.createElement('option');
+			opt1.value = i;
+			opt1.innerHTML = i;
+			e1.appendChild(opt1);
+			var opt2 = document.createElement('option');
+			opt2.value = i;
+			opt2.innerHTML = i;
+			e2.appendChild(opt2);
+			var opt3 = document.createElement('option');
+			opt3.value = i;
+			opt3.innerHTML = i;
+			e3.appendChild(opt3);
+			var opt4 = document.createElement('option');
+			opt4.value = i;
+			opt4.innerHTML = i;
+			e4.appendChild(opt4);
+		}
+		setValue('wifidown', data.wifidown);
+		setValue('wifiup', data.wifiup);
+		setValue('ledsoff', data.ledsoff);
+		setValue('ledson', data.ledson);
+
 		setValue('nightmode_led_auto_enabled', data.enabled);
 		setValue('nightmode_led_auto_latitude', data.latitude);
 		setValue('nightmode_led_auto_longitude', data.longitude);
@@ -6829,8 +6872,10 @@ function shownightmode() {
 }
 
 function savenightmode() {
-	if (checkField('nightmode_led_auto_latitude', validateFloat)) {return;}
-	if (checkField('nightmode_led_auto_longitude', validateFloat)) {return;}
+	if (getValue("nightmode_led_auto_enabled")) {
+		if (checkField('nightmode_led_auto_latitude', validateFloat)) {return;}
+		if (checkField('nightmode_led_auto_longitude', validateFloat)) {return;}
+	}
 
 	var cmd = [];
 	cmd.push('uci set easyconfig.global=easyconfig');
@@ -6838,13 +6883,23 @@ function savenightmode() {
 	cmd.push('uci set easyconfig.global.longitude=\\\"' + getValue("nightmode_led_auto_longitude") + '\\\"');
 	cmd.push('uci commit');
 	cmd.push('touch /etc/crontabs/root');
+	cmd.push('sed -i \\\"/wifi/d\\\" /etc/crontabs/root');
+	cmd.push('sed -i \\\"/easyconfig leds/d\\\" /etc/crontabs/root');
+	var hour = getValue('wifidown')
+	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * wifi down\\\" >> /etc/crontabs/root'); }
+	hour = getValue('wifiup')
+	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * wifi up\\\" >> /etc/crontabs/root'); }
+	hour = getValue('ledsoff')
+	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * ubus call easyconfig leds \'{\\\\\\"action\\\\\\":\\\\\\"off\\\\\\"}\' >/dev/null\\\" >> /etc/crontabs/root'); }
+	hour = getValue('ledson')
+	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * ubus call easyconfig leds \'{\\\\\\"action\\\\\\":\\\\\\"on\\\\\\"}\' >/dev/null\\\" >> /etc/crontabs/root'); }
 	cmd.push('sed -i \\\"/easyconfig_nightmode/d\\\" /etc/crontabs/root');
 	if (getValue("nightmode_led_auto_enabled")) {
 		cmd.push('echo \\\"1 0 * * * /usr/bin/easyconfig_nightmode.sh\\\" >> /etc/crontabs/root');
 		cmd.push('/usr/bin/easyconfig_nightmode.sh >/dev/null 2>&1');
 	} else {
 		cmd.push('killall sunwait >/dev/null 2>&1');
-		cmd.push('ubus call easyconfig leds \'{\\\"action\\\":\\\"on\\\"}\'');
+		cmd.push('ubus call easyconfig leds \'{\\\"action\\\":\\\"on\\\"}\' >/dev/null');
 	}
 	cmd.push('/etc/init.d/cron restart');
 
