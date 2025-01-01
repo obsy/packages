@@ -2084,17 +2084,7 @@ show_adblock()
 show_nightmode()
 {
 	echo '{'
-	if [ -e /etc/crontabs/root ]; then
-		T=$(awk '/wifi up/{print $2}' /etc/crontabs/root)
-		echo '"wifiup":"'$T'",'
-		T=$(awk '/wifi down/{print $2}' /etc/crontabs/root)
-		echo '"wifidown":"'$T'",'
-		T=$(awk '/"action":"on"/{print $2}' /etc/crontabs/root)
-		echo '"ledson":"'$T'",'
-		T=$(awk '/"action":"off"/{print $2}' /etc/crontabs/root)
-		echo '"ledsoff":"'$T'",'
-		T=$(grep easyconfig_nightmode /etc/crontabs/root)
-	fi
+	[ -e /etc/crontabs/root ] && T=$(grep easyconfig_nightmode /etc/crontabs/root)
 	if [ -n "$T" ]; then
 		echo '"enabled": true,'
 	else

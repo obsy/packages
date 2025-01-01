@@ -1411,7 +1411,7 @@
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_on();" value="Włącz">
 			</div>
 		</div>
-		<div class="row space">
+		<div class="row">
 			<div class="col-xs-6 text-right">Wyłączenie Wi-Fi</div>
 			<div class="col-xs-6">
 			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_off();" value="Wyłącz">
@@ -1419,16 +1419,9 @@
 		</div>
 
 		<hr>
-		<div class="row space">
-			<div class="form-group">
-				<label for="wifiup" class="col-xs-4 col-sm-3 control-label">Godzina włączenia Wi-Fi</label>
-				<div class="col-xs-8 col-sm-9"><select id="wifiup" class="form-control"></select></div>
-			</div>
-		</div>
 		<div class="row">
-			<div class="form-group">
-				<label for="wifidown" class="col-xs-4 col-sm-3 control-label">Godzina wyłączenia Wi-Fi</label>
-				<div class="col-xs-8 col-sm-9"><select id="wifidown" class="form-control"></select></div>
+			<div class="col-xs-12 text-center">
+			<input type="button" class="btn btn-default" onclick="btn_nightmode_wifi_scheduler();" value="Harmonogram">
 			</div>
 		</div>
 	</div>
@@ -1440,24 +1433,10 @@
 		<input type="button" class="btn btn-default" onclick="btn_nightmode_leds_on();" value="Włącz">
 		</div>
 	</div>
-	<div class="row space">
+	<div class="row">
 		<div class="col-xs-6 text-right">Wyłączenie LED</div>
 		<div class="col-xs-6">
 		<input type="button" class="btn btn-default" onclick="btn_nightmode_leds_off();" value="Wyłącz">
-		</div>
-	</div>
-
-	<hr>
-	<div class="row space">
-		<div class="form-group">
-			<label for="ledson" class="col-xs-4 col-sm-3 control-label">Godzina włączenia LED</label>
-			<div class="col-xs-8 col-sm-9"><select id="ledson" class="form-control"></select></div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="form-group">
-			<label for="ledsoff" class="col-xs-4 col-sm-3 control-label">Godzina wyłączenia LED</label>
-			<div class="col-xs-8 col-sm-9"><select id="ledsoff" class="form-control"></select></div>
 		</div>
 	</div>
 
@@ -2556,6 +2535,29 @@
 			<input type="button" class="btn btn-primary" onclick="savenetwork();" value="Zapisz zmiany">
 		</div>
 		</form>
+	</div>
+</div>
+
+<div id="div_cron" class="modal">
+	<div class="row modal-content text-center">
+		<div class="text-center space"><span id="cron_title"></span></div>
+
+		<div id="div_cron_scheduler" class="space"></div>
+		<div class="col-xs-12">
+			<div class="row space">
+				<div id="cron_off" class="col-xs-1">&nbsp;</div><div id="cron_off_info" class="col-xs-9 text-left"></div>
+			</div>
+		</div>
+		<div class="row space">
+			<div class="col-xs-6"><a href="#" class="click" onclick="cron_checkall();">zaznacz wszystko</a></div>
+			<div class="col-xs-6"><a href="#" class="click" onclick="cron_uncheckall();">odznacz wszystko</a></div>
+		</div>
+
+		<h3 class="section"></h3>
+		<div class="text-center">
+			<input type="button" class="btn btn-default" onclick="cron_cancel();" value="Anuluj">
+			<input type="button" id="cron_btn_primary" class="btn btn-primary" value="Ustaw">
+		</div>
 	</div>
 </div>
 

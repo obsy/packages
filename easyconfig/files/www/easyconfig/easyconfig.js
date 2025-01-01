@@ -6817,49 +6817,6 @@ function okremovefromwhitelist() {
 
 function shownightmode() {
 	ubus_call('"easyconfig", "nightmode", {}', function(data) {
-		var e1 = removeOptions('wifidown');
-		var e2 = removeOptions('wifiup');
-		var e3 = removeOptions('ledsoff');
-		var e4 = removeOptions('ledson');
-		var opt1 = document.createElement('option');
-		opt1.value = '';
-		opt1.innerHTML = 'nie ustawiono';
-		e1.appendChild(opt1);
-		var opt2 = document.createElement('option');
-		opt2.value = '';
-		opt2.innerHTML = 'nie ustawiono';
-		e2.appendChild(opt2);
-		var opt3 = document.createElement('option');
-		opt3.value = '';
-		opt3.innerHTML = 'nie ustawiono';
-		e3.appendChild(opt3);
-		var opt4 = document.createElement('option');
-		opt4.value = '';
-		opt4.innerHTML = 'nie ustawiono';
-		e4.appendChild(opt4);
-		for (var i = 0; i < 24; i++) {
-			var opt1 = document.createElement('option');
-			opt1.value = i;
-			opt1.innerHTML = i;
-			e1.appendChild(opt1);
-			var opt2 = document.createElement('option');
-			opt2.value = i;
-			opt2.innerHTML = i;
-			e2.appendChild(opt2);
-			var opt3 = document.createElement('option');
-			opt3.value = i;
-			opt3.innerHTML = i;
-			e3.appendChild(opt3);
-			var opt4 = document.createElement('option');
-			opt4.value = i;
-			opt4.innerHTML = i;
-			e4.appendChild(opt4);
-		}
-		setValue('wifidown', data.wifidown);
-		setValue('wifiup', data.wifiup);
-		setValue('ledsoff', data.ledsoff);
-		setValue('ledson', data.ledson);
-
 		setValue('nightmode_led_auto_enabled', data.enabled);
 		setValue('nightmode_led_auto_latitude', data.latitude);
 		setValue('nightmode_led_auto_longitude', data.longitude);
@@ -6872,10 +6829,8 @@ function shownightmode() {
 }
 
 function savenightmode() {
-	if (getValue("nightmode_led_auto_enabled")) {
-		if (checkField('nightmode_led_auto_latitude', validateFloat)) {return;}
-		if (checkField('nightmode_led_auto_longitude', validateFloat)) {return;}
-	}
+	if (checkField('nightmode_led_auto_latitude', validateFloat)) {return;}
+	if (checkField('nightmode_led_auto_longitude', validateFloat)) {return;}
 
 	var cmd = [];
 	cmd.push('uci set easyconfig.global=easyconfig');
@@ -6883,16 +6838,6 @@ function savenightmode() {
 	cmd.push('uci set easyconfig.global.longitude=\\\"' + getValue("nightmode_led_auto_longitude") + '\\\"');
 	cmd.push('uci commit');
 	cmd.push('touch /etc/crontabs/root');
-	cmd.push('sed -i \\\"/wifi/d\\\" /etc/crontabs/root');
-	cmd.push('sed -i \\\"/easyconfig leds/d\\\" /etc/crontabs/root');
-	var hour = getValue('wifidown')
-	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * wifi down\\\" >> /etc/crontabs/root'); }
-	hour = getValue('wifiup')
-	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * wifi up\\\" >> /etc/crontabs/root'); }
-	hour = getValue('ledsoff')
-	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * ubus call easyconfig leds \'{\\\\\\"action\\\\\\":\\\\\\"off\\\\\\"}\' >/dev/null\\\" >> /etc/crontabs/root'); }
-	hour = getValue('ledson')
-	if (hour != '') { cmd.push('echo \\\"0 ' + hour + ' * * * ubus call easyconfig leds \'{\\\\\\"action\\\\\\":\\\\\\"on\\\\\\"}\' >/dev/null\\\" >> /etc/crontabs/root'); }
 	cmd.push('sed -i \\\"/easyconfig_nightmode/d\\\" /etc/crontabs/root');
 	if (getValue("nightmode_led_auto_enabled")) {
 		cmd.push('echo \\\"1 0 * * * /usr/bin/easyconfig_nightmode.sh\\\" >> /etc/crontabs/root');
@@ -6915,6 +6860,33 @@ function btn_nightmode_wifi_on() {
 function btn_nightmode_wifi_off() {
 	var cmd = ['wifi down'];
 
+	execute(cmd, function() {});
+}
+
+function btn_nightmode_wifi_scheduler() {
+	setValue('cron_title', 'Harmonogram wyłączenia Wi-Fi');
+	setValue('cron_off_info', 'Wi-Fi wyłączone');
+	cron_display('wifi', btn_nightmode_wifi_setcron);
+}
+
+function btn_nightmode_wifi_setcron() {
+	var timetable = cron_encode();
+	if (timetable == '7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F') {
+		setValue('dialog_val', timetable);
+		showDialog('Zaznaczono całkowite wyłączenie Wi-Fi<br><br>Wybierz "Wyłącz" żeby usunąć harmonogram i wyłączyć Wi-Fi lub "Anuluj" aby zignorować zmiany.', 'Anuluj', 'Wyłącz', okbtn_nightmode_wifi_off);
+	} else {
+		execute([ 'easyconfig_cron_helper.sh set wifi ' + timetable ], function() {});
+	}
+}
+
+function okbtn_nightmode_wifi_off() {
+	var cmd = [];
+	for (var idx = 0, n = config.wlan_devices.length; idx < n; idx++) {
+		cmd.push('uci -q set wireless.' + config.wlan_devices[idx] + '.disabled=1')
+	}
+	cmd.push('uci commit wireless')
+	cmd.push('wifi down')
+	cmd.push('easyconfig_cron_helper.sh set wifi ' + getValue('dialog_val'));
 	execute(cmd, function() {});
 }
 
@@ -7655,6 +7627,107 @@ function savenetwork() {
 		cmd.push('wifi');
 	}
 	execute(cmd, shownetworks);
+}
+/*****************************************************************************/
+
+function cron_cancel() {
+	setDisplay('div_cron', false);
+}
+
+function cron_checkall() {
+	for (var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('cront' + i + j).style.backgroundColor = '#337ab7';
+		}
+	}
+}
+
+function cron_uncheckall() {
+	for (var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('cront' + i + j).style.backgroundColor = document.body.style.backgroundColor;
+		}
+	}
+}
+
+function cron_toggle(evt) {
+	var e = evt.target;
+	e.style.backgroundColor = (e.style.backgroundColor == document.getElementById('cron_off').style.backgroundColor) ? document.body.style.backgroundColor : '#337ab7';
+}
+
+function cron_display(action, onclickprimary) {
+	var days = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+
+	var html = '';
+	if (action == 'wifi') {
+		var wifi_disabled = true;
+		for (var idx = 0, n = config.wlan_devices.length; idx < n; idx++) {
+			if (!config[config.wlan_devices[idx]].wlan_disabled) {
+				wifi_disabled = false;
+			}
+		}
+		if (wifi_disabled) {
+			html += '<div class="alert alert-danger text-center">Wi-Fi jest wyłączone. Harmonogram nie będzie działał dopóki Wi-Fi nie zostanie włączone.</div>';
+		}
+	}
+
+	html += '<table class="table"><tr><td>Dzień / Godzina</td><td>Po</td><td>Wt</td><td>Śr</td><td>Cz</td><td>Pi</td><td>So</td><td>Ni</td></tr>';
+	for (var i = 0; i < 24; i++) {
+		html += '<tr><td>' + i + '-' + (i + 1) + '</td>';
+		for (var j = 0; j < 7; j++) {
+			html += '<td id="cront' + i + j + '" title="' + days[j] + ', ' + i + ':00 - ' + i + ':59"></td>';
+		}
+		html += '</tr>';
+	}
+	html += '</table>';
+
+	setValue('div_cron_scheduler', html);
+	for (var i = 0; i < 24; i++) {
+		for (var j = 0; j < 7; j++) {
+			document.getElementById('cront' + i + j).addEventListener('click', cron_toggle);
+		}
+	}
+	document.getElementById('cron_off').style.backgroundColor = '#337ab7';
+
+	var e = document.getElementById('cron_btn_primary');
+	e.onclick = function(){ cron_cancel(); onclickprimary(); }
+
+	ubus_call('"file", "exec", {"command":"easyconfig_cron_helper.sh","params":["get", "wifi"]}', function(data) {
+		cron_decode(data.stdout);
+		setDisplay('div_cron', true);
+	})
+}
+
+function cron_decode(data) {
+	var bc = document.getElementById('cron_off').style.backgroundColor;
+	var code = [64,32,16,8,4,2,1];
+	var hours = data.match(/.{1,2}/g);
+	if (hours.length == 24) {
+		for (var i = 0; i < 24; i++) {
+			var t = parseInt(hours[i], 16);
+			for (var j = 0; j < 7; j++) {
+				if ((t & code[j]) == code[j]) {
+					document.getElementById('cront' + i + j).style.backgroundColor = bc;
+				}
+			}
+		}
+	}
+}
+
+function cron_encode() {
+	var bc = document.getElementById('cron_off').style.backgroundColor;
+	var code = [64,32,16,8,4,2,1];
+	var hex = '';
+	for (var i = 0; i < 24; i++) {
+		var sum = 0;
+		for (var j = 0; j < 7; j++) {
+			if (document.getElementById('cront' + i + j).style.backgroundColor == bc) {
+				sum += code[j];
+			}
+		}
+		hex += ('0' + (Number(sum).toString(16))).slice(-2).toUpperCase();
+	}
+	return hex;
 }
 
 /*****************************************************************************/
