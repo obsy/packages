@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easyconfig
-PKG_VERSION:=20241207
+PKG_VERSION:=20250102
 
 include $(INCLUDE_DIR)/package.mk
 
