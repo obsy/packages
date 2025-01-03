@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2016-2024 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2016-2025 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 . /usr/share/libubox/jshn.sh
@@ -658,17 +658,36 @@ echo '"wan_lanto":"'$T'",'
 T=$(uci -q get easyconfig.global.datarec_period)
 echo '"datarec_period":'${T:-15}','
 
+RESET="-1"
 BUTTON_NAME=""
 BUTTON=""
 ACTION="none"
 
-if [ -e /sys/firmware/devicetree/base/keys/rfkill ]; then
-	BUTTON_NAME="WiFi"
-	BUTTON="rfkill"
-elif [ -e /sys/firmware/devicetree/base/keys/wps ]; then
-	BUTTON_NAME="WPS"
-	BUTTON="wps"
-fi
+LINES=$(find /sys/firmware/devicetree/base/ -name linux,code)
+for LINE in $LINES; do
+	CODE=$(hexdump -v -e '1/1 "%02x"' $LINE)
+	case "$CODE" in
+		"00000198")
+			# key_restart
+			if [ -e /etc/rc.button/reset ]; then
+				[ -e /usr/share/easyconfig/rc.button/reset ] || cp /etc/rc.button/reset /usr/share/easyconfig/rc.button/reset
+				BUTTON_RESET="1"
+			else
+				BUTTON_RESET="0"
+			fi
+			;;
+		"00000211")
+			# key_wps_button
+			BUTTON_NAME=$(cat "$(dirname $LINE)"/label | tr 'a-z' 'A-Z')
+			BUTTON="wps"
+			;;
+		"000000f7")
+			# key_rfkill
+			BUTTON_NAME=$(cat "$(dirname $LINE)"/label | tr 'a-z' 'A-Z')
+			BUTTON="rfkill"
+			;;
+	esac
+done
 
 if [ -n "$BUTTON" ]; then
 	[ -e /usr/share/easyconfig/rc.button/rfkill ] || cp /etc/rc.button/rfkill /usr/share/easyconfig/rc.button/rfkill
@@ -689,17 +708,7 @@ if [ -n "$BUTTON" ]; then
 	fi
 fi
 echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
-
-if [ -e /sys/firmware/devicetree/base/keys/reset ]; then
-	if [ -e /etc/rc.button/reset ]; then
-		[ -e /usr/share/easyconfig/rc.button/reset ] || cp /etc/rc.button/reset /usr/share/easyconfig/rc.button/reset
-		echo '"button_reset":1,'
-	else
-		echo '"button_reset":0,'
-	fi
-else
-	echo '"button_reset":-1,'
-fi
+echo '"button_reset":'$BUTTON_RESET','
 
 echo '"services":{'
 
