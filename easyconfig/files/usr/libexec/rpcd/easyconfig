@@ -378,7 +378,7 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	network_get_subnet WAN_NETMASK wan
 	WAN_NETMASK=${WAN_NETMASK##*/}
 	if [ -n "$WAN_NETMASK" ]; then
-		WAN_NETMASK=$(ipcalc.sh $WAN_IPADDR $WAN_NETMASK | awk -F= '/NETMASK/{print $2}')
+		WAN_NETMASK=$(ipcalc.sh ${WAN_IPADDR}/${WAN_NETMASK} | awk -F= '/NETMASK/{print $2}')
 	fi
 fi
 
@@ -658,12 +658,12 @@ echo '"wan_lanto":"'$T'",'
 T=$(uci -q get easyconfig.global.datarec_period)
 echo '"datarec_period":'${T:-15}','
 
-RESET="-1"
+BUTTON_RESET="-1"
 BUTTON_NAME=""
 BUTTON=""
 ACTION="none"
 
-LINES=$(find /sys/firmware/devicetree/base/ -name linux,code)
+LINES=$(find /sys/firmware/devicetree/base/ -name linux,code 2>/dev/null)
 for LINE in $LINES; do
 	CODE=$(hexdump -v -e '1/1 "%02x"' $LINE)
 	case "$CODE" in
