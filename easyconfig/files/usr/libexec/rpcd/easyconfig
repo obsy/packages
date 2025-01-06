@@ -1642,7 +1642,7 @@ upgrade() {
 	fi
 
 	CHECKSUM=$(echo "$T" | awk '{print $1}')
-	FILE=$(echo "$T" | awk '{print $2}')
+	FILE=$(echo "$T" | awk '{sub("*","",$2);print $2}')
 
 	OLD_BUILD=$(awk -F\' '/DISTRIB_REVISION/{print $2}' /etc/openwrt_release)
 	NEW_BUILD=$(echo $FILE | sed 's|.*-\(r[0-9]*-.*\)-'$BOARD'.*|\1|g')
