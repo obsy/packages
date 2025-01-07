@@ -8,4 +8,6 @@ if [ -n "$T" ]; then
 	[ -z "$(pidof sunwait)" ] && /usr/bin/easyconfig_nightmode.sh
 fi
 
+/usr/bin/easyconfig_cron_helper.sh startup wifi
+
 exit 0

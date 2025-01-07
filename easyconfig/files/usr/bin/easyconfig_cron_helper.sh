@@ -155,7 +155,52 @@ done
 printf "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n" $G0 $G1 $G2 $G3 $G4 $G5 $G6 $G7 $G8 $G9 $G10 $G11 $G12 $G13 $G14 $G15 $G16 $G17 $G18 $G19 $G20 $G21 $G22 $G23
 }
 
-[ "x$1" = "xset" ] && f_set
-[ "x$1" = "xget" ] && f_get
+case $1 in
+	"set") f_set;;
+	"get") f_get;;
+	"startup")
+		H=$(date +%H)
+		OUT=$(f_get | awk '{gsub(/.{2}/,"& ")}1')
+		IDX=0
+		for T in $OUT; do
+			if [ "$IDX" = "$H" ]; then
+				TEST="0x$T"
+				break
+			fi
+			IDX=$((IDX + 1))
+		done
+
+		case $(date +%w) in
+			0)
+				T=$((TEST & 1))
+				[ "$T" = "1" ] && wifi down
+				;;
+			1)
+				T=$((TEST & 64))
+				[ "$T" = "64" ] && wifi down
+				;;
+			2)
+				T=$((TEST & 32))
+				[ "$T" = "32" ] && wifi down
+				;;
+			3)
+				T=$((TEST & 16))
+				[ "$T" = "16" ] && wifi down
+				;;
+			4)
+				T=$((TEST & 8))
+				[ "$T" = "8" ] && wifi down
+				;;
+			5)
+				T=$((TEST & 4))
+				[ "$T" = "4" ] && wifi down
+				;;
+			6)
+				T=$((TEST & 2))
+				[ "$T" = "2" ] && wifi down
+				;;
+		esac
+		;;
+esac
 
 exit 0
