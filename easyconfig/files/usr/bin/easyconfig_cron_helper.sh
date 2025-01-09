@@ -159,17 +159,8 @@ case $1 in
 	"set") f_set;;
 	"get") f_get;;
 	"startup")
-		H=$(date +%H)
-		OUT=$(f_get | awk '{gsub(/.{2}/,"& ")}1')
-		IDX=0
-		for T in $OUT; do
-			if [ "$IDX" = "$H" ]; then
-				TEST="0x$T"
-				break
-			fi
-			IDX=$((IDX + 1))
-		done
-
+		T=$(f_get | awk '{H=strftime("%H", systime()); print substr($1, 2*H+1, 2)}')
+		TEST="0x$T"
 		case $(date +%w) in
 			0)
 				T=$((TEST & 1))

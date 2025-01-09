@@ -2,16 +2,17 @@
 
 [ "$ACTION" = stratum ] || exit 0
 
-TIMESYNCED="/var/state/timesynced"
-if [ ! -e "$TIMESYNCED" ]; then
-	touch /var/state/timesynced
+[ -e /etc/crontabs/root ] || exit 0
 
-	T=""
-	[ -e /etc/crontabs/root ] && T=$(grep easyconfig_nightmode /etc/crontabs/root)
-	if [ -n "$T" ]; then
-		[ -z "$(pidof sunwait)" ] && /usr/bin/easyconfig_nightmode.sh
-	fi
+TIMESYNCED="/var/state/easyconfig_timesynced"
+[ -e "$TIMESYNCED" ] && exit 0
 
+touch $TIMESYNCED
+
+if grep -q easyconfig_nightmode /etc/crontabs/root; then
+	[ -z "$(pidof sunwait)" ] && /usr/bin/easyconfig_nightmode.sh
+fi
+if grep -q wifi /etc/crontabs/root; then
 	/usr/bin/easyconfig_cron_helper.sh startup wifi
 fi
 
