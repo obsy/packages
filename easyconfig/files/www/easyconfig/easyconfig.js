@@ -6875,7 +6875,14 @@ function btn_nightmode_wifi_setcron() {
 		setValue('dialog_val', timetable);
 		showDialog('Zaznaczono całkowite wyłączenie Wi-Fi<br><br>Wybierz "Wyłącz" żeby usunąć harmonogram i wyłączyć Wi-Fi lub "Anuluj" aby zignorować zmiany.', 'Anuluj', 'Wyłącz', okbtn_nightmode_wifi_off);
 	} else {
-		execute([ 'easyconfig_cron_helper.sh set wifi ' + timetable ], function() {});
+		var cmd  = [];
+		cmd.push('easyconfig_cron_helper.sh set wifi ' + timetable);
+		if (cron_check()) {
+			cmd.push('[ -n \\\"$(iw dev)\\\" ] && wifi down');
+		} else {
+			cmd.push('[ -z \\\"$(iw dev)\\\" ] && wifi up');
+		}
+		execute(cmd, function() {});
 	}
 }
 
@@ -7728,6 +7735,17 @@ function cron_encode() {
 		hex += ('0' + (Number(sum).toString(16))).slice(-2).toUpperCase();
 	}
 	return hex;
+}
+
+function cron_check() {
+	var now = new Date();
+	var hour = now.getHours();
+	var day = (now.getDay()) - 1;
+	if (day == -1) { day = 6; }
+	if (document.getElementById('cront' + hour + day).style.backgroundColor == document.getElementById('cron_off').style.backgroundColor) {
+		return true;
+	}
+	return false;
 }
 
 /*****************************************************************************/
