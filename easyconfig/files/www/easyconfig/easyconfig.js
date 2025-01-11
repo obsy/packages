@@ -22,6 +22,10 @@ function getCookie(cname) {
 	return '';
 }
 
+function getRandomString() {
+	return '' + String.fromCharCode(0|Math.random()*26+97) + Math.random().toString(36).substring(2, 9);
+}
+
 function setTheme(mode) {
 	switch (mode) {
 		case '0':
@@ -878,7 +882,7 @@ function execute(cmd, callback) {
 	cmd.push('exit 0');
 	cmd.push('');
 
-	var filename = '/tmp/' + Math.random().toString(36).substring(2, 10) + '-' + Math.random().toString(36).substring(2, 10);
+	var filename = '/tmp/' + getRandomString();
 	ubus_call('"file", "write", {"path":"' + filename + '","data":"' + cmd.join('\n') + '"}', function(data) {
 		ubus_call('"file", "exec", {"command":"sh", "params":["' + filename + '"]}', function(data1) {
 			callback();
@@ -2232,7 +2236,7 @@ function sendmodemat() {
 	cmd.push('rm -- \\\"$0\\\"');
 	cmd.push('exit $RET');
 	cmd.push('');
-	var filename = '/tmp/' + Math.random().toString(36).substring(2, 10) + '-' + Math.random().toString(36).substring(2, 10);
+	var filename = '/tmp/' + getRandomString();
 	ubus_call('"file", "write", {"path":"' + filename + '","data":"' + cmd.join('\n') + '"}', function(data) {
 		ubus_call('"file", "exec", {"command":"sh", "params":["' + filename + '"]}', function(data1) {
 			if (!data1.stderr) {
@@ -5790,7 +5794,7 @@ function savevpnnew() {
 
 	if (getValue('vpn_new') == 'openvpn') {
 		showError('vpn_openvpn_error', '', '');
-		var interface = Math.random().toString(36).substring(2, 10);
+		var interface = getRandomString();
 		setValue('vpn_openvpn_interface', interface);
 		setValue('vpn_openvpn_section', interface);
 		setValue('vpn_openvpn_name', '');
@@ -5805,7 +5809,7 @@ function savevpnnew() {
 	}
 	if (getValue('vpn_new') == 'pptp') {
 		showError('vpn_pptp_error', '', '');
-		setValue('vpn_pptp_interface', Math.random().toString(36).substring(2, 10));
+		setValue('vpn_pptp_interface', getRandomString());
 		setValue('vpn_pptp_name', '');
 		setValue('vpn_pptp_auto', 0);
 		setValue('vpn_pptp_button', false);
@@ -5819,7 +5823,7 @@ function savevpnnew() {
 	}
 	if (getValue('vpn_new') == 'sstp') {
 		showError('vpn_sstp_error', '', '');
-		setValue('vpn_sstp_interface', Math.random().toString(36).substring(2, 10));
+		setValue('vpn_sstp_interface', getRandomString());
 		setValue('vpn_sstp_name', '');
 		setValue('vpn_sstp_auto', 0);
 		setValue('vpn_sstp_button', false);
@@ -5832,7 +5836,7 @@ function savevpnnew() {
 	}
 	if (getValue('vpn_new') == 'wireguard') {
 		showError('vpn_wireguard_error', '', '');
-		setValue('vpn_wireguard_interface', Math.random().toString(36).substring(2, 10));
+		setValue('vpn_wireguard_interface', getRandomString());
 		setValue('vpn_wireguard_auto', 0);
 		setValue('vpn_wireguard_button', false);
 		setDisplay('div_vpn_wireguard_button', config.button.code != '');
@@ -5853,7 +5857,7 @@ function savevpnnew() {
 	}
 	if (getValue('vpn_new') == 'zerotier') {
 		showError('vpn_zerotier_error', '', '');
-		setValue('vpn_zerotier_section', Math.random().toString(36).substring(2, 10));
+		setValue('vpn_zerotier_section', getRandomString());
 		setValue('vpn_zerotier_enabled', true);
 		setValue('vpn_zerotier_name', '');
 		setValue('vpn_zerotier_network', '');
@@ -5934,7 +5938,7 @@ function saveopenvpn() {
 	var interface = getValue('vpn_openvpn_interface');
 	var section = getValue('vpn_openvpn_section');
 	if (interface == '') {
-		interface = Math.random().toString(36).substring(2, 10);
+		interface = getRandomString();
 	}
 
 	ubus_call('"file", "write", {"path":"/tmp/' + interface + '","data":"' + configtext.replace(/\\/g,'\\\\').replace(/"/g, '\\"') + '"}', function(data) {
@@ -7409,7 +7413,7 @@ function savenetwork() {
 
 	var json = JSON.parse(atob(getValue('network_data')));
 	if (json.section == '') {
-		json.section = Math.random().toString(36).substring(2, 10);
+		json.section = getRandomString();
 		cmd.push('uci set network.' + json.section + '=interface');
 		json.device = 'br-' + json.section;
 		cmd.push('uci add network device');
