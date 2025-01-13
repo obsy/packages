@@ -3161,37 +3161,19 @@ function sitesurveycallbackfilter(filterby) {
 			e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
 		}
 	}
+	setCookie('easyconfig_sitesurvey_filterby', filterby);
 }
 
 function sitesurveycallback(sortby) {
-
 	var all;
-	var filterby = 'all';
-	all = ['all', '2', '5', '6'];
-	for (var idx = 0; idx < all.length; idx++) {
-		var e = document.getElementById('sitesurvey_filter_' + all[idx]);
-		if (e === null) {
-			break;
-		}
-		if (e.style.fontWeight == 700) {
-			filterby = all[idx];
-			break;
-		}
-	}
+	var filterby = getCookie('easyconfig_sitesurvey_filterby');
+	if (filterby == '') { filterby = 'all'; }
 
 	if (sortby == '') {
-		sortby = 'ssid';
-		all = ['ssid', 'mac', 'signal', 'freq', 'timestamp'];
-		for (var idx = 0; idx < all.length; idx++) {
-			var e = document.getElementById('sitesurvey_sortby_' + all[idx]);
-			if (e === null) {
-				break;
-			}
-			if (e.style.fontWeight == 700) {
-				sortby = all[idx];
-				break;
-			}
-		}
+		sortby = getCookie('easyconfig_sitesurvey_sortby');
+		if (sortby == '') { sortby = 'ssid'; }
+	} else {
+		setCookie('easyconfig_sitesurvey_sortby', sortby);
 	}
 
 	var html = '';
@@ -3731,21 +3713,21 @@ function bytesToSize(bytes) {
 }
 
 function clientspie_toogle() {
-	var showclientspie = getCookie('easyconfig_clientspie');
+	var showclientspie = getCookie('easyconfig_clients_pie');
 	if (showclientspie === '0') {
 		setDisplay('div_clients_pie', true);
-		setCookie('easyconfig_clientspie', '1');
+		setCookie('easyconfig_clients_pie', '1');
 		setValue('div_clients_showpie', '<span class="click" title="ukryj wykres" onclick="clientspie_toogle();"><i data-feather="eye-off"></i></span>');
 	} else {
 		setDisplay('div_clients_pie', false);
-		setCookie('easyconfig_clientspie', '0');
+		setCookie('easyconfig_clients_pie', '0');
 		setValue('div_clients_showpie', '<span class="click" title="pokaż wykres" onclick="clientspie_toogle();"><i data-feather="eye"></i></span>');
 	}
 	showicon();
 }
 
 function clientspie_show() {
-	var showclientspie = getCookie('easyconfig_clientspie');
+	var showclientspie = getCookie('easyconfig_clients_pie');
 	if (showclientspie === '0') {
 		setDisplay('div_clients_pie', false);
 		setValue('div_clients_showpie', '<span class="click" title="pokaż wykres" onclick="clientspie_toogle();"><i data-feather="eye"></i></span>');
@@ -3782,6 +3764,7 @@ function clientscallbackfilter(filterby) {
 		var e = document.getElementById('clients_filter_' + all[idx]);
 		e.style.fontWeight = (filterby == all[idx]) ? 700 : 400;
 	}
+	setCookie('easyconfig_clients_filterby', filterby);
 }
 
 function clientscallbackfilterall(filterbyall) {
@@ -3790,52 +3773,29 @@ function clientscallbackfilterall(filterbyall) {
 		var e = document.getElementById('clients_filterall_' + all[idx]);
 		e.style.fontWeight = (filterbyall == all[idx]) ? 700 : 400;
 	}
+	setCookie('easyconfig_clients_filterbyall', filterbyall);
 }
 
 function clientscallback(sortby) {
-
 	var all;
-	var filterby = 'active';
-	all = ['active', 'all'];
-	for (var idx = 0; idx < all.length; idx++) {
-		var e = document.getElementById('clients_filter_' + all[idx]);
-		if (e === null) {
-			break;
-		}
-		if (e.style.fontWeight == 700) {
-			filterby = all[idx];
-			break;
-		}
-	}
-	var filterbyall = 'all';
-	all = ['all', 'week', 'month', 'year'];
-	for (var idx = 0; idx < all.length; idx++) {
-		var e = document.getElementById('clients_filterall_' + all[idx]);
-		if (e === null) {
-			break;
-		}
-		if (e.style.fontWeight == 700) {
-			filterbyall = all[idx];
-			break;
-		}
-	}
+	var filterby = getCookie('easyconfig_clients_filterby');
+	if (filterby == '') { filterby = 'active'; }
+
+	var filterbyall = getCookie('easyconfig_clients_filterbyall');
+	if (filterbyall == '') { filterbyall = 'all'; }
 
 	if (sortby == '') {
-		sortby = 'displayname';
 		if (filterby == 'active') {
-			all = ['displayname', 'tx', 'rx', 'percent', 'connected', 'type', 'ip'];
+			sortby = getCookie('easyconfig_clients_act_sortby');
 		} else {
-			all = ['displayname', 'mac', 'last_seen'];
+			sortby = getCookie('easyconfig_clients_all_sortby');
 		}
-		for (var idx = 0; idx < all.length; idx++) {
-			var e = document.getElementById('clients_sortby_' + all[idx]);
-			if (e === null) {
-				break;
-			}
-			if (e.style.fontWeight == 700) {
-				sortby = all[idx];
-				break;
-			}
+		if (sortby == '') { sortby = 'displayname'; }
+	} else {
+		if (filterby == 'active') {
+			setCookie('easyconfig_clients_act_sortby', sortby);
+		} else {
+			setCookie('easyconfig_clients_all_sortby', sortby);
 		}
 	}
 
