@@ -1101,6 +1101,8 @@ show_modem()
 
 	if [ "x$(uci -q get network.wan.proto)" = "xqmi" ] && [ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ]; then
 		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_qmi.sh
+	elif [ "x$(uci -q get network.wan.proto)" = "xmodemmanager" ]; then
+		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_modemmanager.sh
 	else
 		FORCE_PLMN=$T /usr/share/easyconfig/modem/info.sh
 	fi
@@ -1130,19 +1132,33 @@ show_modemsettings() {
 ##############################################################################
 
 show_modeminfo() {
-	DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-	if [ -n "$DEVICE" ]; then
-		O=$(gcom -d $DEVICE -s /usr/share/easyconfig/modem/vendorproduct.gcom)
-		T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-		[ -n "$T" ] && VENDOR="$T"
-		T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-		[ -n "$T" ] && PRODUCT="$T"
-		T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-		[ -n "$T" ] && REVISION="$T"
-		T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-		[ -n "$T" ] && IMEI="$T"
-		T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-		[ -n "$T" ] && ICCID="$T"
+	if [ "x$(uci -q get network.wan.proto)" = 'xmodemmanager' ]; then
+		DEVICE=$(uci -q get network.wan.device);
+		if [ -n "$DEVICE" ]; then
+			IMEI=""
+			VENDOR=""
+			PRODUCT=""
+			REVISION=""
+			ICCID=""
+			SIM=""
+			eval $(mmcli -m "$DEVICE" -J | jsonfilter -q -e 'IMEI=@.modem.generic["equipment-identifier"]' -e 'VENDOR=@.modem.generic.manufacturer' -e 'PRODUCT=@.modem.generic.model' -e 'REVISION=@.modem.generic.revision' -e 'SIM=@.modem.generic.sim')
+			[ -n "$SIM" ] && eval $(mmcli -m "$DEVICE" -J --sim $SIM | jsonfilter -q -e 'ICCID=@.sim.properties.iccid')
+		fi
+	else
+		DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
+		if [ -n "$DEVICE" ]; then
+			O=$(gcom -d $DEVICE -s /usr/share/easyconfig/modem/vendorproduct.gcom)
+			T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+			[ -n "$T" ] && VENDOR="$T"
+			T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+			[ -n "$T" ] && PRODUCT="$T"
+			T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+			[ -n "$T" ] && REVISION="$T"
+			T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+			[ -n "$T" ] && IMEI="$T"
+			T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
+			[ -n "$T" ] && ICCID="$T"
+		fi
 	fi
 
 	echo '{'

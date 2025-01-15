@@ -684,12 +684,21 @@ function enableWan(proto) {
 		setDisplay('div_status_modem', true);
 		setDisplay('div_system_modem', true);
 		setCookie('easyconfig_status_modem', '1');
+		setDisplay('div_modem_modemat', true);
+	} else if (proto == 'modemmanager') {
+		modem = 1;
+		setDisplay('menu_ussdsms', false);
+		setDisplay('div_status_modem', true);
+		setDisplay('div_system_modem', true);
+		setCookie('easyconfig_status_modem', '1');
+		setDisplay('div_modem_modemat', false);
 	} else {
 		modem = 0;
 		setDisplay('menu_ussdsms', false);
 		setDisplay('div_status_modem', false);
 		setDisplay('div_system_modem', false);
 		setCookie('easyconfig_status_modem', '0');
+		setDisplay('div_modem_modemat', false);
 	}
 }
 
