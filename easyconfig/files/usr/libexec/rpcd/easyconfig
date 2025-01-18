@@ -129,7 +129,7 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	for I in /sys/class/net/$BRIDGE/lower_*; do
 		IFNAME=${I##*lower_}
 		if [ -e $I/phy80211 ]; then
-			CNT=$(iw dev $IFNAME station dump | grep -c Station)
+			CNT=$(iw dev $IFNAME station dump 2>/dev/null | grep -c Station)
 			WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 		else
 			PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
@@ -894,7 +894,7 @@ for R in $RADIOS; do
 			[ "x$T2" = "x6g" ] && BAND=6
 			PHY=$(iwinfo nl80211 phyname $R)
 			for i in $IFNAME; do
-				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, rx[w], tx[w], signal[w], connected[w], band, phy, network}}')
+				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump 2>/dev/null | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, rx[w], tx[w], signal[w], connected[w], band, phy, network}}')
 			done
 		fi
 	done
@@ -2338,7 +2338,7 @@ show_networks() {
 			for I in /sys/class/net/$BRIDGE/lower_*; do
 				IFNAME=${I##*lower_}
 				if [ -e $I/phy80211 ]; then
-					CNT=$(iw dev $IFNAME station dump | grep -c Station)
+					CNT=$(iw dev $IFNAME station dump 2>/dev/null | grep -c Station)
 					WLAN_CLIENTS=$((WLAN_CLIENTS+CNT))
 				else
 					if [ -e /sys/class/net/$BRIDGE/brif/$IFNAME/port_no ]; then
