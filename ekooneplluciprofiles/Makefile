@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplluciprofiles
-PKG_VERSION:=20231219
+PKG_VERSION:=20250123
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -13,7 +13,6 @@ define Package/ekooneplluciprofiles/Default
 	TITLE:=eko.one.pl profile -
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 	PKGARCH:=all
-	DEPENDS:=+luci-app-openvpn +luci-i18n-openvpn-pl +openvpn-openssl +openvpn-easy-rsa
 endef
 
 define Package/ekooneplluciprofiles/description/Default
@@ -61,11 +60,7 @@ endef
 define Package/ekooneplusb-luci
 	$(call Package/ekooneplluciprofiles/Default)
 	TITLE+= LuCI USB
-	DEPENDS+=+block-mount +kmod-usb-storage +kmod-usb-storage-uas \
-		+kmod-fs-f2fs +mkf2fs +f2fsck \
-		+kmod-fs-ext4 +e2fsprogs \
-		+kmod-fs-vfat +kmod-nls-cp437 +kmod-nls-iso8859-1 \
-		+kmod-fs-ntfs3 +kmod-fs-exfat \
+	DEPENDS:=+ekooneplusb \
 		+luci-app-p910nd +luci-i18n-p910nd-pl +kmod-usb-printer +p910nd \
 		+luci-app-ksmbd +luci-i18n-ksmbd-pl +ksmbd-server +wsdd2 \
 		+usb-modeswitch +kmod-usb-net +kmod-usb-net-rndis +kmod-usb-net-cdc-ether \
