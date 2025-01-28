@@ -10,6 +10,9 @@ for f in $F; do
 				[ -n "$T" ] && T="$T, "
 				T="$T"$(awk '{if ($1 == 0){printf ""}else{printf "%.2f C", $1/1000}}' $f/temp1_input 2>/dev/null)
 				;;
+			tmp421)
+				T="$T"$(awk '{if ($1 == 0){printf ""}else{printf "%.2f C", $1/1000}}' $f/temp2_input 2>/dev/null)
+				;;
 		esac
 	fi
 done
