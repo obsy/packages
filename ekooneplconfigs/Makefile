@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplconfigs
-PKG_VERSION:=20250129
+PKG_VERSION:=20250202
 PKG_MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 
 PKG_FLAGS:=nonshared

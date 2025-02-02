@@ -6,7 +6,7 @@ for f in $F; do
 	[ -e $f/name ] && NAME=$(cat $f/name)
 	if [ -n "$NAME" ]; then
 		case "$NAME" in
-			ath10k_hwmon|ath11k_hwmon|mt7915_phy*)
+			ath10k_hwmon|ath11k_hwmon|mt7*_phy*)
 				[ -n "$T" ] && T="$T, "
 				T="$T"$(awk '{if ($1 == 0){printf ""}else{printf "%.2f C", $1/1000}}' $f/temp1_input 2>/dev/null)
 				;;
