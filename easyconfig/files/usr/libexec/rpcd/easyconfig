@@ -811,6 +811,12 @@ if [ -n "$T" ]; then
 fi
 echo '"flowoffloading":'$FLOWOFFLOADING','
 
+if [ -e /www/cgi-bin/luci ]; then
+	echo '"luci":true,'
+else
+	echo '"luci":false,'
+fi
+
 echo '},'
 
 echo '}'

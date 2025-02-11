@@ -1325,6 +1325,9 @@ function showconfig() {
 		// wol
 		setDisplay('menu_wol', config.services.wol);
 
+		// luci
+		setDisplay('menu_luci', config.services.luci);
+
 		// button
 		if (config.button.code != '') {
 			select = removeOptions('system_button');
