@@ -1,0 +1,17 @@
+#!/bin/sh
+T=""
+F=/sys/class/hwmon/hwmon*
+for f in $F; do
+	[ -e $f ] || continue
+	[ -e $f/name ] && NAME=$(cat $f/name)
+	if [ -n "$NAME" ]; then
+		case "$NAME" in
+			mdio_bus*)
+				[ -n "$T" ] && T="$T, "
+				T="$T"$(awk '{if ($1 == 0){printf ""}else{printf "%.2f C", $1/1000}}' $f/temp1_input 2>/dev/null)
+				;;
+		esac
+	fi
+done
+[ -n "$T" ] && echo "Ethernet chip temp: $T"
+exit 0

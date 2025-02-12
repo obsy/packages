@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplconfigs
-PKG_VERSION:=20250202
+PKG_VERSION:=20250212
 PKG_MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 
 PKG_FLAGS:=nonshared
@@ -17,6 +17,9 @@ endef
 
 ifeq ($(CONFIG_TARGET_ipq806x_generic),y)
   FILE_PATH:=./files/ipq806x_generic
+endif
+ifeq ($(CONFIG_TARGET_mediatek_filogic),y)
+  FILE_PATH:=./files/mediatek_filogic
 endif
 ifeq ($(CONFIG_TARGET_mvebu_cortexa53),y)
   FILE_PATH:=./files/mvebu_cortexa53
