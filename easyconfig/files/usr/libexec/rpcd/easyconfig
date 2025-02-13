@@ -681,6 +681,11 @@ for LINE in $LINES; do
 			BUTTON_NAME=$(cat "$(dirname $LINE)"/label | tr 'a-z' 'A-Z')
 			BUTTON="wps"
 			;;
+		"000000ee")
+			# key_wlan
+			BUTTON_NAME=$(cat "$(dirname $LINE)"/label | tr 'a-z' 'A-Z')
+			BUTTON="wlan"
+			;;
 		"000000f7")
 			# key_rfkill
 			BUTTON_NAME=$(cat "$(dirname $LINE)"/label | tr 'a-z' 'A-Z')
@@ -691,19 +696,19 @@ done
 
 if [ -n "$BUTTON" ]; then
 	[ -e /usr/share/easyconfig/rc.button/rfkill ] || cp /etc/rc.button/rfkill /usr/share/easyconfig/rc.button/rfkill
-	if grep -q leds /etc/rc.button/$BUTTON; then
+	if grep -q leds /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="leds"
 	fi
-	if grep -q rfkill /etc/rc.button/$BUTTON; then
+	if grep -q rfkill /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="rfkill"
 	fi
-	if grep -q "easyconfig.vpn" /etc/rc.button/$BUTTON; then
+	if grep -q "easyconfig.vpn" /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="vpn"
 	fi
-	if grep -q "forwarding" /etc/rc.button/$BUTTON; then
+	if grep -q "forwarding" /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="killswitch"
 	fi
-	if grep -q "wol" /etc/rc.button/$BUTTON; then
+	if grep -q "wol" /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="wol"
 	fi
 fi
