@@ -6612,7 +6612,7 @@ function showadblock() {
 			for (var idx = 0; idx < whitelist.length; idx++) {
 				html += '<div class="row">';
 				html += '<div class="col-xs-9">' + whitelist[idx] + '</div>';
-				html += '<div class="col-xs-3 text-right"><span class="click" title="usuń" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
+				html += '<div class="col-xs-3 text-right"><span class="click" title="usuń ' + whitelist[idx] + '" onclick="removefromwhitelist(\'' + whitelist[idx] + '\');"><i data-feather="trash-2"></i></span></div>';
 				html += '</div>';
 			}
 			html += '<hr>';
