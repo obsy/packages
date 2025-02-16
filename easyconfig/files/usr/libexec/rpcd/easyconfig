@@ -283,6 +283,13 @@ case "$BOARDNAME" in
 			[ -n "$T1" ] && [ $T1 -gt $T ] && T=$T1
 		done
 		[ $T -gt 0 ] && printf '{"Temperatura Wi-Fi":"%d &deg;C"},' $T
+		T=0
+		FILES=$(grep -s -l "k10temp\|coretemp\|armada_thermal\|cpu_thermal\|f10e4078.thermal" /sys/class/hwmon/hwmon*/name)
+		for FILE in $FILES; do
+			T1=$(awk '{printf "%d\n", $0/1000}' $(dirname $FILE)/temp1_input 2>/dev/null)
+			[ -n "$T1" ] && [ $T1 -gt $T ] && T=$T1
+		done
+		[ $T -gt 0 ] && printf '{"Temperatura CPU":"%d &deg;C"},' $T
 		;;
 esac
 echo ']'
