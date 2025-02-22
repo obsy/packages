@@ -202,6 +202,7 @@ BOARDNAME=$(cat /tmp/sysinfo/board_name)
 echo '"sensors":['
 case "$BOARDNAME" in
 	"cellc,rtl30vw"|\
+	"mikrotik,chateau-lte12"|\
 	"zte,mf286d")
 		awk '{printf "{\"Temperatura Wi-Fi 2.4 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon0/temp1_input 2>/dev/null
 		awk '{printf "{\"Temperatura Wi-Fi 5 GHz\":\"%d &deg;C\"},", $1/1000}'  /sys/class/hwmon/hwmon1/temp1_input 2>/dev/null
