@@ -3117,52 +3117,56 @@ function formatDuration(s, showsec) {
 var wifiscanresults;
 
 function showsitesurvey() {
-	ubus_call('"easyconfig", "wifiscan", {}', function(data) {
-		var arr = [...new Map((data.result).map(v => [JSON.stringify([v.mac,v.ssid,v.freq,v.signal,v.channel,v.encryption,v.mode1,v.mode2,v.vhtch1,v.vhtch2]), v])).values()];
+	for (var idx = 0, n = config.wlan_current_channels.length; idx < n; idx++) {
+		ubus_call('"easyconfig", "wifiscan", {"interface":"' + config.wlan_current_channels[idx].interface + '"}', showsitesurvey_praser);
+	}
+}
 
-		var wlan_devices = config.wlan_devices;
+function showsitesurvey_praser(data) {
+	var arr = [...new Map((data.result).map(v => [JSON.stringify([v.mac,v.ssid,v.freq,v.signal,v.channel,v.encryption,v.mode1,v.mode2,v.vhtch1,v.vhtch2]), v])).values()];
 
-		var ts = Date.now()/1000;
-		var l = arr.length;
-		for (var idx1 = 0; idx1 < l; idx1++) {
-			arr[idx1].timestamp = parseInt(ts).toString();
-			arr[idx1].ssid = (arr[idx1].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
-			if (arr[idx1].ssid == '') { arr[idx1].ssid = '<bez nazwy>'; }
-			arr[idx1].signal = parseInt(arr[idx1].signal);
-			if (isNaN(arr[idx1].signal)) { arr[idx1].signal = -100; }
+	var wlan_devices = config.wlan_devices;
 
-			if (arr[idx1].channel == "?") {
-				for (var i = 0; i < wlan_devices.length; i++) {
-					obj = config[wlan_devices[i]].wlan_channels;
-					for (var propt in obj) {
-						if (obj[propt][0] == arr[idx1].freq) {
-							arr[idx1].channel = propt;
-							break;
-						}
+	var ts = Date.now()/1000;
+	var l = arr.length;
+	for (var idx1 = 0; idx1 < l; idx1++) {
+		arr[idx1].timestamp = parseInt(ts).toString();
+		arr[idx1].ssid = (arr[idx1].ssid).replace(/(?:\\x[\da-fA-F]{2})+/g, function (val) {return decodeURIComponent(val.replace(/\\x/g, '%'))});
+		if (arr[idx1].ssid == '') { arr[idx1].ssid = '<bez nazwy>'; }
+		arr[idx1].signal = parseInt(arr[idx1].signal);
+		if (isNaN(arr[idx1].signal)) { arr[idx1].signal = -100; }
+
+		if (arr[idx1].channel == "?") {
+			for (var i = 0; i < wlan_devices.length; i++) {
+				obj = config[wlan_devices[i]].wlan_channels;
+				for (var propt in obj) {
+					if (obj[propt][0] == arr[idx1].freq) {
+						arr[idx1].channel = propt;
+						break;
 					}
 				}
 			}
-
 		}
-		if (wifiscanresults) {
-			for (var idx = wifiscanresults.length - 1; idx >= 0; idx--) {
-				if ((ts - wifiscanresults[idx].timestamp) > 180) {
-					wifiscanresults.splice(idx, 1);
-				} else {
-					for (var idx1 = 0; idx1 < l; idx1++) {
-						if (wifiscanresults[idx].mac == arr[idx1].mac) {
-							wifiscanresults.splice(idx, 1);
-							break;
-						}
+
+	}
+	if (wifiscanresults) {
+		for (var idx = wifiscanresults.length - 1; idx >= 0; idx--) {
+			if ((ts - wifiscanresults[idx].timestamp) > 180) {
+				wifiscanresults.splice(idx, 1);
+			} else {
+				for (var idx1 = 0; idx1 < l; idx1++) {
+					if (wifiscanresults[idx].mac == arr[idx1].mac) {
+						wifiscanresults.splice(idx, 1);
+						break;
 					}
 				}
 			}
-			wifiscanresults = wifiscanresults.concat(arr);
-		} else {
-			wifiscanresults = arr;
 		}
-		sitesurveycallback('');
-	});
+		wifiscanresults = wifiscanresults.concat(arr);
+	} else {
+		wifiscanresults = arr;
+	}
+	sitesurveycallback('');
 }
 
 function sitesurveycallbackfilter(filterby) {
