@@ -1667,7 +1667,16 @@ upgrade() {
 		T=$(grep -E "mifi.*$BOARD" $FSUMS | tail -n1)
 	else
 		BOARD=$(sed 's/,/_/g' /tmp/sysinfo/board_name)
-		T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS | tail -n1)
+		if [ -e /sys/firmware/mikrotik/hard_config/booter_version ]; then
+			if grep -q "^7." /sys/firmware/mikrotik/hard_config/booter_version; then
+				BOOTER="-v7"
+			else
+				BOOTER=""
+			fi
+			T=$(grep -E "mifi.*$BOARD.*sysupgrade${BOOTER}\." $FSUMS | tail -n1)
+		else
+			T=$(grep -E "mifi.*$BOARD.*sysupgrade" $FSUMS | tail -n1)
+		fi
 	fi
 	rm $FSUMS >/dev/null 2>&1
 	if [ -z "$T" ]; then
