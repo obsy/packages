@@ -2192,9 +2192,15 @@ leds() {
 
 		BASE="/sys/firmware/devicetree/base/leds"
 		if [ -e "$BASE" ]; then
-			for i in $BASE/*; do
-				if [ -e "$i/linux,default-trigger" ]; then
-					LED="/sys/class/leds/"$(cat $i/label)"/trigger"
+			for i in $(find $BASE -name "linux,default-trigger" -type f -exec dirname {} \;); do
+				LED=""
+				[ -e "$i/label" ] && LED="/sys/class/leds/"$(cat $i/label)"/trigger"
+				if [ ! -e "$LED" ]; then
+					T=""
+					[ -e "$i/name" ] && T=$(grep -s -l -R "OF_NAME=$(cat $i/name)" /sys/class/leds/*/uevent)
+					[ -n "$T" ] && LED="$(dirname "$T")/trigger"
+				fi
+				if [ -e "$LED" ]; then
 					TRIGGER=$(cat $i/linux,default-trigger)
 					echo $TRIGGER > $LED
 				fi
