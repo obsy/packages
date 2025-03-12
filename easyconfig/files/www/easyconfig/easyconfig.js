@@ -7171,13 +7171,14 @@ function shownetworks() {
 		var sorted = sortJSON(data.networks, 'description', 'asc');
 		if (sorted.length > 0) {
 			var html = '<div class="row space">';
-			html += '<div class="col-xs-6">Opis</div>';
+			html += '<div class="col-xs-5">Opis</div>';
 			if (has_wireless) {
 				html += '<div class="hidden-xs col-xs-3">Klientów bezprzewodowych</div>';
 				html += '<div class="visible-xs col-xs-3">Klientów bezprzew.</div>';
 			}
 			html += '<div class="hidden-xs col-xs-3">Klientów przewodowych</div>';
 			html += '<div class="visible-xs col-xs-3">Klientów przew.</div>';
+			html += '<div class="col-xs-1"></div>';
 			html += '</div>';
 			for (var idx = 0; idx < sorted.length; idx++) {
 				ipaddrs.push({ipaddr: sorted[idx].ipaddr, section: sorted[idx].section, description: sorted[idx].description});
@@ -7189,7 +7190,7 @@ function shownetworks() {
 					sorted[idx].description = sorted[idx].section;
 				}
 				html += '<hr><div class="row space">';
-				html += '<div class="col-xs-6 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
+				html += '<div class="col-xs-5 click" onclick="networkdetails(\'' + btoa(JSON.stringify(sorted[idx])) + '\')">' + (sorted[idx].description).escapeHTML() + '</div>';
 				if (has_wireless) {
 					if (sorted[idx].wlan_clients == 0) {
 						html += '<div class="col-xs-3">0</div>';
@@ -7201,6 +7202,9 @@ function shownetworks() {
 					html += '<div class="col-xs-3">0</div>';
 				} else {
 					html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].lan_clients + ' &rarr;</a></div>';
+				}
+				if (has_wireless) {
+					html += '<div class="col-xs-1"><span class="click" onclick="networkswifitoggle(\'' + sorted[idx].section + '\');"><span title="zmień stan Wi-Fi"><i data-feather="power"></i></span></div>';
 				}
 				html += '</div>';
 			}
@@ -7244,6 +7248,20 @@ function shownetworks() {
 			networkdetails(btoa(JSON.stringify(newnetwork)));
 		});
 	})
+}
+
+function networkswifitoggle(section) {
+	var cmd = [];
+	cmd.push('SECTIONS=$(uci -q show wireless | awk -F. \'/\\\\\.network=\'\\\\\'\'\'' + section + '\'\'\\\\\'\'$/{print $2}\')');
+	cmd.push('for SEC in $SECTIONS; do')
+    cmd.push(' T1=1')
+	cmd.push(' T2=$(uci -q get wireless.${SEC}.disabled)')
+	cmd.push(' [ \\\"x$T2\\\" = \\\"x1\\\" ] && T1=0')
+	cmd.push(' uci set wireless.${SEC}.disabled=$T1')
+	cmd.push('done')
+	cmd.push('uci commit');
+	cmd.push('wifi reload');
+	execute(cmd, shownetworks);
 }
 
 function networkdetails(data) {
