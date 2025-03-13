@@ -704,17 +704,20 @@ done
 
 if [ -n "$BUTTON" ]; then
 	[ -e /usr/share/easyconfig/rc.button/rfkill ] || cp /etc/rc.button/rfkill /usr/share/easyconfig/rc.button/rfkill
+	if grep -q "forwarding" /etc/rc.button/$BUTTON 2>/dev/null; then
+		ACTION="killswitch"
+	fi
 	if grep -q leds /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="leds"
 	fi
 	if grep -q rfkill /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="rfkill"
 	fi
-	if grep -q "easyconfig.vpn" /etc/rc.button/$BUTTON 2>/dev/null; then
+	if grep -q "easyconfig\.vpn" /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="vpn"
 	fi
-	if grep -q "forwarding" /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="killswitch"
+	if grep -q "wireless.*\.disabled" /etc/rc.button/$BUTTON 2>/dev/null; then
+		ACTION="wifitoggle"
 	fi
 	if grep -q "wol" /etc/rc.button/$BUTTON 2>/dev/null; then
 		ACTION="wol"
@@ -2314,6 +2317,7 @@ show_networks() {
 		echo '"dhcp":'$DHCP','
 		echo '"wireless":['
 
+		BUTTON="false"
 		RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
 		for R in $RADIOS; do
 			echo '{"'$R'":{'
@@ -2339,6 +2343,7 @@ show_networks() {
 					WLAN_ISOLATE=$(uci -q get wireless.$WLAN_SEC.isolate)
 					WLAN_HIDDEN=$(uci -q get wireless.$WLAN_SEC.hidden)
 					WLAN_MACADDR=$(uci -q get wireless.$WLAN_SEC.macaddr)
+					[ "x$(uci -q get wireless.$WLAN_SEC.button)" = "x1" ] && BUTTON="true"
 					break
 				done
 				[ -z "$WLAN_SSID" ] && WLAN_DISABLED=1
@@ -2356,6 +2361,7 @@ show_networks() {
 		done
 
 		echo '],'
+		echo '"button":'$BUTTON','
 		BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 		T=$(uci show network | awk -F. '/\.name='\'''$BRIDGE''\''/{print $2}')
 		TPORTS=""

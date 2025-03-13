@@ -1344,6 +1344,10 @@ function showconfig() {
 				opt.value = 'rfkill';
 				opt.innerHTML = 'Włącz/wyłącz Wi-Fi';
 				select.appendChild(opt);
+				opt = document.createElement('option');
+				opt.value = 'wifitoggle';
+				opt.innerHTML = 'Włącz/wyłącz Wi-Fi sieci dodatkowych';
+				select.appendChild(opt);
 			}
 			if (config.services.wol) {
 				opt = document.createElement('option');
@@ -7253,14 +7257,16 @@ function shownetworks() {
 function networkswifitoggle(section) {
 	var cmd = [];
 	cmd.push('SECTIONS=$(uci -q show wireless | awk -F. \'/\\\\\.network=\'\\\\\'\'\'' + section + '\'\'\\\\\'\'$/{print $2}\')');
-	cmd.push('for SEC in $SECTIONS; do')
-    cmd.push(' T1=1')
-	cmd.push(' T2=$(uci -q get wireless.${SEC}.disabled)')
-	cmd.push(' [ \\\"x$T2\\\" = \\\"x1\\\" ] && T1=0')
-	cmd.push(' uci set wireless.${SEC}.disabled=$T1')
-	cmd.push('done')
-	cmd.push('uci commit');
-	cmd.push('wifi reload');
+	cmd.push('for SEC in $SECTIONS; do');
+    cmd.push(' T1=1');
+	cmd.push(' T2=$(uci -q get wireless.${SEC}.disabled)');
+	cmd.push(' [ \\\"x$T2\\\" = \\\"x1\\\" ] && T1=0');
+	cmd.push(' uci set wireless.${SEC}.disabled=$T1');
+	cmd.push('done');
+	cmd.push('if [ -n \\\"$SECTIONS\\\" ]; then');
+	cmd.push(' uci commit wireless');
+	cmd.push(' wifi reload');
+	cmd.push('fi');
 	execute(cmd, shownetworks);
 }
 
@@ -7322,6 +7328,8 @@ function networkdetails(data) {
 			setDisplay('div_network_wlan_macaddr_' + i, false);
 		}
 	}
+	setValue('network_wifitoggle', json.button);
+	setDisplay('div_network_wifitoggle', (radios.length > 0) && (config.button.code != ''));
 
 	var cnt = json.ports.length;
 	if (cnt > 0) {
@@ -7608,6 +7616,13 @@ function savenetwork() {
 					wlan_restart_required = true;
 				}
 				cmd.push('uci -q del wireless.' + section + '.macaddr');
+			}
+		}
+		if (config.button.code != '') {
+			if (getValue('network_wifitoggle') == 1) {
+				cmd.push('uci set wireless.' + section + '.button=1');
+			} else {
+				cmd.push('uci set wireless.' + section + '.button');
 			}
 		}
 	}
