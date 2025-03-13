@@ -1,0 +1,16 @@
+#!/bin/sh
+[ "${ACTION}" = "released" ] || exit 0
+
+SECTIONS=$(uci -q show wireless | awk -F. '/\.button='\''1'\''$/{print $2}');
+for SEC in $SECTIONS; do
+	T1=1
+	T2=$(uci -q get wireless.${SEC}.disabled)
+	[ "x$T2" = "x1" ] && T1=0
+	uci set wireless.${SEC}.disabled=$T1
+done
+if [ -n "$SECTIONS" ]; then
+	uci commit wireless
+	wifi reload
+fi
+
+exit 0
