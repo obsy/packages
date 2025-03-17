@@ -57,12 +57,12 @@ define Package/easyconfig/install
 
 	$(SED) 's/^\t*//g;s/^\s*//g;/^$$$$/d' $(1)/www/easyconfig.html
 
-	$(FIND) $(1) -type f -name '*.js' | while read src; do \
+	for src in $(1)/www/easyconfig/dns.js $(1)/www/easyconfig/easyconfig.js; do \
 		uglifyjs "$$$$src" -o "$$$$src".1 && \
 		mv "$$$$src".1 "$$$$src" || true; \
 	done
 
-	$(FIND) $(1) -type f -name '*.css' | while read src; do \
+	for src in $(1)/www/easyconfig/easyconfig.css; do \
 		cleancss "$$$$src" -o "$$$$src".1 && \
 		mv "$$$$src".1 "$$$$src" || true; \
 	done
