@@ -1,7 +1,17 @@
 include $(TOPDIR)/rules.mk
 
+define findrev
+	 $(shell \
+		if git log -1 >/dev/null 2>/dev/null; then \
+			git log -1 --format=%ad --date=format:'%Y%m%d' -- .; \
+		else \
+			find . -type f -printf '%T@\n' 2>/dev/null | sort -rn | head -n1 | cut -d. -f1 | awk '{print strftime("%Y%m%d", $1)}'; \
+		fi \
+	)
+endef
+
 PKG_NAME:=easyconfig
-PKG_VERSION:=20250228
+PKG_VERSION:=$(strip $(call findrev))
 
 include $(INCLUDE_DIR)/package.mk
 
