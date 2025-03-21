@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=modemband
-PKG_VERSION:=20241116
+PKG_VERSION:=20250321
 
 include $(INCLUDE_DIR)/package.mk
 
