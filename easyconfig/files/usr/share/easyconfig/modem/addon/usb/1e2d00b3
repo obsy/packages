@@ -3,11 +3,7 @@
 # T99W175
 
 O=$(sms_tool -d $DEVICE at "AT^TEMP?")
-O="
-PA: 32C
-Skin Sensor: 32C
-TSENS: 34C
-"
+
 T=$(echo "$O" | awk -F: '{gsub("C", ""); print $2}' | sort -r | head -n1 | xargs)
 [ -n "$T" ] && addon 10 "Temperature" "$T &deg;C"
 
@@ -106,7 +102,7 @@ if [ -n "$T" ]; then
 	MODE="$MODE / $(band5g ${T/n/})"
 	addon ${IDX} "${PREFIX} band" "$(band5g ${T/n/})"
 
-	T1=$(echo "$O" | awk -F: '/^nr_band_width:/{gsub("MHz", " MHz")print $2}')
+	T1=$(echo "$O" | awk -F: '/^nr_band_width:/{gsub("MHz", " MHz");print $2}')
 	[ -n "$T1" ] && addon $((IDX + 2)) "${PREFIX} Bandwidth" "$T1"
 	T1=$(echo "$O" | awk -F: '/^nr_pci:/ {print $2}')
 	[ -n "$T1" ] && addon $((IDX + 3)) "${PREFIX} PCI" "$T1"
@@ -114,9 +110,9 @@ if [ -n "$T" ]; then
 	[ -n "$T1" ] && addon $((IDX + 4)) "${PREFIX} EARFCN" "$T1"
 	T1=$(echo "$O" | awk -F: '/^nr_rsrp:/{print $2}' | awk '{print $1}')
 	[ -n "$T1" ] && addon $((IDX + 6)) "${PREFIX} RSRP" "${T1/dBm/ dBm}"
-	T1=$(echo "$O" | awk -F: '/^nr_rsrq:/{gsub("dB", " dB"); print $2}')
+	T1=$(echo "$O" | awk -F: '/^nr_rsrq:/{gsub("dB", " dB");print $2}')
 	[ -n "$T1" ] && addon $((IDX + 7)) "${PREFIX} RSRQ" "$T1"
-	T1=$(echo "$O" | awk -F: '/^nr_snr:/{gsub("dB", " dB"); print $2}')
+	T1=$(echo "$O" | awk -F: '/^nr_snr:/{gsub("dB", " dB");print $2}')
 	[ -n "$T1" ] && addon $((IDX + 8)) "${PREFIX} SNR" "$T1"
 fi
 
