@@ -75,6 +75,54 @@ wlancurrentchannels() {
 	echo '],'
 }
 
+show_ports() {
+TPORTS1=$1
+PORTS=""
+PORTS_SWCONFIG=""
+for IFNAME in $TPORTS1; do
+	CNT=${IFNAME##*;}
+	IFNAME=${IFNAME%%;*}
+	PORT=${IFNAME%%.*}
+	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "-1")",\"macs\":${CNT}},"
+	[ -e /sbin/swconfig ] || continue
+
+	VLAN=${IFNAME##*.}
+	if [ "$PORT" = "$VLAN" ]; then
+		VLAN=$(jsonfilter -i /etc/board.json -e '@.switch.switch0.roles' | jsonfilter -q -e '@[*]' | awk '/"'$PORT'"/{print NR; exit}')
+		[ -z "$VLAN" ] && VLAN=1
+	fi
+
+	T=$(jsonfilter -i /etc/board.json -e '@.switch.switch0.ports[@.device="'$PORT'"]')
+	[ -z "$T" ] && continue
+
+	TPORTS2=$(swconfig dev switch0 vlan $VLAN get ports | sed 's/[^0-9 ]//g')
+	for T in $TPORTS2; do
+		ROLE=""
+		INDEX=""
+		eval $(jsonfilter -i /etc/board.json -e 'ROLE=@.switch.switch0.ports[@.num='$T'].role' -e 'INDEX=@.switch.switch0.ports[@.num='$T'].index')
+		[ -z "$ROLE" ] && continue
+
+		STATUS=$(swconfig dev switch0 port $T get link)
+		case "$STATUS" in
+			*"link:up speed:1000baseT"*) SPEED="1000";;
+			*"link:up speed:100baseT"*) SPEED="100";;
+			*"link:up speed:10baseT"*) SPEED="10";;
+			*) SPEED="-1";;
+		esac
+		PORTS_SWCONFIG="${PORTS_SWCONFIG}{\"port\":\"$IFNAME\",\"id\":${INDEX:-$T},\"role\":\"$ROLE\",\"speed\":$SPEED},"
+	done
+done
+echo '"ports":['$PORTS'],'
+echo '"ports_swconfig":['$PORTS_SWCONFIG'],'
+echo '"ports_mapping":['
+case "$BOARDNAME" in
+	"teltonika,rut955"*)
+		echo '{"eth1":"WAN"}'
+		;;
+esac
+echo '],'
+}
+
 show_status() {
 SYSTEM_UPTIME=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
@@ -140,42 +188,6 @@ if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	done
 fi
 
-PORTS=""
-PORTS_SWCONFIG=""
-for IFNAME in $TPORTS1; do
-	CNT=${IFNAME##*;}
-	IFNAME=${IFNAME%%;*}
-	PORT=${IFNAME%%.*}
-	PORTS="${PORTS}{\"port\":\"${IFNAME}\",\"speed\":"$(cat /sys/class/net/$IFNAME/speed || echo "-1")",\"macs\":${CNT}},"
-	[ -e /sbin/swconfig ] || continue
-
-	VLAN=${IFNAME##*.}
-	if [ "$PORT" = "$VLAN" ]; then
-		VLAN=$(jsonfilter -i /etc/board.json -e '@.switch.switch0.roles' | jsonfilter -q -e '@[*]' | awk '/"'$PORT'"/{print NR; exit}')
-		[ -z "$VLAN" ] && VLAN=1
-	fi
-
-	T=$(jsonfilter -i /etc/board.json -e '@.switch.switch0.ports[@.device="'$PORT'"]')
-	[ -z "$T" ] && continue
-
-	TPORTS2=$(swconfig dev switch0 vlan $VLAN get ports | sed 's/[^0-9 ]//g')
-	for T in $TPORTS2; do
-		ROLE=""
-		INDEX=""
-		eval $(jsonfilter -i /etc/board.json -e 'ROLE=@.switch.switch0.ports[@.num='$T'].role' -e 'INDEX=@.switch.switch0.ports[@.num='$T'].index')
-		[ -z "$ROLE" ] && continue
-
-		STATUS=$(swconfig dev switch0 port $T get link)
-		case "$STATUS" in
-			*"link:up speed:1000baseT"*) SPEED="1000";;
-			*"link:up speed:100baseT"*) SPEED="100";;
-			*"link:up speed:10baseT"*) SPEED="10";;
-			*) SPEED="-1";;
-		esac
-		PORTS_SWCONFIG="${PORTS_SWCONFIG}{\"port\":\"$IFNAME\",\"id\":${INDEX:-$T},\"role\":\"$ROLE\",\"speed\":$SPEED},"
-	done
-done
-
 show_vpn_up | jsonfilter -q -e '@.result[*].up' | grep -q "true" && VPN_UP="true"
 
 echo '{'
@@ -185,8 +197,9 @@ echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
 echo '"wlan_clients":'$WLAN_CLIENTS','
 echo '"lan_clients":'$LAN_CLIENTS','
-echo '"ports":['$PORTS'],'
-echo '"ports_swconfig":['$PORTS_SWCONFIG'],'
+
+show_ports "$TPORTS1"
+
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
@@ -300,14 +313,6 @@ if [ -e /etc/config/mwan3 ]; then
 fi
 
 simslot
-
-echo ',"ports_mapping":['
-case "$BOARDNAME" in
-	"teltonika,rut955"*)
-		echo '{"eth1":"WAN"}'
-		;;
-esac
-echo ']'
 
 echo '}'
 }
@@ -947,6 +952,7 @@ for M in $WLAN_MAC; do
 	echo "{${M}${IP}${CONNECTED_SINCE}${CAPA}$(client_data $MAC)},"
 done
 
+TPORTS1=""
 for SEC in $NETWORKS; do
 	[ "$SEC" = "loopback" ] && continue
 	[ "$SEC" = "wan" ] && continue
@@ -965,6 +971,7 @@ for SEC in $NETWORKS; do
 		for I in /sys/class/net/$BRIDGE/lower_*; do
 			if [ ! -e $I/phy80211 ]; then
 				IFNAME=${I##*lower_}
+				TPORTS1="${TPORTS1} ${IFNAME};0"
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 				LAN_MACS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u)
 				for M in $LAN_MACS; do
@@ -992,7 +999,9 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 	done
 fi
 
-echo '],"networks":['$NETWORKLIST']}'
+echo '],"networks":['$NETWORKLIST'],'
+show_ports "$TPORTS1"
+echo '}'
 }
 
 show_clientslogs() {

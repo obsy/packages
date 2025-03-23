@@ -3765,6 +3765,20 @@ var clients;
 function showclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
 
+		if ((data.ports).length > 0) {
+			for (var idx = 0, n = (data.ports_swconfig).length; idx < n; idx++) {
+				var idx1 = (data.ports).findIndex(x => x.port === data.ports_swconfig[idx].port);
+				if (idx1 > -1) {
+					(data.ports).splice(idx1, 1);
+				}
+				(data.ports).push({'port': ((data.ports_swconfig[idx]).role == 'wan' ? 'wan' : (data.ports_swconfig[idx]).role + (data.ports_swconfig[idx]).id), 'speed': (data.ports_swconfig[idx]).speed, 'macs': -1});
+			}
+			if ((data.ports).length > 0) {
+				physicalports = data.ports;
+				portsmapping = data.ports_mapping;
+			}
+		}
+
 		function updateArray(a, b) {
 			return a.map(itemA => {
 				const matchingItemB = b.find(itemB => itemB.section === itemA.section);
