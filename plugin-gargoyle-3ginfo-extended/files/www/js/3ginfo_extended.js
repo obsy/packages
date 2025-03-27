@@ -162,6 +162,12 @@ function resetData()
 					case "5":
 						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.Roaming});
 						break;
+					case "6":
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.SMSHomeNetwork});
+						break;
+					case "7":
+						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.SMSRoaming});
+						break;
 					default:
 						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tmp.registration == '' ? '-' : tmp.registration});
 					}

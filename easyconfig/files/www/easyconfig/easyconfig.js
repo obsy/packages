@@ -2503,7 +2503,7 @@ function showmodem() {
 				setValue('modem_registration', data.registration == '' ? '-' : data.registration);
 		}
 
-		if (data.registration == '1' || data.registration == '5') {
+		if (data.registration == '1' || data.registration == '5' || data.registration == '6' || data.registration == '7') {
 			setValue('modem_signal', data.signal == '' ? '-' : data.signal + '%');
 
 			if (data.signal) {

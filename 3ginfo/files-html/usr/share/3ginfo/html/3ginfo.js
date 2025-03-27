@@ -283,11 +283,17 @@ function showmodemparams() {
 				case "5":
 					setValue('registration' + idx, _t('registered5', 'Registered, roaming'));
 					break;
+				case "6":
+					setValue('registration' + idx, _t('registered6', 'Registered for SMS only, home network'));
+					break;
+				case "7":
+					setValue('registration' + idx, _t('registered7', 'Registered for SMS only, roaming'));
+					break;
 				default:
 					setValue('registration' + idx, data.registration == '' ? '-' : data.registration);
 			}
 
-			if (data.registration == '1' || data.registration == '5') {
+			if (data.registration == '1' || data.registration == '5' || data.registration == '6' || data.registration == '7') {
 				setValue('signal' + idx, data.signal == '' ? '-' : data.signal + '%');
 
 				if (data.signal) {
