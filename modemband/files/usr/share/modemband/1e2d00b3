@@ -53,5 +53,5 @@ setbands5gnsa() {
 		T="${T}${BAND}"
 	done
 
-	[ -n "$T" ] && sms_tool -d $_DEVICE at "AT^BAND_PREF=NR5G,,$T"
+	[ -n "$T" ] && sms_tool -d $_DEVICE at "AT^BAND_PREF=NR5G,2,$T"
 }
