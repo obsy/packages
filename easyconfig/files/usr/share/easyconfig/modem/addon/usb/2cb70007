@@ -57,7 +57,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 		"1")
 			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $4}')
 			BWP=$(bandwidth "$T")
-			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}' | xargs)
 			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 				PB=$(band4g ${T/BAND_LTE_/})
 				if [ -z "$BWP" ]; then
@@ -73,7 +73,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 			BWP=$(bandwidth "$T")
 			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $5}')
 			BWS1=$(bandwidth "$T")
-			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}' | xargs)
 			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 				PB=$(band4g ${T/BAND_LTE_/})
 				if [ -z "$BWP" ]; then
@@ -101,7 +101,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 			BWS1=$(bandwidth "$T")
 			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $6}')
 			BWS2=$(bandwidth "$T")
-			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}' | xargs)
 			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 				PB=$(band4g ${T/BAND_LTE_/})
 				if [ -z "$BWP" ]; then
@@ -141,7 +141,7 @@ if [ "x$MODE_NUM" = "x7" ]; then
 			BWS2=$(bandwidth "$T")
 			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $7}')
 			BWS3=$(bandwidth "$T")
-			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $8}')
+			T=$(echo "$O" | awk -F[,:] '/^\+XLEC:/{print $8}' | xargs)
 			if [ -n "$T" ] && [ "x$T" != "x0" ]; then
 				PB=$(band4g ${T/BAND_LTE_/})
 				if [ -z "$BWP" ]; then
