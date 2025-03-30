@@ -27,12 +27,12 @@ for T in $OUT; do
 	if [ -n "$D" ]; then
 		D=${D%?}
 		uci set firewall.m${MAC//:/}_${HOUR}=rule
-		uci set firewall.m${MAC//:/}_${HOUR}.src="lan"
-		uci set firewall.m${MAC//:/}_${HOUR}.dest="wan"
+		uci set firewall.m${MAC//:/}_${HOUR}.src=lan
+		uci set firewall.m${MAC//:/}_${HOUR}.dest=wan
 		uci set firewall.m${MAC//:/}_${HOUR}.src_mac="$MAC"
 		uci set firewall.m${MAC//:/}_${HOUR}.weekdays="$D"
-		uci set firewall.m${MAC//:/}_${HOUR}.target="REJECT"
-		uci set firewall.m${MAC//:/}_${HOUR}.proto="tcp udp"
+		uci set firewall.m${MAC//:/}_${HOUR}.target=REJECT
+		uci set firewall.m${MAC//:/}_${HOUR}.proto=all
 		uci set firewall.m${MAC//:/}_${HOUR}.start_time="$HOUR:00:00"
 		uci set firewall.m${MAC//:/}_${HOUR}.stop_time="$HOUR:59:59"
 	fi

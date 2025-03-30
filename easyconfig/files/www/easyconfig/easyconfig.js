@@ -1604,6 +1604,7 @@ function saveconfig() {
 		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
 		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
 		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
+		cmd.push('uci set firewall.dns_53_redirect.family=any');
 	} else {
 		cmd.push('uci -q del firewall.dns_53_redirect');
 	}
@@ -4454,7 +4455,8 @@ function okhostblock() {
 		cmd.push('uci set firewall.m' + nmac + '.dest=wan');
 		cmd.push('uci set firewall.m' + nmac + '.src_mac=' + mac);
 		cmd.push('uci set firewall.m' + nmac + '.target=REJECT');
-		cmd.push('uci set firewall.m' + nmac + '.proto=\\\"tcp udp\\\"');
+		cmd.push('uci set firewall.m' + nmac + '.proto=all');
+		cmd.push('uci set firewall.m' + nmac + '.family=any');
 		cmd.push('uci set firewall.m' + nmac + '.name=\\\"' + name + '\\\"');
 	}
 	if (action == 2) {
@@ -6674,6 +6676,7 @@ function saveadblock() {
 		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
 		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
 		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
+		cmd.push('uci set firewall.dns_53_redirect.family=any');
 	} else {
 		cmd.push('uci -q del firewall.dns_53_redirect');
 	}
@@ -6696,6 +6699,7 @@ function saveadblock_easyconfig() {
 		cmd.push('uci set firewall.dns_53_redirect.src_dport=53');
 		cmd.push('uci set firewall.dns_53_redirect.dest_port=53');
 		cmd.push('uci set firewall.dns_53_redirect.target=DNAT');
+		cmd.push('uci set firewall.dns_53_redirect.family=any');
 	} else {
 		cmd.push('uci -q del firewall.dns_53_redirect');
 	}
@@ -7503,7 +7507,7 @@ function savenetwork() {
 	cmd.push('uci set firewall.' + json.section + '_dns.dest_port=53');
 	cmd.push('uci set firewall.' + json.section + '_dns.target=ACCEPT');
 	cmd.push('uci set firewall.' + json.section + '_dns.family=ipv4');
-	cmd.push('uci set firewall.' + json.section + '_dns.proto=tcpudp');
+	cmd.push('uci set firewall.' + json.section + '_dns.proto=\\\"tcp udp\\\"');
 
 	var t = '';
 	(json.forwarding).forEach(function(f) {
