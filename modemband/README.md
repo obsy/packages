@@ -15,6 +15,7 @@ Supported devices:
 - Huawei (various models) in serial mode
 - Quectel EC20
 - Quectel EC25
+- Quectel EC200T-CN
 - Quectel EG06-E
 - Quectel EG12-EA
 - Quectel EG18-EA
