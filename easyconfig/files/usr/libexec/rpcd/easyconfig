@@ -61,7 +61,7 @@ wlancurrentchannels() {
 	echo '"wlan_current_channels":['
 	T=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 	if [ -e /sys/class/net/$T/bridge ]; then
-		for I in /sys/class/net/$T/lower_*; do
+		for I in $(find /sys/class/net/$T/ -type l -name lower_*); do
 			if [ -e $I/phy80211 ]; then
 				iw dev ${I##*lower_} info 2>/dev/null | \
 					awk -v PHY=$(cat $I/phy80211/name) -v INTERFACE=${I##*lower_} '/channel/{
@@ -174,7 +174,7 @@ TPORTS1=""
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	T=$(brctl showmacs $BRIDGE 2>/dev/null)
-	for I in /sys/class/net/$BRIDGE/lower_*; do
+	for I in $(find /sys/class/net/$BRIDGE/ -type l -name lower_*); do
 		IFNAME=${I##*lower_}
 		if [ -e $I/phy80211 ]; then
 			CNT=$(iw dev $IFNAME station dump 2>/dev/null | grep -c Station)
@@ -968,7 +968,7 @@ for SEC in $NETWORKS; do
 	BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 	if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 		T=$(brctl showmacs $BRIDGE 2>/dev/null)
-		for I in /sys/class/net/$BRIDGE/lower_*; do
+		for I in $(find /sys/class/net/$BRIDGE/ -type l -name lower_*); do
 			if [ ! -e $I/phy80211 ]; then
 				IFNAME=${I##*lower_}
 				TPORTS1="${TPORTS1} ${IFNAME};0"
@@ -2383,7 +2383,7 @@ show_networks() {
 		LAN_CLIENTS=0
 		if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 			T=$(brctl showmacs $BRIDGE 2>/dev/null)
-			for I in /sys/class/net/$BRIDGE/lower_*; do
+			for I in $(find /sys/class/net/$BRIDGE/ -type l -name lower_*); do
 				IFNAME=${I##*lower_}
 				if [ -e $I/phy80211 ]; then
 					CNT=$(iw dev $IFNAME station dump 2>/dev/null | grep -c Station)

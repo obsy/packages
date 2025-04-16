@@ -124,7 +124,7 @@ update_entry() {
 BRIDGE=$(ubus call network.interface.lan status | jsonfilter -q -e @.l3_device)
 if [ -e /sys/class/net/$BRIDGE/bridge ]; then
 	T=$(brctl showmacs $BRIDGE 2>/dev/null)
-	for I in /sys/class/net/$BRIDGE/lower_*; do
+	for I in $(find /sys/class/net/$BRIDGE/ -type l -name lower_*); do
 		IFNAME=${I##*lower_}
 		if [ -e $I/phy80211 ]; then
 			STATIONS=$(iw dev "$IFNAME" station dump | awk -v IFNAME="$IFNAME" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "%s;%s;%s;%s;%s\n", w, IFNAME, tx[w], rx[w], connected[w]}}')
