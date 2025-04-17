@@ -3921,7 +3921,7 @@ function clientscallback(sortby) {
 		}
 
 		for (var idx = 0, n = clients.length; idx < n; idx++) {
-			clients[idx].percent = parseInt((clients[idx].tx + clients[idx].rx) * 100 / total);
+			clients[idx].percent = Math.round((clients[idx].tx + clients[idx].rx) * 100 / total);
 			if (clients[idx].dhcpname == '*') { clients[idx].dhcpname = ''; }
 			clients[idx].displayname = (clients[idx].username != '' ? clients[idx].username : (clients[idx].dhcpname != '' ? clients[idx].dhcpname : clients[idx].mac ));
 			clients[idx].id = idx;
@@ -5132,7 +5132,7 @@ function showtraffic() {
 				if (traffic_warning_cycle == 'd') {
 					if (traffic_today >= traffic_warning_limit) {color = 'red';}
 
-					var percent = parseInt((traffic_today * 100) / traffic_warning_limit);
+					var percent = Math.round((traffic_today * 100) / traffic_warning_limit);
 					setValue('traffic_today_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
 					if (percent > 100) {percent = 100;}
 					document.getElementById('div_traffic_today_progress1').style.width = percent + '%';
@@ -5142,7 +5142,7 @@ function showtraffic() {
 				if (traffic_warning_cycle == 'p') {
 					if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; }
 
-					var percent = parseInt((traffic_currentperiod * 100) / traffic_warning_limit);
+					var percent = Math.round((traffic_currentperiod * 100) / traffic_warning_limit);
 					setValue('traffic_currentperiod_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
 					if (percent > 100) {percent = 100;}
 					document.getElementById('div_traffic_currentperiod_progress1').style.width = percent + '%';
