@@ -1,4 +1,5 @@
 #!/bin/sh
+# vpn
 [ "${ACTION}" = "released" ] || exit 0
 
 VPN=$(uci -q get easyconfig.vpn.interface)

@@ -1,4 +1,5 @@
 #!/bin/sh
+# killswitch
 [ "${ACTION}" = "released" ] || exit 0
 
 ENABLED=""

@@ -709,24 +709,12 @@ done
 
 if [ -n "$BUTTON" ]; then
 	[ -e /usr/share/easyconfig/rc.button/rfkill ] || cp /etc/rc.button/rfkill /usr/share/easyconfig/rc.button/rfkill
-	if grep -q "forwarding" /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="killswitch"
-	fi
-	if grep -q leds /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="leds"
-	fi
-	if grep -q rfkill /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="rfkill"
-	fi
-	if grep -q "easyconfig\.vpn" /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="vpn"
-	fi
-	if grep -q "wireless.*\.disabled" /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="wifitoggle"
-	fi
-	if grep -q "wol" /etc/rc.button/$BUTTON 2>/dev/null; then
-		ACTION="wol"
-	fi
+	grep -q "^# killswich" /etc/rc.button/$BUTTON 2>/dev/null && ACTION="killswitch"
+	grep -q "^# leds" /etc/rc.button/$BUTTON 2>/dev/null && ACTION="leds"
+	grep -q rfkill /etc/rc.button/$BUTTON 2>/dev/null && ACTION="rfkill"
+	grep -q "^# vpn" /etc/rc.button/$BUTTON 2>/dev/null && ACTION="vpn"
+	grep -q "^# wifitoggle" /etc/rc.button/$BUTTON 2>/dev/null && ACTION="wifitoggle"
+	grep -q "^# wol" /etc/rc.button/$BUTTON 2>/dev/null && ACTION="wol"
 fi
 echo '"button":{"name":"'$BUTTON_NAME'","code":"'$BUTTON'","action":"'$ACTION'"},'
 echo '"button_reset":'$BUTTON_RESET','

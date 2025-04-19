@@ -1,4 +1,5 @@
 #!/bin/sh
+# leds
 [ "${ACTION}" = "released" ] || exit 0
 
 if [ -e /tmp/led_off ]; then

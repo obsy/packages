@@ -1,4 +1,5 @@
 #!/bin/sh
+# wifitoggle
 [ "${ACTION}" = "released" ] || exit 0
 
 SECTIONS=$(uci -q show wireless | awk -F. '/\.button='\''1'\''$/{print $2}');

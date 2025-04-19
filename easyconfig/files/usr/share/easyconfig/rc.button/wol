@@ -1,4 +1,5 @@
 #!/bin/sh
+# wol
 [ "${ACTION}" = "released" ] || exit 0
 
 T=$(uci show easyconfig | awk -F[=.] '/=wol/{print $2}')
