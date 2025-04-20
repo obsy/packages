@@ -3101,6 +3101,13 @@ function naturalSortJSON(data, key) {
 	return data.sort((a, b) => a[key].localeCompare(b[key], undefined, { numeric: true, sensitivity: 'base' }));
 }
 
+function sortByIP(data) {
+	return data.sort((a, b) => {
+		const ipToNum = ip => ip.split('.').reduce((acc, octet) => acc * 256 + Number(octet), 0);
+		return ipToNum(a.ip) - ipToNum(b.ip);
+	});
+}
+
 function formatDuration(s, showsec) {
 	if (s === '-') {return '-';}
 	if (s === '') {return '-';}
@@ -3838,7 +3845,6 @@ function clientscallback(sortby) {
 			setCookie('easyconfig_clients_all_sortby', sortby);
 		}
 	}
-
 	var counter_active = 0;
 	var counter_all = 0;
 	var counter_all_all = 0;
@@ -3949,7 +3955,12 @@ function clientscallback(sortby) {
 		}
 		var any_active = false;
 		var any_all = false;
-		var sorted = sortJSON(clients, sortby, 'asc');
+		var sorted;
+		if (sortby == 'ip') {
+			sorted = sortByIP(clients);
+		} else {
+			sorted = sortJSON(clients, sortby, 'asc');
+		}
 		for (var idx = 0, n = sorted.length; idx < n; idx++) {
 			if (filterby == 'active') {
 				if (!sorted[idx].active) { continue; }
