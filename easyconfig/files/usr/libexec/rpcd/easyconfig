@@ -2054,9 +2054,8 @@ show_geolocation()
 
 adblock_bwlist()
 {
-	json_add_array blacklist
-	F=$(uci -q get adblock.blacklist.adb_src)
-	[ -z "$F" ] && F=/etc/adblock/adblock.blacklist
+	json_add_array blocklist
+	F=/etc/adblock/adblock.blocklist
 	if [ -s "$F" ]; then
 		while read line; do
 			json_add_string "" "$line"
@@ -2064,8 +2063,8 @@ adblock_bwlist()
 	fi
 	json_close_array
 
-	json_add_array whitelist
-	F=/etc/adblock/adblock.whitelist
+	json_add_array allowlist
+	F=/etc/adblock/adblock.allowlist
 	if [ -s "$F" ]; then
 		while read line; do
 			json_add_string "" "$line"
@@ -2100,19 +2099,36 @@ show_adblock()
 			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${size}\",\"descurl\":\"${descurl}\",\"focus\":\"${focus}\"}"
 		done
 	fi
+	if [ -e /etc/adblock/adblock.feeds ]; then
+		json_load "$(cat /etc/adblock/adblock.feeds)"
+		json_get_keys keylist
+		for key in ${keylist}; do
+			json_select "${key}"
+			json_get_vars size
+			uci -q get adblock.global.adb_feed | grep -q ${key} && ENABLED=1 || ENABLED=0
+			json_select ..
+			[ -n "$LISTS" ] && LISTS="${LISTS},"
+			LISTS="${LISTS}{\"section\":\"${key}\",\"enabled\":${ENABLED},\"size\":\"${size}\",\"descurl\":\"\",\"focus\":\"\"}"
+		done
+	fi
 	ENABLED=$(uci -q get adblock.global.adb_enabled)
 	T=$(uci -q get firewall.dns_53_redirect)
 	[ "x$T" = "xredirect" ] && FORCEDNS="1" || FORCEDNS="0"
 
-	rtfile="$(uci -q get adblock.extra.adb_rtfile)"
-	rtfile="${rtfile:-"/tmp/adb_runtime.json"}"
+	if [ -e /tmp/adb_runtime.json ]; then
+		rtfile=/tmp/adb_runtime.json
+	elif [ -e /var/run/adb_runtime.json ]; then
+		rtfile=/var/run/adb_runtime.json
+	else
+		rtfile="$(uci -q get adblock.extra.adb_rtfile)"
+	fi
 	if [ -s "$rtfile" ]; then
 		json_load "$(cat "${rtfile}" 2>/dev/null)"
 		if json_is_a "data" object; then
 			json_select data
 		fi
 		json_get_var STATUS adblock_status
-		if [ -e /etc/adblock/adblock.sources.gz ]; then
+		if [ -e /etc/adblock/adblock.sources.gz ] || [ -e /etc/adblock/adblock.feeds ]; then
 			json_get_var DOMAINS blocked_domains
 		else
 			json_get_var DOMAINS overall_domains

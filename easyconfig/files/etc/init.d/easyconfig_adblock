@@ -6,12 +6,12 @@ STOP=90
 start() {
 	[ -e /etc/config/adblock ] && exit 0
 
-	B=/etc/adblock/adblock.blacklist
-	W=/etc/adblock/adblock.whitelist
+	B=/etc/adblock/adblock.blocklist
+	W=/etc/adblock/adblock.allowlist
 
-	[ -e /etc/adblock/adblock.blacklist ] || exit 0
-	[ -s /etc/adblock/adblock.blacklist ] || exit 0
-	[ -e /etc/adblock/adblock.whitelist ] || (mkdir -p "$(dirname "$W")"; touch "$W")
+	[ -e /etc/adblock/adblock.blocklist ] || exit 0
+	[ -s /etc/adblock/adblock.blocklist ] || exit 0
+	[ -e /etc/adblock/adblock.allowlist ] || (mkdir -p "$(dirname "$W")"; touch "$W")
 
 	C=$(uci -q get dhcp.@dnsmasq[0].confdir)
 	if [ -z "$C" ]; then
