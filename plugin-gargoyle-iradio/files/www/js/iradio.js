@@ -1,5 +1,5 @@
 /*
- *     Copyright (c) 2014 Cezary Jackiewicz <cezary@eko.one.pl>
+ *     Copyright (c) 2014-2025 Cezary Jackiewicz <cezary@eko.one.pl>
  *
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ function playRadio()
 	{
 		if (name == uciOriginal.get("iradio", radio[idx], "name"))
 		{
-			commands.push("wget -qO - " + uciOriginal.get("iradio", radio[idx], "url") + " | madplay -Q - &");
+			commands.push("wget -qO - \"" + uciOriginal.get("iradio", radio[idx], "url") + "\" | madplay -Q - &");
 			break;
 		}
 	}

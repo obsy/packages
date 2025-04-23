@@ -1,6 +1,6 @@
 #!/usr/bin/haserl
 <%
-	# Copyright © 2014-2023 Cezary Jackiewicz <cezary@eko.one.pl>
+	# Copyright © 2014-2025 Cezary Jackiewicz <cezary@eko.one.pl>
 	# and is distributed under the terms of the GNU GPL
 	# version 2.0 with a special clarification/exception that permits adapting the program to
 	# configure proprietary "back end" software provided that all modifications to the web interface
@@ -12,7 +12,7 @@
 <script>
 var controls = new Array();
 <%
-amixer | awk '{if($0 ~ /Simple mixer control/){gsub(/Simple mixer control '\''/,""); gsub(/'\','0/,""); T=$0; min[T]=-1; max[T]=-1; curr[T]=-1; mute[T]=""} if($0 ~ /Limits: Playback/){min[T]=$3; max[T]=$5} if($0 ~ /Front Left: Playback/){curr[T]=$4; mute[T]=$7} if($0 ~ /Mono: Playback/){curr[T]=$3; mute[T]=$6}} END for(i in min) {if(min[i] > -1){printf "controls.push({\"name\":\"%s\",\"min\":%d,\"max\":%d,\"current\":%d,\"sound\":\"%s\"});\n", i, min[i], max[i], curr[i], mute[i]}}'
+amixer | awk '{if($0 ~ /Simple mixer control/){gsub(/Simple mixer control '\''/,""); gsub(/'\','0/,""); T=$0; min[T]=-1; max[T]=-1; curr[T]=-1; mute[T]=""} if($0 ~ /Limits: Playback/){min[T]=$3; max[T]=$5} if($0 ~ /Front Left: Playback/){curr[T]=$4; mute[T]=$7} if($0 ~ /Mono: Playback/){curr[T]=$3; mute[T]=$6}} END {for(i in min) {if(min[i] > -1){printf "controls.push({\"name\":\"%s\",\"min\":%d,\"max\":%d,\"current\":%d,\"sound\":\"%s\"});\n", i, min[i], max[i], curr[i], mute[i]}}}'
 %>
 </script>
 
