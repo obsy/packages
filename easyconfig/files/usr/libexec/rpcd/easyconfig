@@ -983,7 +983,7 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 		TYPE=""
 		NETWORK=""
 		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type' -e 'NETWORK=@["'$M'"].last_network')
-		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2},\"section\":\"\",\"network\":\"$(escapeJSON "$NETWORK")\"$(client_data ${M//_/:})},"
+		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2},\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK:-Sieć lokalna}")\"$(client_data ${M//_/:})},"
 	done
 fi
 

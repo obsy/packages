@@ -32,7 +32,7 @@ for SEC in $NETWORKS; do
 	[ "$SEC" = "wan" ] && continue
 	[ "$SEC" = "wan6" ] && continue
 	if [ "$SEC" = "lan" ]; then
-		NETWORK="Sieć lokalna"
+		NETWORK=""
 	else
 		NETWORK=$(uci -q get network.$SEC.description)
 		[ -z "$NETWORK" ] && NETWORK=$SEC
