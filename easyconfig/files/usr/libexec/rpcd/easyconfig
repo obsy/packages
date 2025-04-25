@@ -886,61 +886,18 @@ client_data() {
 
 	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${NMAC}.ip)'"'
 
-	echo "${USERNAME}${BLOCK}${QOS}${STATICDHCP}"
+	IP=$(awk '/'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
+	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
+	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
+
+	echo "${USERNAME}${BLOCK}${QOS}${STATICDHCP}${IP}"
 }
 
 show_clients() {
 NETWORKS=$(uci show network | awk -F. '/\.proto='\''static'\''/{print $2}')
-WLAN_MAC=""
-RADIOS=$(uci -q show wireless | awk -F. '/type=/{print $2}')
-for R in $RADIOS; do
-	T=$(ubus call network.wireless status '{"device":"'$R'"}')
-	for SEC in $NETWORKS; do
-		[ "$SEC" = "loopback" ] && continue
-		[ "$SEC" = "wan" ] && continue
-		[ "$SEC" = "wan6" ] && continue
-		IFNAME=$(echo "$T" | jsonfilter -q -e '@.*.interfaces[@.config.network[*]="'$SEC'"].ifname')
-		if [ -n "$IFNAME" ]; then
-			T1=""
-			T2=""
-			eval $(echo "$T" | jsonfilter -q -e 'T1=@.*.config.hwmode' -e 'T2=@.*.config.band')
-			BAND=2
-			[ "x$T1" = "x11a" ] || [ "x$T2" = "x5g" ] && BAND=5
-			[ "x$T2" = "x6g" ] && BAND=6
-			PHY=$(iwinfo nl80211 phyname $R)
-			for i in $IFNAME; do
-				WLAN_MAC="$WLAN_MAC "$(iw dev $i station dump 2>/dev/null | awk -v band=$BAND -v phy=$PHY -v network="$SEC" '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d,\"band\":%d,\"phy\":\"%s\",\"active\":true,\"type\":2,\"section\":\"%s\",\"network\":\"\" ", w, rx[w], tx[w], signal[w], connected[w], band, phy, network}}')
-			done
-		fi
-	done
-done
-
-echo '{"result":['
-for M in $WLAN_MAC; do
-	T=${M%\",\"tx*}
-	MAC=${T##*\"}
-
-	IP=$(awk '/'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
-	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$MAC'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
-	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
-
-	T=${M%,\"ba*}
-	CONNECTED=${T##*:}
-	if $TIMEISVALID; then
-		CONNECTED_SINCE=',"connected_since":"'$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - CONNECTED))")'"'
-	else
-		CONNECTED_SINCE=',"connected_since":""'
-	fi
-	CAPA=""
-	grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
-	grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
-	grep -qi "^he supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/he_capa 2>/dev/null && CAPA=',"capa":6'
-	grep -qi "^eht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/eht_capa 2>/dev/null && CAPA=',"capa":7'
-
-	echo "{${M}${IP}${CONNECTED_SINCE}${CAPA}$(client_data $MAC)},"
-done
-
+WIRELESSSTATUS=$(ubus call network.wireless status || echo '{}')
 TPORTS1=""
+echo '{"result":['
 for SEC in $NETWORKS; do
 	[ "$SEC" = "loopback" ] && continue
 	[ "$SEC" = "wan" ] && continue
@@ -952,21 +909,41 @@ for SEC in $NETWORKS; do
 		[ -z "$NETWORK" ] && NETWORK=$SEC
 		NETWORK=$(escapeJSON "$NETWORK")
 	fi
-	NETWORKLIST="{\"section\":\"$SEC\",\"network\":\"$NETWORK\"},${NETWORKLIST}"
 	BRIDGE=$(ubus call network.interface.$SEC status | jsonfilter -e @.l3_device)
 	if [ -e /sys/class/net/$BRIDGE/bridge ]; then
-		T=$(brctl showmacs $BRIDGE 2>/dev/null)
+		BRIDGEMACS=$(brctl showmacs $BRIDGE 2>/dev/null)
 		for I in $(find /sys/class/net/$BRIDGE/ -type l -name lower_*); do
-			if [ ! -e $I/phy80211 ]; then
-				IFNAME=${I##*lower_}
+			IFNAME=${I##*lower_}
+			if [ -e $I/phy80211 ]; then
+				TSECTION=""
+				TBAND=""
+				eval $(echo "$WIRELESSSTATUS" | jsonfilter -q -e 'TSECTION=@.*.interfaces[@.config.network[*]="'$SEC'" && @.ifname="'$IFNAME'"].section' -e 'TBAND=@[@.interfaces[*].config.network[*]="'$SEC'" && @.interfaces[*].ifname="'$IFNAME'"].config.band')
+				PHY=$(iwinfo nl80211 phyname $(uci -q get wireless.${TSECTION}.device))
+				BAND=2
+				[ "x$TBAND" = "x5g" ] && BAND=5
+				[ "x$TBAND" = "x6g" ] && BAND=6
+				for M in $(iw dev $IFNAME station dump 2>/dev/null | awk '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d ", w, rx[w], tx[w], signal[w], connected[w]}}'); do
+					T=${M%\",\"tx*}
+					MAC=${T##*\"}
+					T=${M%,\"ba*}
+					CONNECTED=${T##*:}
+					if $TIMEISVALID; then
+						CONNECTED_SINCE=',"connected_since":"'$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - CONNECTED))")'"'
+					else
+						CONNECTED_SINCE=',"connected_since":""'
+					fi
+					CAPA=""
+					grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
+					grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
+					grep -qi "^he supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/he_capa 2>/dev/null && CAPA=',"capa":6'
+					grep -qi "^eht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/eht_capa 2>/dev/null && CAPA=',"capa":7'
+					echo "{${M},\"active\":true,\"type\":2,\"band\":${BAND},\"phy\":\"${PHY}\"${CONNECTED_SINCE}${CAPA},\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $MAC)},"
+				done
+			else
 				TPORTS1="${TPORTS1} ${IFNAME};0"
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
-				LAN_MACS=$(echo "$T" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u)
-				for M in $LAN_MACS; do
-					IP=$(awk '/'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
-					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'$M'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
-					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
-					echo "{\"mac\":\"$M\"${IP},\"active\":true,\"port\":\"${IFNAME}\",\"type\":1,\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $M)},"
+				for M in $(echo "$BRIDGEMACS" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u); do
+					echo "{\"mac\":\"$M\",\"active\":true,\"type\":1,\"port\":\"${IFNAME}\",\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $M)},"
 				done
 			fi
 		done
@@ -983,11 +960,11 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 		TYPE=""
 		NETWORK=""
 		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type' -e 'NETWORK=@["'$M'"].last_network')
-		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"type\":${TYPE:-2},\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK:-Sieć lokalna}")\"$(client_data ${M//_/:})},"
+		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"type\":${TYPE:-2},\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK:-Sieć lokalna}")\"$(client_data ${M//_/:})},"
 	done
 fi
 
-echo '],"networks":['$NETWORKLIST'],'
+echo '],'
 show_ports "$TPORTS1"
 echo '}'
 }

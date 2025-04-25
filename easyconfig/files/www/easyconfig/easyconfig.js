@@ -3787,17 +3787,7 @@ function showclients() {
 			}
 		}
 
-		function updateArray(a, b) {
-			return a.map(itemA => {
-				const matchingItemB = b.find(itemB => itemB.section === itemA.section);
-				if (matchingItemB) {
-					return { ...itemA, network: matchingItemB.network };
-				}
-			return itemA;
-			});
-		}
-
-		clients = updateArray(data.result, data.networks);
+		clients = data.result;
 		clientscallback('');
 	});
 }
