@@ -3710,7 +3710,7 @@ wifigraph = {
 			return;
 		}
 
-		var ctx = canvas.getContext('2d');
+		var ctx = canvas.getContext('2d', { willReadFrequently: true });
 		if (ctx == null) {
 			return;
 		}
@@ -4069,7 +4069,7 @@ function clientscallback(sortby) {
 
 		if (filterby == 'active' && total > 0) {
 			var canvas = document.getElementById('clients_pie');
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext('2d', { willReadFrequently: true });
 			var previousRadian = 1.5 * Math.PI;
 			var positionInfo = document.getElementById('div_clients_pie').getBoundingClientRect();
 			canvas.width = positionInfo.width;
@@ -4117,7 +4117,7 @@ function clientscallback(sortby) {
 				const rect = this.getBoundingClientRect();
 				const x = e.clientX - rect.left;
 				const y = e.clientY - rect.top;
-				var c = this.getContext('2d');
+				var c = this.getContext('2d', { willReadFrequently: true });
 				var p = c.getImageData(x, y, 1, 1).data;
 				var hex = rgb2hex('rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')');
 				setDisplay('div_clients_pie_tooltip', false);
@@ -8034,7 +8034,7 @@ livegraph = {
 			return;
 		}
 
-		var ctx = canvas.getContext('2d');
+		var ctx = canvas.getContext('2d', { willReadFrequently: true });
 		if (ctx == null) {
 			return;
 		}
@@ -8144,7 +8144,7 @@ staticgraph = {
 			return;
 		}
 
-		var ctx = canvas.getContext('2d');
+		var ctx = canvas.getContext('2d', { willReadFrequently: true });
 		if (ctx == null) {
 			return;
 		}
