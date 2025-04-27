@@ -3196,12 +3196,10 @@ function sitesurveycallback(sortby) {
 	var all;
 	var filterby = getCookie('easyconfig_sitesurvey_filterby');
 	if (filterby == '') { filterby = 'all'; }
-	if (document.getElementById('sitesurvey_filter_' + filterby) === null) { filterby = 'all'; };
 
 	if (sortby == '') {
 		sortby = getCookie('easyconfig_sitesurvey_sortby');
 		if (sortby == '') { sortby = 'ssid'; }
-		if (document.getElementById('sitesurvey_sortby_' + sortby) === null) { sortby = 'ssid'; };
 	} else {
 		setCookie('easyconfig_sitesurvey_sortby', sortby);
 	}
@@ -3814,11 +3812,9 @@ function clientscallback(sortby) {
 	var all;
 	var filterby = getCookie('easyconfig_clients_filterby');
 	if (filterby == '') { filterby = 'active'; }
-	if (document.getElementById('clients_filter_' + filterby) === null) { filterby = 'active'; }
 
 	var filterbyall = getCookie('easyconfig_clients_filterbyall');
 	if (filterbyall == '') { filterbyall = 'all'; }
-	if (document.getElementById('clients_filterall_' + filterbyall) === null) { filterbyall = 'all'; }
 
 	if (sortby == '') {
 		if (filterby == 'active') {
@@ -3827,7 +3823,6 @@ function clientscallback(sortby) {
 			sortby = getCookie('easyconfig_clients_all_sortby');
 		}
 		if (sortby == '') { sortby = 'displayname'; }
-		if (document.getElementById('clients_sortby_' + sortby) === null) { sortby = 'displayname'; }
 	} else {
 		if (filterby == 'active') {
 			setCookie('easyconfig_clients_act_sortby', sortby);
