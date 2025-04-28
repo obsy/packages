@@ -886,11 +886,7 @@ client_data() {
 
 	STATICDHCP=',"staticdhcp":"'$(uci -q get dhcp.m${NMAC}.ip)'"'
 
-	IP=$(awk '/'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
-	[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
-	[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
-
-	echo "${USERNAME}${BLOCK}${QOS}${STATICDHCP}${IP}"
+	echo "${USERNAME}${BLOCK}${QOS}${STATICDHCP}"
 }
 
 show_clients() {
@@ -937,13 +933,21 @@ for SEC in $NETWORKS; do
 					grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
 					grep -qi "^he supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/he_capa 2>/dev/null && CAPA=',"capa":6'
 					grep -qi "^eht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/eht_capa 2>/dev/null && CAPA=',"capa":7'
-					echo "{${M},\"active\":true,\"type\":2,\"band\":${BAND},\"phy\":\"${PHY}\"${CONNECTED_SINCE}${CAPA},\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $MAC)},"
+
+					IP=$(awk '/'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
+					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
+					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
+
+					echo "{${M},\"active\":true,\"type\":2,\"band\":${BAND},\"phy\":\"${PHY}\"${CONNECTED_SINCE}${CAPA},\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $MAC)${IP}},"
 				done
 			else
 				TPORTS1="${TPORTS1} ${IFNAME};0"
 				PORTID=$(printf "%d" $(cat /sys/class/net/$BRIDGE/brif/$IFNAME/port_no))
 				for M in $(echo "$BRIDGEMACS" | awk '/^\s*'$PORTID'\s.*no/{print $2}' | sort -u); do
-					echo "{\"mac\":\"$M\",\"active\":true,\"type\":1,\"port\":\"${IFNAME}\",\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $M)},"
+					IP=$(awk '/'${M}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"%s\"", $3, $4}' /tmp/dhcp.leases)
+					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'${M}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
+					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
+					echo "{\"mac\":\"$M\",\"active\":true,\"type\":1,\"port\":\"${IFNAME}\",\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $M)${IP}},"
 				done
 			fi
 		done
