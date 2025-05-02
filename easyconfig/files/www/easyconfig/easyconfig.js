@@ -1126,10 +1126,10 @@ function showconfig() {
 
 		e = removeOptions('wan_dns');
 		var sorteddns = [];
-		sorteddns = sortJSON(dns, 'name', 'asc');
-		sorteddns = [{"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
+		sorteddns = sortJSON(dns, 'id', 'asc');
+		sorteddns = [{"id":1,"ip":["isp"],"name":"Otrzymane od dostawcy","url":""},{"id":2,"ip":["custom"],"name":"Inne","url":""}].concat(sorteddns);
 		if (config.services.stubby) {
-			sorteddns = [{"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
+			sorteddns = [{"id":3,"ip":["stubby"],"name":"DNS over TLS","url":""}].concat(sorteddns);
 		}
 		for (var idx = 0; idx < sorteddns.length; idx++) {
 			var opt = document.createElement('option');
