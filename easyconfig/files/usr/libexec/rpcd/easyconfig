@@ -139,9 +139,13 @@ json_get_var IFNAME l3_device
 . /lib/functions/network.sh
 if [ -n "$(ubus list network.interface.wan_4 2>/dev/null)" ]; then
 	network_get_ipaddr WAN_IPADDR wan_4
+	network_get_dnsserver WAN_DNS wan_4
+	[ -z "$WAN_DNS" ] && network_get_dnsserver WAN_DNS wan
 else
 	network_get_ipaddr WAN_IPADDR wan
+	network_get_dnsserver WAN_DNS wan
 fi
+[ -n "$WAN_DNS" ] && WAN_DNS='"'$(echo $WAN_DNS | sed 's/ /","/g')'"'
 
 if [ -n "$WAN_UPTIME" ]; then
 	if $TIMEISVALID; then
@@ -207,6 +211,7 @@ echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
 echo '"wan_up_since":['$WAN_UP_SINCE'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
+echo '"wan_dns":['$WAN_DNS'],'
 echo '"vpn_up":'${VPN_UP:-false}','
 
 wlancurrentchannels
