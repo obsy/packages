@@ -843,6 +843,12 @@ else
 	echo '"luci":false,'
 fi
 
+if [ -e /usr/bin/pingraw ]; then
+	echo '"pingraw":true,'
+else
+	echo '"pingraw":false,'
+fi
+
 echo '},'
 
 echo '}'

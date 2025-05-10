@@ -1328,6 +1328,8 @@ function showconfig() {
 		// luci
 		setDisplay('menu_luci', config.services.luci);
 
+		setDisplay('div_wan_diagnostics', config.services.pingraw);
+
 		// button
 		if (config.button.code != '') {
 			select = removeOptions('system_button');
@@ -7789,6 +7791,62 @@ function cron_check() {
 		return true;
 	}
 	return false;
+}
+
+/*****************************************************************************/
+
+function diagnostics() {
+	var info = '';
+	var resok = '<span style="color:green">OK</span>';
+	var resnotok = '<span style="color:red">źle</span>';
+	ubus_call('"network.interface.wan", "status", {}', function(data) {
+		if (data.up) {
+			var hosts = ['8.8.8.8'];
+			if (config.wan_dns[0]) { hosts.push(config.wan_dns[0]); }
+			if (config.wan_dns[1]) { hosts.push(config.wan_dns[1]); }
+			var hosts1 = ['google.com', 'facebook.com', 'x.com'];
+			hosts.push(...hosts1);
+			ubus_call('"file", "exec", {"command":"/usr/bin/pingraw","params":[' + hosts.map(h => `"${h}"`).join(',') + ']}', function(data1) {
+				var result = JSON.parse(data1.stdout);
+
+				info += createRowForModal('Status połączenia z internetem', resok);
+
+				var hostObj = result.find(obj => obj.host === '8.8.8.8');
+				var status = hostObj ? hostObj.status : undefined;
+				info += createRowForModal('Działanie trasy domyślnej', status == 'success' ? resok : resnotok);
+
+				hostObj = result.find(obj => obj.host === 'google.com');
+				status = hostObj ? hostObj.status : undefined;
+				info += createRowForModal('Działanie DNSów', status == 'success' ? resok : resnotok);
+
+				if (config.wan_dns[0]) {
+					hostObj = result.find(obj => obj.host === config.wan_dns[0]);
+					status = hostObj ? hostObj.status : undefined;
+					info += createRowForModal('Ping do DNS1 (' + config.wan_dns[0] + ')', status == 'success' ? resok + ', ' + hostObj.time_ms + ' ms' : resnotok);
+				}
+
+				if (config.wan_dns[1]) {
+					hostObj = result.find(obj => obj.host === config.wan_dns[1]);
+					status = hostObj ? hostObj.status : undefined;
+					info += createRowForModal('Ping do DNS2 (' + config.wan_dns[1] + ')', status == 'success' ? resok + ', ' + hostObj.time_ms + ' ms' : resnotok);
+				}
+
+				info += '<hr>';
+
+				hosts1.forEach(function(host2, index) {
+					hostObj = result.find(obj => obj.host === host2);
+					status = hostObj ? hostObj.status : undefined;
+					info += createRowForModal('Ping do ' + host2, status == 'success' ? resok + ', ' + hostObj.time_ms + ' ms' : resnotok);
+				});
+
+				showMsg(info);
+			})
+		} else {
+			info += createRowForModal('Status połączenia z internetem', resnotok);
+
+			showMsg(info);
+		}
+	})
 }
 
 /*****************************************************************************/
