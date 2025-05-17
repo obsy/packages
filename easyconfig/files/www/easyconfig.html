@@ -1890,20 +1890,55 @@
 	<div class="row modal-content">
 		<div class="text-center space">Nowy VPN</div>
 
+		<hr>
 		<form class="form-horizontal">
 		<div class="form-group">
-			<label for="vpn_new" class="col-xs-4 col-sm-3 control-label">Typ VPN</label>
+			<label for="vpn_new" class="col-xs-4 col-sm-3 control-label">Ręczna konfiguracja</label>
 			<div class="col-xs-8 col-sm-9">
 				<select id="vpn_new" class="form-control">
 				</select>
 			</div>
 		</div>
 		</form>
+		<div class="text-center">
+			<input type="button" class="btn btn-default modalmargintop" onclick="savevpnnew();" value="Dalej">
+		</div>
+
+		<hr>
+		<form class="form-horizontal">
+		<div class="form-group">
+			<label for="uploadfile" class="col-xs-4 col-sm-3 control-label">Wczytywanie konfiguacji z pliku</label>
+			<div class="col-xs-8 col-sm-9">
+				<label class="btn btn-default btn-easyconfig" for="uploadfile">
+				<input id="uploadfile" type="file" style="display:none;" onchange="upload_file(this.files[0]);">
+				Wybierz plik
+				</label>
+			</div>
+		</div>
+		</form>
+
+		<div class="row">
+			<div class="col-xs-4 col-sm-3 text-right">Nazwa pliku</div>
+			<div class="col-xs-8 col-sm-9"><p id="upload_name">-</p></div>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-4 col-sm-3 text-right">Rozmiar</div>
+			<div class="col-xs-8 col-sm-9"><p id="upload_size">-</p></div>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-4 col-sm-3 text-right">Status</div>
+			<div class="col-xs-8 col-sm-9"><p id="upload_status">-</p></div>
+		</div>
+
+		<div id='div_uploadfile_process' class="text-center">
+			<input id="uploadfile_process" type="button" class="btn btn-default modalmargintop" onclick="upload_process();" value="Dalej" disabled>
+		</div>
 
 		<h3 class="section"></h3>
 		<div class="text-center">
 			<input type="button" class="btn btn-default modalmargintop" onclick="closevpnnew();" value="Anuluj">
-			<input type="button" class="btn btn-primary modalmargintop" onclick="savevpnnew();" value="Dalej">
 		</div>
 	</div>
 </div>
