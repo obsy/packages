@@ -88,7 +88,7 @@ input:checked + .slider:before {
   border-radius: 5px;
 }
 
-input[type=button] {
+input[type=button], .btn-easyconfig {
   width:120px;
 }
 

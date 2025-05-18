@@ -5797,6 +5797,8 @@ function addvpn() {
 	setValue('upload_name', '-');
 	setValue('upload_size', '-');
 	setValue('uploadfile', null);
+	setElementEnabled('uploadfile_process', true, true);
+	setDisplay('div_upload', ("FileReader" in window));
 
 	setDisplay('div_vpn_new', true);
 }
@@ -8367,23 +8369,22 @@ staticgraph = {
 
 /*****************************************************************************/
 
-uploaded_config = '';
+var uploaded_config = '';
 
 function upload_file(file) {
 	setValue('upload_status', '-');
 	setValue('upload_name', '-');
 	setValue('upload_size', '-');
 	uploaded_config = '';
+	setElementEnabled('uploadfile_process', true, true);
 
 	if (!file) { return; }
-
-	setElementEnabled('uploadfile_process', true, true);
 
 	setValue('upload_name', (file.name).escapeHTML());
 	setValue('upload_size', file.size < 1024 ? file.size + ' bajtów' : bytesToSize(file.size) + ' (' + file.size + ' bajtów)');
 
 	if (file.size > 100 * 1024) {
-		setValue('upload_status', 'Plik jest za duży');
+		setValue('upload_status', 'Rozmiar pliku jest za duży');
 		return;
 	}
 
@@ -8391,7 +8392,7 @@ function upload_file(file) {
 	var isTextExt = /\.(txt|conf|ovpn)$/i.test(file.name);
 
 	if (!isTextType && !isTextExt) {
-		setValue('upload_status', 'Podany plik nie jest plikiem tekstowym');
+		setValue('upload_status', 'Plik nie jest plikiem tekstowym');
 	}
 
 	var reader = new FileReader();
@@ -8400,68 +8401,37 @@ function upload_file(file) {
 		if (isTextType || isTextExt) {
 			var cleanedContent = uploadcontent.replace(/\r\n/g, '\n');
 			var lines = cleanedContent.split('\n');
-			var knownvpn = '';
+			var detectedvpn = '';
+			var button = document.getElementById('uploadfile_process');
 
-			var hasInterface = lines.some(line =>
-				line.toLowerCase().includes('[interface]')
-			);
-			var hasPeer = lines.some(line =>
-				line.toLowerCase().includes('[peer]')
-			);
-			if (hasInterface && hasPeer) {
-				knownvpn = 'wireguard';
+			if ((config.services.vpn).includes('wireguard')) {
+				var hasInterface = lines.some(line => line.toLowerCase().includes('[interface]'));
+				var hasPeer = lines.some(line => line.toLowerCase().includes('[peer]'));
+				if (hasInterface && hasPeer) {
+					detectedvpn = 'wireguard';
+					button.onclick = vpn_parse_wiregaurd;
+				}
 			}
 
-			var client = lines.some(line =>
-				line.toLowerCase().includes('client')
-			);
-			var remote = lines.some(line =>
-				line.toLowerCase().includes('remote')
-			);
-			var dev = lines.some(line =>
-				line.toLowerCase().includes('dev')
-			);
-			if (client && remote && dev) {
-				knownvpn = 'openvpn';
+			if ((config.services.vpn).includes('openvpn')) {
+				var hasclient = lines.some(line => line.toLowerCase().includes('client'));
+				var hasremote = lines.some(line => line.toLowerCase().includes('remote'));
+				var hsadev = lines.some(line => line.toLowerCase().includes('dev'));
+				if (hasclient && hasremote && hasdev) {
+					detectedvpn = 'openvpn';
+					button.onclick = vpn_parse_openvpn;
+				}
 			}
 
-			if (knownvpn != '') {
+			if (detectedvpn != '') {
 				uploaded_config = cleanedContent;
-				setValue('upload_status', 'Wczytany plik jest plikiem konfiguracyjnym ' + vpntype(knownvpn));
+				setValue('upload_status', 'Znaleziono konfigurację dla ' + vpntype(detectedvpn));
 				setElementEnabled('uploadfile_process', true, false);
 			} else {
-				setValue('upload_status', 'Plik nieznanego typu');
+				setValue('upload_status', 'Plik nie zawiera konfiguracji obsługiwanych typów VPN');
+				button.onclick = null;
 			}
 		}
-	 };
+	};
 	reader.readAsText(file);
 };
-
-function upload_process() {
-	var lines = uploaded_config.split('\n');
-
-	var hasInterface = lines.some(line =>
-		line.toLowerCase().includes('[interface]')
-	);
-	var hasPeer = lines.some(line =>
-		line.toLowerCase().includes('[peer]')
-	);
-	if (hasInterface && hasPeer) {
-		vpn_parse_wiregaurd();
-		return;
-	}
-
-	var client = lines.some(line =>
-		line.toLowerCase().includes('client')
-	);
-	var remote = lines.some(line =>
-		line.toLowerCase().includes('remote')
-	);
-	var dev = lines.some(line =>
-		line.toLowerCase().includes('dev')
-	);
-	if (client && remote && dev) {
-		vpn_parse_openvpn();
-		return;
-	}
-}
