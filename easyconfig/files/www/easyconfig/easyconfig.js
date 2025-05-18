@@ -8416,7 +8416,7 @@ function upload_file(file) {
 			if ((config.services.vpn).includes('openvpn')) {
 				var hasclient = lines.some(line => line.toLowerCase().includes('client'));
 				var hasremote = lines.some(line => line.toLowerCase().includes('remote'));
-				var hsadev = lines.some(line => line.toLowerCase().includes('dev'));
+				var hasdev = lines.some(line => line.toLowerCase().includes('dev'));
 				if (hasclient && hasremote && hasdev) {
 					detectedvpn = 'openvpn';
 					button.onclick = vpn_parse_openvpn;
