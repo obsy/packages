@@ -5798,7 +5798,14 @@ function addvpn() {
 	setValue('upload_size', '-');
 	setValue('uploadfile', null);
 	setElementEnabled('uploadfile_process', true, true);
-	setDisplay('div_upload', ("FileReader" in window));
+
+	if (((config.services.vpn).includes('openvpn') ||
+		(config.services.vpn).includes('wireguard')) &&
+		('FileReader' in window)) {
+		setDisplay('div_upload', true);
+	} else {
+		setDisplay('div_upload', false);
+	}
 
 	setDisplay('div_vpn_new', true);
 }
@@ -5953,15 +5960,13 @@ function vpn_parse_wiregaurd() {
 				var match = line.match(/address\s*=\s*(.*)/i);
 				if (match) {
 					var jdx = getValue('vpn_wireguard_ips') - 1;
-					var match1 = (match[1]).match(/(.*),(.*)/i);
-					if (match1) {
-						setValue('vpn_wireguard_ips_' + jdx, match1[1]);
-						for (var kdx = 2; kdx < match1.length; kdx++) {
+					var ips = match[1].split(',').map(item => item.trim());
+					for (var kdx = 0; kdx < ips.length; kdx++) {
+						if (kdx > 0) {
 							addwireguardips();
-							setValue('vpn_wireguard_ips_' + (kdx - 1), match1[kdx]);
+							jdx++;
 						}
-					} else {
-						setValue('vpn_wireguard_ips_' + jdx, match[1]);
+						setValue('vpn_wireguard_ips_' + jdx, ips[kdx]);
 					}
 				}
 				return;
@@ -5988,10 +5993,10 @@ function vpn_parse_wiregaurd() {
 				var match = line.match(/endpoint\s*=\s*(.*)/i);
 				if (match) {
 					setValue('vpn_wireguard_description_' + idx, match[1]);
-					var match1 = (match[1]).match(/(.*):(.*)/i);
-					if (match1) {
-						setValue('vpn_wireguard_endpoint_host_' + idx, match1[1]);
-						setValue('vpn_wireguard_endpoint_port_' + idx, match1[2]);
+					var endpoint = match[1].split(':').map(item => item.trim());
+					if (endpoint.length == 2) {
+						setValue('vpn_wireguard_endpoint_host_' + idx, endpoint[0]);
+						setValue('vpn_wireguard_endpoint_port_' + idx, endpoint[1]);
 					}
 				}
 				return;
@@ -6000,15 +6005,13 @@ function vpn_parse_wiregaurd() {
 				var match = line.match(/allowedips\s*=\s*(.*)/i);
 				if (match) {
 					var jdx = getValue('vpn_wireguard_allowed_ips_' + idx) - 1;
-					var match1 = (match[1]).match(/(.*),(.*)/i);
-					if (match1) {
-						setValue('vpn_wireguard_allowed_ips_' + idx + '_' + jdx, match1[1]);
-						for (var kdx = 2; kdx < match1.length; kdx++) {
+					var ips = match[1].split(',').map(item => item.trim());
+					for (var kdx = 0; kdx < ips.length; kdx++) {
+						if (kdx > 0) {
 							addwireguardallowedips('_' + idx);
-							setValue('vpn_wireguard_allowed_ips_' + idx + '_' + (kdx - 1), match1[kdx]);
+							jdx++;
 						}
-					} else {
-						setValue('vpn_wireguard_allowed_ips_' + idx + '_' + jdx, match[1]);
+						setValue('vpn_wireguard_allowed_ips_' + idx + '_' + jdx, ips[kdx]);
 					}
 				}
 				return;
@@ -8404,15 +8407,6 @@ function upload_file(file) {
 			var detectedvpn = '';
 			var button = document.getElementById('uploadfile_process');
 
-			if ((config.services.vpn).includes('wireguard')) {
-				var hasInterface = lines.some(line => line.toLowerCase().includes('[interface]'));
-				var hasPeer = lines.some(line => line.toLowerCase().includes('[peer]'));
-				if (hasInterface && hasPeer) {
-					detectedvpn = 'wireguard';
-					button.onclick = vpn_parse_wiregaurd;
-				}
-			}
-
 			if ((config.services.vpn).includes('openvpn')) {
 				var hasclient = lines.some(line => line.toLowerCase().includes('client'));
 				var hasremote = lines.some(line => line.toLowerCase().includes('remote'));
@@ -8420,6 +8414,15 @@ function upload_file(file) {
 				if (hasclient && hasremote && hasdev) {
 					detectedvpn = 'openvpn';
 					button.onclick = vpn_parse_openvpn;
+				}
+			}
+
+			if ((config.services.vpn).includes('wireguard')) {
+				var hasInterface = lines.some(line => line.toLowerCase().includes('[interface]'));
+				var hasPeer = lines.some(line => line.toLowerCase().includes('[peer]'));
+				if (hasInterface && hasPeer) {
+					detectedvpn = 'wireguard';
+					button.onclick = vpn_parse_wiregaurd;
 				}
 			}
 
