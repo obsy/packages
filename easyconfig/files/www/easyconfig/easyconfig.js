@@ -483,7 +483,12 @@ function removeClasses(element, classes) {
 function showError(element, input, msg) {
 	setValue(element, msg);
 	setDisplay(element, msg != '');
-	if (input && msg != '') { document.getElementById(input).focus(); }
+	if (input && msg != '') {
+		var t = document.getElementById(input);
+		t.focus();
+		t.style.color = 'red';
+		addClasses(t.closest('div'), ['has-error']);
+	}
 }
 
 /*****************************************************************************/
@@ -6007,6 +6012,7 @@ function vpn_parse_wiregaurd() {
 					var jdx = getValue('vpn_wireguard_allowed_ips_' + idx) - 1;
 					var ips = match[1].split(',').map(item => item.trim());
 					for (var kdx = 0; kdx < ips.length; kdx++) {
+						if (ips[kdx] == '::/0') { continue; }
 						if (kdx > 0) {
 							addwireguardallowedips('_' + idx);
 							jdx++;
