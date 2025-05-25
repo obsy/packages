@@ -12,6 +12,7 @@ endef
 
 PKG_NAME:=easyconfig
 PKG_VERSION:=$(strip $(call findrev))
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 

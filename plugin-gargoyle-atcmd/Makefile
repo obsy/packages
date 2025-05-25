@@ -4,7 +4,6 @@ PKG_NAME:=plugin_gargoyle_atcmd
 PKG_VERSION:=20230623
 PKG_RELEASE:=1
 
-
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk

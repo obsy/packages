@@ -1,7 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=megatools
-PKG_RELEASE:=1.9.98
+PKG_VERSION:=1.9.98
+PKG_RELEASE:=1
 PKG_SOURCE=$(PKG_NAME)-$(PKG_RELEASE).tar.gz
 PKG_SOURCE_URL=https://megatools.megous.com/builds/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_RELEASE)

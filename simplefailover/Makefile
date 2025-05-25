@@ -1,9 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=simplefailover
-PKG_RELEASE:=20160218
-
-PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+PKG_VERSION:=20160218
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 

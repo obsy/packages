@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=repo-4iceg
 PKG_VERSION:=20250122
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 

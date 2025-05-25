@@ -4,7 +4,6 @@ PKG_NAME:=plugin_gargoyle_smsbox
 PKG_VERSION:=20230621
 PKG_RELEASE:=1
 
-
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk

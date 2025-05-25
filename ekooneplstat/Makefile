@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplstat
 PKG_VERSION:=20150706
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 

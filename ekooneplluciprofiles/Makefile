@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplluciprofiles
 PKG_VERSION:=20250123
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 

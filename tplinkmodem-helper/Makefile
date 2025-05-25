@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tplinkmodem-helper
 PKG_VERSION:=20180304
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
