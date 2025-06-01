@@ -978,6 +978,30 @@ for SEC in $NETWORKS; do
 done
 
 if [ -e "/tmp/easyconfig_statistics.json" ]; then
+if [ -e /usr/bin/ucode ]; then
+OLDIFS=$IFS
+IFS="
+"
+/usr/bin/ucode -e '
+let fs = require("fs");
+let data = json(fs.readfile("/tmp/easyconfig_statistics.json"));
+for (let key in data) {
+	let mac = data[key];
+	if (key == "wan") {
+		continue;
+	}
+	print("export M=\"" + replace(key, /_/g, ":") + "\";");
+	print("FIRST_SEEN=\"" + (mac.first_seen !== null ? mac.first_seen : "") + "\";");
+	print("LAST_SEEN=\"" + (mac.last_seen !== null ? mac.last_seen : "") + "\";");
+	print("DHCPNAME=\"" + (mac.dhcpname !== null ? mac.dhcpname : "") + "\";");
+	print("TYPE=\"" + (mac.type !== null ? mac.type : "2") + "\";");
+	print("LAST_NETWORK=\"" + (mac.last_network !== null ? mac.last_network : "Sieć lokalna") + "\";\n");
+}' | while read -r line; do
+	eval "$line"
+	echo "{\"mac\":\"${M}\",\"active\":false,\"type\":${TYPE},\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK}")\"$(client_data ${M})},"
+done
+IFS=$OLDIFS
+else
 	eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'MACS=@')
 	for M in $MACS; do
 		[ "$M" = "wan" ] && continue
@@ -989,6 +1013,7 @@ if [ -e "/tmp/easyconfig_statistics.json" ]; then
 		eval $(jsonfilter -i /tmp/easyconfig_statistics.json -e 'FIRST_SEEN=@["'$M'"].first_seen' -e 'LAST_SEEN=@["'$M'"].last_seen' -e 'DHCPNAME=@["'$M'"].dhcpname' -e 'TYPE=@["'$M'"].type' -e 'NETWORK=@["'$M'"].last_network')
 		echo "{\"mac\":\"${M//_/:}\",\"active\":false,\"type\":${TYPE:-2},\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK:-Sieć lokalna}")\"$(client_data ${M//_/:})},"
 	done
+fi
 fi
 
 echo '],'
