@@ -4311,6 +4311,7 @@ function hostmenu(id) {
 	if (host.type == 2) {
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'d\',30);">transfer z ostatnich 30 dni</span></p>';
 		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'m\',0);">transfer miesięczny</span></p>';
+		html += '<p><span class="click" onclick="closeMsg();hoststatistics(' + host.id + ',\'y\',0);">transfer roczny</span></p>';
 	}
 	html += '<hr><p><span class="click" onclick="closeMsg();hostremovedata(' + host.id + ');">usuwanie danych</span></p>';
 	showMsg(html);
@@ -4749,67 +4750,81 @@ function hoststatisticsmodal(mac, title, type, limit) {
 		if ((data.statistics).length == 0) {
 			html += 'Brak danych';
 		} else {
-			if (type == 'm') {
-				for (var idx = 0; idx < (data.statistics).length; idx++) {
-					(data.statistics)[idx].date = ((data.statistics)[idx].date).substring(0,6);
-				}
-				html += createRow4ColForModal('Miesiąc', 'Wysłano', 'Pobrano', 'Łącznie');
-			} else {
-				html += createRow4ColForModal('Dzień', 'Wysłano', 'Pobrano', 'Łącznie');
-
-				var days = [];
-				switch (limit) {
-					case 30:
-						days = new Array(formatDate(new Date));
-						days = days.concat(lastDays(29));
-						break;
-					case 1:
-						days = new Array(formatDate(new Date));
-						break;
-					case -1:
-						days = lastDays(1);
-						break;
-					case -7:
-						days = lastDays(7);
-						break;
-					case -30:
-						days = lastDays(30);
-						break;
-				}
-				for (var idx = (data.statistics).length - 1; idx >= 0; idx--) {
-					if (days.indexOf((data.statistics[idx]).date) == -1) {
-						(data.statistics).splice(idx, 1);
+			switch (type) {
+				case 'd':
+					html += createRow4ColForModal('Dzień', 'Wysłano', 'Pobrano', 'Łącznie');
+					var days = [];
+					switch (limit) {
+						case 30:
+							days = new Array(formatDate(new Date));
+							days = days.concat(lastDays(29));
+							break;
+						case 1:
+							days = new Array(formatDate(new Date));
+							break;
+						case -1:
+							days = lastDays(1);
+							break;
+						case -7:
+							days = lastDays(7);
+							break;
+						case -30:
+							days = lastDays(30);
+							break;
 					}
-				}
+					for (var idx = (data.statistics).length - 1; idx >= 0; idx--) {
+						if (days.indexOf((data.statistics[idx]).date) == -1) {
+							(data.statistics).splice(idx, 1);
+						}
+					}
+					break;
+				case 'm':
+					html += createRow4ColForModal('Miesiąc', 'Wysłano', 'Pobrano', 'Łącznie');
+					for (var idx = 0, n = (data.statistics).length; idx < n; idx++) {
+						(data.statistics)[idx].date = ((data.statistics)[idx].date).substring(0,6);
+					}
+					break;
+				case 'y':
+					html += createRow4ColForModal('Rok', 'Wysłano', 'Pobrano', 'Łącznie');
+					for (var idx = 0, n = (data.statistics).length; idx < n; idx++) {
+						(data.statistics)[idx].date = ((data.statistics)[idx].date).substring(0,4);
+					}
+					break;
 			}
 			var traffic = [];
 			var sorted = sortJSON(data.statistics, 'date', 'desc');
-			var date = sorted[0].date;
-			var total_tx = sorted[0].tx;
-			var total_rx = sorted[0].rx;
-			for (var idx = 1; idx < sorted.length; idx++) {
-				if (sorted[idx].date == date) {
-					total_tx += sorted[idx].tx;
-					total_rx += sorted[idx].rx;
-				} else {
-					traffic.push({'date':date,'tx':total_tx,'rx':total_rx});
-					date = sorted[idx].date;
-					total_tx = sorted[idx].tx;
-					total_rx = sorted[idx].rx;
+			if (sorted.length > 0) {
+				var date = sorted[0].date;
+				var total_tx = sorted[0].tx;
+				var total_rx = sorted[0].rx;
+				for (var idx = 1; idx < sorted.length; idx++) {
+					if (sorted[idx].date == date) {
+						total_tx += sorted[idx].tx;
+						total_rx += sorted[idx].rx;
+					} else {
+						traffic.push({'date':date,'tx':total_tx,'rx':total_rx});
+						date = sorted[idx].date;
+						total_tx = sorted[idx].tx;
+						total_rx = sorted[idx].rx;
+					}
 				}
+				traffic.push({'date':date,'tx':total_tx,'rx':total_rx});
 			}
-			traffic.push({'date':date,'tx':total_tx,'rx':total_rx});
+			var n = traffic.length;
 			var total_total = 0;
 			total_tx = 0;
 			total_rx = 0;
-			for (var idx = 0; idx < traffic.length; idx++) {
+			for (var idx = 0; idx < n; idx++) {
 				html += createRow4ColForModal(formatDateTime(traffic[idx].date), bytesToSize(traffic[idx].tx), bytesToSize(traffic[idx].rx), bytesToSize(traffic[idx].tx + traffic[idx].rx));
 				total_tx += traffic[idx].tx;
 				total_rx += traffic[idx].rx;
 				total_total += traffic[idx].tx + traffic[idx].rx;
 			}
-			if (traffic.length > 1) {
+			if (n > 1) {
 				html += '<p></p>' + createRow4ColForModal('Łącznie', bytesToSize(total_tx), bytesToSize(total_rx), bytesToSize(total_total));
+			}
+			if (n == 0) {
+				html = title + '<hr>Brak danych';
 			}
 		}
 		showMsg(html);
