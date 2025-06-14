@@ -1853,6 +1853,7 @@ function showwanup(data) {
 
 var bandwidthID;
 var bandwidth_unit = false;
+var bandwidth_avg = false;
 
 function convertToSpeed(val, fixedpow) {
 	var sizes;
@@ -1881,17 +1882,28 @@ function bandwidthcallback(val) {
 	document.getElementById('bandwidth_bytes').style.fontWeight = val ? 700 : 400;
 }
 
+function bandwidthcallbackavg() {
+	if (document.getElementById('bandwidth_avg').style.fontWeight == 700) {
+		bandwidth_avg = false;
+		document.getElementById('bandwidth_avg').style.fontWeight = 400;
+	} else {
+		bandwidth_avg = true;
+		document.getElementById('bandwidth_avg').style.fontWeight = 700;
+	}
+}
+
 function showbandwidth(mac, section) {
 	var html = '';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Wysłano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_tx">-</p></div></div>';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right">Pobrano</div><div class="col-xs-7 col-sm-6 text-left"><p id="bandwidth_all_rx">-</p></div></div>';
-	html += '<div class="row space"><div class="col-xs-5 col-sm-6 text-right">Jednostki</div><div class="col-xs-7 col-sm-6 text-left">';
-	html += '<span class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></span>|';
-	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>';
-	html += '</div></div>';
 	html += '<div class="row"><div class="col-xs-3 col-xs-offset-5 col-sm-3 col-sm-offset-6 text-left"><p>teraz</p></div><div class="col-xs-4 col-sm-3 text-left"><p>maks.</p></div></div>';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_tx">Szybkość wysyłania</div><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_tx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_tx">-</p></div></div>';
 	html += '<div class="row"><div class="col-xs-5 col-sm-6 text-right" id="bandwidth_speed_label_rx">Szybkość pobierania</div><div class="col-xs-3 col-sm-3 text-left"><p id="bandwidth_speed_rx">-</p></div><div class="col-xs-4 col-sm-3 text-left"><p id="bandwidth_speed_max_rx">-</p></div></div>';
+	html += '<div class="row space"><div class="col-xs-5 col-sm-6 text-right">Opcje</div><div class="col-xs-7 col-sm-6 text-left">';
+	html += '<span class="click" onclick="bandwidthcallback(false);"><span id="bandwidth_bits"> bity </span></span>|';
+	html += '<span class="click" onclick="bandwidthcallback(true);"><span id="bandwidth_bytes"> bajty </span></span>|';
+	html += '<span class="click" onclick="bandwidthcallbackavg();"><span id="bandwidth_avg"> średnia </span></span>';
+	html += '</div></div>';
 	html += '<div class="row" id="div_bandwidth"><div class="col-xs-12"><canvas id="bandwidth" height="400"></canvas></div></div>';
 	showMsg(html);
 	var bandwidth_arr = []; bandwidth_arr[0] = []; bandwidth_arr[1] = [];
@@ -8223,6 +8235,7 @@ livegraph = {
 		}
 
 		function plot1(idx, fill) {
+			var avg = 0;
 			ctx.beginPath();
 			var x = livegraph.getX(graph, data[idx][0][0]);
 			var y = livegraph.getY(graph, data[idx][0][1]);
@@ -8236,15 +8249,28 @@ livegraph = {
 				x = livegraph.getX(graph, data[idx][i][0]);
 				y = livegraph.getY(graph, data[idx][i][1]);
 				ctx.lineTo(x, y);
+				if (bandwidth_avg) { avg += data[idx][i][1]; }
 			}
 			if (fill) {
 				ctx.lineTo(x, livegraph.axisTop + graph.height);
 				ctx.fill();
 			} else {
 				ctx.stroke();
+				if (bandwidth_avg) {
+					var val = avg / data[idx].length;
+					y = livegraph.getY(graph, val);
+					ctx.lineWidth = 0.8;
+					ctx.beginPath();
+					ctx.moveTo(graph.axisLeft, y)
+					ctx.lineTo(graph.axisLeft + graph.width, y);
+					ctx.stroke();
+					t = convertToSpeed(val, pow).split(' ');
+					ctx.fillText(t[0], graph.axisLeft + offset, y + 5);
+				}
 			}
 		}
 
+		ctx.textAlign = (graph.axisLeft > 10) ? 'right' : 'left';
 		ctx.lineWidth = 1.5;
 		for (var i = 0; i < (graph.data).length; i++) {
 			if (data[i].length == 0) { continue; }
