@@ -8265,6 +8265,17 @@ livegraph = {
 					ctx.lineTo(graph.axisLeft + graph.width, y);
 					ctx.stroke();
 					t = convertToSpeed(val, pow).split(' ');
+
+					var oldfillStyle = ctx.fillStyle;
+					ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+					var textWidth = ctx.measureText(t[0]).width;
+					if (ctx.textAlign == 'right') {
+						ctx.fillRect(graph.axisLeft + offset - textWidth - 5, y + 5 - 15, textWidth + 10, 20);
+					} else {
+						ctx.fillRect(graph.axisLeft + offset - 5, y + 5 - 15, textWidth + 10, 20);
+					}
+					ctx.fillStyle = oldfillStyle;
+
 					ctx.fillText(t[0], graph.axisLeft + offset, y + 5);
 				}
 			}
