@@ -1913,6 +1913,7 @@ function showbandwidth(mac, section) {
 	livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
 	if (config.wan_ifname != '' || mac) {
 		bandwidthcallback(false);
+		bandwidth_avg = false;
 		bandwidthID = setInterval(function() {
 			var e = document.getElementById('bandwidth_all_tx');
 			if (!e || e.offsetParent === null) {
