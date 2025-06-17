@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# (c) 2023 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2023-2025 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 DEVICE=$(uci -q get network.wan.device)
@@ -14,9 +14,12 @@ if [ ! -e "$DEVICE" ]; then
 	exit 0
 fi
 
+MBIM=""
+[ "x$(uci -q get network.wan.proto)" = "xmbim" ] && MBIM="-m"
+
 . /usr/share/libubox/jshn.sh
 
-json_load "$(uqmi -sd $DEVICE --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')"
+json_load "$(uqmi $MBIM -sd $DEVICE --get-serving-system --get-signal-info | sed 'N;s|\n| |;s|} {|,|')"
 json_get_vars type rssi rsrq rsrp snr ecio registration plmn_mcc plmn_mnc plmn_description roaming
 
 MODE=$(echo $type | tr 'a-z' 'A-Z')
@@ -78,7 +81,7 @@ S4F=""
 S4BW=""
 S4STATE=""
 if [ "$MODE_NUM" = "7" ]; then
-	eval $(uqmi -sd $DEVICE --get-lte-cphy-ca-info 2>/dev/null | jsonfilter -q \
+	eval $(uqmi $MBIM -sd $DEVICE --get-lte-cphy-ca-info 2>/dev/null | jsonfilter -q \
 		-e 'PB=@.primary.band' -e 'PF=@.primary.frequency' -e 'PBW=@.primary.bandwidth' \
 		-e 'S1B=@.secondary_1.band' -e 'S1F=@.secondary_1.frequency' -e 'S1BW=@.secondary_1.bandwidth' -e 'S1STATE=@.secondary_1.state' \
 		-e 'S2B=@.secondary_2.band' -e 'S2F=@.secondary_2.frequency' -e 'S2BW=@.secondary_2.bandwidth' -e 'S2STATE=@.secondary_2.state' \
@@ -104,7 +107,7 @@ CELLID=""
 if [ "$MODE_NUM" = "7" ]; then
 	SCELLID=""
 	ENODEBID=""
-	eval $(uqmi -sd $DEVICE --get-system-info 2>/dev/null | jsonfilter -q -e 'TAC=@.lte.tracking_area_code' -e 'SCELLID=@.lte.cell_id' -e 'ENODEBID=@.lte.enodeb_id')
+	eval $(uqmi $MBIM -sd $DEVICE --get-system-info 2>/dev/null | jsonfilter -q -e 'TAC=@.lte.tracking_area_code' -e 'SCELLID=@.lte.cell_id' -e 'ENODEBID=@.lte.enodeb_id')
 	if [ -n "$SCELLID" ] && [ -n "$ENODEBID" ]; then
 		CELLID=$(printf "%X%X" $ENODEBID $SCELLID )
 		CELLID_DEC=$(printf "%d" "0x$CELLID")

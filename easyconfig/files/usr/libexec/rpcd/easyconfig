@@ -1147,9 +1147,17 @@ show_modem()
 	T=$(uci -q get easyconfig.modem.force_plmn)
 	[ "x$T" = "x1" ] || T=""
 
-	if [ "x$(uci -q get network.wan.proto)" = "xqmi" ] && [ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ]; then
+	PROTO=$(uci -q get network.wan.proto)
+	[ -z "$PROTO" ] && PROTO="?"
+
+	QMI=""
+	if [ "$PROTO" = "qmi" ] || [ "$PROTO" = "mbim" ]; then
+		[ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ] && QMI="1"
+	fi
+
+	if [ -n "$QMI" ]; then
 		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_qmi.sh
-	elif [ "x$(uci -q get network.wan.proto)" = "xmodemmanager" ]; then
+	elif [ "$PROTO" = "modemmanager" ]; then
 		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_modemmanager.sh
 	else
 		FORCE_PLMN=$T /usr/share/easyconfig/modem/info.sh
