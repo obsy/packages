@@ -152,7 +152,7 @@ fi
 
 WAN_NETMASK=${WAN_NETMASK##*/}
 if [ -n "$WAN_NETMASK" ]; then
-	WAN_NETMASK=$(ipcalc.sh ${WAN_IPADDR}/${WAN_NETMASK} | awk -F= '/NETMASK/{print $2}')
+	WAN_NETMASK=$(ipcalc.sh ${WAN_IPADDR}/${WAN_NETMASK} | awk -F= '/^NETMASK=/{print $2}')
 fi
 
 [ -n "$WAN_DNS" ] && WAN_DNS='"'$(echo $WAN_DNS | sed 's/ /","/g')'"'
@@ -408,15 +408,15 @@ if [ "x$WAN_PROTO" = "xdhcp" ]; then
 	network_get_subnet WAN_NETMASK wan
 	WAN_NETMASK=${WAN_NETMASK##*/}
 	if [ -n "$WAN_NETMASK" ]; then
-		WAN_NETMASK=$(ipcalc.sh ${WAN_IPADDR}/${WAN_NETMASK} | awk -F= '/NETMASK/{print $2}')
+		WAN_NETMASK=$(ipcalc.sh ${WAN_IPADDR}/${WAN_NETMASK} | awk -F= '/^NETMASK=/{print $2}')
 	fi
 fi
 
 if [ "x$WAN_PROTO" = "xstatic" ]; then
 	if echo "$WAN_IPADDR" | grep -q "/"; then
 		T=$(ipcalc.sh $WAN_IPADDR)
-		WAN_IPADDR=$(echo "$T" | awk -F= '/IP/{print $2}')
-		WAN_NETMASK=$(echo "$T" | awk -F= '/NETMASK/{print $2}')
+		WAN_IPADDR=$(echo "$T" | awk -F= '/^IP=/{print $2}')
+		WAN_NETMASK=$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')
 	fi
 fi
 
@@ -433,12 +433,15 @@ else
 	STUBBY="false"
 fi
 
+CIDRNOTATION="false"
 LAN_IPADDR=$(uci -q get network.lan.ipaddr)
 LAN_NETMASK=$(uci -q get network.lan.netmask)
 if echo "$LAN_IPADDR" | grep -q "/"; then
+	CIDRNOTATION="true"
 	T=$(ipcalc.sh $LAN_IPADDR)
-	LAN_IPADDR=$(echo "$T" | awk -F= '/IP/{print $2}')
-	LAN_NETMASK=$(echo "$T" | awk -F= '/NETMASK/{print $2}')
+	LAN_IPADDR=$(echo "$T" | awk -F= '/^IP=/{print $2}')
+	LAN_NETMASK=$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')
+	LAN_PREFIX=$(echo "$T" | awk -F= '/^PREFIX=/{print $2}')
 fi
 
 LAN_DHCP=$(uci -q get dhcp.lan.ignore)
@@ -506,6 +509,7 @@ echo '{'
 echo '"revision":"'$REVISION'",'
 echo '"devicesection":'$DEVICESECTION','
 echo '"system_hostname":"'$HOSTNAME'",'
+echo '"cidrnotation":'$CIDRNOTATION','
 echo '"wan_proto":"'${WAN_PROTO:-none}'",'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"wan_netmask":"'${WAN_NETMASK:-255.255.255.0}'",'
@@ -589,6 +593,7 @@ fi
 
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_netmask":"'$LAN_NETMASK'",'
+echo '"lan_prefix":"'$LAN_PREFIX'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 wlancurrentchannels
@@ -2343,8 +2348,15 @@ show_networks() {
 		echo '{"section":"'$SEC'",'
 		echo '"description":"'$(escapeJSON "$(uci -q get network.$SEC.description)")'",'
 		echo '"proto":"'$(uci -q get network.$SEC.proto)'",'
-		echo '"ipaddr":"'$(uci -q get network.$SEC.ipaddr)'",'
-		echo '"netmask":"'$(uci -q get network.$SEC.netmask)'",'
+		IPADDR=$(uci -q get network.$SEC.ipaddr)
+		if echo "$IPADDR" | grep -q "/"; then
+			T=$(ipcalc.sh $IPADDR)
+			echo '"ipaddr":"'$(echo "$T" | awk -F= '/^IP=/{print $2}')'",'
+			echo '"netmask":"'$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')'",'
+		else
+			echo '"ipaddr":"'$IPADDR'",'
+			echo '"netmask":"'$(uci -q get network.$SEC.netmask)'",'
+		fi
 		T=$(uci -q get network.$SEC.device)
 		echo '"device":"'$T'",'
 		BRIDGE=""

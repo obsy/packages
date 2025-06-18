@@ -1438,8 +1438,14 @@ function saveconfig() {
 			} else {
 				cmd.push('uci set network.wan.ifname=' + config.wan_ifname_default);
 			}
-			cmd.push('uci set network.wan.ipaddr=' + getValue('wan_ipaddr'));
-			cmd.push('uci set network.wan.netmask=' + getValue('wan_netmask'));
+			if (config.cidrnotation) {
+				cmd.push('uci -q del network.wan.ipaddr');
+				cmd.push('PREFIX=$(ipcalc.sh ' + getValue('wan_ipaddr') + ' ' + getValue('wan_netmask') + ' | awk -F= \'/^PREFIX=/{print $2}\')');
+				cmd.push('uci add_list network.wan.ipaddr=\\\"' + getValue('wan_ipaddr') + '/$PREFIX\\\"');
+			} else {
+				cmd.push('uci set network.wan.ipaddr=' + getValue('wan_ipaddr'));
+				cmd.push('uci set network.wan.netmask=' + getValue('wan_netmask'));
+			}
 			cmd.push('uci set network.wan.gateway=' + getValue('wan_gateway'));
 			use_dns = 'custom';
 			use_wanport = false;
@@ -1594,8 +1600,13 @@ function saveconfig() {
 
 	// lan
 	if (checkField('lan_ipaddr', validateIP)) {return;}
-	cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
-	cmd.push('uci set network.lan.netmask=' + config.lan_netmask);
+	if (config.cidrnotation) {
+		cmd.push('uci -q del_list network.lan.ipaddr=\\\"' + config.lan_ipaddr + '/' + config.lan_prefix + '\\\"');
+		cmd.push('uci add_list network.lan.ipaddr=\\\"' + getValue('lan_ipaddr') + '/' + config.lan_prefix + '\\\"');
+	} else {
+		cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
+		cmd.push('uci set network.lan.netmask=' + config.lan_netmask);
+	}
 
 	if (getValue("lan_dhcp_enabled")) {
 		cmd.push('uci -q del dhcp.lan.ignore');
@@ -6705,7 +6716,7 @@ function okremovezerotier() {
 	cmd.push('T=$(uci show zerotier | awk \'/=network$/\' | wc -l)');
 	cmd.push('if [ \\\"$T\\\" = \\\"0\\\" ]; then');
 	cmd.push(' uci set zerotier.global.enabled=0');
-	cmd.push(' uci del zerotier.global.secret');
+	cmd.push(' uci -q del zerotier.global.secret');
 	cmd.push('fi');
 	cmd.push('uci commit');
 	cmd.push('/etc/init.d/zerotier restart');
@@ -7657,8 +7668,14 @@ function savenetwork() {
 	if (json.bridge != '') {
 		cmd.push('uci set network.' + json.bridge + '.name=' + json.device);
 	}
-	cmd.push('uci set network.' + json.section + '.ipaddr=' + ipaddr);
-	cmd.push('uci set network.' + json.section + '.netmask=' + getValue('network_netmask'));
+	if (config.cidrnotation) {
+		cmd.push('uci -q del network.' + json.section + '.ipaddr');
+		cmd.push('PREFIX=$(ipcalc.sh ' + ipaddr + ' ' + getValue('network_netmask') + ' | awk -F= \'/^PREFIX=/{print $2}\')');
+		cmd.push('uci add_list network.' + json.section + '.ipaddr=\\\"' + ipaddr + '/$PREFIX\\\"');
+	} else {
+		cmd.push('uci set network.' + json.section + '.ipaddr=' + ipaddr);
+		cmd.push('uci set network.' + json.section + '.netmask=' + getValue('network_netmask'));
+	}
 	cmd.push('uci set dhcp.' + json.section + '=dhcp');
 	cmd.push('uci set dhcp.' + json.section + '.interface=' + json.section);
 	if (getValue('network_dhcp')) {
