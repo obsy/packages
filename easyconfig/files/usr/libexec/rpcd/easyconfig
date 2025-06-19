@@ -414,7 +414,7 @@ fi
 
 if [ "x$WAN_PROTO" = "xstatic" ]; then
 	if echo "$WAN_IPADDR" | grep -q "/"; then
-		T=$(ipcalc.sh $WAN_IPADDR)
+		T=$(ipcalc.sh ${WAN_IPADDR%% *})
 		WAN_IPADDR=$(echo "$T" | awk -F= '/^IP=/{print $2}')
 		WAN_NETMASK=$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')
 	fi
@@ -438,7 +438,7 @@ LAN_IPADDR=$(uci -q get network.lan.ipaddr)
 LAN_NETMASK=$(uci -q get network.lan.netmask)
 if echo "$LAN_IPADDR" | grep -q "/"; then
 	CIDRNOTATION="true"
-	T=$(ipcalc.sh $LAN_IPADDR)
+	T=$(ipcalc.sh ${LAN_IPADDR%% *})
 	LAN_IPADDR=$(echo "$T" | awk -F= '/^IP=/{print $2}')
 	LAN_NETMASK=$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')
 	LAN_PREFIX=$(echo "$T" | awk -F= '/^PREFIX=/{print $2}')
@@ -2350,7 +2350,7 @@ show_networks() {
 		echo '"proto":"'$(uci -q get network.$SEC.proto)'",'
 		IPADDR=$(uci -q get network.$SEC.ipaddr)
 		if echo "$IPADDR" | grep -q "/"; then
-			T=$(ipcalc.sh $IPADDR)
+			T=$(ipcalc.sh ${IPADDR%% *})
 			echo '"ipaddr":"'$(echo "$T" | awk -F= '/^IP=/{print $2}')'",'
 			echo '"netmask":"'$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')'",'
 		else

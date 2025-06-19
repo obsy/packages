@@ -1601,7 +1601,7 @@ function saveconfig() {
 	// lan
 	if (checkField('lan_ipaddr', validateIP)) {return;}
 	if (config.cidrnotation) {
-		cmd.push('uci -q del_list network.lan.ipaddr=\\\"' + config.lan_ipaddr + '/' + config.lan_prefix + '\\\"');
+		cmd.push('uci -q del network.lan.ipaddr');
 		cmd.push('uci add_list network.lan.ipaddr=\\\"' + getValue('lan_ipaddr') + '/' + config.lan_prefix + '\\\"');
 	} else {
 		cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
