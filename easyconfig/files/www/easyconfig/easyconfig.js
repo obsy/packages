@@ -234,7 +234,7 @@ function validateHost(name) {
 
 function validateIP(address) {
 	var errorCode = 0;
-	if ((address == "0.0.0.0") || (address == "255.255.255.255")) {
+	if ((address == '0.0.0.0') || (address == '255.255.255.255')) {
 		errorCode = 1;
 	} else {
 		var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -242,7 +242,7 @@ function validateIP(address) {
 			errorCode = 1;
 		} else {
 			for (field=1; field <= 4; field++) {
-				if ((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
+				if (ipFields[field] > 255) {
 					errorCode = 1;
 				}
 			}
@@ -258,7 +258,7 @@ function validateIPWithMask(address) {
 		errorCode = 1;
 	} else {
 		for (field=1; field <= 4; field++) {
-			if ((ipFields[field] > 255) || (ipFields[field] == 255 && field==4)) {
+			if (ipFields[field] > 255) {
 				errorCode = 1;
 			}
 		}
@@ -341,12 +341,12 @@ function getLabelText(element) {
 				return labels[i].innerText;
 		}
 	}
-	return "???";
+	return '???';
 }
 
 function checkField(element, proofFunction) {
 	if (proofFunction(getValue(element)) != 0) {
-		showMsg("Błąd w polu " + getLabelText(element), true);
+		showMsg('Błąd w polu ' + getLabelText(element), true);
 		return true;
 	}
 	return false;
@@ -355,8 +355,8 @@ function checkField(element, proofFunction) {
 function checkFieldAllowEmpty(element, proofFunction) {
 	var val = getValue(element);
 	if (proofFunction(val) != 0) {
-		if (val != "") {
-			showMsg("Błąd w polu " + getLabelText(element), true);
+		if (val != '') {
+			showMsg('Błąd w polu ' + getLabelText(element), true);
 			return true;
 		}
 	}
@@ -397,6 +397,40 @@ function getRevision() {
 		revision = parseInt(tmp[1]) || 0;
 	}
 	return revision;
+}
+
+function ipToInt(address) {
+	return address.split('.').reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0) >>> 0;
+}
+
+function cidrToMask(cidr) {
+	var arr = [];
+	for (var i = 0; i < 4; i++) {
+		var shift = Math.min(Math.max(0, cidr - i * 8), 8);
+		arr.push(Math.min(Math.max(256 - Math.pow(2, 8 - shift), 0), 255));
+	}
+	return arr.join('.');
+}
+
+function checkIpType(address, mask) {
+	if (mask == '255.255.255.255') { return 1; }
+	var ipInt = ipToInt(address);
+	var maskInt = ipToInt(mask);
+	var networkInt = (ipInt & maskInt) >>> 0;
+	var broadcastInt = (networkInt | (~maskInt >>> 0)) >>> 0;
+
+	if (ipInt === networkInt) {
+		// network
+		return 0;
+	} else if (ipInt === broadcastInt) {
+		// broadcast
+		return 255;
+	} else if (ipInt > networkInt && ipInt < broadcastInt) {
+		// host
+		return 1;
+	}
+	// outside subnet
+	return -1;
 }
 
 /*****************************************************************************/
@@ -1432,7 +1466,12 @@ function saveconfig() {
 		if (wan_type == 'static') {
 			if (checkField('wan_ipaddr', validateIP)) {return;}
 			if (checkField('wan_gateway', validateIP)) {return;}
-
+			proofreadText(document.getElementById('wan_ipaddr'), function(text){ return 0; }, 0);
+			if (checkIpType(getValue('wan_ipaddr'), getValue('wan_netmask')) != 1) {
+				proofreadText(document.getElementById('wan_ipaddr'), function(text){ return 0; }, 1);
+				showMsg('Błąd w polu ' + getLabelText('wan_ipaddr') + '<br><br>Adres IP jest spoza zakresu adresacji sieci', true);
+				return;
+			}
 			if (config.devicesection) {
 				cmd.push('uci set network.wan.device=' + config.wan_ifname_default);
 			} else {
@@ -1600,6 +1639,12 @@ function saveconfig() {
 
 	// lan
 	if (checkField('lan_ipaddr', validateIP)) {return;}
+	proofreadText(document.getElementById('lan_ipaddr'), function(text){ return 0; }, 0);
+	if (checkIpType(getValue('lan_ipaddr'), config.lan_netmask) != 1) {
+		proofreadText(document.getElementById('lan_ipaddr'), function(text){ return 0; }, 1);
+		showMsg('Błąd w polu ' + getLabelText('lan_ipaddr') + '<br><br>Adres IP jest spoza zakresu adresacji sieci', true);
+		return;
+	}
 	if (config.cidrnotation) {
 		cmd.push('uci -q del network.lan.ipaddr');
 		cmd.push('uci add_list network.lan.ipaddr=\\\"' + getValue('lan_ipaddr') + '/' + config.lan_prefix + '\\\"');
@@ -6534,6 +6579,12 @@ function savewireguard() {
 				showError('vpn_wireguard_error', 'vpn_wireguard_ips_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx));
 				return;
 			}
+			proofreadText(document.getElementById('vpn_wireguard_ips_' + idx), function(text){ return 0; }, 0);
+			if (checkIpType(e.value.split('/')[0], cidrToMask(e.value.split('/')[1])) != 1) {
+				proofreadText(document.getElementById('vpn_wireguard_ips_' + idx), function(text){ return 0; }, 1);
+				showError('vpn_wireguard_error', 'vpn_wireguard_ips_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
+				return;
+			}
 		}
 	}
 
@@ -6577,6 +6628,13 @@ function savewireguard() {
 			if (e) {
 				if (validateIPWithMask(e.value) != 0) {
 					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ips_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy));
+					return;
+				}
+				proofreadText(document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy), function(text){ return 0; }, 0);
+				var ret = checkIpType(e.value.split('/')[0], cidrToMask(e.value.split('/')[1]));
+				if (ret == -1 || ret == 255) {
+					proofreadText(document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy), function(text){ return 0; }, 1);
+					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ips_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
 					return;
 				}
 			}
@@ -7638,6 +7696,12 @@ function savenetwork() {
 	var ipaddr = getValue('network_ipaddr');
 	if (validateIP(ipaddr) != 0) {
 		showError('network_error', 'network_ipaddr', 'Błąd w polu ' + getLabelText('network_ipaddr'));
+		return;
+	}
+	proofreadText(document.getElementById('network_ipaddr'), function(text){ return 0; }, 0);
+	if (checkIpType(ipaddr, getValue('network_netmask')) != 1) {
+		proofreadText(document.getElementById('network_ipaddr'), function(text){ return 0; }, 1);
+		showError('network_error', 'network_ipaddr', 'Błąd w polu ' + getLabelText('network_ipaddr') + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
 		return;
 	}
 
