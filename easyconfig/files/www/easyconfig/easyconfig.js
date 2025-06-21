@@ -433,6 +433,32 @@ function checkIpType(address, mask) {
 	return -1;
 }
 
+function checkIpInLanSubnet(address, mask, addresstocheck) {
+	if (mask == '255.255.255.255') { return 1; }
+	var ipInt = ipToInt(address);
+	var maskInt = ipToInt(mask);
+	var networkInt = (ipInt & maskInt) >>> 0;
+	var broadcastInt = (networkInt | (~maskInt >>> 0)) >>> 0;
+	var addresstocheckInt = ipToInt(addresstocheck);
+
+	if (ipInt === networkInt) {
+		// network
+		return 0;
+	} else if (ipInt === broadcastInt) {
+		// broadcast
+		return 255;
+	} else if (ipInt > networkInt && ipInt < broadcastInt) {
+		if (addresstocheckInt > networkInt && addresstocheckInt < broadcastInt) {
+			// host
+			return 1;
+		} else {
+			return -1;
+		}
+	}
+	// outside subnet
+	return -1;
+}
+
 /*****************************************************************************/
 
 var modal;
@@ -1623,12 +1649,18 @@ function saveconfig() {
 		}
 
 		// firewall
-		if (checkFieldAllowEmpty('firewall_dmz', validateIP)) {return;}
+		if (checkFieldAllowEmpty('firewall_dmz', validateIP)) { return; }
 
 		var firewall_dmz = getValue('firewall_dmz');
 		if (firewall_dmz == '') {
 			cmd.push('uci -q del firewall.dmz');
 		} else {
+			proofreadText(document.getElementById('firewall_dmz'), function(text){ return 0; }, 0);
+			if (checkIpInLanSubnet(getValue('lan_ipaddr'), config.lan_netmask, firewall_dmz) != 1) {
+				proofreadText(document.getElementById('firewall_dmz'), function(text){ return 0; }, 1);
+				showMsg('Błąd w polu ' + getLabelText('firewall_dmz') + '<br><br>Adres IP jest spoza zakresu adresacji sieci', true);
+				return;
+			}
 			cmd.push('uci set firewall.dmz=redirect');
 			cmd.push('uci set firewall.dmz.name=DMZ');
 			cmd.push('uci set firewall.dmz.src=wan');
