@@ -484,3 +484,18 @@ h3 {
   height: 400px;
   z-index: 0;
 }
+
+@media (min-width: 768px) {
+  .custom-row .col1of2 {
+    padding-right: 0px;
+  }
+  .custom-row .col2of2 {
+    padding-left: 5px;
+  }
+}
+
+@media (max-width: 767px) {
+  .custom-row .col1of2 {
+    margin-bottom: 5px;
+  }
+}

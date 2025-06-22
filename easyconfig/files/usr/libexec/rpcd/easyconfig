@@ -2042,10 +2042,18 @@ show_vpn_details()
 	if [ "x$PROTO" = "xwireguard" ]; then
 		PRIVKEY=$(uci -q get network.$interface.private_key)
 		PUBKEY=$(echo "$PRIVKEY" | wg pubkey)
-		IPS=$(uci -q get network.$interface.addresses | sed 's/ /","/g')
+		IPS=""
+		T=$(uci -q get network.$interface.addresses)
+		for CIDR in $T; do
+			if echo $CIDR | grep -q "/"; then
+				IP=${CIDR%%/*}
+				NETMASK=$(ipcalc.sh ${IP}/${CIDR##*/} | awk -F= '/^NETMASK=/{print $2}')
+				IPS="${IPS}[\"$IP\",\"$NETMASK\"],"
+			fi
+		done
 		PORT=$(uci -q get network.$interface.listen_port)
 		PEERS=$(uci show network | awk -F[.=] '/=wireguard_'$interface'/{print $2}')
-		echo "\"privkey\":\"$PRIVKEY\",\"pubkey\":\"$PUBKEY\",\"listen_port\":\"$PORT\",\"ips\":[\"$IPS\"],\"peers\":["
+		echo "\"privkey\":\"$PRIVKEY\",\"pubkey\":\"$PUBKEY\",\"listen_port\":\"$PORT\",\"ips\":[$IPS],\"peers\":["
 		for PEER in $PEERS; do
 			DISABLED=$(uci -q get network.$PEER.disabled)
 			ENDPOINTHOST=$(uci -q get network.$PEER.endpoint_host)
@@ -2054,8 +2062,16 @@ show_vpn_details()
 			PSKEY=$(uci -q get network.$PEER.preshared_key)
 			DESCRIPTION=$(uci -q get network.$PEER.description)
 			[ -z "$DESCRIPTION" ] && DESCRIPTION="$ENDPOINTHOST:$ENDPOINTPORT"
-			ALLOWEDIPS=$(uci -q get network.$PEER.allowed_ips | sed 's/ /","/g')
-			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"pskey\":\"$PSKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[\"$ALLOWEDIPS\"]},"
+			ALLOWEDIPS=""
+			T=$(uci -q get network.$PEER.allowed_ips)
+			for CIDR in $T; do
+				if echo $CIDR | grep -q "/"; then
+					IP=${CIDR%%/*}
+					NETMASK=$(ipcalc.sh ${IP}/${CIDR##*/} | awk -F= '/^NETMASK=/{print $2}')
+					ALLOWEDIPS="${ALLOWEDIPS}[\"$IP\",\"$NETMASK\"],"
+				fi
+			done
+			echo "{\"disabled\":${DISABLED:-0},\"description\":\""$(escapeJSON "$DESCRIPTION")"\",\"pubkey\":\"$PUBKEY\",\"pskey\":\"$PSKEY\",\"endpoint_host\":\"$ENDPOINTHOST\",\"endpoint_port\":\"$ENDPOINTPORT\",\"allowed_ips\":[$ALLOWEDIPS]},"
 		done
 		echo "]}"
 	fi

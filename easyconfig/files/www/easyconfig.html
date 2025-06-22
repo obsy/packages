@@ -313,15 +313,14 @@
 		<div class="form-group" id="div_wan_ipaddr">
 			<label for="wan_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="wan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
-			</div>
-		</div>
-
-		<div class="form-group" id="div_wan_netmask">
-			<label for="wan_netmask" class="col-xs-4 col-sm-3 control-label">Maska</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="wan_netmask" class="form-control">
-			</select>
+				<div class="row custom-row">
+					<div class="col-sm-6 col1of2">
+						<input id="wan_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
+					</div>
+					<div class="col-sm-6 col2of2">
+						<select id="wan_netmask" class="form-control"></select>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -2250,10 +2249,17 @@
 		<input id="vpn_wireguard_ips" type="hidden">
 		<div id="div_vpn_wireguard_ips_template" style="display:none">
 		<div class="form-group">
-			<label for="vpn_wireguard_ips_idx" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
-			<div class="col-xs-8 col-sm-9 input-group">
-				<input id="vpn_wireguard_ips_idx" type="text" class="form-control" onkeyup="proofreadIpWithMask(this);">
-				<span class="click input-group-element" title="usuń adres IP" onclick="removewireguardips('_idx');"><i data-feather="trash-2"></i></span>
+			<label for="vpn_wireguard_ip_idx" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
+			<div class="col-xs-8 col-sm-9">
+				<div class="row custom-row">
+					<div class="col-sm-6 col1of2">
+						<input id="vpn_wireguard_ip_idx" type="text" class="form-control" onkeyup="proofreadIp(this);">
+					</div>
+					<div class="col-sm-6 col2of2 input-group">
+						<select id="vpn_wireguard_netmask_idx" class="form-control"></select>
+						<span class="click input-group-element" title="usuń adres IP" onclick="removewireguardips('_idx');"><i data-feather="trash-2"></i></span>
+					</div>
+				</div>
 			</div>
 		</div>
 		</div>
@@ -2314,10 +2320,17 @@
 			<input id="vpn_wireguard_allowed_ips_idx" type="hidden">
 			<div id="div_vpn_wireguard_allowed_ips_idx_template" style="display:none">
 			<div class="form-group">
-				<label for="vpn_wireguard_allowed_ips_idx_idy" class="col-xs-4 col-sm-3 control-label">Dozwolony adres IP</label>
-				<div class="col-xs-8 col-sm-9 input-group">
-					<input id="vpn_wireguard_allowed_ips_idx_idy" class="form-control" onkeyup="proofreadIpWithMask(this);">
-					<span class="click input-group-element" title="usuń dozwolony adres IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
+				<label for="vpn_wireguard_allowed_ip_idx_idy" class="col-xs-4 col-sm-3 control-label">Dozwolony adres IP</label>
+				<div class="col-xs-8 col-sm-9">
+					<div class="row custom-row">
+						<div class="col-sm-6 col1of2">
+							<input id="vpn_wireguard_allowed_ip_idx_idy" type="text" class="form-control" onkeyup="proofreadIp(this);">
+						</div>
+						<div class="col-sm-6 col2of2 input-group">
+							<select id="vpn_wireguard_allowed_netmask_idx_idy" class="form-control"></select>
+							<span class="click input-group-element" title="usuń dozwolony adres IP" onclick="removewireguardallowedips('_idx_idy');"><i data-feather="trash-2"></i></span>
+						</div>
+					</div>
 				</div>
 			</div>
 			</div>
@@ -2455,15 +2468,14 @@
 		<div class="form-group">
 			<label for="network_ipaddr" class="col-xs-4 col-sm-3 control-label">Adres IP</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="network_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="network_netmask" class="col-xs-4 col-sm-3 control-label">Maska</label>
-			<div class="col-xs-8 col-sm-9">
-			<select id="network_netmask" class="form-control">
-			</select>
+				<div class="row custom-row">
+					<div class="col-sm-6 col1of2">
+						<input id="network_ipaddr" type="text" class="form-control" onkeyup="proofreadIp(this);">
+					</div>
+					<div class="col-sm-6 col2of2">
+						<select id="network_netmask" class="form-control"></select>
+					</div>
+				</div>
 			</div>
 		</div>
 

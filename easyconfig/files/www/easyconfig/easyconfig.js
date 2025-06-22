@@ -57,26 +57,31 @@ function easyconfig_onload() {
 
 	var inittoken = '00000000000000000000000000000000';
 
-	function mask2Subnet(val) {
-		return [255, 255, 255, 255]
-			.map(() => [...Array(8).keys()]
-			.reduce((rst) => (rst * 2 + (val-- > 0)), 0))
-			.join('.')
-	}
-
-	var tmp;
+	var value;
+	var key;
 	var e1 = removeOptions('wan_netmask');
 	var e2 = removeOptions('network_netmask');
+	var e3 = removeOptions('vpn_wireguard_netmask_idx');
+	var e4 = removeOptions('vpn_wireguard_allowed_netmask_idx_idy');
 	for (var idx = 0; idx <= 32; idx++) {
-		tmp = mask2Subnet(idx);
+		value = cidrToMask(idx);
+		key = '/' + idx + ' (' + value + ')';
 		var opt = document.createElement('option');
-		opt.value = tmp;
-		opt.innerHTML = '/' + idx + ' (' + tmp + ')';
+		opt.value = value;
+		opt.innerHTML = key;
 		e1.appendChild(opt);
 		opt = document.createElement('option');
-		opt.value = tmp;
-		opt.innerHTML = '/' + idx + ' (' + tmp + ')';
+		opt.value = value;
+		opt.innerHTML = key;
 		e2.appendChild(opt);
+		opt = document.createElement('option');
+		opt.value = value;
+		opt.innerHTML = key;
+		e3.appendChild(opt);
+		opt = document.createElement('option');
+		opt.value = value;
+		opt.innerHTML = key;
+		e4.appendChild(opt);
 	}
 
 	token = getCookie('easyconfig_token');
@@ -180,10 +185,6 @@ function proofreadIp(input) {
 	proofreadText(input, validateIP, 0);
 }
 
-function proofreadIpWithMask(input) {
-	proofreadText(input, validateIPWithMask, 0);
-}
-
 function proofreadText(input, proofFunction, validReturnCode) {
 	if (input.disabled != true) {
 		var e = input.closest('div');
@@ -234,36 +235,20 @@ function validateHost(name) {
 
 function validateIP(address) {
 	var errorCode = 0;
-	if ((address == '0.0.0.0') || (address == '255.255.255.255')) {
+	if (address == '0.0.0.0') {
 		errorCode = 1;
+	} else if (address == '255.255.255.255') {
+		errorCode = 2;
 	} else {
 		var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
 		if (ipFields == null) {
-			errorCode = 1;
+			errorCode = 3;
 		} else {
 			for (field=1; field <= 4; field++) {
 				if (ipFields[field] > 255) {
-					errorCode = 1;
+					errorCode = 4;
 				}
 			}
-		}
-	}
-	return errorCode;
-}
-
-function validateIPWithMask(address) {
-	var errorCode = 0;
-	var ipFields = address.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/);
-	if (ipFields == null) {
-		errorCode = 1;
-	} else {
-		for (field=1; field <= 4; field++) {
-			if (ipFields[field] > 255) {
-				errorCode = 1;
-			}
-		}
-		if ((ipFields[5] < 0) || (ipFields[5] > 32)) {
-			errorCode = 1;
 		}
 	}
 	return errorCode;
@@ -410,6 +395,43 @@ function cidrToMask(cidr) {
 		arr.push(Math.min(Math.max(256 - Math.pow(2, 8 - shift), 0), 255));
 	}
 	return arr.join('.');
+}
+
+function maskToCidr(mask) {
+	var octets = mask.split('.');
+	if (octets.length !== 4) {
+		return '';
+	}
+
+	var binary = '';
+	for (var i = 0; i < 4; i++) {
+		var num = parseInt(octets[i], 10);
+		if (num < 0 || num > 255 || isNaN(num)) {
+			return '';
+		}
+		var bin = num.toString(2);
+		while (bin.length < 8) {
+			bin = '0' + bin;
+		}
+		binary += bin;
+	}
+
+	var cidr = 0;
+	for (var j = 0; j < 32; j++) {
+		if (binary[j] === '1') {
+			cidr++;
+		} else {
+			break;
+		}
+	}
+
+	for (var k = cidr; k < 32; k++) {
+		if (binary[k] !== '0') {
+			return '';
+		}
+	}
+
+	return cidr;
 }
 
 function checkIpType(address, mask) {
@@ -660,7 +682,7 @@ function enableWan(proto) {
 
 	var fields = [];
 	if (proto == 'static') {
-		fields = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns1', 'wan_dns2'];
+		fields = ['wan_ipaddr', 'wan_gateway', 'wan_dns1', 'wan_dns2'];
 	}
 	if (proto == 'pppoe') {
 		fields = ['wan_username', 'wan_password', 'wan_lcpef', 'wan_lcpei'];
@@ -706,7 +728,7 @@ function enableWan(proto) {
 		setValue('wan_lanto_interface2', tmp);
 	}
 
-	var all = ['wan_ipaddr', 'wan_netmask', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_username', 'wan_password', 'wan_lcpef', 'wan_lcpei', 'wan_waninlan', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
+	var all = ['wan_ipaddr', 'wan_gateway', 'wan_dns', 'wan_dns_url', 'wan_dns1', 'wan_dns2', 'wan_pincode', 'wan_device', 'wan_device_mm', 'wan_apn', 'wan_dashboard_url', 'wan_modem_mode', 'wan_username', 'wan_password', 'wan_lcpef', 'wan_lcpei', 'wan_waninlan', 'wan_metered', 'wan_lanto', 'firewall_dmz'];
 	for (var idx = 0; idx < all.length; idx++) {
 		setElementEnabled(all[idx], false, false);
 	}
@@ -1505,8 +1527,7 @@ function saveconfig() {
 			}
 			if (config.cidrnotation) {
 				cmd.push('uci -q del network.wan.ipaddr');
-				cmd.push('PREFIX=$(ipcalc.sh ' + getValue('wan_ipaddr') + ' ' + getValue('wan_netmask') + ' | awk -F= \'/^PREFIX=/{print $2}\')');
-				cmd.push('uci add_list network.wan.ipaddr=\\\"' + getValue('wan_ipaddr') + '/$PREFIX\\\"');
+				cmd.push('uci add_list network.wan.ipaddr=\\\"' + getValue('wan_ipaddr') + '/'+ maskToCidr(getValue('wan_netmask'))  + '\\\"');
 			} else {
 				cmd.push('uci set network.wan.ipaddr=' + getValue('wan_ipaddr'));
 				cmd.push('uci set network.wan.netmask=' + getValue('wan_netmask'));
@@ -1679,7 +1700,7 @@ function saveconfig() {
 	}
 	if (config.cidrnotation) {
 		cmd.push('uci -q del network.lan.ipaddr');
-		cmd.push('uci add_list network.lan.ipaddr=\\\"' + getValue('lan_ipaddr') + '/' + config.lan_prefix + '\\\"');
+		cmd.push('uci add_list network.lan.ipaddr=\\\"' + getValue('lan_ipaddr') + '/' + maskToCidr(config.lan_netmask) + '\\\"');
 	} else {
 		cmd.push('uci set network.lan.ipaddr=' + getValue('lan_ipaddr'));
 		cmd.push('uci set network.lan.netmask=' + config.lan_netmask);
@@ -5855,7 +5876,8 @@ function vpndetails(proto, interface, section) {
 			setValue('vpn_wireguard_ips', 0);
 			for (var idx = 0; idx < data.ips.length; idx++) {
 				addwireguardips();
-				setValue('vpn_wireguard_ips_' + idx, data.ips[idx]);
+				setValue('vpn_wireguard_ip_' + idx, data.ips[idx][0]);
+				setValue('vpn_wireguard_netmask_' + idx, data.ips[idx][1]);
 			}
 
 			setValue('vpn_wireguard_peers_content', '');
@@ -5871,7 +5893,8 @@ function vpndetails(proto, interface, section) {
 
 				for (var idy = 0; idy < data.peers[idx].allowed_ips.length; idy++) {
 					addwireguardallowedips('_' + idx);
-					setValue('vpn_wireguard_allowed_ips_' + idx + '_' + idy, data.peers[idx].allowed_ips[idy]);
+					setValue('vpn_wireguard_allowed_ip_' + idx + '_' + idy, data.peers[idx].allowed_ips[idy][0]);
+					setValue('vpn_wireguard_allowed_netmask_' + idx + '_' + idy, data.peers[idx].allowed_ips[idy][1]);
 				}
 			}
 
@@ -6087,7 +6110,8 @@ function vpn_parse_wiregaurd() {
 							addwireguardips();
 							jdx++;
 						}
-						setValue('vpn_wireguard_ips_' + jdx, ips[kdx]);
+						setValue('vpn_wireguard_ip_' + jdx, ips[kdx].split('/')[0]);
+						setValue('vpn_wireguard_netmask_' + jdx, ips[kdx].split('/')[1]);
 					}
 				}
 				return;
@@ -6133,7 +6157,8 @@ function vpn_parse_wiregaurd() {
 							addwireguardallowedips('_' + idx);
 							jdx++;
 						}
-						setValue('vpn_wireguard_allowed_ips_' + idx + '_' + jdx, ips[kdx]);
+						setValue('vpn_wireguard_allowed_ip_' + idx + '_' + jdx, ips[kdx].split('/')[0]);
+						setValue('vpn_wireguard_allowed_netmask_' + idx + '_' + jdx, ips[kdx].split('/')[0]);
 					}
 				}
 				return;
@@ -6521,6 +6546,7 @@ function addwireguardips() {
 	if (idx == '') { idx = 0; }
 	var html = ('<div id="div_vpn_wireguard_ips_idx">' + document.getElementById('div_vpn_wireguard_ips_template').innerHTML + '</div>').replaceAll('_idx', '_' + idx);
 	document.getElementById('vpn_wireguard_ips_content').insertAdjacentHTML('beforeend', html);
+	setValue('vpn_wireguard_netmask_' + idx, '255.255.255.0');
 	idx++;
 	setValue('vpn_wireguard_ips', idx);
 }
@@ -6549,7 +6575,8 @@ function addwireguardallowedips(idx) {
 	if (idy == '') { idy = 0; }
 	var html = ('<div id="div_vpn_wireguard_allowed_ips' + idx + '_' + idy + '">' + document.getElementById('div_vpn_wireguard_allowed_ips_idx_template').innerHTML + '</div>').replaceAll('_idx', idx).replaceAll('_idy', '_' + idy);
 	document.getElementById('vpn_wireguard_allowed_ips' + idx + '_content').insertAdjacentHTML('beforeend', html);
-	setValue('vpn_wireguard_allowed_ips' + idx + '_' + idy, '0.0.0.0/0');
+	setValue('vpn_wireguard_allowed_ip' + idx + '_' + idy, '0.0.0.0');
+	setValue('vpn_wireguard_allowed_netmask' + idx + '_' + idy, '0');
 	idy++;
 	setValue('vpn_wireguard_allowed_ips' + idx, idy);
 }
@@ -6605,16 +6632,16 @@ function savewireguard() {
 
 	var cnt = getValue('vpn_wireguard_ips');
 	for (var idx = 0; idx < cnt; idx++) {
-		e = document.getElementById('vpn_wireguard_ips_' + idx);
+		e = document.getElementById('vpn_wireguard_ip_' + idx);
 		if (e) {
-			if (validateIPWithMask(e.value) != 0) {
-				showError('vpn_wireguard_error', 'vpn_wireguard_ips_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx));
+			if (validateIP(e.value) != 0) {
+				showError('vpn_wireguard_error', 'vpn_wireguard_ip_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ip_' + idx));
 				return;
 			}
-			proofreadText(document.getElementById('vpn_wireguard_ips_' + idx), function(text){ return 0; }, 0);
-			if (checkIpType(e.value.split('/')[0], cidrToMask(e.value.split('/')[1])) != 1) {
-				proofreadText(document.getElementById('vpn_wireguard_ips_' + idx), function(text){ return 0; }, 1);
-				showError('vpn_wireguard_error', 'vpn_wireguard_ips_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ips_' + idx) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
+			proofreadText(document.getElementById('vpn_wireguard_ip_' + idx), function(text){ return 0; }, 0);
+			if (checkIpType(e.value, getValue('vpn_wireguard_netmask_' + idx)) != 1) {
+				proofreadText(document.getElementById('vpn_wireguard_ip_' + idx), function(text){ return 0; }, 1);
+				showError('vpn_wireguard_error', 'vpn_wireguard_ip_' + idx, 'Błąd w polu ' + getLabelText('vpn_wireguard_ip_' + idx) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
 				return;
 			}
 		}
@@ -6656,17 +6683,17 @@ function savewireguard() {
 		}
 		var cnt1 = getValue('vpn_wireguard_allowed_ips_' + idx);
 		for (var idy = 0; idy < cnt1; idy++) {
-			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
+			e = document.getElementById('vpn_wireguard_allowed_ip_' + idx + '_' + idy);
 			if (e) {
-				if (validateIPWithMask(e.value) != 0) {
-					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ips_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy));
+				if (validateIP(e.value) > 1) {
+					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ip_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ip_' + idx + '_' + idy));
 					return;
 				}
-				proofreadText(document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy), function(text){ return 0; }, 0);
-				var ret = checkIpType(e.value.split('/')[0], cidrToMask(e.value.split('/')[1]));
+				proofreadText(document.getElementById('vpn_wireguard_allowed_ip_' + idx + '_' + idy), function(text){ return 0; }, 0);
+				var ret = checkIpType(e.value, getValue('vpn_wireguard_allowed_netmask_' + idx + '_' + idy));
 				if (ret == -1 || ret == 255) {
-					proofreadText(document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy), function(text){ return 0; }, 1);
-					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ips_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
+					proofreadText(document.getElementById('vpn_wireguard_allowed_ip_' + idx + '_' + idy), function(text){ return 0; }, 1);
+					showError('vpn_wireguard_error', 'vpn_wireguard_allowed_ip_' + idx + '_' + idy, 'Błąd w polu ' + getLabelText('vpn_wireguard_allowed_ips_' + idx + '_' + idy) + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
 					return;
 				}
 			}
@@ -6695,9 +6722,9 @@ function savewireguard() {
 
 	cnt = getValue('vpn_wireguard_ips');
 	for (var idx = 0; idx < cnt; idx++) {
-		e = document.getElementById('vpn_wireguard_ips_' + idx);
+		e = document.getElementById('vpn_wireguard_ip_' + idx);
 		if (e) {
-			cmd.push('uci add_list network.' + interface + '.addresses=' + getValue('vpn_wireguard_ips_' + idx));
+			cmd.push('uci add_list network.' + interface + '.addresses=\\\"' + getValue('vpn_wireguard_ip_' + idx) + '/' + maskToCidr(getValue('vpn_wireguard_netmask_' + idx)) + '\\\"');
 		}
 	}
 
@@ -6723,9 +6750,9 @@ function savewireguard() {
 
 		cnt1 = getValue('vpn_wireguard_allowed_ips_' + idx);
 		for (var idy = 0; idy < cnt1; idy++) {
-			e = document.getElementById('vpn_wireguard_allowed_ips_' + idx + '_' + idy);
+			e = document.getElementById('vpn_wireguard_allowed_ip_' + idx + '_' + idy);
 			if (e) {
-				cmd.push('uci add_list network.@wireguard_' + interface + '[-1].allowed_ips=' + e.value);
+				cmd.push('uci add_list network.@wireguard_' + interface + '[-1].allowed_ips=\\\"' + getValue('vpn_wireguard_allowed_ip_' + idx + '_' + idy) + '/' + maskToCidr(getValue('vpn_wireguard_allowed_netmask_' + idx + '_' + idy)) + '\\\"');
 			}
 		}
 	}
@@ -7766,8 +7793,7 @@ function savenetwork() {
 	}
 	if (config.cidrnotation) {
 		cmd.push('uci -q del network.' + json.section + '.ipaddr');
-		cmd.push('PREFIX=$(ipcalc.sh ' + ipaddr + ' ' + getValue('network_netmask') + ' | awk -F= \'/^PREFIX=/{print $2}\')');
-		cmd.push('uci add_list network.' + json.section + '.ipaddr=\\\"' + ipaddr + '/$PREFIX\\\"');
+		cmd.push('uci add_list network.' + json.section + '.ipaddr=\\\"' + ipaddr + '/' + maskToCidr(getValue('network_netmask')) + '\\\"');
 	} else {
 		cmd.push('uci set network.' + json.section + '.ipaddr=' + ipaddr);
 		cmd.push('uci set network.' + json.section + '.netmask=' + getValue('network_netmask'));
