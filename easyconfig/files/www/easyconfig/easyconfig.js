@@ -4679,6 +4679,7 @@ function hostip(id) {
 		}
 	}
 
+	showError('hostip_error', '', '');
 	setValue('hostip_mac', host.mac);
 	setValue('hostip_name', (host.displayname).escapeHTML());
 	setValue('hostip_ip', (host.staticdhcp == '' ? host.ip : host.staticdhcp));
@@ -4717,13 +4718,24 @@ function removehostip() {
 }
 
 function savehostip() {
-	cancelhostip();
+	showError('hostip_error', '', '');
 
-	if (checkField('hostip_ip', validateIP)) {return;}
+	var ip = getValue('hostip_ip');
+	if (validateIP(ip) != 0) {
+		showError('hostip_error', 'hostip_ip', 'Błąd w polu ' + getLabelText('hostip_ip'));
+		return;
+	}
+	proofreadText(document.getElementById('hostip_ip'), function(text){ return 0; }, 0);
+	if (checkIpInLanSubnet(getValue('lan_ipaddr'), config.lan_netmask, ip) != 1) {
+		proofreadText(document.getElementById('hostip_ip'), function(text){ return 0; }, 1);
+		showError('hostip_error', 'hostip_ip', 'Błąd w polu ' + getLabelText('hostip_ip') + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
+		return;
+	}
+
+	cancelhostip();
 
 	var mac = getValue('hostip_mac');
 	var nmac = mac.replace(/:/g,'');
-	var ip = getValue('hostip_ip');
 
 	var cmd = [];
 	cmd.push('uci set dhcp.m' + nmac + '=host');
