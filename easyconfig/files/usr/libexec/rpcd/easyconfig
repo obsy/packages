@@ -441,7 +441,6 @@ if echo "$LAN_IPADDR" | grep -q "/"; then
 	T=$(ipcalc.sh ${LAN_IPADDR%% *})
 	LAN_IPADDR=$(echo "$T" | awk -F= '/^IP=/{print $2}')
 	LAN_NETMASK=$(echo "$T" | awk -F= '/^NETMASK=/{print $2}')
-	LAN_PREFIX=$(echo "$T" | awk -F= '/^PREFIX=/{print $2}')
 fi
 
 LAN_DHCP=$(uci -q get dhcp.lan.ignore)
@@ -593,7 +592,6 @@ fi
 
 echo '"lan_ipaddr":"'$LAN_IPADDR'",'
 echo '"lan_netmask":"'$LAN_NETMASK'",'
-echo '"lan_prefix":"'$LAN_PREFIX'",'
 echo '"lan_dhcp_enabled":'$LAN_DHCP_ENABLED','
 
 wlancurrentchannels
