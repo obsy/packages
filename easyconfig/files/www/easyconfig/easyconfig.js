@@ -5129,10 +5129,10 @@ function lastDays(cnt,d) {
 function currentPeriod(start) {
 	var d = new Date();
 	var days = [];
-	var i=31;
+	var i = 31;
 	d.setDate(d.getDate() + 1);
 	while (i--) {
-		var nd = new Date(d-=8.64e7);
+		var nd = new Date(d -= 8.64e7);
 		days.push(formatDate(nd));
 		if (nd.getDate() == start) {
 			return days;
@@ -5148,7 +5148,7 @@ function lastPeriod(start) {
 	var t = 0;
 	d.setDate(d.getDate() + 1);
 	while (i--) {
-		var nd = new Date(d-=8.64e7);
+		var nd = new Date(d -= 8.64e7);
 		if (nd.getDate() == start) {
 			if (t == 1) {
 				days.push(formatDate(nd));
@@ -5165,6 +5165,84 @@ function lastPeriod(start) {
 	return days;
 }
 
+function getPreviousPeriodDates(startDateStr, periodDays) {
+	var year = parseInt(startDateStr.substring(0, 4), 10);
+	var month = parseInt(startDateStr.substring(4, 6), 10) - 1;
+	var day = parseInt(startDateStr.substring(6, 8), 10);
+	var startDate = new Date(year, month, day);
+	startDate.setHours(0, 0, 0, 0);
+
+	var today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	var diffTime = today.getTime() - startDate.getTime();
+	var totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+	var remainder = totalDays % periodDays;
+	var currentPeriodStart = new Date(today);
+	currentPeriodStart.setDate(currentPeriodStart.getDate() - remainder);
+
+	var previousPeriodStart = new Date(currentPeriodStart);
+	previousPeriodStart.setDate(previousPeriodStart.getDate() - periodDays);
+
+	var previousPeriodEnd = new Date(currentPeriodStart);
+	previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
+
+	var datesArray = [];
+	var currentDate = new Date(previousPeriodStart);
+
+	while (currentDate <= previousPeriodEnd) {
+		var year = currentDate.getFullYear();
+		var month = currentDate.getMonth() + 1;
+		var day = currentDate.getDate();
+
+		if (month < 10) month = '0' + month;
+		else month = '' + month;
+		if (day < 10) day = '0' + day;
+		else day = '' + day;
+
+		datesArray.push('' + year + month + day);
+		currentDate.setDate(currentDate.getDate() + 1);
+	}
+
+	return datesArray;
+}
+
+function getCurrentPeriodDates(startDateStr, periodDays) {
+	var year = parseInt(startDateStr.substring(0, 4), 10);
+	var month = parseInt(startDateStr.substring(4, 6), 10) - 1;
+	var day = parseInt(startDateStr.substring(6, 8), 10);
+	var startDate = new Date(year, month, day);
+	startDate.setHours(0, 0, 0, 0);
+
+	var today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	var diffTime = today.getTime() - startDate.getTime();
+	var totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+	var remainder = totalDays % periodDays;
+	var periodStart = new Date(today);
+	periodStart.setDate(periodStart.getDate() - remainder);
+
+	var datesArray = [];
+	var currentDate = new Date(periodStart);
+
+	while (currentDate <= today) {
+		var year = currentDate.getFullYear();
+		var month = currentDate.getMonth() + 1;
+		var day = currentDate.getDate();
+
+		month = month < 10 ? '0' + month : month;
+		day = day < 10 ? '0' + day : day;
+
+		datesArray.push('' + year + month + day);
+		currentDate.setDate(currentDate.getDate() + 1);
+	}
+
+	return datesArray;
+}
+
 function formatDate(d) {
 	function z(n){return (n<10?'0':'')+ +n;}
 	return d.getFullYear() + '' + z(d.getMonth() + 1) + '' + z(d.getDate());
@@ -5177,44 +5255,58 @@ function formatDateWithoutDay(d) {
 
 function showtraffic() {
 	ubus_call('"easyconfig", "traffic", {}', function(data) {
-		setValue('traffic_cycle', data.traffic_cycle);
-
-		var now = new Date();
-		var day = now.getDate();
-		var month = now.getMonth();
-		var year = now.getFullYear();
-		now = new Date(year, month, day);
-		if (day <= data.traffic_cycle) {
-			var newdate = new Date(year, month, data.traffic_cycle);
+		setValue('traffic_cycle_type', data.traffic_cycle_type);
+		setValue('traffic_cyclem', data.traffic_cyclem);
+		if (data.traffic_cyclep.length == 8) {
+			setValue('traffic_cyclepy', data.traffic_cyclep.slice(0, 4));
+			setValue('traffic_cyclepm', data.traffic_cyclep.slice(4, 6));
+			setValue('traffic_cyclepd', data.traffic_cyclep.slice(6, 8));
 		} else {
-			var newdate = month == 11 ? new Date(year + 1, 0, data.traffic_cycle) : new Date(year, month + 1, data.traffic_cycle);
+			setValue('traffic_cyclepy', '2025');
+			setValue('traffic_cyclepm', '01');
+			setValue('traffic_cyclepd', '01');
 		}
-		var timediff = Math.abs(newdate.getTime() - now.getTime());
-		var diffdays = Math.ceil(timediff / (1000 * 3600 * 24));
-		setValue('traffic_currentperiod_daysleft', diffdays);
-
+		setValue('traffic_cyclepcnt', data.traffic_cyclepcnt);
 		setValue('traffic_warning_enabled', (data.traffic_warning_enabled == '1'));
 		setValue('traffic_warning_value', data.traffic_warning_value);
 		setValue('traffic_warning_unit', data.traffic_warning_unit);
-		setValue('traffic_warning_cycle', data.traffic_warning_cycle);
+		traficcycle(data.traffic_cycle_type);
 
-		var traffic_warning_cycle = data.traffic_warning_cycle;
 		var traffic_warning_limit = -1;
-		if (data.traffic_warning_enabled=="1") {
+		if (data.traffic_warning_enabled == '1') {
 			traffic_warning_limit = data.traffic_warning_value;
-			if (data.traffic_warning_unit == "m") {traffic_warning_limit *= 1024*1024;}
-			if (data.traffic_warning_unit == "g") {traffic_warning_limit *= 1024*1024*1024;}
-			if (data.traffic_warning_unit == "t") {traffic_warning_limit *= 1024*1024*1024*1024;}
+			if (data.traffic_warning_unit == 'm') { traffic_warning_limit *= 1024*1024; }
+			if (data.traffic_warning_unit == 'g') { traffic_warning_limit *= 1024*1024*1024; }
+			if (data.traffic_warning_unit == 't') { traffic_warning_limit *= 1024*1024*1024*1024; }
 		}
-		var traffic_cycle = data.traffic_cycle;
 
-		ubus_call('"easyconfig", "clientstatistics", {"mac":"wan"}', function(data) {
+		ubus_call('"easyconfig", "clientstatistics", {"mac":"wan"}', function(data1) {
 			var today = new Array(formatDate(new Date));
 			var yesterday = lastDays(1);
 			var last7d = lastDays(7);
 			var last30d = lastDays(30);
-			var current_period = currentPeriod(traffic_cycle);
-			var last_period = lastPeriod(traffic_cycle);
+			var current_periodm = currentPeriod(data.traffic_cyclem);
+			var last_periodm = lastPeriod(data.traffic_cyclem);
+
+			var now = new Date();
+			var day = now.getDate();
+			var month = now.getMonth();
+			var year = now.getFullYear();
+			now = new Date(year, month, day);
+			if (day <= data.traffic_cyclem) {
+				var newdate = new Date(year, month, data.traffic_cyclem);
+			} else {
+				var newdate = month == 11 ? new Date(year + 1, 0, data.traffic_cyclem) : new Date(year, month + 1, data.traffic_cyclem);
+			}
+			var timediff = Math.abs(newdate.getTime() - now.getTime());
+			var diffdaysm = Math.ceil(timediff / (1000 * 3600 * 24));
+			setValue('traffic_currentperiodm_daysleft', diffdaysm);
+
+			var current_periodp = getCurrentPeriodDates(data.traffic_cyclep, data.traffic_cyclepcnt);
+			var last_periodp = getPreviousPeriodDates(data.traffic_cyclep, data.traffic_cyclepcnt);
+
+			diffdaysp = parseInt(data.traffic_cyclepcnt) - current_periodp.length + 1;
+			setValue('traffic_currentperiodp_daysleft', diffdaysp);
 
 			var traffic_today = 0;
 			var traffic_today_rx = 0;
@@ -5223,20 +5315,22 @@ function showtraffic() {
 			var traffic_last7d = 0;
 			var traffic_last30d = 0;
 			var traffic_total = 0;
-			var traffic_currentperiod = 0;
-			var traffic_lastperiod = 0;
+			var traffic_currentperiodm = 0;
+			var traffic_lastperiodm = 0;
+			var traffic_currentperiodp = 0;
+			var traffic_lastperiodp = 0;
 			var total_since = '';
 
 			var traffic = [];
-			if ((data.statistics).length > 0) {
-				traffic = data.statistics;
+			if ((data1.statistics).length > 0) {
+				traffic = data1.statistics;
 			}
-			for (var idx = 0; idx < traffic.length; idx++) {
+			for (var idx = 0, n = traffic.length; idx < n; idx++) {
 				var t_date = traffic[idx].date;
 				var t_rx = traffic[idx].rx;
 				var t_tx = traffic[idx].tx;
 				var t_value = (parseInt(t_rx) || 0) + (parseInt(t_tx) || 0);
-				if (total_since == '') {total_since = t_date;}
+				if (total_since == '') { total_since = t_date; }
 
 				if (t_date == today[0]) {
 					traffic_today += parseInt(t_value);
@@ -5248,28 +5342,28 @@ function showtraffic() {
 					traffic_yesterday += parseInt(t_value);
 				}
 
-				for (var idx1 = 0; idx1 < 7; idx1++) {
-					if (t_date == last7d[idx1]) {
-						traffic_last7d += parseInt(t_value);
-					}
+				if (last7d.includes(t_date)) {
+					traffic_last7d += parseInt(t_value);
 				}
 
-				for (var idx1 = 0; idx1 < 30; idx1++) {
-					if (t_date == last30d[idx1]) {
-						traffic_last30d += parseInt(t_value);
-					}
+				if (last30d.includes(t_date)) {
+					traffic_last30d += parseInt(t_value);
 				}
 
-				for (var idx1 = 0; idx1 < current_period.length; idx1++) {
-					if (t_date == current_period[idx1]) {
-						traffic_currentperiod += parseInt(t_value);
-					}
+				if (current_periodm.includes(t_date)) {
+					traffic_currentperiodm += parseInt(t_value);
 				}
 
-				for (var idx1 = 0; idx1 < last_period.length; idx1++) {
-					if (t_date == last_period[idx1]) {
-						traffic_lastperiod += parseInt(t_value);
-					}
+				if (last_periodm.includes(t_date)) {
+					traffic_lastperiodm += parseInt(t_value);
+				}
+
+				if (current_periodp.includes(t_date)) {
+					traffic_currentperiodp += parseInt(t_value);
+				}
+
+				if (last_periodp.includes(t_date)) {
+					traffic_lastperiodp += parseInt(t_value);
 				}
 
 				traffic_total += parseInt(t_value);
@@ -5278,36 +5372,52 @@ function showtraffic() {
 
 			var e1 = document.getElementById('traffic_today');
 			e1.style.color = null;
-			var e2 = document.getElementById('traffic_currentperiod');
+			var e2 = document.getElementById('traffic_currentperiodm');
 			e2.style.color = null;
+			var e3 = document.getElementById('traffic_currentperiodp');
+			e3.style.color = null;
 			setDisplay('div_traffic_today_progress', false);
-			setDisplay('div_traffic_currentperiod_progress', false);
+			setDisplay('div_traffic_currentperiodm_progress', false);
+			setDisplay('div_traffic_currentperiodp_progress', false);
 			var color = '#31708f';
 
 			if (traffic_warning_limit > -1) {
-				if (traffic_warning_cycle == 'd') {
+				if (data.traffic_cycle_type == 'd') {
 					if (traffic_today >= traffic_warning_limit) {color = 'red';}
 
 					var percent = Math.round((traffic_today * 100) / traffic_warning_limit);
 					setValue('traffic_today_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
-					if (percent > 100) {percent = 100;}
+					if (percent > 100) { percent = 100; }
 					document.getElementById('div_traffic_today_progress1').style.width = percent + '%';
 					setDisplay('div_traffic_today_progress', true);
-					setValue('traffic_currentperiod_progress', '');
+					setValue('traffic_currentperiodm_progress', '');
+					setValue('traffic_currentperiodp_progress', '');
 				}
-				if (traffic_warning_cycle == 'p') {
-					if (traffic_currentperiod >= traffic_warning_limit) { e2.style.color = "red"; }
+				if (data.traffic_cycle_type == 'm' || data.traffic_cycle_type == 'p') {
+					if (traffic_currentperiodm >= traffic_warning_limit) { e2.style.color = "red"; }
 
-					var percent = Math.round((traffic_currentperiod * 100) / traffic_warning_limit);
-					setValue('traffic_currentperiod_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
-					if (percent > 100) {percent = 100;}
-					document.getElementById('div_traffic_currentperiod_progress1').style.width = percent + '%';
-					setDisplay('div_traffic_currentperiod_progress', true);
+					var percent = Math.round((traffic_currentperiodm * 100) / traffic_warning_limit);
+					setValue('traffic_currentperiodm_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
+					if (percent > 100) { percent = 100; }
+					document.getElementById('div_traffic_currentperiodm_progress1').style.width = percent + '%';
+					setDisplay('div_traffic_currentperiodm_progress', true);
 					setValue('traffic_today_progress', '');
+					setValue('traffic_currentperiodp_progress', '');
+
+					if (traffic_currentperiodp >= traffic_warning_limit) { e3.style.color = "red"; }
+
+					var percent = Math.round((traffic_currentperiodp * 100) / traffic_warning_limit);
+					setValue('traffic_currentperiodp_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
+					if (percent > 100) { percent = 100; }
+					document.getElementById('div_traffic_currentperiodp_progress1').style.width = percent + '%';
+					setDisplay('div_traffic_currentperiodp_progress', true);
+					setValue('traffic_today_progress', '');
+					setValue('traffic_currentperiodm_progress', '');
 				}
 			} else {
 				setValue('traffic_today_progress', '');
-				setValue('traffic_currentperiod_progress', '');
+				setValue('traffic_currentperiodm_progress', '');
+				setValue('traffic_currentperiodp_progress', '');
 			}
 
 			if (traffic_today == 0) {
@@ -5340,22 +5450,57 @@ function showtraffic() {
 			} else {
 				setValue('traffic_total_since', '');
 			}
-			setValue('traffic_currentperiod', bytesToSize(traffic_currentperiod));
-			setValue('traffic_currentperiod_projected', bytesToSize((traffic_currentperiod / current_period.length) * (current_period.length + diffdays - 1)));
-			setValue('traffic_lastperiod', bytesToSize(traffic_lastperiod));
+
+			if (current_periodm.length > 0) {
+				setValue('traffic_currentperiodm', bytesToSize(traffic_currentperiodm));
+				setValue('traffic_currentperiodm_projected', bytesToSize((traffic_currentperiodm / current_periodm.length) * (current_periodm.length + diffdaysm - 1)));
+				setValue('traffic_lastperiodm', bytesToSize(traffic_lastperiodm));
+			}
+			if (current_periodp.length > 0) {
+				setValue('traffic_currentperiodp', bytesToSize(traffic_currentperiodp));
+				setValue('traffic_currentperiodp_projected', bytesToSize((traffic_currentperiodp / current_periodp.length) * (current_periodp.length + diffdaysp - 1)));
+				setValue('traffic_lastperiodp', bytesToSize(traffic_lastperiodp));
+			}
 		});
 	});
 }
 
 function savetraffic() {
-	if (checkField('traffic_warning_value', validateNumeric)) {return;}
+	if (validateNumericRange(getValue('traffic_warning_value'), 1, 999999) > 1) {
+		showMsg('Błąd w polu ' + getLabelText('traffic_warning_value'), true);
+		return;
+	}
+
+	if (getValue('traffic_cycle_type') == 'p') {
+		if (validateNumericRange(getValue('traffic_cyclepcnt'), 1, 999999) > 1) {
+			showMsg('Błąd w polu ' + getLabelText('traffic_cyclepcnt'), true);
+			return;
+		}
+		var year = parseInt(getValue('traffic_cyclepy'));
+		var month = parseInt(getValue('traffic_cyclepm')) - 1;
+		var day = parseInt(getValue('traffic_cyclepd'));
+		var date = new Date(year, month, day);
+		if (!(date.getFullYear() === year && date.getMonth() === month && date.getDate() === day)) {
+			showMsg('Błąd w polu ' + getLabelText('traffic_cyclepy') + '<br><br>Taka data nie istnieje', true);
+			return;
+		} else {
+			var todayEnd = new Date();
+			todayEnd.setHours(23, 59, 59, 999);
+			if (date.getTime() > todayEnd.getTime()) {
+				showMsg('Błąd w polu ' + getLabelText('traffic_cyclepy') + '<br><br>Data nie może być późniejsza', true);
+				return;
+			}
+		}
+	}
 
 	var cmd = [];
 	cmd.push('uci set easyconfig.traffic=service');
-	cmd.push('uci set easyconfig.traffic.cycle=' + getValue('traffic_cycle'));
+	cmd.push('uci set easyconfig.traffic.cycle_type=' + getValue('traffic_cycle_type'));
+	cmd.push('uci set easyconfig.traffic.cyclem=' + getValue('traffic_cyclem'));
+	cmd.push('uci set easyconfig.traffic.cyclep=' + getValue('traffic_cyclepy') + '' + getValue('traffic_cyclepm') + '' + getValue('traffic_cyclepd'));
+	cmd.push('uci set easyconfig.traffic.cyclepcnt=' + getValue('traffic_cyclepcnt'));
 	cmd.push('uci set easyconfig.traffic.warning_enabled=' + (getValue('traffic_warning_enabled') ? '1' : '0'));
 	cmd.push('uci set easyconfig.traffic.warning_value=' + getValue('traffic_warning_value'));
-	cmd.push('uci set easyconfig.traffic.warning_cycle=' + getValue('traffic_warning_cycle'));
 	cmd.push('uci set easyconfig.traffic.warning_unit=' + getValue('traffic_warning_unit'));
 	cmd.push('uci commit easyconfig');
 
@@ -5391,6 +5536,38 @@ function okremovetraffic() {
 	cmd.push('fi');
 
 	execute(cmd, (mac == 'wan') ? showtraffic : showclients);
+}
+
+function traficcycle(type) {
+	switch (type) {
+		case 'd':
+			setDisplay('div_traffic_periodm', false);
+			setDisplay('div_traffic_periodp', false);
+			setDisplay('div_traffic_cyclem', false);
+			setDisplay('div_traffic_cyclep', false);
+			setDisplay('div_traffic_warning', true);
+			break;
+		case 'm':
+			setDisplay('div_traffic_periodm', true);
+			setDisplay('div_traffic_periodp', false);
+			setDisplay('div_traffic_cyclem', true);
+			setDisplay('div_traffic_cyclep', false);
+			setDisplay('div_traffic_warning', true);
+			break;
+		case 'p':
+			setDisplay('div_traffic_periodm', false);
+			setDisplay('div_traffic_periodp', true);
+			setDisplay('div_traffic_cyclem', false);
+			setDisplay('div_traffic_cyclep', true);
+			setDisplay('div_traffic_warning', true);
+			break;
+		default:
+			setDisplay('div_traffic_periodm', false);
+			setDisplay('div_traffic_periodp', false);
+			setDisplay('div_traffic_cyclem', false);
+			setDisplay('div_traffic_cyclep', false);
+			setDisplay('div_traffic_warning', false);
+	}
 }
 
 /*****************************************************************************/

@@ -1113,35 +1113,70 @@
 		<p><span id="traffic_total">0</span><span class="visible-xs oneline"></span><span id="traffic_total_since"></span></p>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-xs-6 text-right">Dni do końca okresu rozliczeniowego</div>
-		<div class="col-xs-6">
-		<p id="traffic_currentperiod_daysleft">0</p>
+	<div id="div_traffic_periodm" style="display: none;">
+		<div class="row">
+			<div class="col-xs-6 text-right">Dni do końca okresu rozliczeniowego</div>
+			<div class="col-xs-6">
+			<p id="traffic_currentperiodm_daysleft">0</p>
+			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6 text-right">Bieżący okres rozliczeniowy</div>
-		<div class="col-xs-6">
-		<p><span id="traffic_currentperiod">0</span><span class="visible-xs oneline"></span><span id="traffic_currentperiod_progress"></span></p>
+		<div class="row">
+			<div class="col-xs-6 text-right">Bieżący okres rozliczeniowy</div>
+			<div class="col-xs-6">
+			<p><span id="traffic_currentperiodm">0</span><span class="visible-xs oneline"></span><span id="traffic_currentperiodm_progress"></span></p>
+			</div>
 		</div>
-	</div>
-	<div class="row space" id="div_traffic_currentperiod_progress" style="display:none">
-		<div class="col-xs-10 col-xs-offset-1">
-			<div class="progress">
-				<div class="progress-bar" id="div_traffic_currentperiod_progress1">&nbsp;</div>
+		<div class="row space" id="div_traffic_currentperiodm_progress" style="display:none">
+			<div class="col-xs-10 col-xs-offset-1">
+				<div class="progress">
+					<div class="progress-bar" id="div_traffic_currentperiodm_progress1">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 text-right">Przewidywane zużycie danych w bieżącym okresie</div>
+			<div class="col-xs-6">
+			<p id="traffic_currentperiodm_projected">0</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</div>
+			<div class="col-xs-6">
+			<p id="traffic_lastperiodm">0</p>
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-xs-6 text-right">Przewidywane zużycie danych w bieżącym okresie</div>
-		<div class="col-xs-6">
-		<p id="traffic_currentperiod_projected">0</p>
+	<div id="div_traffic_periodp" style="display: none;">
+		<div class="row">
+			<div class="col-xs-6 text-right">Dni do końca okresu rozliczeniowego</div>
+			<div class="col-xs-6">
+			<p id="traffic_currentperiodp_daysleft">0</p>
+			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</div>
-		<div class="col-xs-6">
-		<p id="traffic_lastperiod">0</p>
+		<div class="row">
+			<div class="col-xs-6 text-right">Bieżący okres rozliczeniowy</div>
+			<div class="col-xs-6">
+			<p><span id="traffic_currentperiodp">0</span><span class="visible-xs oneline"></span><span id="traffic_currentperiodp_progress"></span></p>
+			</div>
+		</div>
+		<div class="row space" id="div_traffic_currentperiodp_progress" style="display:none">
+			<div class="col-xs-10 col-xs-offset-1">
+				<div class="progress">
+					<div class="progress-bar" id="div_traffic_currentperiodp_progress1">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 text-right">Przewidywane zużycie danych w bieżącym okresie</div>
+			<div class="col-xs-6">
+			<p id="traffic_currentperiodp_projected">0</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 text-right">Poprzedni okres rozliczeniowy</div>
+			<div class="col-xs-6">
+			<p id="traffic_lastperiodp">0</p>
+			</div>
 		</div>
 	</div>
 
@@ -1155,9 +1190,21 @@
 
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="traffic_cycle" class="col-xs-4 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
+			<label for="traffic_cycle_type" class="col-xs-4 col-sm-3 control-label">Okres rozliczeniowy</label>
 			<div class="col-xs-8 col-sm-9">
-			<select id="traffic_cycle" class="form-control">
+				<select id="traffic_cycle_type" class="form-control" onchange="traficcycle(this.value);">
+				<option value='n'>brak</option>
+				<option value='d'>dzień</option>
+				<option value='m'>miesiąc</option>
+				<option value='p'>liczba dni</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_traffic_cyclem" style="display: none;">
+			<label for="traffic_cyclem" class="col-xs-4 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
+			<div class="col-xs-8 col-sm-9">
+			<select id="traffic_cyclem" class="form-control">
 			<option value='1'>1</option>
 			<option value='2'>2</option>
 			<option value='3'>3</option>
@@ -1194,39 +1241,125 @@
 			</div>
 		</div>
 
-		<div class="form-group">
-			<label for="traffic_warning_enabled" class="col-xs-4 col-sm-3 control-label">Ostrzeżenie włączone</label>
-			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="traffic_warning_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
+		<div id="div_traffic_cyclep" style="display: none;">
+			<div class="form-group">
+				<label for="traffic_cyclepy" class="col-xs-4 col-sm-3 control-label">Początek okresu rozliczeniowego</label>
+				<div class="col-xs-8 col-sm-9">
+					<div class="row custom-row">
+						<div class="col-sm-4 col1of3">
+							<select id="traffic_cyclepy" class="form-control">
+							<option value='2025'>2025</option>
+							<option value='2026'>2026</option>
+							<option value='2027'>2027</option>
+							<option value='2028'>2028</option>
+							<option value='2029'>2029</option>
+							<option value='2030'>2030</option>
+							<option value='2031'>2031</option>
+							<option value='2032'>2032</option>
+							<option value='2033'>2033</option>
+							<option value='2034'>2034</option>
+							<option value='2035'>2035</option>
+							<option value='2036'>2036</option>
+							<option value='2037'>2037</option>
+							<option value='2038'>2038</option>
+							<option value='2039'>2039</option>
+							<option value='2040'>2040</option>
+							<option value='2041'>2041</option>
+							<option value='2042'>2042</option>
+							<option value='2043'>2043</option>
+							<option value='2044'>2044</option>
+							<option value='2045'>2045</option>
+							</select>
+						</div>
+						<div class="col-sm-4 col2of3">
+							<select id="traffic_cyclepm" class="form-control">
+							<option value='01'>styczeń</option>
+							<option value='02'>luty</option>
+							<option value='03'>marzec</option>
+							<option value='04'>kwiecień</option>
+							<option value='05'>maj</option>
+							<option value='06'>czerwiec</option>
+							<option value='07'>lipiec</option>
+							<option value='08'>sierpień</option>
+							<option value='09'>wrzesień</option>
+							<option value='10'>październik</option>
+							<option value='11'>listopad</option>
+							<option value='12'>grudzień</option>
+							</select>
+						</div>
+						<div class="col-sm-4 col3of3">
+							<select id="traffic_cyclepd" class="form-control">
+							<option value='01'>1</option>
+							<option value='02'>2</option>
+							<option value='03'>3</option>
+							<option value='04'>4</option>
+							<option value='05'>5</option>
+							<option value='06'>6</option>
+							<option value='07'>7</option>
+							<option value='08'>8</option>
+							<option value='09'>9</option>
+							<option value='10'>10</option>
+							<option value='11'>11</option>
+							<option value='12'>12</option>
+							<option value='13'>13</option>
+							<option value='14'>14</option>
+							<option value='15'>15</option>
+							<option value='16'>16</option>
+							<option value='17'>17</option>
+							<option value='18'>18</option>
+							<option value='19'>19</option>
+							<option value='20'>20</option>
+							<option value='21'>21</option>
+							<option value='22'>22</option>
+							<option value='23'>23</option>
+							<option value='24'>24</option>
+							<option value='25'>25</option>
+							<option value='26'>26</option>
+							<option value='27'>27</option>
+							<option value='28'>28</option>
+							<option value='29'>29</option>
+							<option value='30'>30</option>
+							<option value='31'>31</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="traffic_cyclepcnt" class="col-xs-4 col-sm-3 control-label">Liczba dni w okresie</label>
+				<div class="col-xs-8 col-sm-9">
+					<input id="traffic_cyclepcnt" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 999999);">
+				</div>
 			</div>
 		</div>
 
-		<div class="form-group">
-			<label for="traffic_warning_value" class="col-xs-4 col-sm-3 control-label">Poziom ostrzeżenia</label>
-			<div class="col-xs-8 col-sm-9">
-
-			<div class="row">
-			<div class="col-sm-5">
-				<input id="traffic_warning_value" type="text" class="form-control" onkeyup="proofreadNumeric(this);">
-			</div>
-			<div class="col-sm-3">
-				<select id="traffic_warning_unit" class="form-control">
-				<option value='m'>MiB</option>
-				<option value='g'>GiB</option>
-				<option value='t'>TiB</option>
-				</select>
-			</div>
-			<div class="col-sm-4">
-				<select id="traffic_warning_cycle" class="form-control">
-				<option value='d'>dziennie</option>
-				<option value='p'>na okres</option>
-				</select>
-			</div>
+		<div id="div_traffic_warning" style="display: none;">
+			<div class="form-group">
+				<label for="traffic_warning_enabled" class="col-xs-4 col-sm-3 control-label">Ostrzeżenie włączone</label>
+				<div class="col-xs-8 col-sm-9">
+				<label class="switch">
+					<input id="traffic_warning_enabled" type="checkbox">
+					<div class="slider round"></div>
+				</label>
+				</div>
 			</div>
 
+			<div class="form-group">
+				<label for="traffic_warning_value" class="col-xs-4 col-sm-3 control-label">Poziom ostrzeżenia</label>
+				<div class="col-xs-8 col-sm-9">
+					<div class="row custom-row">
+						<div class="col-sm-10 col1of2">
+							<input id="traffic_warning_value" type="text" class="form-control" onkeyup="proofreadNumericRange(this, 1, 999999);">
+						</div>
+						<div class="col-sm-2 col2of2">
+							<select id="traffic_warning_unit" class="form-control">
+							<option value='m'>MiB</option>
+							<option value='g'>GiB</option>
+							<option value='t'>TiB</option>
+							</select>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 

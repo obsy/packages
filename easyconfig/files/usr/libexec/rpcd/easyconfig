@@ -1130,17 +1130,21 @@ show_clientbandwidth() {
 ##############################################################################
 
 show_traffic() {
-	T_CYCLE=$(uci -q get easyconfig.traffic.cycle)
+	T_CYCLE_TYPE=$(uci -q get easyconfig.traffic.cycle_type)
+	T_CYCLEM=$(uci -q get easyconfig.traffic.cyclem)
+	T_CYCLEP=$(uci -q get easyconfig.traffic.cyclep)
+	T_CYCLEPCNT=$(uci -q get easyconfig.traffic.cyclepcnt)
 	T_WARNING_ENABLED=$(uci -q get easyconfig.traffic.warning_enabled)
 	T_WARNING_VALUE=$(uci -q get easyconfig.traffic.warning_value)
 	T_WARNING_UNIT=$(uci -q get easyconfig.traffic.warning_unit)
-	T_WARNING_CYCLE=$(uci -q get easyconfig.traffic.warning_cycle)
 
-	echo '{"traffic_cycle": "'${T_CYCLE:-1}'",'
+	echo '{"traffic_cyclem": "'${T_CYCLEM:-1}'",'
+	echo '"traffic_cyclep": "'${T_CYCLEP:-20250101}'",'
+	echo '"traffic_cyclepcnt": "'${T_CYCLEPCNT:-31}'",'
 	echo '"traffic_warning_enabled": "'${T_WARNING_ENABLED:-0}'",'
 	echo '"traffic_warning_value": "'${T_WARNING_VALUE:-0}'",'
 	echo '"traffic_warning_unit": "'${T_WARNING_UNIT:-g}'",'
-	echo '"traffic_warning_cycle": "'${T_WARNING_CYCLE:-p}'"}'
+	echo '"traffic_cycle_type": "'${T_CYCLE_TYPE:-n}'"}'
 }
 
 ##############################################################################
