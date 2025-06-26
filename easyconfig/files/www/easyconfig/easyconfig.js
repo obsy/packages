@@ -5401,8 +5401,6 @@ function showtraffic() {
 					if (percent > 100) { percent = 100; }
 					document.getElementById('div_traffic_currentperiodm_progress1').style.width = percent + '%';
 					setDisplay('div_traffic_currentperiodm_progress', true);
-					setValue('traffic_today_progress', '');
-					setValue('traffic_currentperiodp_progress', '');
 
 					if (traffic_currentperiodp >= traffic_warning_limit) { e3.style.color = "red"; }
 
@@ -5411,8 +5409,8 @@ function showtraffic() {
 					if (percent > 100) { percent = 100; }
 					document.getElementById('div_traffic_currentperiodp_progress1').style.width = percent + '%';
 					setDisplay('div_traffic_currentperiodp_progress', true);
+
 					setValue('traffic_today_progress', '');
-					setValue('traffic_currentperiodm_progress', '');
 				}
 			} else {
 				setValue('traffic_today_progress', '');
