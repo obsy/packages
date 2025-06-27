@@ -5383,7 +5383,7 @@ function showtraffic() {
 
 			if (traffic_warning_limit > -1) {
 				if (data.traffic_cycle_type == 'd') {
-					if (traffic_today >= traffic_warning_limit) {color = 'red';}
+					if (traffic_today >= traffic_warning_limit) { color = 'red'; }
 
 					var percent = Math.round((traffic_today * 100) / traffic_warning_limit);
 					setValue('traffic_today_progress', ' (' + percent + '% z ' + bytesToSize(traffic_warning_limit) + ')');
@@ -5449,16 +5449,21 @@ function showtraffic() {
 				setValue('traffic_total_since', '');
 			}
 
+			setValue('traffic_currentperiodm', bytesToSize(traffic_currentperiodm));
 			if (current_periodm.length > 0) {
-				setValue('traffic_currentperiodm', bytesToSize(traffic_currentperiodm));
 				setValue('traffic_currentperiodm_projected', bytesToSize((traffic_currentperiodm / current_periodm.length) * (current_periodm.length + diffdaysm - 1)));
-				setValue('traffic_lastperiodm', bytesToSize(traffic_lastperiodm));
+			} else {
+				setValue('traffic_currentperiodm_projected', 0);
 			}
+			setValue('traffic_lastperiodm', bytesToSize(traffic_lastperiodm));
+
+			setValue('traffic_currentperiodp', bytesToSize(traffic_currentperiodp));
 			if (current_periodp.length > 0) {
-				setValue('traffic_currentperiodp', bytesToSize(traffic_currentperiodp));
 				setValue('traffic_currentperiodp_projected', bytesToSize((traffic_currentperiodp / current_periodp.length) * (current_periodp.length + diffdaysp - 1)));
-				setValue('traffic_lastperiodp', bytesToSize(traffic_lastperiodp));
+			} else {
+				setValue('traffic_currentperiodp_projected', 0);
 			}
+			setValue('traffic_lastperiodp', bytesToSize(traffic_lastperiodp));
 		});
 	});
 }
