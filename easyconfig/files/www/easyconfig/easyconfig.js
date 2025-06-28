@@ -4726,7 +4726,7 @@ function savehostip() {
 		return;
 	}
 	proofreadText(document.getElementById('hostip_ip'), function(text){ return 0; }, 0);
-	if (checkIpInLanSubnet(getValue('lan_ipaddr'), config.lan_netmask, ip) != 1) {
+	if (checkIpInLanSubnet(config.lan_ipaddr, config.lan_netmask, ip) != 1) {
 		proofreadText(document.getElementById('hostip_ip'), function(text){ return 0; }, 1);
 		showError('hostip_error', 'hostip_ip', 'Błąd w polu ' + getLabelText('hostip_ip') + '<br><br>Adres IP jest spoza zakresu adresacji sieci');
 		return;
