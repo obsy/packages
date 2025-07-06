@@ -4410,15 +4410,9 @@ function clientslogscallback(first, last) {
 }
 
 function hostmenu(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
-	var html = (host.displayname).escapeHTML() + '<hr>';
+	var host = clients.find(obj => obj.id == id);
 
+	var html = (host.displayname).escapeHTML() + '<hr>';
 	html += '<p><span class="click" onclick="closeMsg();hostinfo(' + (host.active_id > -1 ? host.active_id : host.id) + ');">informacje</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostnameedit(' + host.id + ');">zmiana nazwy</span></p>';
 	html += '<p><span class="click" onclick="closeMsg();hostblock(' + host.id + ');">blokady</span></p>';
@@ -4445,15 +4439,9 @@ function calculatedistance(frequency, signal) {
 }
 
 function hostinfo(id) {
-	var html = '';
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
+	var html = '';
 	html += createRowForModal('Nazwa', (host.username == '' ? '-' : (host.username).escapeHTML()));
 	html += createRowForModal('MAC', host.mac);
 	html += createRowForModal('Producent', getmanuf(host.mac));
@@ -4507,13 +4495,8 @@ function hostinfo(id) {
 }
 
 function hostblock(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
+
 	setValue('hostblock_mac', host.mac);
 	setValue('hostblock_name', (host.displayname).escapeHTML());
 
@@ -4635,13 +4618,7 @@ function hostblock_uncheckall() {
 }
 
 function hostnameedit(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	setValue('hostname_mac', host.mac);
 	setValue('hostname_name', host.displayname);
@@ -4671,13 +4648,7 @@ function savehostname() {
 }
 
 function hostip(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	showError('hostip_error', '', '');
 	setValue('hostip_mac', host.mac);
@@ -4768,13 +4739,7 @@ function savehostip() {
 }
 
 function hostqos(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	setValue('hostqos_mac', host.mac);
 	setValue('hostqos_name', (host.displayname).escapeHTML());
@@ -4868,13 +4833,8 @@ function cancelhostqos() {
 }
 
 function hoststatistics(id, type, limit) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
+
 	hoststatisticsmodal(host.mac, 'Statystyka transferu dla "' + (host.displayname).escapeHTML() + '"', type, limit);
 }
 
@@ -4966,39 +4926,21 @@ function hoststatisticsmodal(mac, title, type, limit) {
 }
 
 function hostremovedata(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	setValue('dialog_val', (host.mac).replace(/:/g, '_'));
 	showDialog('Usunąć dane dla "' + (host.displayname).escapeHTML() + '"?', 'Anuluj', 'Usuń', okremovetraffic);
 }
 
 function hostlogs(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	setValue('clientslogs_mac', host.mac);
 	btn_pages('clientslogs');
 }
 
 function hostqueries(id) {
-	var host;
-	for (var i = 0; i < clients.length; i++) {
-		if (clients[i].id == id) {
-			host = clients[i];
-			break;
-		}
-	}
+	var host = clients.find(obj => obj.id == id);
 
 	setValue('queries_host', host.displayname);
 	btn_pages('queries');
