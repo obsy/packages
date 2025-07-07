@@ -352,6 +352,14 @@ function createRowForModal(key, value) {
 	return '<div class="row"><div class="col-xs-5 col-sm-6 text-right">' + key + '</div><div class="col-xs-7 col-sm-6 text-left"><p>' + value + '</p></div></div>';
 }
 
+function createRow3ColForModal(key, value1, value2) {
+	return '<div class="row">' +
+		'<div class="col-xs-4 text-right"><p>' + key + '</p></div>' +
+		'<div class="col-xs-4 text-left"><p>' + value1 + '</p></div>' +
+		'<div class="col-xs-4 text-left"><p>' + value2 + '</p></div>' +
+		'</div>';
+}
+
 function createRow4ColForModal(key, value1, value2, value3) {
 	return '<div class="row">' +
 		'<div class="col-xs-3 text-right">' + key + '</div>' +
@@ -3900,6 +3908,8 @@ function clientspie_show() {
 }
 
 var clients;
+var remote_clients;
+var remote_hosts;
 
 function showclients() {
 	ubus_call('"easyconfig", "clients", {}', function(data) {
@@ -3918,6 +3928,8 @@ function showclients() {
 			}
 		}
 
+		if (data.remote_clients) { remote_clients = data.remote_clients; }
+		if (data.remote_hosts) { remote_hosts = data.remote_hosts; }
 		clients = data.result;
 		clientscallback('');
 	});
@@ -4491,6 +4503,62 @@ function hostinfo(id) {
 		html += createRowForModal('Ostatni raz widziany', formatDateTime(host.last_seen) + '</span><span class="visible-xs oneline"></span><span>' + ' (' + formatDuration(parseInt((new Date() - new Date((host.last_seen).substring(0,4), (host.last_seen).substring(4,6) - 1, (host.last_seen).substring(6,8), (host.last_seen).substring(8,10), (host.last_seen).substring(10,12), (host.last_seen).substring(12,14)))/1000), false) + ' temu)' + '</span>');
 	}
 	html += createRowForModal('Sieć', host.network == '' ? '-' : (host.network).escapeHTML());
+	if (remote_clients && remote_hosts && host.active) {
+		// hosts
+		var hostKeys = Object.keys(remote_hosts).filter(key =>
+			key.split('#')[0] == host.ip && (remote_hosts[key].bssid).substring(0, (remote_hosts[key].bssid).lastIndexOf(':')) === (host.mac).substring(0, (host.mac).lastIndexOf(':'))
+		);
+		if (hostKeys.length > 0) {
+			html += '<hr><center>Obsługiwane sieci bezprzewodowe</center><br>';
+			html += createRow3ColForModal('Pasmo', 'Liczba połączonych klientów', 'Nazwa sieci (SSID)');
+			for (var hostKey of hostKeys) {
+				var band = freq2band(remote_hosts[hostKey].freq);
+				html += createRow3ColForModal((band == 2 ? '2.4' : band) + ' GHz', remote_hosts[hostKey].n_assoc, (remote_hosts[hostKey].ssid).escapeHTML());
+			}
+			html += '<hr><center>Zdalni klienci</center><br>';
+			var html1 = '';
+			for (var [mac, aps] of Object.entries(remote_clients)) {
+				for (var hostKey of hostKeys) {
+					if (aps[hostKey] && aps[hostKey].connected) {
+						var name = mac;
+						var client = clients.find(obj => obj.active == true && obj.mac == mac);
+						if (client) { name = (client.displayname).escapeHTML(); }
+						var band = freq2band(remote_hosts[hostKey].freq);
+						html1 += createRow4ColForModal(name, (band == 2 ? '2.4' : band) + ' GHz', aps[hostKey].signal + ' dBm (~' + calculatedistance(remote_hosts[hostKey].freq, aps[hostKey].signal) + ' m)' , (remote_hosts[hostKey].ssid).escapeHTML());
+					}
+				}
+			}
+			if (html1 != '') {
+				html += createRow4ColForModal('Klient', 'Pasmo', 'Poziom sygnału', 'Połączony do sieci (SSID)');
+				html += html1;
+			} else {
+				html += '<center><i>brak połączonych klientów</i></center>';
+			}
+		}
+		// clients
+		var obj = remote_clients[host.mac];
+		if (obj) {
+			for (var key in obj) {
+				if (obj[key].connected) {
+					html += '<hr>';
+					var obj1 = remote_hosts[key];
+					var distance = '';
+					if (obj1) {
+						var res = clients.find(obj => obj.active == true && (obj.mac).substring(0, (obj.mac).lastIndexOf(':')) == (obj1.bssid).substring(0, (obj1.bssid).lastIndexOf(':')) && obj.ip == key.split('#')[0]);
+						html += createRowForModal('Zdalny klient', res ? (res.displayname).escapeHTML() : '&nbsp;');
+						var band = freq2band(obj1.freq);
+						html += createRowForModal('Pasmo', (band == 2 ? '2.4' : band) + ' GHz');
+						distance = ' (~' + calculatedistance(obj1.freq, obj[key].signal) + ' m)';
+					} else {
+						html += createRowForModal('Zdalny klient', '&nbsp;');
+					}
+					html += createRowForModal('Poziom sygnału', obj[key].signal + ' dBm' + distance);
+					if (obj1) { html += createRowForModal('Połączony do sieci (SSID)', (obj1.ssid).escapeHTML()); }
+					break;
+				}
+			}
+		}
+	}
 	showMsg(html, false);
 }
 

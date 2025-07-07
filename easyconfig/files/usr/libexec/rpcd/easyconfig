@@ -1021,6 +1021,12 @@ fi
 
 echo '],'
 show_ports "$TPORTS1"
+
+if ubus list | grep -q usteer; then
+	echo '"remote_hosts":'$(ubus call usteer remote_info)","
+	echo '"remote_clients":'$(ubus call usteer get_clients)","
+fi
+
 echo '}'
 }
 
