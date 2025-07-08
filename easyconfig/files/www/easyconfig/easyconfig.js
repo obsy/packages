@@ -164,6 +164,19 @@ function freq2band(freq) {
 	return 0;
 }
 
+function hrband(band) {
+	switch (band) {
+		case 2:
+			return '2.4 GHz';
+		case 5:
+			return '5 GHz';
+		case 6:
+			return '6 GHz';
+		default:
+			return '-';
+	}
+}
+
 String.prototype.escapeHTML = function() {
        var tagsToReplace = {
                '&': '&amp;',
@@ -4112,7 +4125,7 @@ function clientscallback(sortby) {
 					}
 					html += ', ' + (sorted[idx].network).escapeHTML() + '</div>';
 				} else {
-					html += 'bezprzewodowo ' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz, ' + (sorted[idx].network).escapeHTML() + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
+					html += 'bezprzewodowo ' + hrband(sorted[idx].band) + ', ' + (sorted[idx].network).escapeHTML() + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}
 
 				var title1 = '';
@@ -4133,7 +4146,7 @@ function clientscallback(sortby) {
 					html += '</div>';
 					html += '<div class="col-xs-2"></div>';
 				} else {
-					html += 'bezprzewodowo<br>' + (sorted[idx].band == 2 ? '2.4' : sorted[idx].band) + ' GHz</div>';
+					html += 'bezprzewodowo<br>' + hrband(sorted[idx].band) + '</div>';
 					html += '<div class="col-xs-2 hidden-xs"><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\',\'' + sorted[idx].section + '\');" title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\',\'' + sorted[idx].section + '\');" title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
 				}
 				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
@@ -4385,7 +4398,7 @@ function clientslogscallback(first, last) {
 		for (var idx = first; idx <= last; idx++) {
 			var title = '';
 			if (filtered[idx].desc !== '' && typeof filtered[idx].desc.band !== 'undefined') {
-				title = 'Pasmo: ' + (filtered[idx].desc.band == 2 ? '2.4' : filtered[idx].desc.band) + ' GHz, SSID: ' + filtered[idx].desc.ssid;
+				title = 'Pasmo: ' + hrband(filtered[idx].desc.band) + ', SSID: ' + filtered[idx].desc.ssid;
 			}
 			html += '<div class="row space">';
 			html += '<div class="col-xs-6 col-sm-3">' + formatDateTime(timestampToDate(filtered[idx].id)) + '</div>';
@@ -4467,7 +4480,7 @@ function hostinfo(id) {
 			}
 		}
 		if (host.type == 2) {
-			html += createRowForModal('Pasmo', (host.band == 2 ? '2.4' : host.band) + ' GHz');
+			html += createRowForModal('Pasmo', hrband(host.band));
 			if (host.capa) {
 				switch (host.capa) {
 					case 4:
@@ -4512,8 +4525,7 @@ function hostinfo(id) {
 			html += '<hr><center>Obsługiwane sieci bezprzewodowe</center><br>';
 			html += createRow3ColForModal('Pasmo', 'Liczba połączonych klientów', 'Nazwa sieci (SSID)');
 			for (var hostKey of hostKeys) {
-				var band = freq2band(remote_hosts[hostKey].freq);
-				html += createRow3ColForModal((band == 2 ? '2.4' : band) + ' GHz', remote_hosts[hostKey].n_assoc, (remote_hosts[hostKey].ssid).escapeHTML());
+				html += createRow3ColForModal(hrband(freq2band(remote_hosts[hostKey].freq)), remote_hosts[hostKey].n_assoc, (remote_hosts[hostKey].ssid).escapeHTML());
 			}
 			html += '<hr><center>Zdalni klienci</center><br>';
 			var html1 = '';
@@ -4523,8 +4535,7 @@ function hostinfo(id) {
 						var name = mac;
 						var client = clients.find(obj => obj.active == true && obj.mac == mac);
 						if (client) { name = (client.displayname).escapeHTML(); }
-						var band = freq2band(remote_hosts[hostKey].freq);
-						html1 += createRow4ColForModal(name, (band == 2 ? '2.4' : band) + ' GHz', aps[hostKey].signal + ' dBm (~' + calculatedistance(remote_hosts[hostKey].freq, aps[hostKey].signal) + ' m)' , (remote_hosts[hostKey].ssid).escapeHTML());
+						html1 += createRow4ColForModal(name, hrband(freq2band(remote_hosts[hostKey].freq)), aps[hostKey].signal + ' dBm (~' + calculatedistance(remote_hosts[hostKey].freq, aps[hostKey].signal) + ' m)' , (remote_hosts[hostKey].ssid).escapeHTML());
 					}
 				}
 			}
@@ -4546,8 +4557,7 @@ function hostinfo(id) {
 					if (obj1) {
 						var res = clients.find(obj => obj.active == true && (obj.mac).substring(0, (obj.mac).lastIndexOf(':')) == (obj1.bssid).substring(0, (obj1.bssid).lastIndexOf(':')) && obj.ip == key.split('#')[0]);
 						html += createRowForModal('Zdalny klient', res ? (res.displayname).escapeHTML() : '&nbsp;');
-						var band = freq2band(obj1.freq);
-						html += createRowForModal('Pasmo', (band == 2 ? '2.4' : band) + ' GHz');
+						html += createRowForModal('Pasmo', hrband(freq2band(obj1.freq)));
 						distance = ' (~' + calculatedistance(obj1.freq, obj[key].signal) + ' m)';
 					} else {
 						html += createRowForModal('Zdalny klient', '&nbsp;');
