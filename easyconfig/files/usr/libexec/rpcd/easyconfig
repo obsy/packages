@@ -998,10 +998,15 @@ for (let key in data) {
 	print("LAST_SEEN=\"" + (mac.last_seen !== null ? mac.last_seen : "") + "\";");
 	print("DHCPNAME=\"" + (mac.dhcpname !== null ? mac.dhcpname : "") + "\";");
 	print("TYPE=\"" + (mac.type !== null ? mac.type : "2") + "\";");
-	print("LAST_NETWORK=\"" + (mac.last_network !== null ? mac.last_network : "Sieć lokalna") + "\";\n");
+	print("NETWORK=\"" + (mac.last_network !== null ? mac.last_network : "") + "\";\n");
 }' | while read -r line; do
+	FIRST_SEEN=""
+	LAST_SEEN=""
+	DHCPNAME=""
+	TYPE=""
+	NETWORK=""
 	eval "$line"
-	echo "{\"mac\":\"${M}\",\"active\":false,\"type\":${TYPE},\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK}")\"$(client_data ${M})},"
+	echo "{\"mac\":\"${M}\",\"active\":false,\"type\":${TYPE},\"first_seen\":\"$FIRST_SEEN\",\"last_seen\":\"$LAST_SEEN\",\"dhcpname\":\"$DHCPNAME\",\"section\":\"\",\"network\":\"$(escapeJSON "${NETWORK:-Sieć lokalna}")\"$(client_data ${M})},"
 done
 IFS=$OLDIFS
 else
