@@ -1700,7 +1700,7 @@ function saveconfig() {
 			proofreadText(document.getElementById('firewall_dmz'), function(text){ return 0; }, 0);
 			if (checkIpInLanSubnet(getValue('lan_ipaddr'), config.lan_netmask, firewall_dmz) != 1) {
 				proofreadText(document.getElementById('firewall_dmz'), function(text){ return 0; }, 1);
-				showMsg('Błąd w polu ' + getLabelText('firewall_dmz') + '<br><br>Adres IP jest spoza zakresu adresacji sieci', true);
+				showMsg('Błąd w polu ' + getLabelText('firewall_dmz') + '<br><br>Adres IP jest spoza zakresu adresacji sieci lokalnej', true);
 				return;
 			}
 			cmd.push('uci set firewall.dmz=redirect');
@@ -1708,6 +1708,7 @@ function saveconfig() {
 			cmd.push('uci set firewall.dmz.src=wan');
 			cmd.push('uci set firewall.dmz.proto=all');
 			cmd.push('uci set firewall.dmz.dest_ip=' + firewall_dmz);
+			cmd.push('uci set firewall.dmz.dest=lan');
 		}
 	}
 
