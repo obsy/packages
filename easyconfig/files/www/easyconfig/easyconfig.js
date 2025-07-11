@@ -7758,7 +7758,7 @@ function shownetworks() {
 					html += '<div class="col-xs-3"><a href="#" class="click" onclick="btn_pages(\'clients\');">' + sorted[idx].lan_clients + ' &rarr;</a></div>';
 				}
 				if (has_wireless) {
-					html += '<div class="col-xs-1"><span class="click" onclick="networkswifitoggle(\'' + sorted[idx].section + '\');"><span title="zmień stan Wi-Fi"><i data-feather="power"></i></span></div>';
+					html += '<div class="col-xs-1"><span class="click" onclick="networkswifitoggle(\'' + sorted[idx].section + '\');"><span title="zmień stan Wi-Fi"><i data-feather="toggle"></i></span></div>';
 				}
 				html += '</div>';
 			}
