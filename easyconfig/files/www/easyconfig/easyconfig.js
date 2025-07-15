@@ -2702,6 +2702,9 @@ function showmodem() {
 			setValue('modem_mode', mode);
 
 			arrmodemaddon.push({'idx':1, 'key':'Technologia', 'value':data.mode});
+			if (data.country) {
+				arrmodemaddon.push({'idx':19, 'key':'Kraj', 'value':data.country});
+			}
 			if (data.operator_mcc && data.operator_mcc != '' && data.operator_mnc && data.operator_mnc != '') {
 				arrmodemaddon.push({'idx':20, 'key':'MCC MNC', 'value':data.operator_mcc + ' ' + data.operator_mnc});
 			}

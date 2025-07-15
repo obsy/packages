@@ -1,16 +1,16 @@
 #!/bin/sh
 
 #
-# (c) 2024 Cezary Jackiewicz <cezary@eko.one.pl>
+# (c) 2024-2025 Cezary Jackiewicz <cezary@eko.one.pl>
 #
 
 . /usr/share/libubox/jshn.sh
 
 json_init
 json_load "$(ubus call easyconfig modem)"
-json_get_vars csq signal operator_name operator_mcc operator_mnc mode registration lac_dec lac_hex cid_dec cid_hex
+json_get_vars csq signal operator_name operator_mcc operator_mnc country mode registration lac_dec lac_hex cid_dec cid_hex
 
-if [ -z $operator_name ] && [ -z $operator_mcc ] && [ -z $operator_mnc ]; then
+if [ -z "$operator_name" ] && [ -z "$operator_mcc" ] && [ -z "$operator_mnc" ]; then
 	echo "Missing modem information"
 	exit 0
 fi
@@ -18,6 +18,7 @@ fi
 echo "Signal: ${signal} %"
 echo "Mode: ${mode}"
 echo "Operator: ${operator_name} (${operator_mcc} ${operator_mnc})"
+[ -n "$country" ] && echo "Country: ${country}"
 case $registration in
 	0) REG="not registered";;
 	1) REG="registered, home network";;

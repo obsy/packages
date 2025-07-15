@@ -100,6 +100,8 @@ echo "\"signal\":\"$SIGNAL\","
 echo "\"operator_name\":\"$plmn_description\","
 echo "\"operator_mcc\":\"$plmn_mcc\","
 echo "\"operator_mnc\":\"$(printf "%02d" $plmn_mnc)\","
+[ -n "$plmn_mcc" ] && COUNTRY=$(awk -F[\;] '/^'$plmn_mcc';/ {print $2}' /usr/share/easyconfig/modem/mcc.dat)
+echo "\"country\":\"$COUNTRY\","
 echo "\"mode\":\"$MODE\","
 echo "\"registration\":\"$registration\","
 TAC=""

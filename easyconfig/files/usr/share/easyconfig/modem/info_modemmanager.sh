@@ -108,6 +108,8 @@ echo "\"signal\":\"$_SIGNAL\","
 echo "\"operator_name\":\"$_plmn_description\","
 echo "\"operator_mcc\":\"$_plmn_mcc\","
 echo "\"operator_mnc\":\"$_plmn_mnc\","
+[ -n "$_plmn_mcc" ] && COUNTRY=$(awk -F[\;] '/^'$_plmn_mcc';/ {print $2}' /usr/share/easyconfig/modem/mcc.dat)
+echo "\"country\":\"$COUNTRY\","
 echo "\"mode\":\"$_MODE\","
 echo "\"registration\":\"$_registration\","
 if [ "$MODE_NUM" = "7" ]; then
