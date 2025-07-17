@@ -29,3 +29,4 @@ tginfoS.SignalExcellent="Excellent";
 tginfoS.SignalGood="Good";
 tginfoS.SignalFair="Fair";
 tginfoS.SignalPoor="Poor";
+tginfoS.Country="Country";

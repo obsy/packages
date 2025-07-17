@@ -1,5 +1,5 @@
 /*
- * This program is copyright © 2016-2023 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+ * This program is copyright © 2016-2025 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
  * version 2.0 with a special clarification/exception that permits adapting the program to
  * configure proprietary "back end" software provided that all modifications to the web interface
  * itself remain covered by the GPL.
@@ -183,6 +183,9 @@ function resetData()
 						setChildText("mode", "-");
 					}
  
+					if (tmp.country) {
+						arrmodem.push({'idx':18, 'key':'Country', 'value':tmp.country});
+					}
 					if (tmp.operator_mcc && tmp.operator_mcc != '' && tmp.operator_mnc && tmp.operator_mnc != '') {
 						arrmodem.push({'idx':19, 'key':'MCC MNC', 'value':tmp.operator_mcc + ' ' + tmp.operator_mnc});
 					}
@@ -212,6 +215,9 @@ function resetData()
 				sorted.forEach(function(e) {
 					if (e.key == 'Temperature') {
 						e.key = tginfoS.Temperature;
+					}
+					if (e.key == 'Country') {
+						e.key = tginfoS.Country;
 					}
 					if (mode.search(/^LTE/) > -1) {
 						if ((e.key).search(/RSSI/) > -1) {
