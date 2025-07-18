@@ -175,7 +175,19 @@ function resetData()
 					if (tmp.signal) {
 						setGraph(tmp.signal);
 						setChildText("operator", tmp.operator_name);
-						mode = (tmp.mode).split(" ")[0];
+						var mode = tmp.mode;
+						if (mode.toLowerCase().includes('lte') || mode.toLowerCase().includes('5g')) {
+							if (mode.toLowerCase().includes('lte')) {
+								mode = (tmp.mode).split(' ')[0];
+							}
+							if (mode.toLowerCase().includes('5g')) {
+								mode = (tmp.mode).split(' ')[0] + ' ' + (tmp.mode).split(' ')[1];
+							}
+							var count = ((tmp.mode).match(/\//g) || []).length;
+							if (count > 0) {
+								mode += ' (' + (count + 1) + 'CA)';
+							}
+						}
 						setChildText("mode", mode);
 					} else {
 						setGraph(0);
