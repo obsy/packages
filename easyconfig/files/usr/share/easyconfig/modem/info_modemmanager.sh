@@ -13,7 +13,7 @@ fi
 . /usr/share/libubox/jshn.sh
 mmcli -m "$DEVICE" --signal-setup=3 >/dev/null 2>&1
 
-json_load "$(mmcli -m "$DEVICE" -J --get-cell-info | jsonfilter -q -e '@.modem.*')"
+json_load "$(mmcli -m "$DEVICE" -J --get-cell-info 2>/dev/null | jsonfilter -q -e '@.modem.*')"
 if json_is_a "cell-info" array; then
 	json_select "cell-info"
 	idx=1
@@ -71,7 +71,7 @@ if json_is_a "cell-info" array; then
 fi
 
 _SIGNAL=0
-T=$(mmcli -m "$DEVICE" -J --signal-get | jsonfilter -q -e '@.modem.signal.'$MODE)
+T=$(mmcli -m "$DEVICE" -J --signal-get 2>/dev/null | jsonfilter -q -e '@.modem.signal.'$MODE)
 if [ -n "$T" ]; then
 	_rsrp=""
 	_rseq=""
@@ -80,8 +80,9 @@ if [ -n "$T" ]; then
 	_rscp=""
 	_ecio=""
 	eval $(echo "$T" | jsonfilter -q -e "_rsrp=@.rsrp" -e "_rsrq=@.rsrq" -e "_rssi=@.rssi" -e "_snr=@.snr" -e "_rscp=@.rscp" -e "_ecio=@.ecio")
-	if [ -n "_rssi" ]; then
-		[ "$(echo "$_rssi" | awk '{printf "%d\n", $1}')" -ge -51 ] && _rssi=-51
+	if [ -n "$_rssi" ]; then
+		_rssi=$(echo "$_rssi" | awk '{printf "%d\n", $1}')
+		[ "$_rssi" -ge -51 ] && _rssi=-51
 		_SIGNAL=$(((_rssi+113)*100/62))
 	fi
 fi
@@ -122,8 +123,8 @@ if [ "$MODE_NUM" = "7" ]; then
 	[ -n "$_rsrq" ] && echo "{\"idx\":37,\"key\":\"RSRQ\",\"value\":\"$(printf "%.1f" $_rsrq) dB\"},"
 	[ -n "$_snr" ] && echo "{\"idx\":38,\"key\":\"SNR\",\"value\":\"$(printf "%.1f" $_snr) dB\"},"
 	if [ -n "$_TAC" ]; then
-		T_HEX=$(printf "%X" $_TAC)
-		echo "{\"idx\":23,\"key\":\"TAC\",\"value\":\"$_TAC (${T_HEX})\"},"
+		T_DEC=$(printf "%d" "0x$_TAC")
+		echo "{\"idx\":23,\"key\":\"TAC\",\"value\":\"${T_DEC} (${_TAC})\"},"
 	fi
 fi
 if [ "$MODE_NUM" = "2" ]; then
