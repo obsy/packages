@@ -2331,6 +2331,7 @@ function showmodeminfo() {
 		setValue('modem_revision', data.revision == '' ? '-' : data.revision);
 		setValue('modem_imei', data.imei == '' ? '-' : data.imei);
 		setValue('modem_iccid', data.iccid == '' ? '-' : data.iccid);
+		setValue('modem_imsi', data.imsi == '' ? '-' : data.imsi);
 		if (data.simslot.hasOwnProperty('active')) {
 			var e = removeOptions('modem_simslot');
 			var arr = sortJSON(data.simslot.slots, 'index', 'asc');

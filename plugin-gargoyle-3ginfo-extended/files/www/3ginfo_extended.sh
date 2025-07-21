@@ -174,6 +174,9 @@ progress::-moz-progress-bar {
 	<div>
 		<li class="list-group-item"><span class="list-group-item-title"><%~ ICCID %>:</span><span id="iccid">-</span></li>
 	</div>
+	<div>
+		<li class="list-group-item"><span class="list-group-item-title"><%~ IMSI %>:</span><span id="imsi">-</span></li>
+	</div>
 	</ul>
 </div>
 </div>

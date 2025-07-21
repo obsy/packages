@@ -110,6 +110,9 @@ function modeminfo(device)
 				if ((tmp[idx]).search(/CCID[ ]*:/) > -1) {
 					setChildText("iccid", tmp[idx].replace(/.*CCID[ ]*:[ ]*/, ''));
 				}
+				if ((tmp[idx]).search(/CIMI[ ]*:/) > -1) {
+					setChildText("imsi", tmp[idx].replace(/.*CIMI[ ]*:[ ]*/, ''));
+				}
 			}
 			setControlsEnabled(true);
 		}
