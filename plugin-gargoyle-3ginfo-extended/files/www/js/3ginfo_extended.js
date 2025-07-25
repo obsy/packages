@@ -88,32 +88,24 @@ function modeminfo(device)
 {
 	firstrun = false;
 	setControlsEnabled(false, true, tginfoS.DldingData);
-	var param = getParameterDefinition("commands", 'comgt -d ' + device + ' -s /usr/lib/gargoyle/3ginfo_extended/vendorproduct.gcom\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", '/usr/share/modemdata/product.sh ' + device + '\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
 		{
-			var tmp = req.responseText.replace(/Success/,"").split('\n');
-			for (var idx = 0; idx < tmp.length; idx++) {
-				if ((tmp[idx]).search(/CGMI[ ]*:/) > -1) {
-					setChildText("vendor", tmp[idx].replace(/.*CGMI[ ]*:[ ]*/, ''));
-				}
-				if ((tmp[idx]).search(/CGMM[ ]*:/) > -1) {
-					setChildText("product", tmp[idx].replace(/.*CGMM[ ]*:[ ]*/, ''));
-				}
-				if ((tmp[idx]).search(/CGMR[ ]*:/) > -1) {
-					setChildText("revision", tmp[idx].replace(/.*CGMR[ ]*:[ ]*/, ''));
-				}
-				if ((tmp[idx]).search(/CGSN[ ]*:/) > -1) {
-					setChildText("imei", tmp[idx].replace(/.*CGSN[ ]*:[ ]*/, ''));
-				}
-				if ((tmp[idx]).search(/CCID[ ]*:/) > -1) {
-					setChildText("iccid", tmp[idx].replace(/.*CCID[ ]*:[ ]*/, ''));
-				}
-				if ((tmp[idx]).search(/CIMI[ ]*:/) > -1) {
-					setChildText("imsi", tmp[idx].replace(/.*CIMI[ ]*:[ ]*/, ''));
-				}
-			}
+			var tmp;
+			var tmp1 = req.responseText.replace(/Success/,"");
+			try {
+				tmp = JSON.parse(tmp1);
+			} catch (e) {
+				tmp = {};
+			};
+			setChildText("vendor", tmp.vendor ? tmp.vendor : '-');
+			setChildText("product", tmp.product ? tmp.product : '-');
+			setChildText("revision", tmp.revision ? tmp.revision : '-');
+			setChildText("imei", tmp.imei ? tmp.imei : '-');
+			setChildText("iccid", tmp.iccid ? tmp.iccid : '-');
+			setChildText("imsi", tmp.imsi ? tmp.imsi : '-');
 			setControlsEnabled(true);
 		}
 	}
@@ -124,7 +116,7 @@ function resetData()
 {
 	var sec = uciOriginal.getAllSectionsOfType(pkg, "3ginfo");
 
-	var device = uciOriginal.get(pkg, sec[0], 'device')
+	var device = uciOriginal.get(pkg, sec[0], 'device');
 	setSelectedValue('list_device', device);
 
 	if (device == '')
@@ -135,20 +127,29 @@ function resetData()
 		return;
 	}
 
+	var force_plmn = uciOriginal.get(pkg, sec[0], 'force_plmn');
+	if (force_plmn != '1') { force_plmn = 0; }
+
 	document.getElementById("tgdata1").style.display = "block";
 	document.getElementById("tgdata2").style.display = "block";
 	document.getElementById("tgdata3").style.display = "block";
 	setControlsEnabled(false, true, tginfoS.DldingData);
-	var param = getParameterDefinition("commands", '/usr/lib/gargoyle/3ginfo_extended/info.sh\n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
+	var param = getParameterDefinition("commands", '/usr/share/modemdata/params.sh ' + device + ' ' + force_plmn + ' \n') + "&" + getParameterDefinition("hash", document.cookie.replace(/^.*hash=/,"").replace(/[\t ;]+.*$/, ""));
 	var stateChangeFunction = function(req)
 	{
 		if(req.readyState == 4)
 		{
-			var tmp = eval ("(" + req.responseText.replace(/Success/,"") + ")");
+			var tmp;
+			var tmp1 = req.responseText.replace(/Success/,"");
+			try {
+				tmp = JSON.parse(tmp1);
+			} catch (e) {
+				tmp = {};
+			};
 			if (!tmp["error"]) {
 				var arrmodem = [];
 				var mode = '';
-				if (tmp.registration == '1' || tmp.registration == '5') {
+				if (tmp.registration == '1' || tmp.registration == '5' || tmp.registration == '6' || tmp.registration == '7') {
 					switch(tmp.registration) {
 					case "0":
 						arrmodem.push({'idx':1, 'key': tginfoS.SIMStatus, 'value': tginfoS.NoNetwork});

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=plugin_gargoyle_3ginfo_extended
-PKG_VERSION:=20250721
+PKG_VERSION:=20250725
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -14,7 +14,7 @@ define Package/plugin-gargoyle-3ginfo-extended
 	SUBMENU:=Gargoyle Web Interface
 	TITLE:=3ginfo extended for Gargoyle
 	MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
-	DEPENDS:=+gargoyle +sms-tool +comgt +@BUSYBOX_DEFAULT_AWK
+	DEPENDS:=+gargoyle +modemdata
 	PKGARCH:=all
 endef
 
@@ -57,7 +57,6 @@ endef
 define Package/plugin-gargoyle-3ginfo-extended/install
 	$(INSTALL_DIR) $(1)
 	$(CP) ./files/* $(1)/
-	wget -O - https://codeload.github.com/obsy/packages/tar.gz/refs/heads/master | tar -xz -C $(1)/usr/lib/gargoyle/3ginfo_extended --strip=7 "packages-master/easyconfig/files/usr/share/easyconfig/modem/addon"
 	[ -n "$$$$(which uglifyjs)" ] && uglifyjs ./files/www/js/3ginfo_extended.js > $(1)/www/js/3ginfo_extended.js || true
 endef
 
