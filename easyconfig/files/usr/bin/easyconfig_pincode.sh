@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-[ -z $DEVICE ] && exit 0
+[ -z "$DEVICE" ] && exit 0
 
 CMD=$1
 PIN=$2

@@ -2040,7 +2040,10 @@ function showbandwidth(mac, section) {
 	var bandwidth_arr = []; bandwidth_arr[0] = []; bandwidth_arr[1] = [];
 	var bandwidth_old = []; bandwidth_old['tx'] = -1;
 	var bandwidth_max = []; bandwidth_max['tx'] = 0; bandwidth_max['rx'] = 0;
-	var bandwidth_legend = [{color:'green',elements:['bandwidth_speed_label_tx','bandwidth_speed_tx','bandwidth_speed_max_tx']},{color:'blue',elements:['bandwidth_speed_label_rx','bandwidth_speed_rx','bandwidth_speed_max_rx']}];
+	var txcolor = 'green';
+	var rxcolor = 'blue';
+	if (document.body.classList.contains('darkmode')) { rxcolor = '#4CC2FF'; }
+	var bandwidth_legend = [{color: txcolor, elements: ['bandwidth_speed_label_tx', 'bandwidth_speed_tx', 'bandwidth_speed_max_tx']}, {color: rxcolor, elements: ['bandwidth_speed_label_rx', 'bandwidth_speed_rx', 'bandwidth_speed_max_rx']}];
 	livegraph.draw({element: 'bandwidth', data: bandwidth_arr, legend: bandwidth_legend});
 	if (config.wan_ifname != '' || mac) {
 		bandwidthcallback(false);
