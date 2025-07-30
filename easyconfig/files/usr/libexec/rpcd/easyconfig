@@ -36,12 +36,22 @@ simslot() {
 	echo ',"simslot":{'
 	case $(cat /tmp/sysinfo/board_name) in
 		"teltonika,rut955"*)
-			T=$(cat /sys/class/gpio/gpio503/value 2>/dev/null)
-			[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":1},{"index":2,"description":"SIM2","value":0}]'
+			GPIO=$(awk '/sim_sel/{gsub("gpio-", "");print $1}' /sys/kernel/debug/gpio)
+			if [ -n "$GPIO" ]; then
+				T=$(cat /sys/class/gpio/gpio${GPIO}/value 2>/dev/null)
+				[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":1},{"index":2,"description":"SIM2","value":0}]'
+			fi
+			;;
+		"teltonika,rutx50")
+			T=$(cat /sys/class/gpio/sim-select/value 2>/dev/null)
+			[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":0},{"index":2,"description":"SIM2","value":1}]'
 			;;
 		"zbtlink,zbt-we826-e")
-			T=$(cat /sys/class/gpio/gpio13/value 2>/dev/null)
-			[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":0},{"index":2,"description":"SIM2","value":1}]'
+			GPIO=$(uci -q get system.sim_switch.gpio_pin)
+			if [ -n "$GPIO" ]; then
+				T=$(cat /sys/class/gpio/gpio${GPIO}/value 2>/dev/null)
+				[ -n "$T" ] && echo '"active":'$T',"slots":[{"index":1,"description":"SIM1","value":0},{"index":2,"description":"SIM2","value":1}]'
+			fi
 			;;
 		"zyxel,nr7101")
 			if [ -e /usr/bin/sms_tool ]; then
@@ -1262,25 +1272,47 @@ setsimslot() {
 	case $(cat /tmp/sysinfo/board_name) in
 		"teltonika,rut955"*)
 			# hardcode device
-			if [ -e /dev/cdc-wdm0 ]; then
+			GPIO=$(awk '/sim_sel/{gsub("gpio-", "");print $1}' /sys/kernel/debug/gpio)
+			if [ -n "$GPIO" ]; then
 				ifdown wan
-				uqmi -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
-				echo $slot > /sys/class/gpio/gpio503/value
+				[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
+				echo $slot > /sys/class/gpio/gpio${GPIO}/value
+				uci set system.sim_sel=gpio_switch
 				uci set system.sim_sel.value=$slot
+				uci set system.sim_sel.gpio_pin="$GPIO"
 				uci commit system
-				uqmi -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
+				[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
 				ifup wan
 			fi
 			;;
+		"teltonika,rutx50")
+			ifdown wan
+			[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
+			echo $slot > /sys/class/gpio/sim-select/value
+			echo 1 > /sys/class/gpio/modem_reset/value
+			sleep 1
+			echo 0 > /sys/class/gpio/modem_reset/value
+			[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
+			ifup wan
+			;;
 		"zbtlink,zbt-we826-e")
 			# hardcode device
-			if [ -e /dev/cdc-wdm0 ]; then
+			GPIO=$(uci -q get system.sim_switch.gpio_pin)
+			if [ -n "$GPIO" ]; then
 				ifdown wan
-				uqmi -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
-				echo $slot > /sys/class/gpio/gpio13/value
+				[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-off --uim-slot 1
+				echo $slot > /sys/class/gpio/gpio${GPIO}/value
+				POWER=$(uci -q get system.power_mpcie.gpio_pin)
+				if [ -n "$POWER" ]; then
+					echo 0 > /sys/class/gpio/gpio${POWER}/value
+					sleep 1
+					echo 1 > /sys/class/gpio/gpio${POWER}/value
+				fi
+				uci set system.sim_switch=gpio_switch
 				uci set system.sim_switch.value=$slot
+				uci set system.sim_switch.gpio_pin="$GPIO"
 				uci commit system
-				uqmi -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
+				[ -e /dev/cdc-wdm0 ] && uqmi -t 1000 -d /dev/cdc-wdm0 --uim-power-on --uim-slot 1
 				ifup wan
 			fi
 			;;
