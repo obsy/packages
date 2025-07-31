@@ -1,7 +1,0 @@
-O=$(sms_tool -d /dev/ttyUSB1 at 'AT+CGMM?')
-
-if echo "$O" | grep -q "FM150"; then
-	. $RES/addon/usb/2cb70104.fm150
-elif echo "$O" | grep -q "FM190"; then
-	. $RES/addon/usb/2cb70104.fm190
-fi

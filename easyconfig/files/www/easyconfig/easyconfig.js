@@ -2329,12 +2329,12 @@ function showsystem() {
 function showmodeminfo() {
 	if (modem == 0) { return; }
 	ubus_call('"easyconfig", "modeminfo", {}', function(data) {
-		setValue('modem_vendor', data.vendor == '' ? '-' : data.vendor);
-		setValue('modem_model', data.product == '' ? '-' : data.product);
-		setValue('modem_revision', data.revision == '' ? '-' : data.revision);
-		setValue('modem_imei', data.imei == '' ? '-' : data.imei);
-		setValue('modem_iccid', data.iccid == '' ? '-' : data.iccid);
-		setValue('modem_imsi', data.imsi == '' ? '-' : data.imsi);
+		setValue('modem_vendor', data.vendor ? data.vendor : '-');
+		setValue('modem_model', data.product ? data.product : '-');
+		setValue('modem_revision', data.revision ? data.revision : '-');
+		setValue('modem_imei', data.imei ? data.imei : '-');
+		setValue('modem_iccid', data.iccid ? data.iccid : '-');
+		setValue('modem_imsi', data.imsi ? data.imsi : '-');
 		if (data.simslot.hasOwnProperty('active')) {
 			var e = removeOptions('modem_simslot');
 			var arr = sortJSON(data.simslot.slots, 'index', 'asc');
@@ -2664,7 +2664,7 @@ function showmodem() {
 		}
 
 		if (data.registration == '1' || data.registration == '5' || data.registration == '6' || data.registration == '7') {
-			setValue('modem_signal', data.signal == '' ? '-' : data.signal + '%');
+			setValue('modem_signal', data.signal ? data.signal + '%' : '-');
 
 			if (data.signal) {
 				var e = document.getElementById('modem_signal_bars');
@@ -2689,8 +2689,8 @@ function showmodem() {
 				}
 			}
 
-			setValue('modem_operator', data.operator_name == '' ? '-' : data.operator_name);
-			var mode = (data.mode == '' ? '-' : data.mode);
+			setValue('modem_operator', data.operator_name ? data.operator_name : '-');
+			var mode = (data.mode ? data.mode : '-');
 			if (mode.toLowerCase().includes('lte') || mode.toLowerCase().includes('5g')) {
 				if (mode.toLowerCase().includes('lte')) {
 					mode = (data.mode).split(' ')[0];

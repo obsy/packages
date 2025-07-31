@@ -1172,23 +1172,26 @@ show_traffic() {
 
 show_modem()
 {
-	T=$(uci -q get easyconfig.modem.force_plmn)
-	[ "x$T" = "x1" ] || T=""
-
 	PROTO=$(uci -q get network.wan.proto)
 	[ -z "$PROTO" ] && PROTO="?"
 
-	QMI=""
+	FORCE_PLMN=$(uci -q get easyconfig.modem.force_plmn)
+	[ "x$FORCE_PLMN" = "x1" ] || FORCE_PLMN="0"
+
+	FORCE_QMI="0"
 	if [ "$PROTO" = "qmi" ] || [ "$PROTO" = "mbim" ]; then
-		[ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ] && QMI="1"
+		[ "x$(uci -q get easyconfig.modem.force_qmi)" = "x1" ] && FORCE_QMI="1"
 	fi
 
-	if [ -n "$QMI" ]; then
-		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_qmi.sh
+	MBIM="0"
+	[ "$PROTO" = "mbim" ] && MBIM="1"
+
+	if [ "$FORCE_QMI" = "1" ]; then
+		[ -e /usr/share/modemdata/params_qmi.sh ] && /usr/share/modemdata/params_qmi.sh "$(uci -q get network.wan.device)" "$FORCE_PLMN" "$MBIM" || echo '{"error":"script not found"}'
 	elif [ "$PROTO" = "modemmanager" ]; then
-		FORCE_PLMN=$T /usr/share/easyconfig/modem/info_modemmanager.sh
+		[ -e /usr/share/modemdata/params_modemmanager.sh ] && /usr/share/modemdata/params_modemmanager.sh $(uci -q get network.wan.device) "$FORCE_PLMN" || echo '{"error":"script not found"}'
 	else
-		FORCE_PLMN=$T /usr/share/easyconfig/modem/info.sh
+		[ -e /usr/share/modemdata/params.sh ] && /usr/share/modemdata/params.sh "$(/usr/share/easyconfig/modem/detect.sh)" "$FORCE_PLMN" || echo '{"error":"script not found"}'
 	fi
 }
 
@@ -1216,47 +1219,14 @@ show_modemsettings() {
 ##############################################################################
 
 show_modeminfo() {
+	T='{"error":"script not found"}'
 	if [ "x$(uci -q get network.wan.proto)" = 'xmodemmanager' ]; then
-		DEVICE=$(uci -q get network.wan.device);
-		if [ -n "$DEVICE" ]; then
-			IMEI=""
-			VENDOR=""
-			PRODUCT=""
-			REVISION=""
-			ICCID=""
-			IMSI=""
-			SIM=""
-			eval $(mmcli -m "$DEVICE" -J | jsonfilter -q -e 'IMEI=@.modem.generic["equipment-identifier"]' -e 'VENDOR=@.modem.generic.manufacturer' -e 'PRODUCT=@.modem.generic.model' -e 'REVISION=@.modem.generic.revision' -e 'SIM=@.modem.generic.sim')
-			[ -n "$SIM" ] && eval $(mmcli -m "$DEVICE" -J --sim $SIM | jsonfilter -q -e 'ICCID=@.sim.properties.iccid' -e 'IMSI=@.sim.properties.imsi')
-		fi
+		[ -e "/usr/share/modemdata/product_modemmanager.sh" ] && T=$(/usr/share/modemdata/product_modemmanager.sh $(uci -q get network.wan.device))
 	else
-		DEVICE=$(/usr/share/easyconfig/modem/detect.sh)
-		if [ -n "$DEVICE" ]; then
-			O=$(gcom -d $DEVICE -s /usr/share/easyconfig/modem/vendorproduct.gcom)
-			T=$(echo "$O" | awk '/CGMI:/{gsub(/.*CGMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && VENDOR="$T"
-			T=$(echo "$O" | awk '/CGMM:/{gsub(/.*CGMM[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && PRODUCT="$T"
-			T=$(echo "$O" | awk '/CGMR:/{gsub(/.*CGMR[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && REVISION="$T"
-			T=$(echo "$O" | awk '/CGSN:/{gsub(/.*CGSN[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && IMEI="$T"
-			T=$(echo "$O" | awk '/CCID:/{gsub(/.*CCID[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && ICCID="$T"
-			T=$(echo "$O" | awk '/CIMI:/{gsub(/.*CIMI[ ]*:[ ]*/,"");gsub(/"/,"");print $0}')
-			[ -n "$T" ] && IMSI="$T"
-		fi
+		[ -e "/usr/share/modemdata/product.sh" ] && T=$(/usr/share/modemdata/product.sh $(/usr/share/easyconfig/modem/detect.sh))
 	fi
-
-	echo '{'
-	echo '"vendor":"'$VENDOR'"'
-	echo ',"product":"'$PRODUCT'"'
-	echo ',"revision":"'$REVISION'"'
-	echo ',"imei":"'$IMEI'"'
-	echo ',"iccid":"'$ICCID'"'
-	echo ',"imsi":"'$IMSI'"'
-	simslot
-	echo '}'
+	T1=$(simslot)
+	echo "${T%\}*}${T1}}"
 }
 
 ##############################################################################
