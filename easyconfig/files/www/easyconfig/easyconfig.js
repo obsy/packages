@@ -1458,6 +1458,10 @@ function showconfig() {
 				opt.value = 'wifitoggle';
 				opt.innerHTML = 'Włącz/wyłącz Wi-Fi sieci dodatkowych';
 				select.appendChild(opt);
+				opt = document.createElement('option');
+				opt.value = 'wps';
+				opt.innerHTML = 'Uruchom WPS (Wi-Fi Protected Setup)';
+				select.appendChild(opt);
 			}
 			if (config.services.wol) {
 				opt = document.createElement('option');
