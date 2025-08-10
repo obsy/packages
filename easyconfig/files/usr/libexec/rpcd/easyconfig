@@ -862,6 +862,12 @@ else
 	echo '"pingraw":false,'
 fi
 
+if [ -e /usr/share/easyconfig/rc.button/wps ]; then
+	echo '"wpsscript":true,'
+else
+	echo '"wpsscript":false,'
+fi
+
 echo '},'
 
 echo '}'
