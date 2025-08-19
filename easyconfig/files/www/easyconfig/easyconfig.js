@@ -4139,7 +4139,7 @@ function clientscallback(sortby) {
 					}
 					html += ', ' + (sorted[idx].network).escapeHTML() + '</div>';
 				} else {
-					html += 'bezprzewodowo ' + hrband(sorted[idx].band) + ', ' + (sorted[idx].network).escapeHTML() + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
+					html += 'bezprzewodowo ' + hrband(sorted[idx].band) + ', ' +  sorted[idx].signal + ' dBm, ' + (sorted[idx].network).escapeHTML() + ', wysłano: ' + bytesToSize(sorted[idx].tx) + ', pobrano: ' + bytesToSize(sorted[idx].rx) + ', ' + sorted[idx].percent + '% udziału w ruchu, połączony ' + formatDuration(sorted[idx].connected, false) + '</div>';
 				}
 
 				var title1 = '';
@@ -4160,7 +4160,7 @@ function clientscallback(sortby) {
 					html += '</div>';
 					html += '<div class="col-xs-2"></div>';
 				} else {
-					html += 'bezprzewodowo<br>' + hrband(sorted[idx].band) + '</div>';
+					html += 'bezprzewodowo<br>' + hrband(sorted[idx].band) + ', ' +  sorted[idx].signal + ' dBm</div>';
 					html += '<div class="col-xs-2 hidden-xs"><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\',\'' + sorted[idx].section + '\');" title="wysłano">&uarr;&nbsp;' + bytesToSize(sorted[idx].tx) + '</span><br><span class="click" onclick="showbandwidth(\'' + sorted[idx].mac + '\',\'' + sorted[idx].section + '\');" title="pobrano">&darr;&nbsp;' + bytesToSize(sorted[idx].rx) + '</span></div>';
 				}
 				html += '<div class="col-xs-1 hidden-xs text-right"><span class="click" title="menu" onclick="hostmenu(' + sorted[idx].id + ');"><i data-feather="more-vertical"></i></span></div>';
