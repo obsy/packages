@@ -138,6 +138,10 @@ function escapeShell(value) {
 	return value;
 }
 
+function lz(n) {
+	return (n < 10 ? '0' : '') + n;
+}
+
 function formatDateTime(s) {
 	if (s.length == 14) {
 		return s.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, "$1-$2-$3 $4:$5:$6");
@@ -4011,9 +4015,8 @@ function clientscallback(sortby) {
 	var counter_all_year = 0;
 
 	function tformatDate(ts) {
-		function z(n) { return (n < 10 ? '0' : '' ) + n;}
 		var d = new Date(ts);
-		return '' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + z(d.getHours()) + z(d.getMinutes());
+		return '' + d.getFullYear() + lz(d.getMonth() + 1) + lz(d.getDate()) + lz(d.getHours()) + lz(d.getMinutes());
 	}
 
 	var now = new Date();
@@ -4367,9 +4370,8 @@ function showclientslogs() {
 }
 
 function timestampToDate(ts) {
-	function z(n) { return (n < 10 ? '0' : '' ) + n;}
 	var d = new Date(ts * 1000);
-	return '' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds());
+	return '' + d.getFullYear() + lz(d.getMonth() + 1) + lz(d.getDate()) + lz(d.getHours()) + lz(d.getMinutes()) + lz(d.getSeconds());
 }
 
 function clientslogscallback(first, last) {
@@ -5226,16 +5228,7 @@ function getPreviousPeriodDates(startDateStr, periodDays) {
 	var currentDate = new Date(previousPeriodStart);
 
 	while (currentDate <= previousPeriodEnd) {
-		var year = currentDate.getFullYear();
-		var month = currentDate.getMonth() + 1;
-		var day = currentDate.getDate();
-
-		if (month < 10) month = '0' + month;
-		else month = '' + month;
-		if (day < 10) day = '0' + day;
-		else day = '' + day;
-
-		datesArray.push('' + year + month + day);
+		datesArray.push('' + currentDate.getFullYear() + lz(currentDate.getMonth() + 1) + lz(currentDate.getDate()));
 		currentDate.setDate(currentDate.getDate() + 1);
 	}
 
@@ -5263,14 +5256,7 @@ function getCurrentPeriodDates(startDateStr, periodDays) {
 	var currentDate = new Date(periodStart);
 
 	while (currentDate <= today) {
-		var year = currentDate.getFullYear();
-		var month = currentDate.getMonth() + 1;
-		var day = currentDate.getDate();
-
-		month = month < 10 ? '0' + month : month;
-		day = day < 10 ? '0' + day : day;
-
-		datesArray.push('' + year + month + day);
+		datesArray.push('' + currentDate.getFullYear() + lz(currentDate.getMonth() + 1) + lz(currentDate.getDate()));
 		currentDate.setDate(currentDate.getDate() + 1);
 	}
 
@@ -5278,13 +5264,11 @@ function getCurrentPeriodDates(startDateStr, periodDays) {
 }
 
 function formatDate(d) {
-	function z(n){return (n<10?'0':'')+ +n;}
-	return d.getFullYear() + '' + z(d.getMonth() + 1) + '' + z(d.getDate());
+	return '' + d.getFullYear() + lz(d.getMonth() + 1) + lz(d.getDate());
 }
 
 function formatDateWithoutDay(d) {
-	function z(n){return (n<10?'0':'')+ +n;}
-	return d.getFullYear() + '' + z(d.getMonth() + 1);
+	return '' + d.getFullYear() + lz(d.getMonth() + 1);
 }
 
 function showtraffic() {
@@ -7485,7 +7469,6 @@ function btn_nightmode_getlocationfromgps() {
 /*****************************************************************************/
 
 function getDD2DMS(dms, type) {
-	function z(n){return (n < 10 ? '0' : '')+ +n;}
 	var sign = 1, Abs = 0;
 	var degrees, minutes, secounds, direction;
 
@@ -7503,7 +7486,7 @@ function getDD2DMS(dms, type) {
 	degrees = degrees * sign;
 	if (type == 'lat') direction = degrees < 0 ? 'S' : 'N';
 	if (type == 'lon') direction = degrees < 0 ? 'W' : 'E';
-	return (degrees * sign) + 'º' + z(minutes) + "'" + z(secounds) + "'' " + direction;
+	return (degrees * sign) + 'º' + lz(minutes) + "'" + lz(secounds) + "'' " + direction;
 }
 
 var gpsID = null;
@@ -8588,7 +8571,7 @@ livegraph = {
 					ctx.lineTo(x, livegraph.axisTop + graph.height);
 					ctx.stroke();
 					var t = new Date(data[0][i][0]);
-					var t1 = (t.getHours() < 10 ? '0' : '') + t.getHours()  + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() + ':' + (t.getSeconds() < 10 ? '0' : '') + t.getSeconds();
+					var t1 = lz(t.getHours())  + ':' + lz(t.getMinutes()) + ':' + lz(t.getSeconds());
 					ctx.fillText(t1, x, livegraph.axisTop + graph.height + 15);
 					oldwidth = x + ctx.measureText(t1).width + 10;
 				}
@@ -8729,8 +8712,8 @@ staticgraph = {
 				var x = staticgraph.getX(graph, data[0][i][0]);
 				if (oldwidth < x) {
 					var t = new Date(data[0][i][0]);
-					var t0 = t.getFullYear() + '-' + ((t.getMonth() + 1) < 10 ? '0' : '') + (t.getMonth() + 1)  + '-' + (t.getDate() < 10 ? '0' : '') + t.getDate();
-					var t1 = (t.getHours() < 10 ? '0' : '') + t.getHours()  + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() + ':' + (t.getSeconds() < 10 ? '0' : '') + t.getSeconds();
+					var t0 = t.getFullYear() + '-' + lz(t.getMonth() + 1)  + '-' + lz(t.getDate());
+					var t1 = lz(t.getHours())  + ':' + lz(t.getMinutes()) + ':' + lz(t.getSeconds());
 					ctx.fillText(t0, x, staticgraph.axisTop + graph.height + 15);
 					ctx.fillText(t1, x, staticgraph.axisTop + graph.height + 35);
 					oldwidth = x + ctx.measureText(t0).width + 10;
