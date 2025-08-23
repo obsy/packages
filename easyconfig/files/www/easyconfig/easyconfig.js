@@ -155,6 +155,12 @@ function formatDateTime(s) {
 	return s;
 }
 
+function getDateTimeSince(sec) {
+	var d = new Date(new Date().getTime() - sec * 1000);
+	return '' + d.getFullYear() + '-' + lz(d.getMonth() + 1) + '-' + lz(d.getDate()) + ' ' +
+		lz(d.getHours()) + ':' + lz(d.getMinutes()) + ':' + lz(d.getSeconds());
+}
+
 function freq2band(freq) {
 	if (freq >= 2412 && freq <= 2484) {
 		return 2;
@@ -1978,16 +1984,12 @@ function showstatistics() {
 
 function showwanup(data) {
 	var html = 'Wznowienia połączenia z internetem';
-	var sorted = sortJSON(JSON.parse((data).replace(/\$/g,'"')), 'up', 'asc');
+	var sorted = JSON.parse(atob(data)).sort((a, b) => a - b);
 	if (sorted.length > 9)
 		html += '<br>(ostatnie 10)';
 	html += '<hr>';
 	for (var idx = 0; idx < sorted.length; idx++) {
-		if (sorted[idx].since == '') {
-			html += '<div class="row"><div class="col-xs-12">' + formatDuration(sorted[idx].up, true) + ' temu</div></div>';
-		} else {
-			html += createRowForModal(formatDateTime(sorted[idx].since), formatDuration(sorted[idx].up, true) + ' temu');
-		}
+		html += createRowForModal(getDateTimeSince(sorted[idx]), formatDuration(sorted[idx], true) + ' temu');
 	}
 	showMsg(html);
 }
@@ -2145,7 +2147,7 @@ function showstatus() {
 	ubus_call('"easyconfig", "status", {}', function(data) {
 		simslot = data.simslot;
 		setValue('system_uptime', formatDuration(data.system_uptime, false));
-		setValue('system_uptime_since', data.system_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.system_uptime_since) + ')');
+		setValue('system_uptime_since', ' (od ' + getDateTimeSince(data.system_uptime) + ')');
 		setValue('system_load', data.system_load);
 		setValue('system_time', data.system_time == '' ? '-' : formatDateTime(data.system_time));
 		setValue('wlan_clients', data.wlan_clients + ' &rarr;');
@@ -2153,8 +2155,8 @@ function showstatus() {
 		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_rx) + '</span>');
 		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
-		setValue('wan_uptime_since', data.wan_uptime_since == '' ? '' : ' (od ' + formatDateTime(data.wan_uptime_since) + ')');
-		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '0' : '<span class="click" onclick="showwanup(\'' + (JSON.stringify(data.wan_up_since)).replace(/\"/g,"$") + '\');">' + data.wan_up_cnt + '</span>');
+		setValue('wan_uptime_since', ' (od ' + getDateTimeSince(data.wan_uptime) + ')');
+		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '0' : '<span class="click" onclick="showwanup(\'' + btoa(JSON.stringify(data.wan_ups)) + '\');">' + data.wan_up_cnt + '</span>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.wan_ipaddr + '</span>');
 		setValue('wan_netmask_status', (data.wan_netmask == '') ? '-' : data.wan_netmask);
 		setValue('wan_gateway_status', (data.wan_gateway == '') ? '-' : data.wan_gateway);
@@ -3210,7 +3212,7 @@ function showwatchdog() {
 			setValue('watchdog_min', data.watchdog_minavgmax.split("/")[0] + ' ms');
 			setValue('watchdog_avg', data.watchdog_minavgmax.split("/")[1] + ' ms');
 			setValue('watchdog_max', data.watchdog_minavgmax.split("/")[2] + ' ms');
-			setValue('watchdog_rundate', formatDateTime(data.watchdog_rundate));
+			setValue('watchdog_rundate', getDateTimeSince(data.watchdog_rundate) + ' (' + formatDuration(data.watchdog_rundate, true) + ' temu)');
 		} else {
 			setValue('watchdog_min', '-');
 			setValue('watchdog_avg', '-');
@@ -4523,7 +4525,7 @@ function hostinfo(id) {
 			html += createRowForModal('Poziom sygnału', (host.signal + ' dBm' + distance));
 			html += createRowForModal('Wysłano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\',\'' + host.section + '\');">' + bytesToSize(host.tx) + '</span>');
 			html += createRowForModal('Pobrano', '<span class="click" onclick="showbandwidth(\'' + host.mac + '\',\'' + host.section + '\');">' + bytesToSize(host.rx) + '</span>');
-			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><span>' + (host.connected_since == '' ? '' : ' (od ' + formatDateTime(host.connected_since) + ')') + '</span>');
+			html += createRowForModal('Połączony', '<span>' + formatDuration(host.connected, false) + '</span><span class="visible-xs oneline"></span><span> (od ' + getDateTimeSince(host.connected) + ')</span>');
 		}
 		html += createRowForModal('Adres IP', (host.ip == '' ? '-' : host.ip));
 	}
@@ -5954,7 +5956,7 @@ function showvpn() {
 						html += '<div class="col-xs-2 col-sm-1">';
 						html += '<span class="click" onclick="vpnstatuszerotier(\'' + sorted[idx].section + '\');" title="status"><i data-feather="info"></i></span>&nbsp;';
 					} else {
-						html += '<div class="col-xs-7 col-sm-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + (sorted[idx].uptime_since == '' ? '' : ' (od ' + formatDateTime(sorted[idx].uptime_since) + ')') + '</div>';
+						html += '<div class="col-xs-7 col-sm-4"><span style="color:green">aktywny</span>, ' + formatDuration(sorted[idx].uptime, false) + ' (od ' + getDateTimeSince(sorted[idx].uptime) + ')</div>';
 						html += '<div class="col-xs-2 col-sm-1">';
 						html += '<span class="click" onclick="vpnstatus(\'' + sorted[idx].interface + '\');" title="status"><i data-feather="info"></i></span>&nbsp;';
 					}
@@ -5986,11 +5988,7 @@ function showvpn() {
 function vpnstatus(interface) {
 	ubus_call('"easyconfig", "vpnstatus", {"interface":"' + interface + '"}', function(data) {
 		var html = '';
-		var t = formatDuration(data.uptime, false);
-		if (data.uptime_since != '') {
-			t += ' (od ' + formatDateTime(data.uptime_since) + ')';
-		}
-		html += createRowForModal('Czas połączenia', t);
+		html += createRowForModal('Czas połączenia', formatDuration(data.uptime, false) + ' (od ' + getDateTimeSince(data.uptime) + ')');
 		html += createRowForModal('Wysłano', bytesToSize(data.tx));
 		html += createRowForModal('Pobrano', bytesToSize(data.rx));
 		html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + data.ipaddr + '</span>');
@@ -6002,8 +6000,8 @@ function vpnstatus(interface) {
 				html += createRowForModal('Wysłano', bytesToSize(data.peers[idx].tx));
 				html += createRowForModal('Pobrano', bytesToSize(data.peers[idx].rx));
 				t = '-';
-				if (data.peers[idx].handshake != '') {
-					t = formatDateTime(data.peers[idx].handshake) + ' (' + formatDuration(data.peers[idx].handshake_ago, true) + ' temu)';
+				if (data.peers[idx].last_handshake != '') {
+					t = getDateTimeSince(data.peers[idx].last_handshake) + ' (' + formatDuration(data.peers[idx].last_handshake, true) + ' temu)';
 				}
 				html += createRowForModal('Ostatni kontakt', t);
 			}

@@ -136,7 +136,6 @@ echo '],'
 show_status() {
 SYSTEM_UPTIME=$(awk '{printf "%d\n", $1}' /proc/uptime)
 if $TIMEISVALID; then
-	SYSTEM_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - SYSTEM_UPTIME))")
 	SYSTEM_TIME=$(date "+%Y%m%d%H%M")
 fi
 
@@ -167,23 +166,11 @@ fi
 
 [ -n "$WAN_DNS" ] && WAN_DNS='"'$(echo $WAN_DNS | sed 's/ /","/g')'"'
 
-if [ -n "$WAN_UPTIME" ]; then
-	if $TIMEISVALID; then
-		WAN_UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - WAN_UPTIME))")
-	fi
-fi
-
 F=/tmp/easyconfig_wan_up
 if [ -e $F ]; then
 	WAN_UP_CNT=$(wc -l < $F)
 	for i in $(tail -n 10 $F); do
-		SINCE=$((SYSTEM_UPTIME - i))
-		WAN_UP_SINCE="$WAN_UP_SINCE{\"up\":$SINCE,"
-		if $TIMEISVALID; then
-			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\""$(date "+%Y%m%d%H%M%S" -d "@$(($(date +%s) - SINCE))")"\"},"
-		else
-			WAN_UP_SINCE="${WAN_UP_SINCE}\"since\":\"\"},"
-		fi
+		WAN_UP_SINCE="${WAN_UP_SINCE}$((SYSTEM_UPTIME - i)),"
 	done
 fi
 
@@ -215,7 +202,6 @@ fi
 show_vpn_up | jsonfilter -q -e '@.result[*].up' | grep -q "true" && VPN_UP="true"
 
 echo '{'
-echo '"system_uptime_since":"'$SYSTEM_UPTIME_SINCE'",'
 echo '"system_uptime":"'$SYSTEM_UPTIME'",'
 echo '"system_load":"'$SYSTEM_LOAD'",'
 echo '"system_time":"'$SYSTEM_TIME'",'
@@ -226,10 +212,9 @@ show_ports "$TPORTS1"
 
 echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
-echo '"wan_uptime_since":"'$WAN_UPTIME_SINCE'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
-echo '"wan_up_since":['$WAN_UP_SINCE'],'
+echo '"wan_ups":['$WAN_UP_SINCE'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"wan_netmask":"'$WAN_NETMASK'",'
 echo '"wan_gateway":"'$WAN_GATEWAY'",'
@@ -885,7 +870,9 @@ show_watchdog() {
 		W_ENABLED="true"
 		if [ -e /tmp/easyconfig_watchdog ]; then
 			W_MAM=$(awk '/round-trip/{print $4}' /tmp/easyconfig_watchdog)
-			W_RUNDATE=$(date "+%Y%m%d%H%M%S" -r /tmp/easyconfig_watchdog)
+			NOW=$(date "+%s")
+			RUNDATE=$(date "+%s" -r /tmp/easyconfig_watchdog)
+			W_RUNDATE=$((NOW - RUNDATE))
 		fi
 	fi
 
@@ -965,11 +952,6 @@ for SEC in $NETWORKS; do
 					MAC=${T##*\"}
 					T=${M%,\"ba*}
 					CONNECTED=${T##*:}
-					if $TIMEISVALID; then
-						CONNECTED_SINCE=',"connected_since":"'$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - CONNECTED))")'"'
-					else
-						CONNECTED_SINCE=',"connected_since":""'
-					fi
 					CAPA=""
 					grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
 					grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
@@ -980,7 +962,7 @@ for SEC in $NETWORKS; do
 					[ -z "$IP" ] && IP=$(awk '/0x[26]\s*'${MAC}'/{printf ",\"ip\":\"%s\",\"dhcpname\":\"\"", $1; exit}' /proc/net/arp)
 					[ -z "$IP" ] && IP=',"ip":"","dhcpname":""'
 
-					echo "{${M},\"active\":true,\"type\":2,\"band\":${BAND},\"phy\":\"${PHY}\"${CONNECTED_SINCE}${CAPA},\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $MAC)${IP}},"
+					echo "{${M},\"active\":true,\"type\":2,\"band\":${BAND},\"phy\":\"${PHY}\"${CAPA},\"section\":\"${SEC}\",\"network\":\"${NETWORK}\"$(client_data $MAC)${IP}},"
 				done
 			else
 				TPORTS1="${TPORTS1} ${IFNAME};0"
@@ -1870,11 +1852,6 @@ show_vpn()
 		UPTIME_SINCE=""
 		if [ "x$UP" = "xtrue" ]; then
 			UPTIME=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].uptime')
-			if $TIMEISVALID; then
-				UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
-			else
-				UPTIME_SINCE=""
-			fi
 		fi
 		PENDING=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].pending')
 		PROTO=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].proto')
@@ -1902,7 +1879,7 @@ show_vpn()
 				done
 				;;
 		esac
-		echo "{\"interface\":\"$INTERFACE\"${CUSTOM},\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"uptime_since\":\"$UPTIME_SINCE\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
+		echo "{\"interface\":\"$INTERFACE\"${CUSTOM},\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
 	done
 	echo "]"
 
@@ -1938,12 +1915,6 @@ show_vpn_status()
 		[ -n "$IFNAME" ] && IPADDR=$(ifconfig $IFNAME | awk '/inet addr:/{gsub(":"," ");print $3}')
 	fi
 
-	if [ -n "$UPTIME" ]; then
-		if $TIMEISVALID; then
-			UPTIME_SINCE=$(date "+%Y%m%d%H%M" -d "@$(($(date +%s) - UPTIME))")
-		fi
-	fi
-
 	if [ -n "$IFNAME" ]; then
 		RX=$(cat /sys/class/net/$IFNAME/statistics/rx_bytes)
 		TX=$(cat /sys/class/net/$IFNAME/statistics/tx_bytes)
@@ -1953,7 +1924,6 @@ show_vpn_status()
 	echo '"proto":"'$PROTO'",'
 	echo '"rx":"'$RX'",'
 	echo '"tx":"'$TX'",'
-	echo '"uptime_since":"'$UPTIME_SINCE'",'
 	echo '"uptime":"'$UPTIME'",'
 	echo '"ipaddr":"'$IPADDR'"'
 
@@ -1964,16 +1934,16 @@ show_vpn_status()
 		for PEER in $PEERS; do
 			PUBKEY=$(uci -q get network.$PEER.public_key)
 			T1=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $5}')
-			NOW=$(date +%s)
-			HANDSHAKE_AGO=""
-			HANDSHAKE=""
-			[ -n "$T1" ] && HANDSHAKE_AGO=$((NOW - T1))
-			[ -n "$T1" ] && HANDSHAKE=$(date -d @${T1} +%Y%m%d%H%M%S)
+			LAST_HANDSHAKE=""
+			if [ -n "$T1" ]; then
+				NOW=$(date "+%s")
+				LAST_HANDSHAKE=$((NOW - T1))
+			fi
 			RX=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $6}')
 			TX=$(echo "$T" | awk '/^'$(escapeForSed $PUBKEY)'/{print $7}')
 			NAME=$(uci -q get network.$PEER.description)
 			[ -z "$NAME" ] && NAME="$(uci -q get network.$PEER.endpoint_host):$(uci -q get network.$PEER.endpoint_port)"
-			echo "{\"name\":\""$(escapeJSON "$NAME")"\",\"handshake_ago\":\"${HANDSHAKE_AGO}\",\"handshake\":\"$HANDSHAKE\",\"rx\":\"$RX\",\"tx\":\"$TX\"},"
+			echo "{\"name\":\""$(escapeJSON "$NAME")"\",\"last_handshake\":\"${LAST_HANDSHAKE}\",\"rx\":\"$RX\",\"tx\":\"$TX\"},"
 		done
 		echo "]"
 	fi
