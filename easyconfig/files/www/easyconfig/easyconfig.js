@@ -6480,14 +6480,14 @@ function saveopenvpn() {
 	cmd.push('cat /tmp/' + interface + ' > $CFG');
 	cmd.push('rm /tmp/' + interface);
 
+	cmd.push('uci set firewall.' + interface + '=zone');
+	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_openvpn_name')) + '\\\"');
+	cmd.push('uci -q del firewall.' + interface + '.network');
+	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+	cmd.push('uci set firewall.' + interface + '.input=REJECT');
+	cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 	if (getValue('vpn_openvpn_lanto')) {
-		cmd.push('uci set firewall.' + interface + '=zone');
-		cmd.push('uci set firewall.' + interface + '.name=' + interface);
-		cmd.push('uci -q del firewall.' + interface + '.network');
-		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
-		cmd.push('uci set firewall.' + interface + '.input=REJECT');
-		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
-		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
 		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
@@ -6497,7 +6497,8 @@ function saveopenvpn() {
 		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
 		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
 	} else {
-		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.masq');
+		cmd.push('uci -q del firewall.' + interface + '.mtu_fix');
 		cmd.push('uci -q del firewall.f1' + interface);
 		cmd.push('uci -q del firewall.f2' + interface);
 	}
@@ -6587,14 +6588,14 @@ function savepptp() {
 		cmd.push('uci set network.' + interface + '.pppd_options=\\\"nomppe\\\"');
 	}
 
+	cmd.push('uci set firewall.' + interface + '=zone');
+	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_pptp_name')) + '\\\"');
+	cmd.push('uci -q del firewall.' + interface + '.network');
+	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+	cmd.push('uci set firewall.' + interface + '.input=REJECT');
+	cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 	if (getValue('vpn_pptp_lanto')) {
-		cmd.push('uci set firewall.' + interface + '=zone');
-		cmd.push('uci set firewall.' + interface + '.name=' + interface);
-		cmd.push('uci -q del firewall.' + interface + '.network');
-		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
-		cmd.push('uci set firewall.' + interface + '.input=REJECT');
-		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
-		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
 		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
@@ -6604,7 +6605,8 @@ function savepptp() {
 		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
 		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
 	} else {
-		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.masq');
+		cmd.push('uci -q del firewall.' + interface + '.mtu_fix');
 		cmd.push('uci -q del firewall.f1' + interface);
 		cmd.push('uci -q del firewall.f2' + interface);
 	}
@@ -6679,14 +6681,14 @@ function savesstp() {
 	cmd.push('uci set network.' + interface + '.username=\\\"' + escapeShell(getValue('vpn_sstp_username')) + '\\\"');
 	cmd.push('uci set network.' + interface + '.password=\\\"' + escapeShell(getValue('vpn_sstp_password')) + '\\\"');
 
+	cmd.push('uci set firewall.' + interface + '=zone');
+	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_sstp_name')) + '\\\"');
+	cmd.push('uci -q del firewall.' + interface + '.network');
+	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+	cmd.push('uci set firewall.' + interface + '.input=REJECT');
+	cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 	if (getValue('vpn_sstp_lanto')) {
-		cmd.push('uci set firewall.' + interface + '=zone');
-		cmd.push('uci set firewall.' + interface + '.name=' + interface);
-		cmd.push('uci -q del firewall.' + interface + '.network');
-		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
-		cmd.push('uci set firewall.' + interface + '.input=REJECT');
-		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
-		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
 		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
@@ -6696,7 +6698,8 @@ function savesstp() {
 		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
 		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
 	} else {
-		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.masq');
+		cmd.push('uci -q del firewall.' + interface + '.mtu_fix');
 		cmd.push('uci -q del firewall.f1' + interface);
 		cmd.push('uci -q del firewall.f2' + interface);
 	}
@@ -6918,7 +6921,7 @@ function savewireguard() {
 	if (port != '') {
 		cmd.push('uci set network.' + interface + '.listen_port=' + port);
 		cmd.push('uci set firewall.r' + interface + '=rule');
-		cmd.push('uci set firewall.r' + interface + '.name=' + interface);
+		cmd.push('uci set firewall.r' + interface + '.name=\\\"wg ' + interface + '\\\"');
 		cmd.push('uci set firewall.r' + interface + '.src=wan');
 		cmd.push('uci set firewall.r' + interface + '.target=ACCEPT');
 		cmd.push('uci set firewall.r' + interface + '.proto=udp');
@@ -6965,14 +6968,14 @@ function savewireguard() {
 		}
 	}
 
+	cmd.push('uci set firewall.' + interface + '=zone');
+	cmd.push('uci set firewall.' + interface + '.name=' + interface);
+	cmd.push('uci -q del firewall.' + interface + '.network');
+	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+	cmd.push('uci set firewall.' + interface + '.input=REJECT');
+	cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 	if (getValue('vpn_wireguard_lanto')) {
-		cmd.push('uci set firewall.' + interface + '=zone');
-		cmd.push('uci set firewall.' + interface + '.name=' + interface);
-		cmd.push('uci -q del firewall.' + interface + '.network');
-		cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
-		cmd.push('uci set firewall.' + interface + '.input=REJECT');
-		cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
-		cmd.push('uci set firewall.' + interface + '.forward=REJECT');
 		cmd.push('uci set firewall.' + interface + '.masq=1');
 		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
 		cmd.push('uci set firewall.f1' + interface + '=forwarding');
@@ -6982,7 +6985,8 @@ function savewireguard() {
 		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
 		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
 	} else {
-		cmd.push('uci -q del firewall.' + interface);
+		cmd.push('uci -q del firewall.' + interface + '.masq');
+		cmd.push('uci -q del firewall.' + interface + '.mtu_fix');
 		cmd.push('uci -q del firewall.f1' + interface);
 		cmd.push('uci -q del firewall.f2' + interface);
 	}
