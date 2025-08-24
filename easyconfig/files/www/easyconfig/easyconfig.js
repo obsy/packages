@@ -6481,7 +6481,7 @@ function saveopenvpn() {
 	cmd.push('rm /tmp/' + interface);
 
 	cmd.push('uci set firewall.' + interface + '=zone');
-	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_openvpn_name')) + '\\\"');
+	cmd.push('uci set firewall.' + interface + '.name=' + interface);
 	cmd.push('uci -q del firewall.' + interface + '.network');
 	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
 	cmd.push('uci set firewall.' + interface + '.input=REJECT');
@@ -6589,7 +6589,7 @@ function savepptp() {
 	}
 
 	cmd.push('uci set firewall.' + interface + '=zone');
-	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_pptp_name')) + '\\\"');
+	cmd.push('uci set firewall.' + interface + '.name=' + interface);
 	cmd.push('uci -q del firewall.' + interface + '.network');
 	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
 	cmd.push('uci set firewall.' + interface + '.input=REJECT');
@@ -6682,7 +6682,7 @@ function savesstp() {
 	cmd.push('uci set network.' + interface + '.password=\\\"' + escapeShell(getValue('vpn_sstp_password')) + '\\\"');
 
 	cmd.push('uci set firewall.' + interface + '=zone');
-	cmd.push('uci set firewall.' + interface + '.name=\\\"' + escapeShell(getValue('vpn_sstp_name')) + '\\\"');
+	cmd.push('uci set firewall.' + interface + '.name=' + interface);
 	cmd.push('uci -q del firewall.' + interface + '.network');
 	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
 	cmd.push('uci set firewall.' + interface + '.input=REJECT');
@@ -6921,7 +6921,7 @@ function savewireguard() {
 	if (port != '') {
 		cmd.push('uci set network.' + interface + '.listen_port=' + port);
 		cmd.push('uci set firewall.r' + interface + '=rule');
-		cmd.push('uci set firewall.r' + interface + '.name=\\\"wg ' + interface + '\\\"');
+		cmd.push('uci set firewall.r' + interface + '.name=' + interface);
 		cmd.push('uci set firewall.r' + interface + '.src=wan');
 		cmd.push('uci set firewall.r' + interface + '.target=ACCEPT');
 		cmd.push('uci set firewall.r' + interface + '.proto=udp');
