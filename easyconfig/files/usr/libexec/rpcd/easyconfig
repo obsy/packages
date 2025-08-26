@@ -1975,7 +1975,19 @@ show_vpn_details()
 	json_load "$input"
 	json_get_vars proto interface section
 
+	INPUT="r"
 	if [ -n "$interface" ]; then
+		case "$(uci -q get firewall.${interface}.input)" in
+			"DROP")
+				INPUT="d"
+				;;
+			"ACCEPT")
+				INPUT="a"
+				;;
+			*)
+				INPUT="r"
+				;;
+		esac
 		[ "x$(uci -q get firewall.f1${interface})" = "xforwarding" ] && LANTO=1
 		[ "x$(uci -q get easyconfig.vpn.interface)" = "x$interface" ] && BUTTON="true"
 		AUTOSTART=$(uci -q get network.$interface.auto)
@@ -1988,6 +2000,7 @@ show_vpn_details()
 		fi
 	else
 		if [ "x$proto" = "xopenvpn" ]; then
+			INPUT="r"
 			LANTO=0
 			BUTTON="false"
 			AUTOSTART=$(uci -q get openvpn.$section.enabled)
@@ -1995,6 +2008,7 @@ show_vpn_details()
 			PROTO="openvpn"
 		fi
 		if [ "x$proto" = "xzerotier" ]; then
+			INPUT="r"
 			LANTO=0
 			BUTTON="false"
 			AUTOSTART="0"
@@ -2002,7 +2016,7 @@ show_vpn_details()
 			PROTO="zerotier"
 		fi
 	fi
-	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"lanto\":${LANTO:-0},\"trigger\":\"$TRIGGER\","
+	echo "{\"proto\":\"$PROTO\",\"autostart\":${AUTOSTART:-1},\"button\":${BUTTON:-false},\"input\":\"${INPUT:-r}\",\"lanto\":${LANTO:-0},\"trigger\":\"$TRIGGER\","
 	if [ "x$PROTO" = "xopenvpn" ]; then
 		NAME=$(uci -q get openvpn.$section.name)
 		if [ -z "$NAME" ]; then
