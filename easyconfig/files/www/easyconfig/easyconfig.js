@@ -2155,7 +2155,7 @@ function showstatus() {
 		setValue('wan_rx', data.wan_rx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_rx) + '</span>');
 		setValue('wan_tx', data.wan_tx == '' ? '-' : '<span class="click" onclick="showbandwidth(\'\',\'\');">' + bytesToSize(data.wan_tx) + '</span>');
 		setValue('wan_uptime', formatDuration(data.wan_uptime, false));
-		setValue('wan_uptime_since', ' (od ' + getDateTimeSince(data.wan_uptime) + ')');
+		setValue('wan_uptime_since', (data.wan_uptime == '') ? '' : ' (od ' + getDateTimeSince(data.wan_uptime) + ')');
 		setValue('wan_up_cnt', (data.wan_up_cnt == '') ? '0' : '<span class="click" onclick="showwanup(\'' + btoa(JSON.stringify(data.wan_ups)) + '\');">' + data.wan_up_cnt + '</span>');
 		setValue('wan_ipaddr_status', (data.wan_ipaddr == '') ? '-' : '<span class="click" onclick="showgeolocation();">' + data.wan_ipaddr + '</span>');
 		setValue('wan_netmask_status', (data.wan_netmask == '') ? '-' : data.wan_netmask);
