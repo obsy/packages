@@ -1753,7 +1753,7 @@ show_vpn_up()
 	echo '{"result":['
 
 	if [ -e /etc/config/zerotier ]; then
-		LN=$(zerotier-cli -j listnetworks)
+		LN=$(zerotier-cli -j listnetworks 2>/dev/null)
 		ZTS=$(uci show zerotier | awk -F[.=] '/=zerotier/{print $2}')
 		for ZT in $ZTS; do
 			UP="false"
@@ -1802,21 +1802,6 @@ show_vpn()
 {
 	echo '{"result":['
 
-	if [ -e /etc/config/zerotier ]; then
-		LN=$(zerotier-cli -j listnetworks)
-		ZTS=$(uci show zerotier | awk -F[.=] '/=network/{print $2}')
-		for ZT in $ZTS; do
-			NAME=$(uci -q get zerotier.$ZT.name)
-			UP="false"
-			PENDING="false"
-			ID=$(uci get zerotier.$ZT.id)
-			T=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$ID'"].status')
-			[ "x$T" = "xOK" ] && UP="true"
-			[ "x$T" = "xREQUESTING_CONFIGURATION" ] && PENDING="true"
-			echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"zerotier\",\"name\":\""$(escapeJSON "${NAME:-$ZT}")"\"},"
-		done
-	fi
-
 	T=$(ubus call network.interface dump)
 	INTERFACES=$(echo "$T" | jsonfilter -q -e '@.interface[@.proto="pptp" || @.proto="sstp" || @.proto="wireguard"].interface')
 
@@ -1837,6 +1822,28 @@ show_vpn()
 					[ -e /sys/class/net/$TUN ] && UP="true"
 				fi
 				echo "{\"interface\":\"\",\"section\":\"$OVPN\",\"up\":${UP:-false},\"pending\":false,\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"openvpn\",\"name\":\""$(escapeJSON "$NAME")"\"},"
+			fi
+		done
+	fi
+	if [ -e /etc/config/zerotier ]; then
+		LN=$(zerotier-cli -j listnetworks 2>/dev/null)
+		ZTS=$(uci show zerotier | awk -F[.=] '/=network$/{print $2}')
+		for ZT in $ZTS; do
+			INTERFACE=""
+			NAME=$(uci -q get zerotier.$ZT.name)
+			UP="false"
+			PENDING="false"
+			ID=$(uci get zerotier.$ZT.id)
+			DEVICE=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$ID'"].portDeviceName')
+			[ -z "$DEVICE" ] && DEVICE=$(awk -F[=] '/^'$ID'=zt/{print $2}' /etc/zerotier/devicemap 2>/dev/null)
+			[ -n "$DEVICE" ] && INTERFACE=$(uci show network | awk -F. '/device='\'''${DEVICE}''\''$/{print $2}')
+			if [ -n "$INTERFACE" ]; then
+				INTERFACES="${INTERFACES} ${INTERFACE}:zerotier:${ZT}"
+			else
+				T1=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$ID'"].status')
+				[ "x$T1" = "xOK" ] && UP="true"
+				[ "x$T1" = "xREQUESTING_CONFIGURATION" ] && PENDING="true"
+				echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"zerotier\",\"name\":\""$(escapeJSON "${NAME:-$ZT}")"\"},"
 			fi
 		done
 	fi
@@ -1877,6 +1884,10 @@ show_vpn()
 					[ -n "$NAME" ] && NAME="${NAME},"
 					NAME="${NAME}${T1}"
 				done
+				;;
+			"zerotier")
+				NAME=$(uci -q get zerotier.$SEC.name)
+				CUSTOM=",\"section\":\"$SEC\""
 				;;
 		esac
 		echo "{\"interface\":\"$INTERFACE\"${CUSTOM},\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"$UPTIME\",\"proto\":\"$PROTO\",\"name\":\""$(escapeJSON "${NAME:-$INTERFACE}")"\"},"
@@ -1958,7 +1969,7 @@ show_vpn_status_zerotier()
 
 	echo "{\"network\":"
 
-	LN=$(zerotier-cli -j listnetworks)
+	LN=$(zerotier-cli -j listnetworks 2>/dev/null)
 	ID=$(uci -q get zerotier.$section.id)
 	IPADDR=""
 	NAME=""
@@ -1998,6 +2009,12 @@ show_vpn_details()
 			TRIGGER=$(uci -q get openvpn.$section.trigger)
 			PROTO="openvpn"
 		fi
+		if [ "x$proto" = "xzerotier" ]; then
+			[ "x$(uci -q get easyconfig.vpn.interface)" = "xzerotier" ] && BUTTON="true"
+			AUTOSTART=$(uci -q get zerotier.global.enabled)
+			TRIGGER=$(uci -q get zerotier.global.trigger)
+			PROTO="zerotier"
+		fi
 	else
 		if [ "x$proto" = "xopenvpn" ]; then
 			INPUT="r"
@@ -2011,8 +2028,8 @@ show_vpn_details()
 			INPUT="r"
 			LANTO=0
 			BUTTON="false"
-			AUTOSTART="0"
-			TRIGGER=""
+			AUTOSTART=$(uci -q get zerotier.global.enabled)
+			TRIGGER=$(uci -q get zerotier.global.trigger)
 			PROTO="zerotier"
 		fi
 	fi
@@ -2085,12 +2102,11 @@ show_vpn_details()
 		echo "]}"
 	fi
 	if [ "x$PROTO" = "xzerotier" ]; then
-		ZTS=$(uci show zerotier | awk -F[.=] '/'$section'=network/{print $2}')
+		ZTS=$(uci show zerotier | awk -F[.=] '/'$section'=network$/{print $2}')
 		for ZT in $ZTS; do
 			NAME=$(uci -q get zerotier.$ZT.name)
-			ENABLED=$(uci -q get zerotier.global.enabled)
 			ID=$(uci -q get zerotier.$ZT.id)
-			echo "\"name\":\""$(escapeJSON "${NAME:-$section}")"\",\"enabled\":${ENABLED:-0},\"id\":\"$ID\"}"
+			echo "\"section\":\"$ZT\",\"name\":\""$(escapeJSON "${NAME:-$section}")"\",\"id\":\"$ID\"}"
 		done
 	fi
 }

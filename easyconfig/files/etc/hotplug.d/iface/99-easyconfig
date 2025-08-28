@@ -24,6 +24,14 @@ if [ $INTERFACE = "wan" ]; then
 		/etc/init.d/openvpn restart
 		uci revert openvpn
 	fi
+
+	ZT=$(uci -q get zerotier.global.trigger)
+	if [ "x$ZT" = "xwan" ]; then
+		sleep 5
+		uci set zerotier.global.enabled=1
+		/etc/init.d/zerotier restart
+		uci revert zerotier
+	fi
 fi
 
 exit 0

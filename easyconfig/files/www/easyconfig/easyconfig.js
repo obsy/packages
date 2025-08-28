@@ -6013,9 +6013,9 @@ function vpnstatus(interface) {
 function vpnstatuszerotier(section) {
 	ubus_call('"easyconfig", "vpnstatuszerotier", {"section":"' + section + '"}', function(data) {
 		var html = '';
-		html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + data.network.ipaddr + '</span>');
+		html += createRowForModal('Adres IP', '<span class="click" onclick="showgeolocation();">' + (data.network.ipaddr ? data.network.ipaddr : '-') + '</span>');
 		html += createRowForModal('Sieć', data.network.id);
-		html += createRowForModal('Nazwa', (data.network.name).escapeHTML());
+		html += createRowForModal('Nazwa', data.network.name ? (data.network.name).escapeHTML() : '-');
 		html += createRowForModal('Typ', data.network.type);
 		html += createRowForModal('Status', data.network.status);
 		showMsg(html);
@@ -6114,9 +6114,15 @@ function vpndetails(proto, interface, section) {
 		}
 		if (data.proto == 'zerotier') {
 			showError('vpn_zerotier_error', '', '');
-			setValue('vpn_zerotier_section', section);
+			setValue('vpn_zerotier_interface', interface);
+			setValue('vpn_zerotier_section', data.section);
 			setValue('vpn_zerotier_name', data.name);
-			setValue('vpn_zerotier_enabled', data.enabled);
+			setValue('vpn_zerotier_auto', data.autostart);
+			if (data.trigger == 'wan') { setValue('vpn_zerotier_auto', 2); }
+			setValue('vpn_zerotier_button', (config.button.code != '') ? data.button : false);
+			setDisplay('div_vpn_zerotier_button', config.button.code != '');
+			setValue('vpn_zerotier_zone_input', data.input);
+			setValue('vpn_zerotier_lanto', data.lanto == 1);
 			setValue('vpn_zerotier_network', data.id);
 			setDisplay('div_vpn_zerotier', true);
 		}
@@ -6238,9 +6244,15 @@ function savevpnnew() {
 	}
 	if (getValue('vpn_new') == 'zerotier') {
 		showError('vpn_zerotier_error', '', '');
-		setValue('vpn_zerotier_section', getRandomString());
-		setValue('vpn_zerotier_enabled', true);
+		var interface = getRandomString();
+		setValue('vpn_zerotier_interface', interface);
+		setValue('vpn_zerotier_section', interface);
 		setValue('vpn_zerotier_name', '');
+		setValue('vpn_zerotier_auto', 0);
+		setValue('vpn_zerotier_button', false);
+		setDisplay('div_vpn_zerotier_button', config.button.code != '');
+		setValue('vpn_zerotier_zone_input', 'r');
+		setValue('vpn_zerotier_lanto', true);
 		setValue('vpn_zerotier_network', '');
 		setDisplay('div_vpn_zerotier', true);
 	}
@@ -7114,12 +7126,91 @@ function savezerotier() {
 
 	cancelzerotier();
 
-	cmd.push('uci set zerotier.global.enabled=' + (getValue('vpn_zerotier_enabled') ? '1' : '0'));
+	var interface = getValue('vpn_zerotier_interface');
 	var section = getValue('vpn_zerotier_section');
+	if (interface == '') {
+		interface = getRandomString();
+	}
+
 	cmd.push('uci set zerotier.' + section + '=network');
 	cmd.push('uci set zerotier.' + section + '.name=\\\"' + escapeShell(getValue('vpn_zerotier_name')) + '\\\"');
-	cmd.push('uci set zerotier.' + section + '.id=' + getValue('vpn_zerotier_network'));
+	var ztnetwork = getValue('vpn_zerotier_network');
+	cmd.push('uci set zerotier.' + section + '.id=' + ztnetwork);
+	cmd.push('uci set zerotier.' + section + '.allow_managed=1');
+	cmd.push('uci set zerotier.' + section + '.allow_global=0');
+	cmd.push('uci set zerotier.' + section + '.allow_default=0');
+	cmd.push('uci set zerotier.' + section + '.allow_dns=0');
+
+	cmd.push('uci set zerotier.global.copy_config_path=1');
+	cmd.push('uci set zerotier.global.config_path=\\\"/etc/zerotier\\\"');
+	cmd.push('mkdir -p /etc/zerotier');
+	cmd.push('touch /etc/zerotier/devicemap');
+	cmd.push('sed -i \\\"/' + ztnetwork + '=zt/d\\\" /etc/zerotier/devicemap');
+	cmd.push('echo \\\"' + ztnetwork + '=zt' + interface + '\\\" >> /etc/zerotier/devicemap');
+
+	cmd.push('uci set network.' + interface + '=interface');
+	cmd.push('uci set network.' + interface + '.proto=none');
+	cmd.push('uci set network.' + interface + '.device=zt' + interface);
+
+	cmd.push('uci set firewall.' + interface + '=zone');
+	cmd.push('uci set firewall.' + interface + '.name=' + interface);
+	cmd.push('uci -q del firewall.' + interface + '.network');
+	cmd.push('uci add_list firewall.' + interface + '.network=' + interface);
+	switch (getValue('vpn_zerotier_zone_input')) {
+		case 'a':
+			cmd.push('uci set firewall.' + interface + '.input=ACCEPT');
+			break;
+		case 'd':
+			cmd.push('uci set firewall.' + interface + '.input=DROP');
+			break;
+		default:
+			cmd.push('uci set firewall.' + interface + '.input=REJECT');
+	}
+	cmd.push('uci set firewall.' + interface + '.output=ACCEPT');
+	cmd.push('uci set firewall.' + interface + '.forward=REJECT');
+	if (getValue('vpn_zerotier_lanto')) {
+		cmd.push('uci set firewall.' + interface + '.masq=1');
+		cmd.push('uci set firewall.' + interface + '.mtu_fix=1');
+		cmd.push('uci set firewall.f1' + interface + '=forwarding');
+		cmd.push('uci set firewall.f1' + interface + '.src=lan');
+		cmd.push('uci set firewall.f1' + interface + '.dest=' + interface);
+		cmd.push('uci set firewall.f2' + interface + '=forwarding');
+		cmd.push('uci set firewall.f2' + interface + '.dest=lan');
+		cmd.push('uci set firewall.f2' + interface + '.src=' + interface);
+	} else {
+		cmd.push('uci -q del firewall.' + interface + '.masq');
+		cmd.push('uci -q del firewall.' + interface + '.mtu_fix');
+		cmd.push('uci -q del firewall.f1' + interface);
+		cmd.push('uci -q del firewall.f2' + interface);
+	}
+
+	if (getValue('vpn_zerotier_button')) {
+		cmd.push('uci set easyconfig.vpn=button');
+		cmd.push('uci set easyconfig.vpn.interface=zerotier');
+	} else {
+		cmd.push('T=$(uci -q get easyconfig.vpn.interface)');
+		cmd.push('if [ \\\"x$T\\\" = \\\"xzerotier\\\" ]; then');
+		cmd.push(' uci -q del easyconfig.vpn.interface');
+		cmd.push('fi');
+	}
+
+	switch (parseInt(getValue('vpn_zerotier_auto'))) {
+		case 0:
+			cmd.push('uci set zerotier.global.enabled=0');
+			cmd.push('uci -q del zerotier.global.trigger');
+			break;
+		case 1:
+			cmd.push('uci set zerotier.global.enabled=1');
+			cmd.push('uci -q del zerotier.global.trigger');
+			break;
+		case 2:
+			cmd.push('uci set zerotier.global.enabled=0');
+			cmd.push('uci set zerotier.global.trigger=wan');
+			break;
+	}
+
 	cmd.push('uci commit');
+	cmd.push('ubus call network reload');
 	cmd.push('/etc/init.d/zerotier restart');
 
 	execute(cmd, showvpn);

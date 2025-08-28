@@ -2554,26 +2554,60 @@
 <div id="div_vpn_zerotier" class="modal">
 	<div class="row modal-content">
 		<div class="text-center space">ZeroTier</div>
+		<input id="vpn_zerotier_interface" type="hidden">
 		<input id="vpn_zerotier_section" type="hidden">
 		<div class="alert alert-danger text-center" id="vpn_zerotier_error" style="display:none"></div>
 
 		<form class="form-horizontal">
 		<div class="form-group">
-			<label for="vpn_zerotier_enabled" class="col-xs-4 col-sm-3 control-label">Włączony</label>
+			<label for="vpn_zerotier_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
 			<div class="col-xs-8 col-sm-9">
-			<label class="switch">
-				<input id="vpn_zerotier_enabled" type="checkbox">
-				<div class="slider round"></div>
-			</label>
-			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">włączenie dotyczy wszystkich sieci ZeroTier</small></em></span>
-			<div class="visible-xs"><em><small class="form-text text-muted">włączenie dotyczy wszystkich sieci ZeroTier</small></em></div>
+			<input id="vpn_zerotier_name" type="text" class="form-control">
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label for="vpn_zerotier_name" class="col-xs-4 col-sm-3 control-label">Nazwa</label>
+			<label for="vpn_zerotier_auto" class="col-xs-4 col-sm-3 control-label">Uruchamianie</label>
 			<div class="col-xs-8 col-sm-9">
-			<input id="vpn_zerotier_name" type="text" class="form-control">
+				<select id="vpn_zerotier_auto" class="form-control">
+				<option value="0">Manualne</option>
+				<option value="1">Po starcie systemu</option>
+				<option value="2">Po połączeniu do internetu</option>
+				</select>
+				<em><small class="form-text text-muted">uruchamianie dotyczy wszystkich sieci ZeroTier</small></em>
+			</div>
+		</div>
+
+		<div class="form-group" id="div_vpn_zerotier_button">
+			<label for="vpn_zerotier_button" class="col-xs-4 col-sm-3 control-label">Sterowanie przyciskiem</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_zerotier_button" type="checkbox">
+				<div class="slider round"></div>
+			</label>
+			<span class="hidden-xs control-label labelleft"><em><small class="form-text text-muted">sterowanie dotyczy wszystkich sieci ZeroTier</small></em></span>
+			<div class="visible-xs"><em><small class="form-text text-muted">sterowanie dotyczy wszystkich sieci ZeroTier</small></em></div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_zerotier_zone_input" class="col-xs-4 col-sm-3 control-label">Ruch przychodzący</label>
+			<div class="col-xs-8 col-sm-9">
+				<select id="vpn_zerotier_zone_input" class="form-control">
+				<option value="r">odrzucaj</option>
+				<option value="d">porzucaj</option>
+				<option value="a">akceptuj</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="vpn_zerotier_lanto" class="col-xs-4 col-sm-3 control-label">Dostęp z sieci lokalnej</label>
+			<div class="col-xs-8 col-sm-9">
+			<label class="switch">
+				<input id="vpn_zerotier_lanto" type="checkbox">
+				<div class="slider round"></div>
+			</label>
 			</div>
 		</div>
 
