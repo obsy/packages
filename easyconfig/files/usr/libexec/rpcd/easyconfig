@@ -170,7 +170,7 @@ F=/tmp/easyconfig_wan_up
 if [ -e $F ]; then
 	WAN_UP_CNT=$(wc -l < $F)
 	for i in $(tail -n 10 $F); do
-		WAN_UP_SINCE="${WAN_UP_SINCE}$((SYSTEM_UPTIME - i)),"
+		WAN_UPS="${WAN_UPS}$((SYSTEM_UPTIME - i)),"
 	done
 fi
 
@@ -214,7 +214,7 @@ echo '"wan_rx":"'$WAN_RX'",'
 echo '"wan_tx":"'$WAN_TX'",'
 echo '"wan_uptime":"'$WAN_UPTIME'",'
 echo '"wan_up_cnt":"'$WAN_UP_CNT'",'
-echo '"wan_ups":['$WAN_UP_SINCE'],'
+echo '"wan_ups":['$WAN_UPS'],'
 echo '"wan_ipaddr":"'$WAN_IPADDR'",'
 echo '"wan_netmask":"'$WAN_NETMASK'",'
 echo '"wan_gateway":"'$WAN_GATEWAY'",'
@@ -1754,16 +1754,16 @@ show_vpn_up()
 
 	if [ -e /etc/config/zerotier ]; then
 		LN=$(zerotier-cli -j listnetworks 2>/dev/null)
-		ZTS=$(uci show zerotier | awk -F[.=] '/=zerotier/{print $2}')
-		for ZT in $ZTS; do
-			UP="false"
-			JOINS=$(uci get zerotier.$ZT.join)
-			for JOIN in $JOINS; do
-				T=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$JOIN'"].status')
+		if [ -n "$LN" ]; then
+			ZTS=$(uci show zerotier | awk -F[.=] '/=network$/{print $2}')
+			for ZT in $ZTS; do
+				UP="false"
+				ID=$(uci get zerotier.$ZT.id)
+				T=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$ID'"].status')
 				[ "x$T" = "xOK" ] && UP="true"
+				echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false}},"
 			done
-			echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false}},"
-		done
+		fi
 	fi
 
 	T=$(ubus call network.interface dump)
@@ -1821,7 +1821,7 @@ show_vpn()
 				if [ -n "$TUN" ]; then
 					[ -e /sys/class/net/$TUN ] && UP="true"
 				fi
-				echo "{\"interface\":\"\",\"section\":\"$OVPN\",\"up\":${UP:-false},\"pending\":false,\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"openvpn\",\"name\":\""$(escapeJSON "$NAME")"\"},"
+				echo "{\"interface\":\"\",\"section\":\"$OVPN\",\"up\":${UP:-false},\"pending\":false,\"uptime\":\"\",\"proto\":\"openvpn\",\"name\":\""$(escapeJSON "$NAME")"\"},"
 			fi
 		done
 	fi
@@ -1843,7 +1843,7 @@ show_vpn()
 				T1=$(echo "$LN" | jsonfilter -q -e '@[@.id="'$ID'"].status')
 				[ "x$T1" = "xOK" ] && UP="true"
 				[ "x$T1" = "xREQUESTING_CONFIGURATION" ] && PENDING="true"
-				echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"\",\"uptime_since\":\"\",\"proto\":\"zerotier\",\"name\":\""$(escapeJSON "${NAME:-$ZT}")"\"},"
+				echo "{\"interface\":\"\",\"section\":\"$ZT\",\"up\":${UP:-false},\"pending\":${PENDING:-false},\"uptime\":\"\",\"proto\":\"zerotier\",\"name\":\""$(escapeJSON "${NAME:-$ZT}")"\"},"
 			fi
 		done
 	fi
@@ -1856,7 +1856,6 @@ show_vpn()
 		fi
 		UP=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].up')
 		UPTIME=""
-		UPTIME_SINCE=""
 		if [ "x$UP" = "xtrue" ]; then
 			UPTIME=$(echo "$T" | jsonfilter -q -e '@.interface[@.interface="'$INTERFACE'"].uptime')
 		fi
