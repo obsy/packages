@@ -1053,11 +1053,11 @@ for MAC in $MACS; do
 	fi
 done
 
-BANDS=$(iw dev 2>/dev/null | awk '{if($0 ~ /Interface /) {INTERFACE = $2; ssid[INTERFACE] = ""; band[INTERFACE] = "?"}
+BANDS=$(iw dev 2>/dev/null | awk '{if($0 ~ /Interface /) {INTERFACE = $2; ssid[INTERFACE] = ""; band[INTERFACE] = 0}
 if($1 == "ssid") {t="";for(i=2;i<=NF-1;++i){t=t$i" "};if(NF<2){t=""}else{t=t$NF}; gsub(/\\/,"\\\\", t); gsub(/\"/, "\\\"", t); ssid[INTERFACE]=t}
-if($1 == "channel") {if($9 >= 5955){band[INTERFACE] = "6"}else if($9 >= 5160){band[INTERFACE] = "5"}else{band[INTERFACE] = "2"}}
+if($1 == "channel") {if($9 >= 5955){band[INTERFACE] = 6}else if($9 >= 5160){band[INTERFACE] = 5}else{band[INTERFACE] = 2}}
 } END { for (t in ssid) {
-	printf "s/,\"desc\":\"%s:\"/,\"desc\":{\"band\":\"%s\",\"ssid\":\"%s\"}/g\n", t, band[t], ssid[t]
+	printf "s/,\"desc\":\"%s:\"/,\"desc\":{\"band\":%d,\"ssid\":\"%s\"}/g\n", t, band[t], ssid[t]
 }
 }')
 for B in $BANDS; do
