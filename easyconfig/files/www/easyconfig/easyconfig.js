@@ -683,7 +683,7 @@ function detectwan(pin) {
 			if (data.proto == 'dhcp' || data.proto == 'dhcp_hilink') {
 				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 			}
-			if (data.proto == '3g' || data.proto == 'ncm' || data.proto == 'qmi') {
+			if (data.proto == '3g' || data.proto == 'mbim' || data.proto == 'ncm' || data.proto == 'qmi') {
 				msg += '<div class="col-xs-6 text-left">' + wan[data.proto] +  '</div>';
 				msg += '</div>';
 				msg += '<div class="row space">';
