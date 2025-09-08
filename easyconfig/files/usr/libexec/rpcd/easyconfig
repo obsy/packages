@@ -950,8 +950,6 @@ for SEC in $NETWORKS; do
 				for M in $(iw dev $IFNAME station dump 2>/dev/null | awk '{if($1 == "Station") {MAC=$2;station[MAC]=1} if($0 ~ /rx bytes:/) {rx[MAC]=$3} if($0 ~ /tx bytes:/) {tx[MAC]=$3} if($0 ~ /^\s*signal:/) {signal[MAC]=$2} if($0 ~ /connected time:/) {connected[MAC]=$3}} END {for (w in station) {printf "\"mac\":\"%s\",\"tx\":%s,\"rx\":%s,\"signal\":%d,\"connected\":%d ", w, rx[w], tx[w], signal[w], connected[w]}}'); do
 					T=${M%\",\"tx*}
 					MAC=${T##*\"}
-					T=${M%,\"ba*}
-					CONNECTED=${T##*:}
 					CAPA=""
 					grep -qi "^ht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/ht_capa 2>/dev/null && CAPA=',"capa":4'
 					grep -qi "^vht supported" /sys/kernel/debug/ieee80211/*/*/stations/${MAC}/vht_capa 2>/dev/null && CAPA=',"capa":5'
