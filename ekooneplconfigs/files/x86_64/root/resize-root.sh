@@ -9,7 +9,7 @@ if [ "x$TYPE" = "xext4" ]; then
 	ROOT="${DISK}${PART}"
 	T=$(echo "$DISK" | sed 's/.*\(.\)$/\1/')
 	[ "x$T" = "xp" ] && DISK="${DISK::-1}"
-	parted -s -a opt $DISK "resizepart 2 100%"
+	parted -f -s -a opt $DISK "resizepart 2 100%"
 
 	LOOP="$(losetup -f)"
 	losetup ${LOOP} ${ROOT}
@@ -25,7 +25,7 @@ if [ "x$TYPE" = "xsquashfs" ]; then
 	ROOT="${DISK}${PART}"
 	T=$(echo "$DISK" | sed 's/.*\(.\)$/\1/')
 	[ "x$T" = "xp" ] && DISK="${DISK::-1}"
-	parted -s -a opt $DISK "resizepart 2 100%"
+	parted -f -s -a opt $DISK "resizepart 2 100%"
 
 	LOOP="$(losetup -n -O NAME | sort | sed -n -e "1p")"
 	OFFS="$(losetup -n -O OFFSET ${LOOP})"
