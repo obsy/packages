@@ -1,7 +1,0 @@
-#!/bin/sh
-case "$ACTION" in
-	add | update | remove)
-		/usr/bin/easyconfig_logs.sh
-		/usr/bin/easyconfig_statistics.sh
-		;;
-esac
