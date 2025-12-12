@@ -4,5 +4,10 @@
 uci set system.@system[0].zonename='Europe/Warsaw'
 uci commit system
 
+if [ ! -e /etc/profile.d/busybox-history-file.sh ]; then
+	echo "export HISTFILE=/tmp/.busybox_ash_history" > /etc/profile.d/busybox-history-file.sh
+	chmod 755 /etc/profile.d/busybox-history-file.sh
+fi
+
 exit 0
 
