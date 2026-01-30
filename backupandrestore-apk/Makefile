@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=backupandrestore-apk
-PKG_VERSION:=20241128
+PKG_VERSION:=20260130
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
