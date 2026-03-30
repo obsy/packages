@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplconfigs
-PKG_VERSION:=20251212
+PKG_VERSION:=20260330
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Cezary Jackiewicz <cezary@eko.one.pl>
 
@@ -16,6 +16,12 @@ define Package/$(PKG_NAME)
   TITLE:=eko.one.pl configs
 endef
 
+ifeq ($(CONFIG_TARGET_bcm27xx_bcm2711),y)
+  FILE_PATH:=./files/bcm27xx_bcm2711
+endif
+ifeq ($(CONFIG_TARGET_bcm27xx_bcm2712),y)
+  FILE_PATH:=./files/bcm27xx_bcm2712
+endif
 ifeq ($(CONFIG_TARGET_ipq806x_generic),y)
   FILE_PATH:=./files/ipq806x_generic
 endif

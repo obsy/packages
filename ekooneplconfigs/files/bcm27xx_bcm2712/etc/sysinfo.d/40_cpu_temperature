@@ -1,0 +1,5 @@
+#!/bin/sh
+
+vcgencmd measure_temp | awk -F[=\'] '{printf "CPU temp: %s C\n", $2}'
+
+exit 0
