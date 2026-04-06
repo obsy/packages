@@ -365,7 +365,7 @@ function showmodemparams() {
 				}
 
 				if (data.cid_dec && data.cid_dec > 0 && data.operator_mcc == 260) {
-					document.getElementById('btsearch' + idx).setAttribute("href", "http://www.btsearch.pl/szukaj.php?search=" + data.cid_dec + "&siec=-1&mode=std");
+					document.getElementById('btsearch' + idx).setAttribute("href", "https://btsearch.pl/stations?q=" + data.cid_dec);
 					setDisplay('div_btsearch' + idx, true);
 				} else {
 					setDisplay('div_btsearch' + idx, false);

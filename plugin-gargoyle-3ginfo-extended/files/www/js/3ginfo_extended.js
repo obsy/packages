@@ -1,5 +1,5 @@
 /*
- * This program is copyright © 2016-2025 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
+ * This program is copyright © 2016-2026 Cezary Jackiewicz and is distributed under the terms of the GNU GPL
  * version 2.0 with a special clarification/exception that permits adapting the program to
  * configure proprietary "back end" software provided that all modifications to the web interface
  * itself remain covered by the GPL.
@@ -213,7 +213,7 @@ function resetData()
 					}
 
 					if (tmp.cid_dec && tmp.cid_dec > 0 && tmp.operator_mcc == 260) {
-						arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='http://www.btsearch.pl/szukaj.php?search=" + tmp.cid_dec + "&siec=-1&mode=std' target='_blank'>BTSeach</a>"});
+						arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='https://btsearch.pl/stations?q=" + tmp.cid_dec + "' target='_blank'>BTSeach</a>"});
 					}
 				} else {
 					setGraph(0);
