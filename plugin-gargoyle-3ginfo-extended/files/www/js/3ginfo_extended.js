@@ -213,7 +213,16 @@ function resetData()
 					}
 
 					if (tmp.cid_dec && tmp.cid_dec > 0 && tmp.operator_mcc == 260) {
-						arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='https://btsearch.pl/stations?q=" + tmp.cid_dec + "' target='_blank'>BTSeach</a>"});
+						switch (tmp.operator_mnc) {
+							case '01':
+							case '02':
+							case '03':
+							case '06':
+								arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='https://btsearch.pl/stations?mnc=260" + tmp.operator_mnc + "&q=" + tmp.cid_dec + "' target='_blank'>BTSeach</a>"});
+								break;
+							default:
+								arrmodem.push({'idx':20, 'key': tginfoS.BTSLoc, 'value': "<a href='https://btsearch.pl/stations?q=" + tmp.cid_dec + "' target='_blank'>BTSeach</a>"});
+						}
 					}
 				} else {
 					setGraph(0);
