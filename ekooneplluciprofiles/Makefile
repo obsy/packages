@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ekooneplluciprofiles
-PKG_VERSION:=20250123
+PKG_VERSION:=20260427
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -48,7 +48,7 @@ define Package/ekooneplnas-luci
 	$(call Package/ekooneplluciprofiles/Default)
 	TITLE+= LuCI NAS
 	DEPENDS:=+luci-app-hd-idle +luci-i18n-hd-idle-pl \
-		+luci-app-disks-info +luci-i18n-disks-info-pl
+		+luci-app-mini-diskmanager +luci-i18n-mini-diskmanager-pl
 endef
 
 define Package/ekooneplnas-luci/description
