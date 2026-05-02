@@ -9,5 +9,9 @@ if [ ! -e /etc/profile.d/busybox-history-file.sh ]; then
 	chmod 755 /etc/profile.d/busybox-history-file.sh
 fi
 
-exit 0
+if [ -e /etc/config/attendedsysupgrade ]; then
+	uci set attendedsysupgrade.server.url='https://sysupgrade.eko.one.pl'
+	uci commit attendedsysupgrade
+fi
 
+exit 0
