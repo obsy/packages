@@ -163,19 +163,6 @@ function parseTimestamp(timestamp, systemDateFormat)
 	return formated + ' ' + (cnv24hToLocal(hour + ':' + minute)).replace(" ", ":" + second + " ");
 }
 
-function utf2ascii(string)
-{
-	return string.replace(/ą/g, 'a').replace(/Ą/g, 'A')
-		.replace(/ć/g, 'c').replace(/Ć/g, 'C')
-		.replace(/ę/g, 'e').replace(/Ę/g, 'E')
-		.replace(/ł/g, 'l').replace(/Ł/g, 'L')
-		.replace(/ń/g, 'n').replace(/Ń/g, 'N')
-		.replace(/ó/g, 'o').replace(/Ó/g, 'O')
-		.replace(/ś/g, 's').replace(/Ś/g, 'S')
-		.replace(/ż/g, 'z').replace(/Ż/g, 'Z')
-		.replace(/ź/g, 'z').replace(/Ź/g, 'Z');
-}
-
 function sendSMS()
 {
 	var sec = uciOriginal.getAllSectionsOfType(pkg, "smsbox");
@@ -186,7 +173,7 @@ function sendSMS()
 	}
 
 	var number = (document.getElementById("phonenumber").value).replace(/[^0-9]/g,"");
-	var txt = utf2ascii(document.getElementById("smstext").value);
+	var txt = document.getElementById("smstext").value;
 
 	if(number == "")
 	{
