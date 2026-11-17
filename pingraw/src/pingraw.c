@@ -1,7 +1,7 @@
 /*
     pingraw
 
-    Copyright (C) 2025 Cezary Jackiewicz <cezary@eko.one.pl>
+    Copyright (C) 2025-2026 Cezary Jackiewicz <cezary@eko.one.pl>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ typedef struct {
     char host[256];
     double time;
     int status;
+    int index; /* used to derive a unique ICMP id per thread */
 } PingResult;
 
 unsigned short checksum(void *b, int len) {
@@ -61,14 +62,44 @@ unsigned short checksum(void *b, int len) {
     return ~sum;
 }
 
+/* Returns elapsed milliseconds between two timespecs */
+static double elapsed_ms(struct timespec *start, struct timespec *now) {
+    return (now->tv_sec - start->tv_sec) * 1000.0 +
+           (now->tv_nsec - start->tv_nsec) / 1000000.0;
+}
+
+/* Escapes a string for safe inclusion inside a JSON string literal and
+ * prints it (without surrounding quotes) to stdout. Handles the characters
+ * required by the JSON spec: quote, backslash, and control characters. */
+static void print_json_escaped(const char *s) {
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
+        switch (*p) {
+            case '"':  fputs("\\\"", stdout); break;
+            case '\\': fputs("\\\\", stdout); break;
+            case '\b': fputs("\\b", stdout);  break;
+            case '\f': fputs("\\f", stdout);  break;
+            case '\n': fputs("\\n", stdout);  break;
+            case '\r': fputs("\\r", stdout);  break;
+            case '\t': fputs("\\t", stdout);  break;
+            default:
+                if (*p < 0x20) {
+                    printf("\\u%04x", *p);
+                } else {
+                    fputc(*p, stdout);
+                }
+        }
+    }
+}
+
 void* ping_thread(void *arg) {
     PingResult *result = (PingResult *)arg;
     struct addrinfo hints, *res;
     int sock;
-    struct timespec start, end;
+    struct timespec start, now;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_RAW;
 
     if (getaddrinfo(result->host, NULL, &hints, &res) != 0) {
         result->status = STATUS_FAILED;
@@ -81,6 +112,9 @@ void* ping_thread(void *arg) {
         return NULL;
     }
 
+    /* Per-recvfrom timeout; total time budget is enforced separately below,
+     * since a stream of unrelated ICMP traffic could otherwise keep
+     * resetting this per-call timeout indefinitely. */
     struct timeval tv = {TIMEOUT_MS / 1000, (TIMEOUT_MS % 1000) * 1000};
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
@@ -88,7 +122,9 @@ void* ping_thread(void *arg) {
     memset(&packet, 0, sizeof(packet));
     packet.type = ICMP_ECHO;
     packet.code = 0;
-    packet.un.echo.id = getpid() & 0xFFFF;
+    /* Unique id per thread so replies can't be mixed up when the same host
+     * is passed more than once on the command line. */
+    packet.un.echo.id = (getpid() ^ (result->index << 8)) & 0xFFFF;
     packet.un.echo.sequence = 0;
     packet.checksum = checksum(&packet, sizeof(packet));
 
@@ -109,6 +145,20 @@ void* ping_thread(void *arg) {
     int received = 0;
 
     while (!received) {
+        /* Enforce a total time budget across all recvfrom retries, not
+         * just a per-call timeout. */
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        double spent = elapsed_ms(&start, &now);
+        if (spent >= TIMEOUT_MS) {
+            result->status = STATUS_TIMEOUT;
+            break;
+        }
+
+        double remaining_ms = TIMEOUT_MS - spent;
+        struct timeval rtv = {(long)(remaining_ms / 1000),
+                               (long)((remaining_ms - (long)(remaining_ms / 1000) * 1000) * 1000)};
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &rtv, sizeof(rtv));
+
         int bytes = recvfrom(sock, recv_buf, sizeof(recv_buf), 0,
                             (struct sockaddr *)&from, &from_len);
 
@@ -117,28 +167,33 @@ void* ping_thread(void *arg) {
             break;
         }
 
-        // source
+        /* source */
         if (from.sin_addr.s_addr != addr->sin_addr.s_addr) {
             continue;
         }
 
-        // IP header
+        /* Need at least a full IP header before reading ihl */
+        if (bytes < (int)sizeof(struct iphdr)) {
+            result->status = STATUS_INVALID_RESPONSE;
+            break;
+        }
+
         struct iphdr *ip_header = (struct iphdr *)recv_buf;
         int header_len = ip_header->ihl * 4;
 
-        if (bytes < header_len + (int)sizeof(struct icmphdr)) {
+        if (header_len < (int)sizeof(struct iphdr) ||
+            bytes < header_len + (int)sizeof(struct icmphdr)) {
             result->status = STATUS_INVALID_RESPONSE;
             break;
         }
 
         struct icmphdr *icmp_response = (struct icmphdr *)(recv_buf + header_len);
 
-        // ID & type
+        /* ID & type */
         if (icmp_response->type == ICMP_ECHOREPLY &&
             icmp_response->un.echo.id == packet.un.echo.id) {
-            clock_gettime(CLOCK_MONOTONIC, &end);
-            result->time = (end.tv_sec - start.tv_sec) * 1000.0 +
-                          (end.tv_nsec - start.tv_nsec) / 1000000.0;
+            clock_gettime(CLOCK_MONOTONIC, &now);
+            result->time = elapsed_ms(&start, &now);
             result->status = STATUS_SUCCESS;
             received = 1;
         }
@@ -146,6 +201,7 @@ void* ping_thread(void *arg) {
             result->status = STATUS_UNREACHABLE;
             break;
         }
+        /* else: unrelated ICMP traffic; loop and try again within budget */
     }
 
     close(sock);
@@ -155,7 +211,7 @@ void* ping_thread(void *arg) {
 
 int main(int argc, char *argv[]) {
     if (argc < 2 || argc-1 > MAX_HOSTS) {
-        fprintf(stderr, "Usage: %s <host1> <host2>... (max %d hosts)\n", 
+        fprintf(stderr, "Usage: %s <host1> <host2>... (max %d hosts)\n",
                argv[0], MAX_HOSTS);
         return 1;
     }
@@ -163,24 +219,39 @@ int main(int argc, char *argv[]) {
     int num_hosts = argc - 1;
     PingResult results[num_hosts];
     pthread_t threads[num_hosts];
+    int created[num_hosts];
 
     for (int i = 0; i < num_hosts; i++) {
         strncpy(results[i].host, argv[i+1], sizeof(results[i].host)-1);
         results[i].host[sizeof(results[i].host)-1] = '\0';
         results[i].time = -1;
         results[i].status = -1;
-        pthread_create(&threads[i], NULL, ping_thread, &results[i]);
+        results[i].index = i;
+        created[i] = 0;
+
+        int rc = pthread_create(&threads[i], NULL, ping_thread, &results[i]);
+        if (rc != 0) {
+            fprintf(stderr, "Warning: could not start thread for host '%s': %s\n",
+                    results[i].host, strerror(rc));
+            results[i].status = STATUS_FAILED;
+        } else {
+            created[i] = 1;
+        }
     }
 
     for (int i = 0; i < num_hosts; i++) {
-        pthread_join(threads[i], NULL);
+        if (created[i]) {
+            pthread_join(threads[i], NULL);
+        }
     }
 
-    printf("[\n");
+    printf("[");
     for (int i = 0; i < num_hosts; i++) {
-        printf(" {\n");
-        printf("  \"host\": \"%s\",\n", results[i].host);
-        printf("  \"status\": \"");
+        printf("{");
+        printf("\"host\":\"");
+        print_json_escaped(results[i].host);
+        printf("\",");
+        printf("\"status\":\"");
         switch(results[i].status) {
             case STATUS_SUCCESS: printf("success"); break;
             case STATUS_TIMEOUT: printf("timeout"); break;
@@ -192,11 +263,11 @@ int main(int argc, char *argv[]) {
         printf("\"");
 
         if (results[i].status == STATUS_SUCCESS) {
-            printf(",\n  \"time_ms\": %.3f", results[i].time);
+            printf(",\"time_ms\":%.3f", results[i].time);
         }
-        printf("\n }%s\n", (i < num_hosts-1) ? "," : "");
+        printf("}%s", (i < num_hosts-1) ? "," : "");
     }
-    printf("]\n");
+    printf("]");
 
     return 0;
 }

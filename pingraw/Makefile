@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pingraw
-PKG_VERSION:=20250502
+PKG_VERSION:=20260904
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
